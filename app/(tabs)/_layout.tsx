@@ -1,35 +1,52 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppProvider } from '../../context/AppContext';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+    <AppProvider>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderTopWidth: 1,
+            borderTopColor: '#F3F4F6',
+            height: 80,
+          },
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: 'bold',
+          },
+          tabBarActiveTintColor: '#EF4444',
+          tabBarInactiveTintColor: '#D1D5DB',
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: '气象站',
+          }}
+        />
+        <Tabs.Screen
+          name="record"
+          options={{
+            title: '记一笔',
+          }}
+        />
+        <Tabs.Screen
+          name="insights"
+          options={{
+            title: '洞察',
+          }}
+        />
+        <Tabs.Screen
+          name="tools"
+          options={{
+            title: '工具',
+          }}
+        />
+      </Tabs>
+    </AppProvider>
   );
 }
