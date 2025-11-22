@@ -5,7 +5,7 @@ export default function RecordTab() {
   const router = useRouter();
 
   const handleClose = () => {
-    router.replace('/(tabs)/');
+    router.back();
   };
 
   return <Record onClose={handleClose} />;

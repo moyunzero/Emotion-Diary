@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
+import { MOOD_CONFIG } from '../constants';
 import { useApp } from '../context/AppContext';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -13,13 +14,24 @@ const Insights: React.FC = () => {
 
   // Data Prep: Mood Distribution
   const moodData = useMemo(() => {
-    const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    entries.forEach(e => counts[e.moodLevel]++);
+    const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    entries.forEach(e => {
+      const config = MOOD_CONFIG[e.moodLevel];
+      const level = config?.level || e.moodLevel;
+      if (level) counts[level]++;
+    });
+    
+    // 获取所有级别的标签，按level排序
+    const sortedLevels = Object.values(MOOD_CONFIG)
+      .map(config => config.level)
+      .sort((a, b) => a - b);
+    
+    const labels = sortedLevels.map(level => `${level}级`);
+    const data = sortedLevels.map(level => counts[level] || 0);
+    
     return {
-      labels: ['1级', '2级', '3级', '4级', '5级'],
-      datasets: [{
-        data: Object.values(counts),
-      }]
+      labels,
+      datasets: [{ data }],
     };
   }, [entries]);
 
@@ -83,6 +95,8 @@ const Insights: React.FC = () => {
               showValuesOnTopOfBars
               fromZero
               segments={5}
+              yAxisLabel=""
+              yAxisSuffix=""
               style={styles.chart}
             />
           </View>

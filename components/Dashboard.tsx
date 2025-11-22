@@ -14,11 +14,29 @@ const Dashboard: React.FC = () => {
   const [burnText, setBurnText] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const filteredEntries = entries.filter(e => {
-    if (filter === 'active') return e.status === Status.ACTIVE;
-    if (filter === 'resolved') return e.status === Status.RESOLVED;
-    return true;
-  });
+  const filteredEntries = (() => {
+    let filtered = entries;
+    
+    if (filter === 'active') {
+      filtered = entries.filter(e => e.status === Status.ACTIVE);
+    } else if (filter === 'resolved') {
+      filtered = entries.filter(e => e.status === Status.RESOLVED);
+    }
+    
+    // 当选择"全部记录"时，按状态分组：未处理在前，已和解在后，各自按时间倒序
+    if (filter === 'all') {
+      const activeEntries = filtered
+        .filter(e => e.status === Status.ACTIVE)
+        .sort((a, b) => b.timestamp - a.timestamp);
+      const resolvedEntries = filtered
+        .filter(e => e.status === Status.RESOLVED)
+        .sort((a, b) => b.timestamp - a.timestamp);
+      return [...activeEntries, ...resolvedEntries];
+    }
+    
+    // 其他情况按时间倒序排列
+    return filtered.sort((a, b) => b.timestamp - a.timestamp);
+  })();
 
   const handleBurn = (text: string) => {
     setBurnText(text);
@@ -89,7 +107,7 @@ const Dashboard: React.FC = () => {
                 style={[styles.filterOption, filter === 'active' && styles.filterOptionActive]}
               >
                 <Text style={[styles.filterOptionText, filter === 'active' && styles.filterOptionTextActive]}>
-                  待处理
+                  未处理
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 

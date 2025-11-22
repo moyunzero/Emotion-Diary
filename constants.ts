@@ -1,30 +1,35 @@
 import { Deadline, MoodLevel, Status } from './types';
 export const MOOD_CONFIG = {
   [MoodLevel.ANNOYED]: {
+    level: 1,
     emoji: '😒',
     label: '有点烦',
     color: 'bg-yellow-100',
     textColor: 'text-yellow-700',
   },
   [MoodLevel.UPSET]: {
+    level: 2,
     emoji: '😔',
     label: '不开心',
     color: 'bg-orange-100',
     textColor: 'text-orange-700',
   },
   [MoodLevel.ANGRY]: {
+    level: 3,
     emoji: '😠',
     label: '生气了',
     color: 'bg-red-100',
     textColor: 'text-red-700',
   },
   [MoodLevel.FURIOUS]: {
+    level: 4,
     emoji: '🤬',
     label: '很生气',
     color: 'bg-red-200',
     textColor: 'text-red-800',
   },
   [MoodLevel.EXPLOSIVE]: {
+    level: 5,
     emoji: '💥',
     label: '爆炸了',
     color: 'bg-red-300',

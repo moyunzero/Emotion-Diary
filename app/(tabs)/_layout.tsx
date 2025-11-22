@@ -40,12 +40,6 @@ export default function TabLayout() {
             title: '洞察',
           }}
         />
-        <Tabs.Screen
-          name="tools"
-          options={{
-            title: '工具',
-          }}
-        />
       </Tabs>
     </AppProvider>
   );
