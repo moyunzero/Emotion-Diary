@@ -7,7 +7,8 @@ import { Deadline, MoodEntry, MoodLevel, Status } from '../types';
 
 interface Props {
   entry: MoodEntry;
-  onBurn?: (text: string) => void;
+  // 修改回调签名：同时传递 id 和 text
+  onBurn?: (id: string, text: string) => void;
 }
 
 const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
@@ -96,7 +97,8 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
           {onBurn && (
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => onBurn(entry.content)}
+              // 传递 id 和 content
+            onPress={() => onBurn(entry.id, entry.content)}
             >
               <View style={styles.actionIcon}>
                 <Flame size={20} color="#F97316" />

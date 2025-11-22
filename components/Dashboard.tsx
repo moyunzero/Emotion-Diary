@@ -8,10 +8,13 @@ import Fireplace from './Fireplace';
 import WeatherStation from './WeatherStation';
 
 const Dashboard: React.FC = () => {
-  const { entries, weather } = useApp();
+  const { entries, weather, deleteEntry } = useApp(); // 引入 deleteEntry
   const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('active');
   const [showFireplace, setShowFireplace] = useState(false);
-  const [burnText, setBurnText] = useState('');
+  
+  // 状态追踪：不仅需要文本用于展示，还需要ID用于删除
+  const [burnConfig, setBurnConfig] = useState<{ id: string; text: string } | null>(null);
+  
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredEntries = (() => {
@@ -38,13 +41,23 @@ const Dashboard: React.FC = () => {
     return filtered.sort((a, b) => b.timestamp - a.timestamp);
   })();
 
-  const handleBurn = (text: string) => {
-    setBurnText(text);
+  // 修改处理函数：接收 id 和 text
+  const handleBurn = (id: string, text: string) => {
+    setBurnConfig({ id, text });
     setShowFireplace(true);
   };
 
-  if (showFireplace) {
-    return <Fireplace text={burnText} onClose={() => setShowFireplace(false)} />;
+  // 处理壁炉关闭逻辑：动画结束后真正删除数据
+  const handleFireplaceClose = () => {
+    if (burnConfig) {
+      deleteEntry(burnConfig.id);
+    }
+    setShowFireplace(false);
+    setBurnConfig(null);
+  };
+
+  if (showFireplace && burnConfig) {
+    return <Fireplace text={burnConfig.text} onClose={handleFireplaceClose} />;
   }
 
   const getFilterLabel = () => {
