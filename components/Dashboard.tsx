@@ -1,19 +1,15 @@
 import { Filter } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { Status } from '../types';
 import EntryCard from './EntryCard';
-import Fireplace from './Fireplace';
 import WeatherStation from './WeatherStation';
 
 const Dashboard: React.FC = () => {
   const { entries, weather, deleteEntry } = useApp(); // 引入 deleteEntry
   const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('active');
-  const [showFireplace, setShowFireplace] = useState(false);
-  
-  // 状态追踪：不仅需要文本用于展示，还需要ID用于删除
-  const [burnConfig, setBurnConfig] = useState<{ id: string; text: string } | null>(null);
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -41,24 +37,10 @@ const Dashboard: React.FC = () => {
     return filtered.sort((a, b) => b.timestamp - a.timestamp);
   })();
 
-  // 修改处理函数：接收 id 和 text
+  // 修改处理函数：接收 id 和 text，直接删除
   const handleBurn = (id: string, text: string) => {
-    setBurnConfig({ id, text });
-    setShowFireplace(true);
+    deleteEntry(id);
   };
-
-  // 处理壁炉关闭逻辑：动画结束后真正删除数据
-  const handleFireplaceClose = () => {
-    if (burnConfig) {
-      deleteEntry(burnConfig.id);
-    }
-    setShowFireplace(false);
-    setBurnConfig(null);
-  };
-
-  if (showFireplace && burnConfig) {
-    return <Fireplace text={burnConfig.text} onClose={handleFireplaceClose} />;
-  }
 
   const getFilterLabel = () => {
     switch (filter) {
@@ -76,7 +58,8 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -157,7 +140,8 @@ const Dashboard: React.FC = () => {
           ))
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -166,21 +150,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF5F5',
   },
+  scrollView: {
+    flex: 1,
+    paddingTop: 8,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingTop: 50,
+    paddingTop: 8,
     paddingBottom: 24,
   },
   title: {
+    fontFamily: 'Lato_700Bold',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    lineHeight: 33.6,
+    letterSpacing: -0.5,
     color: '#1F2937',
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 16.8,
+    letterSpacing: 0,
     color: '#6B7280',
     marginTop: 4,
   },
@@ -213,14 +209,20 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   listTitle: {
+    fontFamily: 'Lato_700Bold',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    lineHeight: 25.2,
+    letterSpacing: 0,
     color: '#1F2937',
   },
   count: {
-    fontSize: 14,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 16.8,
+    letterSpacing: 0,
     color: '#9CA3AF',
-    fontWeight: 'normal',
   },
   filterButton: {
     padding: 8,
@@ -244,9 +246,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1, // 调低透明度
     shadowRadius: 12,
-    elevation: 8,
+    elevation: 4, // 调低 elevation
     overflow: 'hidden',
     zIndex: 30,
   },
@@ -259,12 +261,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   filterOptionText: {
+    fontFamily: 'Lato_400Regular',
     fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 19.6,
+    letterSpacing: 0,
     color: '#374151',
   },
   filterOptionTextActive: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 12,
+    fontWeight: '500',
+    lineHeight: 16.8,
+    letterSpacing: 0.5,
     color: '#EF4444',
-    fontWeight: 'bold',
   },
   listContainer: {
     paddingHorizontal: 8,
@@ -279,7 +289,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   emptyText: {
+    fontFamily: 'Lato_400Regular',
     fontSize: 16,
+    fontWeight: '400',
+    lineHeight: 22.4,
+    letterSpacing: 0,
     color: '#D1D5DB',
   },
 });

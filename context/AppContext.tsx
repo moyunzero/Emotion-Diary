@@ -71,7 +71,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       description = '建议安排一次深度沟通';
     } else if (score > 10) {
       condition = 'cloudy';
-      description = '该聊聊了，小摩擦有点多';
     }
 
     setWeather({ score, condition, description });

@@ -1,6 +1,7 @@
 import { X } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props {
   text: string;
@@ -43,7 +44,7 @@ const Fireplace: React.FC<Props> = ({ text, onClose }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Animated.View 
         style={[
           styles.modal,
@@ -86,7 +87,7 @@ const Fireplace: React.FC<Props> = ({ text, onClose }) => {
           正在焚烧负面情绪...
         </Text>
       </Animated.View>
-    </View>
+    </SafeAreaView>
   );
 };
 

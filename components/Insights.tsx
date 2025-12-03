@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MOOD_CONFIG } from '../constants';
 import { useApp } from '../context/AppContext';
+import { Status } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 const chartWidth = screenWidth - 64; // Subtract padding
@@ -57,6 +59,58 @@ const Insights: React.FC = () => {
     legendFontSize: 12,
   }));
 
+  // Data Prep: Monthly Summary
+  const summaryData = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    const startOfThisMonth = new Date(currentYear, currentMonth, 1).getTime();
+    const startOfLastMonth = new Date(currentYear, currentMonth - 1, 1).getTime();
+
+    const thisMonthEntries = entries.filter(e => e.timestamp >= startOfThisMonth);
+    const lastMonthEntries = entries.filter(e => e.timestamp >= startOfLastMonth && e.timestamp < startOfThisMonth);
+
+    const calculateAvgTime = (data: typeof entries) => {
+      const resolved = data.filter(e => e.status === Status.RESOLVED && e.resolvedAt);
+      if (resolved.length === 0) return 0;
+      const totalTime = resolved.reduce((acc, curr) => acc + (curr.resolvedAt! - curr.timestamp), 0);
+      return totalTime / resolved.length;
+    };
+
+    const thisMonthAvg = calculateAvgTime(thisMonthEntries);
+    const lastMonthAvg = calculateAvgTime(lastMonthEntries);
+
+    let comparisonText = "";
+    let highlightText = "";
+    
+    if (thisMonthAvg > 0 && lastMonthAvg > 0) {
+      const diff = lastMonthAvg - thisMonthAvg;
+      const percent = Math.abs((diff / lastMonthAvg) * 100).toFixed(0);
+      if (diff > 0) {
+        comparisonText = `虽然有些小摩擦，但你处理情绪的速度比上个月快了 `;
+        highlightText = `${percent}%`;
+      } else {
+        comparisonText = `处理情绪的速度比上个月慢了 `;
+        highlightText = `${percent}%`;
+      }
+    } else if (thisMonthAvg > 0) {
+      const hours = (thisMonthAvg / (1000 * 60 * 60)).toFixed(1);
+      comparisonText = `本月平均处理情绪耗时 `;
+      highlightText = `${hours}小时`;
+    } else {
+      comparisonText = "本月还没有已解决的情绪记录，";
+      highlightText = "继续加油";
+    }
+
+    return {
+      count: thisMonthEntries.length,
+      text: comparisonText,
+      highlight: highlightText,
+      suffix: thisMonthAvg > 0 && lastMonthAvg > 0 ? "！" : (thisMonthAvg > 0 ? "。" : "！")
+    };
+  }, [entries]);
+
   const barChartConfig = {
     backgroundColor: '#FFFFFF',
     backgroundGradientFrom: '#FFFFFF',
@@ -79,76 +133,78 @@ const Insights: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>数据洞察</Text>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>数据洞察</Text>
 
-      <View style={styles.content}>
-        {/* Mood Trend */}
-        <View style={styles.chartContainer}>
-          <Text style={styles.chartTitle}>情绪分布</Text>
-          <View style={styles.chartWrapper}>
-            <BarChart
-              data={moodData}
-              width={chartWidth}
-              height={200}
-              chartConfig={barChartConfig}
-              showValuesOnTopOfBars
-              fromZero
-              segments={5}
-              yAxisLabel=""
-              yAxisSuffix=""
-              style={styles.chart}
-            />
-          </View>
-        </View>
-
-        {/* Top Offenders */}
-        <View style={styles.chartContainer}>
-          <Text style={styles.chartTitle}>惹我生气排行榜</Text>
-          <View style={styles.chartWrapper}>
-            {offenderData.length > 0 ? (
-              <PieChart
-                data={pieChartData}
+        <View style={styles.content}>
+          {/* Mood Trend */}
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>情绪分布</Text>
+            <View style={styles.chartWrapper}>
+              <BarChart
+                data={moodData}
                 width={chartWidth}
                 height={200}
-                chartConfig={pieChartConfig}
-                accessor="population"
-                backgroundColor="transparent"
-                paddingLeft="15"
-                center={[10, 10]}
-                absolute
+                chartConfig={barChartConfig}
+                showValuesOnTopOfBars
+                fromZero
+                segments={5}
+                yAxisLabel=""
+                yAxisSuffix=""
                 style={styles.chart}
               />
-            ) : (
-              <View style={styles.noDataContainer}>
-                <Text style={styles.noDataText}>暂无数据</Text>
-              </View>
-            )}
+            </View>
           </View>
-          <View style={styles.legendContainer}>
-            {offenderData.map((o, i) => (
-              <View key={o.name} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: COLORS[i % COLORS.length] }]} />
-                <Text style={styles.legendText}>{o.name} {o.value}次</Text>
-              </View>
-            ))}
-          </View>
-        </View>
 
-        {/* Relationship Health Report */}
-        <View style={styles.summaryContainer}>
-          <View style={styles.summaryHeader}>
-            <Text style={styles.summaryEmoji}>📋</Text>
-            <Text style={styles.summaryTitle}>本月总结</Text>
+          {/* Top Offenders */}
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>惹我生气排行榜</Text>
+            <View style={styles.chartWrapper}>
+              {offenderData.length > 0 ? (
+                <PieChart
+                  data={pieChartData}
+                  width={chartWidth}
+                  height={200}
+                  chartConfig={pieChartConfig}
+                  accessor="population"
+                  backgroundColor="transparent"
+                  paddingLeft="15"
+                  center={[10, 10]}
+                  absolute
+                  style={styles.chart}
+                />
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>暂无数据</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.legendContainer}>
+              {offenderData.map((o, i) => (
+                <View key={o.name} style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: COLORS[i % COLORS.length] }]} />
+                  <Text style={styles.legendText}>{o.name} {o.value}次</Text>
+                </View>
+              ))}
+            </View>
           </View>
+
+          {/* Relationship Health Report */}
+          <View style={styles.summaryContainer}>
+            <View style={styles.summaryHeader}>
+              <Text style={styles.summaryEmoji}>📋</Text>
+              <Text style={styles.summaryTitle}>本月总结</Text>
+            </View>
           <Text style={styles.summaryText}>
-            你本月共记录了 <Text style={styles.summaryHighlight}>{entries.length}</Text> 次情绪波动。
-            虽然有些小摩擦，但你处理情绪的速度比上个月快了 <Text style={styles.summaryHighlight}>15%</Text>！
+            你本月共记录了 <Text style={styles.summaryHighlight}>{summaryData.count}</Text> 次情绪波动。
+            {summaryData.text}<Text style={styles.summaryHighlight}>{summaryData.highlight}</Text>{summaryData.suffix}
             继续保持这种积极沟通的态度哦~ 
           </Text>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -157,12 +213,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF5F5',
   },
+  scrollView: {
+    flex: 1,
+    paddingTop: 8,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1F2937',
     paddingHorizontal: 24,
-    paddingTop: 50,
+    paddingTop: 8,
     paddingBottom: 24,
   },
   content: {
