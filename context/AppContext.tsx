@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { MOCK_ENTRIES } from '../constants';
-import { MoodEntry, Status, WeatherState } from '../types';
+import { MoodEntry, Status, User, WeatherState } from '../types';
 
 interface AppContextType {
   entries: MoodEntry[];
@@ -9,12 +9,19 @@ interface AppContextType {
   resolveEntry: (id: string) => void;
   deleteEntry: (id: string) => void;
   weather: WeatherState;
+  user: User | null;
+  login: () => Promise<void>;
+  logout: () => void;
+  updateUser: (updates: Partial<User>) => Promise<void>;
+  syncToCloud: () => Promise<void>;
+  syncFromCloud: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [weather, setWeather] = useState<WeatherState>({
     score: 0,
     condition: 'sunny',
@@ -24,7 +31,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Load entries from AsyncStorage on mount
   useEffect(() => {
     loadEntries();
+    loadUser();
   }, []);
+
+  const loadUser = async () => {
+    try {
+      const savedUser = await AsyncStorage.getItem('user_session');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (error) {
+      console.error('Error loading user:', error);
+    }
+  };
+
+  const login = async () => {
+    // Mock login
+    const mockUser: User = {
+      id: 'u1',
+      name: 'Emotion Traveler',
+      avatar: 'https://picsum.photos/100/100'
+    };
+    setUser(mockUser);
+    await AsyncStorage.setItem('user_session', JSON.stringify(mockUser));
+  };
+
+  const logout = async () => {
+    setUser(null);
+    await AsyncStorage.removeItem('user_session');
+  };
+
+  const updateUser = async (updates: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...updates };
+    setUser(updatedUser);
+    await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
+  };
+
+  const syncToCloud = async () => {
+    if (!user) throw new Error('User not logged in');
+    // Mock sync delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // In a real app, we would upload 'entries' to the server here
+    console.log('Synced to cloud:', entries.length, 'entries');
+  };
+
+  const syncFromCloud = async () => {
+    if (!user) throw new Error('User not logged in');
+    // Mock sync delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // In a real app, we would fetch entries from server
+    // For now, we'll just keep existing entries or maybe merge mock ones
+    console.log('Synced from cloud');
+  };
 
   useEffect(() => {
     if (entries.length > 0) {
@@ -97,7 +156,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ entries, addEntry, resolveEntry, deleteEntry, weather }}>
+    <AppContext.Provider value={{ 
+      entries, 
+      addEntry, 
+      resolveEntry, 
+      deleteEntry, 
+      weather,
+      user,
+      login,
+      logout,
+      updateUser,
+      syncToCloud,
+      syncFromCloud
+    }}>
       {children}
     </AppContext.Provider>
   );

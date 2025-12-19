@@ -1,7 +1,7 @@
 import { Canvas, Fill, ImageShader, Shader, SkImage, Skia } from '@shopify/react-native-skia';
 import { CheckCircle, Flame, Trash2 } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { DEADLINE_CONFIG, MOOD_CONFIG } from '../constants';
 import { useApp } from '../context/AppContext';
@@ -14,6 +14,12 @@ interface Props {
 }
 
 // 更加逼真的纸张燃烧 Shader
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
+
 const burnShaderCode = `
 uniform shader image;
 uniform float progress;
@@ -77,9 +83,10 @@ vec4 main(vec2 pos) {
 // 预编译 Shader
 const runtimeEffect = Skia.RuntimeEffect.Make(burnShaderCode);
 
-const makeImageFromView = async (viewRef: React.RefObject<View>): Promise<SkImage | null> => {
+const makeImageFromView = async (viewRef: React.RefObject<View | null>): Promise<SkImage | null> => {
   try {
-    const uri = await captureRef(viewRef, {
+    if (!viewRef.current) return null;
+    const uri = await captureRef(viewRef.current, {
       format: 'png',
       quality: 1,
       result: 'base64',
@@ -204,7 +211,13 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
       onLayout={(e) => setLayout(e.nativeEvent.layout)}
     >
       <Animated.View style={[styles.container, isResolved && styles.resolvedContainer]}>
-        <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)} activeOpacity={1}>
+        <TouchableOpacity 
+          onPress={() => {
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+            setIsExpanded(!isExpanded);
+          }} 
+          activeOpacity={1}
+        >
           <View style={styles.content}>
             {/* Emoji Badge */}
             <View style={[styles.emojiBadge, { backgroundColor: getMoodColor() }]}>
@@ -221,7 +234,7 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
                   {formatDate(entry.timestamp)}
                 </Text>
               </View>
-              <Text style={styles.contentText} numberOfLines={2}>
+              <Text style={styles.contentText} numberOfLines={isExpanded ? undefined : 3}>
                 {entry.content}
               </Text>
               
@@ -354,7 +367,7 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 14,
     color: '#4B5563',
-    lineHeight: 20,
+    lineHeight: 24,
     marginBottom: 12,
   },
   tagsContainer: {

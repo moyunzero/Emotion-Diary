@@ -1,14 +1,16 @@
+import { useRouter } from 'expo-router';
 import { Filter } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, Image, ListRenderItem, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
-import { Status } from '../types';
+import { MoodEntry, Status } from '../types';
 import EntryCard from './EntryCard';
 import WeatherStation from './WeatherStation';
 
 const Dashboard: React.FC = () => {
-  const { entries, weather, deleteEntry } = useApp(); // 引入 deleteEntry
+  const router = useRouter();
+  const { entries, weather, deleteEntry, user } = useApp();
   const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('active');
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -38,9 +40,17 @@ const Dashboard: React.FC = () => {
   })();
 
   // 修改处理函数：接收 id 和 text，直接删除
-  const handleBurn = (id: string, text: string) => {
+  const handleBurn = useCallback((id: string, text: string) => {
     deleteEntry(id);
-  };
+  }, [deleteEntry]);
+
+  // FlatList 渲染函数，使用 useCallback 优化性能
+  const renderEntry = useCallback<ListRenderItem<MoodEntry>>(({ item }) => (
+    <EntryCard key={item.id} entry={item} onBurn={handleBurn} />
+  ), [handleBurn]);
+
+  // FlatList key 提取函数
+  const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
 
   const getFilterLabel = () => {
     switch (filter) {
@@ -59,7 +69,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -68,12 +77,12 @@ const Dashboard: React.FC = () => {
             {new Date().toLocaleDateString('zh-CN')} · {getWeatherAdvice()}
           </Text>
         </View>
-        <View style={styles.avatar}>
+        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.avatar}>
           <Image 
-            source={{ uri: 'https://picsum.photos/100/100' }} 
+            source={{ uri: user?.avatar || 'https://picsum.photos/100/100' }} 
             style={styles.avatarImage} 
           />
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Weather Station */}
@@ -128,19 +137,25 @@ const Dashboard: React.FC = () => {
       </View>
 
       {/* List */}
-      <View style={styles.listContainer}>
-        {filteredEntries.length === 0 ? (
+      <FlatList
+        style={styles.listContainer}
+        data={filteredEntries}
+        renderItem={renderEntry}
+        keyExtractor={keyExtractor}
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyEmoji}>🍃</Text>
             <Text style={styles.emptyText}>这里空空如也，一片祥和</Text>
           </View>
-        ) : (
-          filteredEntries.map(entry => (
-            <EntryCard key={entry.id} entry={entry} onBurn={handleBurn} />
-          ))
-        )}
-      </View>
-      </ScrollView>
+        }
+        contentContainerStyle={styles.flatListContent}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
+        showsVerticalScrollIndicator={false}
+      />
     </SafeAreaView>
   );
 };
@@ -149,10 +164,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF5F5',
-  },
-  scrollView: {
-    flex: 1,
-    paddingTop: 8,
   },
   header: {
     flexDirection: 'row',
@@ -277,8 +288,11 @@ const styles = StyleSheet.create({
     color: '#EF4444',
   },
   listContainer: {
+    flex: 1,
     paddingHorizontal: 8,
-    paddingBottom: 100,
+  },
+  flatListContent: {
+    paddingBottom: 24,
   },
   emptyState: {
     alignItems: 'center',

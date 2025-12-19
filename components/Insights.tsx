@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 24,
-    paddingBottom: 100,
+    paddingBottom: 24,
   },
   chartContainer: {
     backgroundColor: '#FFFFFF',

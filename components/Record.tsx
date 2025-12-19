@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from 'expo-router';
 import { ArrowLeft, Plus, X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, MOOD_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../constants';
@@ -10,7 +11,7 @@ import { Deadline, MoodLevel } from '../types';
 const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { addEntry } = useApp();
   
-  const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.UPSET);
+  const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.ANNOYED);
   const [content, setContent] = useState('');
   
   // Deadline State
@@ -29,6 +30,24 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // Combined Options
   const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
   const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
+
+  const resetForm = () => {
+    setMoodLevel(MoodLevel.ANNOYED);
+    setContent('');
+    setDeadline(Deadline.TODAY);
+    setIsCustomDeadline(false);
+    setCustomDeadlineText('');
+    setSelectedPeople([]);
+    setSelectedTriggers([]);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        resetForm();
+      };
+    }, [])
+  );
 
   useEffect(() => {
     loadCustomOptions();

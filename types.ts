@@ -32,6 +32,12 @@ export interface MoodEntry {
   resolvedAt?: number;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
 export interface WeatherState {
   score: number; // 0 - 100+
   condition: 'sunny' | 'cloudy' | 'rainy' | 'stormy';
