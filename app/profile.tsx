@@ -531,7 +531,7 @@ export default function ProfileScreen() {
                 // 登录表单
                 <View style={styles.formContainer}>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>邮箱 📧</Text>
+                    <Text style={styles.inputLabel}>邮箱</Text>
                     <TextInput
                       style={styles.input}
                       value={email}
@@ -543,7 +543,7 @@ export default function ProfileScreen() {
                   </View>
                   
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>密码 🔒</Text>
+                    <Text style={styles.inputLabel}>密码</Text>
                     <TextInput
                       style={styles.input}
                       value={password}
@@ -557,7 +557,7 @@ export default function ProfileScreen() {
                 // 注册表单
                 <View style={styles.formContainer}>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>昵称 ✨</Text>
+                    <Text style={styles.inputLabel}>昵称</Text>
                     <TextInput
                       style={styles.input}
                       value={registerName}
@@ -568,7 +568,7 @@ export default function ProfileScreen() {
                   </View>
                   
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>邮箱 📧</Text>
+                    <Text style={styles.inputLabel}>邮箱</Text>
                     <TextInput
                       style={styles.input}
                       value={email}
@@ -580,7 +580,7 @@ export default function ProfileScreen() {
                   </View>
                   
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>密码 🔒</Text>
+                    <Text style={styles.inputLabel}>密码</Text>
                     <TextInput
                       style={styles.input}
                       value={password}

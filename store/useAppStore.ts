@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-url-polyfill/auto';
 import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { EditHistory, EmotionForecast, EmotionPodcast, MoodEntry, Status, User, WeatherState } from '../types';
 import { generateEmotionPodcast, predictEmotionTrend } from '../utils/aiService';
 import { ensureMilliseconds } from '../utils/dateUtils';
@@ -332,8 +332,15 @@ const getErrorMessage = (error: any): string => {
 
 /**
  * 初始化数据库表结构
+ * 添加错误处理，防止初始化失败导致应用崩溃
  */
 const initializeDatabase = async () => {
+  // 如果 Supabase 未配置，跳过数据库初始化
+  if (!isSupabaseConfigured()) {
+    console.log('Supabase 未配置，跳过数据库初始化');
+    return;
+  }
+
   try {
     // 检查profiles表是否存在
     const { error: checkError } = await supabase
@@ -341,12 +348,20 @@ const initializeDatabase = async () => {
       .select('id')
       .limit(1);
     
-    if (checkError && checkError.message && checkError.message.includes('relation "public.profiles" does not exist')) {
-      console.log('Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.');
-      console.log('You can find the script in /supabase/setup_profiles.sql');
+    if (checkError) {
+      // 如果是表不存在错误，只记录警告，不抛出异常
+      if (checkError.message && checkError.message.includes('relation "public.profiles" does not exist')) {
+        console.log('Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.');
+        console.log('You can find the script in /supabase/setup_profiles.sql');
+      } else {
+        // 其他错误（如网络错误）也记录但不抛出，允许应用继续运行
+        console.warn('Database initialization check failed:', checkError.message);
+      }
     }
   } catch (error) {
+    // 捕获所有异常，防止应用崩溃
     console.error('Database initialization error:', error);
+    // 不重新抛出错误，允许应用以离线模式继续运行
   }
 };
 
@@ -1561,68 +1576,135 @@ export const useAppStore = create<AppStore>((set, get) => ({
 /**
  * 初始化 Store
  * 在应用启动时调用，加载初始数据并设置监听器
+ * 添加完善的错误处理，防止初始化失败导致应用崩溃
  */
 export const initializeStore = () => {
-  const store = useAppStore.getState();
-  
-  // 初始化数据库
-  initializeDatabase();
-  
-  // 加载初始数据（_loadUser 内部会调用 _loadEntries，避免重复调用）
-  store._loadUser();
-  
-  // 监听认证状态变化
-  const { data: authListener } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (session?.user) {
-        // 检查是否是用户切换（从账号1切换到账号2）
-        const currentUser = useAppStore.getState().user;
-        const isUserSwitching = currentUser && currentUser.id !== session.user.id;
-        
-        if (isUserSwitching) {
-          console.log('检测到用户切换，清除旧账号数据');
-          // 先清除 store 中的 entries，避免旧账号数据残留
-          useAppStore.getState()._setEntries([]);
-        }
-        
-        // 用户已登录，加载用户信息和数据
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        const userData: User = {
-          id: session.user.id,
-          name: profile?.name || session.user.user_metadata?.name || session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || '情绪旅者',
-          email: session.user.email || '',
-          avatar: profile?.avatar || session.user.user_metadata?.avatar || 'https://picsum.photos/100/100',
-        };
-        
-        // 验证用户ID是否匹配（双重保险）
-        if (userData.id !== session.user.id) {
-          console.error('用户ID不匹配，跳过加载数据');
-          return;
-        }
-        
-        useAppStore.getState()._setUser(userData);
-        
-        // 加载本地数据（使用新用户的存储键）
-        useAppStore.getState()._loadEntries();
-        
-        // 不自动同步云端数据，用户需要主动点击"找回回忆"才会同步
-        // 这样可以确保本地数据不会被覆盖
-      } else {
-        // 用户未登录，清除用户状态，但保留本地数据
-        useAppStore.getState()._setUser(null);
-        useAppStore.getState()._loadEntries();
-      }
+  try {
+    const store = useAppStore.getState();
+    
+    // 初始化数据库（异步执行，不阻塞应用启动）
+    initializeDatabase().catch((error) => {
+      console.error('数据库初始化失败:', error);
+      // 不抛出错误，允许应用继续运行
+    });
+    
+    // 加载初始数据（_loadUser 内部会调用 _loadEntries，避免重复调用）
+    // 添加错误处理，防止加载失败导致应用崩溃
+    try {
+      store._loadUser();
+    } catch (error) {
+      console.error('加载用户数据失败:', error);
+      // 即使加载失败，也继续初始化，应用可以以默认状态运行
     }
-  );
-  
-  // 返回清理函数（如果需要）
-  return () => {
-    authListener.subscription.unsubscribe();
-  };
+    
+    // 如果 Supabase 未配置，不设置认证监听器
+    if (!isSupabaseConfigured()) {
+      console.log('Supabase 未配置，跳过认证监听器设置');
+      // 返回一个空的清理函数
+      return () => {};
+    }
+    
+    // 监听认证状态变化
+    // 添加错误处理，防止监听器设置失败导致应用崩溃
+    let authListener: { subscription: { unsubscribe: () => void } } | null = null;
+    
+    try {
+      const listenerResult = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          try {
+            if (session?.user) {
+              // 检查是否是用户切换（从账号1切换到账号2）
+              const currentUser = useAppStore.getState().user;
+              const isUserSwitching = currentUser && currentUser.id !== session.user.id;
+              
+              if (isUserSwitching) {
+                console.log('检测到用户切换，清除旧账号数据');
+                // 先清除 store 中的 entries，避免旧账号数据残留
+                useAppStore.getState()._setEntries([]);
+              }
+              
+              // 用户已登录，加载用户信息和数据
+              // 添加错误处理，防止数据库查询失败导致崩溃
+              let profile = null;
+              try {
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .single();
+                
+                if (error) {
+                  console.warn('获取用户资料失败:', error.message);
+                } else {
+                  profile = data;
+                }
+              } catch (error) {
+                console.error('查询用户资料时发生错误:', error);
+                // 继续使用默认值
+              }
+              
+              const userData: User = {
+                id: session.user.id,
+                name: profile?.name || session.user.user_metadata?.name || session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || '情绪旅者',
+                email: session.user.email || '',
+                avatar: profile?.avatar || session.user.user_metadata?.avatar || 'https://picsum.photos/100/100',
+              };
+              
+              // 验证用户ID是否匹配（双重保险）
+              if (userData.id !== session.user.id) {
+                console.error('用户ID不匹配，跳过加载数据');
+                return;
+              }
+              
+              useAppStore.getState()._setUser(userData);
+              
+              // 加载本地数据（使用新用户的存储键）
+              try {
+                useAppStore.getState()._loadEntries();
+              } catch (error) {
+                console.error('加载本地数据失败:', error);
+              }
+              
+              // 不自动同步云端数据，用户需要主动点击"找回回忆"才会同步
+              // 这样可以确保本地数据不会被覆盖
+            } else {
+              // 用户未登录，清除用户状态，但保留本地数据
+              useAppStore.getState()._setUser(null);
+              try {
+                useAppStore.getState()._loadEntries();
+              } catch (error) {
+                console.error('加载本地数据失败:', error);
+              }
+            }
+          } catch (error) {
+            // 捕获认证状态变化回调中的所有错误，防止应用崩溃
+            console.error('处理认证状态变化时发生错误:', error);
+          }
+        }
+      );
+      
+      authListener = listenerResult.data;
+    } catch (error) {
+      console.error('设置认证监听器失败:', error);
+      // 返回一个空的清理函数
+      return () => {};
+    }
+    
+    // 返回清理函数
+    return () => {
+      try {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      } catch (error) {
+        console.error('取消订阅认证监听器失败:', error);
+      }
+    };
+  } catch (error) {
+    // 捕获所有初始化错误，防止应用崩溃
+    console.error('初始化 Store 时发生严重错误:', error);
+    // 返回一个空的清理函数，允许应用继续运行
+    return () => {};
+  }
 };
 
