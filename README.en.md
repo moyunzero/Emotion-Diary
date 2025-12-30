@@ -4,33 +4,60 @@
 
 ![Emotion Diary Logo](./assets/images/icon.png)
 
-**A Beautiful Emotion Tracking & Management App**
+**A Healing-Focused Emotion Tracking & Management App**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-blue)](https://reactnative.dev/)
-[![Expo](https://img.shields.io/badge/Expo-54.0.25-000)](https://expo.dev/)
+[![Expo](https://img.shields.io/badge/Expo-54.0.30-000)](https://expo.dev/)
 
 [中文文档](./README.md) | [English](./README.en.md)
 
 </div>
 
-## 📱 App Preview
+## 📱 About
 
-### 🌟 Core Features
+Emotion Diary is a healing-focused app dedicated to emotion management. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden.
 
-- **🌤️ Emotion Weather Station** - Innovative weather metaphor for visualizing relationship health
-- **📝 Smart Recording** - 5-level emotion intensity with multi-dimensional tagging system
-- **📊 Data Insights** - Emotion distribution charts and relationship health analysis
-<!-- - **🤖 AI Assistant** - Gemini-powered reconciliation suggestions and perspective switching -->
-- **🔥 Vent Burning** - Therapeutic emotional release feature
-- **📱 Offline-First** - Complete local storage to protect user privacy
+## 🌟 Core Features
 
-### 🎨 Design Highlights
+### 🌤️ Emotion Weather Station
+- Innovative weather metaphor for visualizing relationship health
+- Weather icons (droplet, cloud, lightning, etc.) to express emotion intensity
+- Real-time display of current "relationship weather" and emotion index
 
-- Unified pink color theme
-- Smooth animations and micro-interactions
-- Intuitive emotion visualization
-- Responsive design for various screen sizes
+### ✍️ Smart Recording
+- **5-Level Emotion Intensity**: From "Slightly Upset" to "Emotional Explosion"
+- **Weather-Themed Icons**: Using Droplet, Cloud, CloudRain, CloudLightning, Zap icons
+- **Multi-Dimensional Tagging**: Support for people tags and emotion trigger tags
+- **Flexible Timeline**: Today, This Week, Later, Self-Digest options
+- **Warm Copywriting**: Lower the barrier to recording, encouraging expression
+
+### 🌱 Mind Garden (Insights Page)
+A newly designed insights page using plant growth metaphors to show emotion management progress:
+
+- **Weekly Emotion Weather**: 7-day emotion status at a glance, each day showing weather icon and flower status
+- **Healing Progress**: Circular progress bar showing emotion resolution rate, growth stages from seed to bloom
+- **Relationship Pots**: Each person corresponds to a flower pot, showing relationship health (Blooming/Growing/Needs Water)
+- **Trigger Insights**: Analyze Top 3 emotion triggers with warm "gardening advice"
+- **Encouraging Footer**: Dynamically generated positive feedback to show growth
+
+### 🔥 Vent Burning
+- Therapeutic emotional release feature
+- Cool Skia burning animation effect
+- Let negative emotions dissipate with the flames
+
+### ☁️ Data Sync
+- **Offline-First**: Local storage protects user privacy
+- **Cloud Backup**: Optional Supabase cloud sync for data security
+
+## 🎨 Design Highlights
+
+- **Healing Color Scheme**: Pink-green gradient theme, warm and comfortable
+- **Weather-Themed Icons**: Unified Lucide icon library, avoiding emoji compatibility issues
+- **Mind Garden Metaphor**: Transform emotion management into nurturing a garden
+- **Positive Reinforcement**: Emphasize growth and healing, not problems and conflicts
+- **Smooth Animations**: Micro-interactions powered by React Native Reanimated
+- **Responsive Design**: Adapts to various screen sizes
 
 ## 🚀 Quick Start
 
@@ -38,7 +65,7 @@
 
 ```bash
 # Clone the project
-git clone https://github.com/your-username/emotion-diary.git
+git clone <repository-url>
 cd emotion-diary
 
 # Install dependencies
@@ -51,363 +78,101 @@ yarn start
 ### 📱 Three Ways to Experience
 
 1. **📲 Expo Go Preview** - Install [Expo Go](https://expo.dev/go) on your phone, scan the QR code
-2. **📲 APK Download** - Download pre-compiled APK from [Releases](https://github.com/your-username/emotion-diary/releases)
+2. **📲 APK Download** - Download pre-compiled APK from Releases page
 3. **🌐 Web Version** - Run `yarn web` to experience in browser
 
 ## 🛠️ Tech Stack
 
 | Category | Technology | Version |
 |----------|------------|---------|
-| **Framework** | React Native + Expo | 0.81.5 + 54.0.25 |
-| **Routing** | Expo Router | ~6.0.15 |
-| **State Management** | React Context + AsyncStorage | - |
-| **UI Components** | Custom Components + Lucide React Native | - |
-| **Charts** | React Native Chart Kit | ^6.12.0 |
-| **Graphics** | React Native Skia | ~2.2.12 |
+| **Framework** | React Native + Expo | 0.81.5 + ~54.0.30 |
+| **Routing** | Expo Router | ~6.0.21 |
+| **State Management** | Zustand | ^5.0.9 |
+| **Data Persistence** | AsyncStorage + Supabase | - |
+| **UI Components** | Custom Components + Lucide React Native | ^0.554.0 |
+| **Graphics Rendering** | React Native Skia | 2.2.12 |
 | **Animations** | React Native Reanimated | ~4.1.1 |
-<!-- | **AI Integration** | Google Generative AI (Gemini) | - | -->
+| **SVG Support** | React Native SVG | 15.12.1 |
 | **Type Support** | TypeScript | ~5.9.2 |
 | **Build Tools** | EAS Build | - |
 
-## 📱 App Build Guide
-
-### 🤖 Android App Building
-
-#### Method 1: EAS Cloud Build (Recommended)
-
-**Benefits:** No local Android development environment needed, automatic signing, multi-device support
-
-**1. Install EAS CLI**
-
-```bash
-npm install -g eas-cli
-```
-
-**2. Configure EAS Project**
-
-```bash
-# Run in project root
-eas build:configure
-# Follow prompts to select platforms (choose All for iOS and Android)
-# Will automatically generate eas.json configuration file
-```
-
-**3. Build APK File**
-
-```bash
-# Build preview version (recommended for first time)
-eas build --platform android --profile preview
-
-# Build production version (for release)
-eas build --platform android --profile production
-
-# Build development version (with debug tools)
-eas build --platform android --profile development
-```
-
-**4. Get APK File**
-
-After build completion (about 5-10 minutes):
-
-- 📧 **Email Notification** - You'll receive an email with download link
-- 🌐 **EAS Dashboard** - Visit [expo.dev](https://expo.dev) to download APK file
-- 📱 **QR Code Install** - Build results include QR code for direct installation
-
-**5. Install on Android Device**
-
-```bash
-# Method 1: Direct Installation
-# Download APK to phone, click to install (enable "Install unknown apps")
-
-# Method 2: ADB Command
-adb install your-app.apk
-
-# Method 3: QR Code Installation
-# Scan QR code from build results to download directly
-```
-
-#### Method 2: Local Build
-
-```bash
-# Requires complete Android development environment setup
-eas build --platform android --profile preview --local
-```
-
-#### Build Type Comparison
-
-| Config | Output Format | Purpose | Signing |
-|--------|--------------|---------|---------|
-| `preview` | APK | Internal testing, user testing | EAS default signing |
-| `production` | AAB | Google Play release | EAS default signing |
-| `development` | APK | Development debugging | Developer signing |
-
-#### Publish to Google Play
-
-1. **Build AAB File:**
-
-   ```bash
-   eas build --platform android --profile production
-   ```
-
-2. **Upload to Google Play Console:**
-   - Login to [Google Play Console](https://play.google.com/console)
-   - Create new app or select existing app
-   - Upload AAB file
-   - Fill app info, screenshots and privacy policy
-   - Submit for review
-
----
-
-### 🍎 iOS App Building
-
-#### Method 1: EAS Cloud Build (Recommended)
-
-**Benefits:** No Mac needed, no Apple Developer account required (for testing)
-
-**1. Install EAS CLI**
-
-```bash
-npm install -g eas-cli
-```
-
-**2. Configure EAS Project**
-
-```bash
-# If not configured before
-eas build:configure
-```
-
-**3. Build iOS App**
-
-```bash
-# Build preview version (simulator)
-eas build --platform ios --profile preview
-
-# Build production version (requires Apple Developer account)
-eas build --platform ios --profile production
-
-# Build development version
-eas build --platform ios --profile development
-```
-
-**4. Get iOS App**
-
-- 📧 **Email Notification** - Receive email after build completion
-- 🌐 **EAS Dashboard** - Download IPA file or installation link
-- 📱 **TestFlight** - Production version can directly invite testers
-
-**5. Install on iOS Device**
-
-```bash
-# Method 1: TestFlight Installation (Recommended)
-# Production version can invite test users through TestFlight
-
-# Method 2: Xcode Installation
-# 1. Download IPA file
-# 2. Install to device using Xcode
-
-# Method 3: AltStore Installation
-# 1. Install AltStore on iPhone
-# 2. Install IPA file through AltStore
-```
-
-#### Method 2: Local Build (Requires Mac)
-
-**Requirements:**
-
-- macOS 12+
-- Xcode 14+
-- Apple Developer account (for release)
-
-**1. Install Dependencies**
-
-```bash
-# Install CocoaPods if not installed
-sudo gem install cocoapods
-
-# Install iOS dependencies
-npx expo install:ios
-
-# Or use EAS local build
-eas build --platform ios --profile preview --local
-```
-
-**2. Configure Signing**
-
-```bash
-# Configure Apple Developer account
-eas credentials
-
-# Select iOS platform, follow prompts to configure certificates and profiles
-```
-
-**3. Build App**
-
-```bash
-# Development build
-npx expo run:ios
-
-# Or use EAS build
-eas build --platform ios --profile production --local
-```
-
-#### Publish to App Store
-
-1. **Configure App Store Connect**
-   - Login to [App Store Connect](https://appstoreconnect.apple.com/)
-   - Create new app
-   - Fill app information
-
-2. **Build Release Version**
-
-   ```bash
-   eas build --platform ios --profile production
-   ```
-
-3. **Upload to App Store**
-
-   ```bash
-   eas submit --platform ios
-   ```
-
-4. **Submit for Review**
-   - Fill version information in App Store Connect
-   - Upload screenshots and privacy policy
-   - Submit for review
-
----
-
-## ⚙️ Advanced Configuration
-
-### Custom Build Configuration
-
-Edit `eas.json` file to customize build options:
-
-```json
-{
-  "cli": {
-    "version": ">= 16.28.0",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
-      "ios": {
-        "simulator": false
-      }
-    },
-    "production": {
-      "autoIncrement": true,
-      "android": {
-        "buildType": "aab"
-      },
-      "ios": {
-        "buildConfiguration": "Release"
-      }
-    }
-  },
-  "submit": {
-    "production": {}
-  }
-}
-```
-
-### App Icons and Splash Screen
-
-Replace the following files to customize app appearance:
+## 📁 Project Structure
 
 ```
-assets/images/
-├── icon.png                    # App icon (1024x1024)
-├── android-icon-foreground.png # Android foreground icon
-├── android-icon-background.png # Android background icon
-├── android-icon-monochrome.png # Android monochrome icon
-├── splash-icon.png             # Splash screen icon
-└── favicon.png                 # Web version icon
-```
-
-### App Signing Configuration
-
-#### Android Signing
-
-```json
-// eas.json
-{
-  "build": {
-    "production": {
-      "android": {
-        "buildType": "aab",
-        "keystore": {
-          "keystorePath": "./android.keystore",
-          "keystorePassword": "your-password",
-          "keyAlias": "your-key-alias",
-          "keyPassword": "your-key-password"
-        }
-      }
-    }
-  }
-}
-```
-
-#### iOS Signing
-
-```json
-// eas.json
-{
-  "build": {
-    "production": {
-      "ios": {
-        "provisioningProfilePath": "./ios/profile.mobileprovision"
-      }
-    }
-  }
-}
+emotion-diary/
+├── app/                    # Expo Router pages
+│   ├── _layout.tsx         # Root layout configuration
+│   ├── profile.tsx         # Profile page
+│   └── (tabs)/             # Tab navigation group
+│       ├── _layout.tsx     # Tab navigation layout
+│       ├── index.tsx       # Home page (Dashboard)
+│       ├── record.tsx      # Record page
+│       └── insights.tsx    # Insights page (Mind Garden)
+├── components/             # Reusable UI components
+│   ├── Dashboard.tsx       # Dashboard component
+│   ├── Record.tsx          # Record component (weather icon selector)
+│   ├── Insights.tsx        # Insights component (Mind Garden theme)
+│   ├── WeatherStation.tsx  # Emotion weather station component
+│   ├── EntryCard.tsx       # Emotion record card (weather icon display)
+│   ├── Fireplace.tsx       # Vent burning animation
+│   └── Navigation.tsx      # Bottom navigation component
+├── store/                  # State management (Zustand)
+│   └── useAppStore.ts      # Global state Store
+├── lib/                    # Utility libraries
+│   └── supabase.ts         # Supabase client configuration
+├── utils/                  # Utility functions
+│   └── dateUtils.ts        # Date processing utilities
+├── supabase/               # Supabase database scripts
+│   ├── create_entries_table.sql  # Create entries table
+│   ├── rls_policies.sql    # Row-level security policies
+│   └── diagnose_entries.sql # Diagnostic script
+├── assets/                 # Asset files
+│   └── images/             # Image assets
+├── types.ts               # TypeScript type definitions
+├── constants.ts           # App constant configuration (emotion icon mapping)
+├── app.json               # Expo app configuration
+├── eas.json               # EAS build configuration
+├── tsconfig.json          # TypeScript configuration
+└── README.md              # Project documentation
 ```
 
 ## 🔧 Development Setup
 
-<!-- 
-### AI Feature Configuration (Optional)
+### Environment Setup
 
-To use AI features, you need to configure Google Gemini API key:
-
-1. **Get API Key**
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Create new API key
-
-2. **Configure Environment Variables**
-   ```bash
-   # Create .env file in project root
-   EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
-   ```
-
-3. **Restart Development Server**
-   ```bash
-   yarn start
-   ```
-
-> ⚠️ Note: AI features are optional and do not affect core app functionality.
--->
-
-### Development Environment Setup
+#### 1. Install Dependencies
 
 ```bash
-# Install dependencies
 yarn install
+```
 
+#### 2. Configure Supabase (Optional, for cloud sync)
+
+If you need cloud sync functionality:
+
+1. **Create Supabase Project**
+   - Visit [Supabase](https://supabase.com) to create a new project
+   - Get project URL and anon key
+
+2. **Configure Environment Variables**
+   - Create `.env` file in project root (if not exists)
+   - Add the following:
+   ```bash
+   EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+3. **Initialize Database**
+   - Execute scripts in Supabase SQL Editor (in order):
+     - `supabase/create_entries_table.sql` - Create entries table
+     - `supabase/rls_policies.sql` - Configure row-level security policies
+   - Optional: Execute `supabase/diagnose_entries.sql` for diagnostics
+
+> 💡 **Tip**: The app works without Supabase configuration, but cloud sync will be unavailable. All data will be stored locally only.
+
+#### 3. Start Development Server
+
+```bash
 # Start development server
 yarn start
 
@@ -423,111 +188,104 @@ yarn lint
 yarn reset-project
 ```
 
-## 📁 Project Structure
+## 📱 App Build Guide
 
-```
-emotion-diary/
-├── app/                    # Expo Router pages
-│   ├── _layout.tsx         # Root layout configuration
-│   └── (tabs)/             # Tab navigation group
-│       ├── _layout.tsx     # Tab navigation layout
-│       ├── index.tsx       # Home page (Dashboard)
-│       ├── record.tsx      # Record page
-│       └── insights.tsx    # Insights page
-├── components/             # Reusable UI components
-│   ├── Dashboard.tsx       # Dashboard page component
-│   ├── Record.tsx          # Record page component
-│   ├── Insights.tsx        # Insights page component
-│   ├── WeatherStation.tsx  # Emotion weather station component
-│   ├── EntryCard.tsx       # Emotion record card
-│   ├── Fireplace.tsx       # Vent burning animation
-│   └── Navigation.tsx      # Bottom navigation component
-├── context/                # State management
-│   └── AppContext.tsx      # Global state Context
-├── services/               # Service layer
-<!-- │   └── geminiService.ts    # AI service -->
-├── assets/                 # Asset files
-│   └── images/             # Image assets
-├── types.ts               # TypeScript type definitions
-├── constants.ts           # App constant configuration
-├── app.json               # Expo app configuration
-├── eas.json               # EAS build configuration
-├── tsconfig.json          # TypeScript configuration
-└── README.md              # Project documentation
+### 🤖 Android App Building
+
+#### EAS Cloud Build (Recommended)
+
+**Benefits:** No local Android development environment needed, automatic signing, multi-device support
+
+**1. Install EAS CLI**
+
+```bash
+npm install -g eas-cli
 ```
 
-## 🐛 Frequently Asked Questions
+**2. Configure EAS Project**
 
-### Build Related Issues
+```bash
+eas build:configure
+```
 
-**Q: What to do if build fails?**
+**3. Build APK File**
 
-- Check if `eas.json` configuration is correct
-- Ensure package name uniqueness: `com.yourcompany.emotiondiary`
-- Check detailed error messages in build logs
-- Ensure stable network connection
+```bash
+# Build preview version (recommended for first time)
+eas build --platform android --profile preview
 
-**Q: Android build takes too long?**
+# Build production version (for release)
+eas build --platform android --profile production
+```
 
-- First build takes longer (about 10-15 minutes)
-- Subsequent builds are faster (about 5-10 minutes)
-- Can use local build option: `eas build --local`
+**4. Get APK File**
 
-**Q: iOS build requires Mac?**
+After build completion (about 5-10 minutes):
+- 📧 **Email Notification** - You'll receive an email with download link
+- 🌐 **EAS Dashboard** - Visit [expo.dev](https://expo.dev) to download APK file
+- 📱 **QR Code Install** - Build results include QR code for direct installation
 
-- No, EAS cloud build doesn't require Mac
-- Local build and device debugging require Mac
-- Publishing to App Store requires Apple Developer account
+### 🍎 iOS App Building
 
-### Installation Related Issues
+#### EAS Cloud Build (Recommended)
 
-**Q: Android installation shows "App not installed"?**
+**Benefits:** No Mac needed, no Apple Developer account required (for testing)
 
-- Check if APK file is complete
-- Ensure Android version compatibility
-- Uninstall old version and reinstall
+```bash
+# Build preview version
+eas build --platform ios --profile preview
 
-**Q: iOS installation shows "Untrusted Developer"?**
+# Build production version (requires Apple Developer account)
+eas build --platform ios --profile production
+```
 
-- Settings → General → VPN & Device Management → Trust Developer
-- Or use TestFlight installation (recommended)
+## 🐛 FAQ
 
-**Q: App crashes on startup?**
-
-- Check device compatibility
-- Check crash logs
-- Ensure all dependencies are correctly installed
-
-### Development Related Issues
+### Development Related
 
 **Q: How to customize theme colors?**
 
 - Modify color configuration in `constants.ts`
+- Modify `COLORS` constant in `components/Insights.tsx`
 - Update style definitions in various components
 
 **Q: How to add new emotion types?**
 
-- Add new configuration in `MOOD_CONFIG` in `constants.ts`
-- Update related type definitions
+- Add new type to `MoodLevel` enum in `types.ts`
+- Add new configuration in `MOOD_CONFIG` in `constants.ts` (including iconName and iconColor)
+- Add new icon mapping in `getMoodIcon` function in `Record.tsx` and `EntryCard.tsx`
+
+**Q: How to modify gardening advice text?**
+
+- Modify `TRIGGER_ADVICE` object in `components/Insights.tsx`
+- You can add corresponding advice for new triggers
 
 ## 📋 Version History
 
-### v1.0.0 (Current Version)
+### v1.1.0 (Current Version)
+
+- ✅ Weather-themed icon system (replacing emoji)
+- ✅ Mind Garden insights page (completely redesigned)
+- ✅ Optimized record page copywriting
+- ✅ Healing progress circular chart
+- ✅ Relationship pots visualization
+- ✅ Trigger insights with gardening advice
+
+### v1.0.0
 
 - ✅ Basic emotion recording functionality
 - ✅ Emotion weather station visualization
 - ✅ Data insights analysis
 - ✅ Vent burning feature
 - ✅ Android/iOS app building
-<!-- - ✅ AI assistant integration -->
 
 ### Future Plans
-<!-- - 🤖 More AI-assisted features -->
-- 📊 Advanced data analysis
+
+- 📊 More data analysis dimensions
 - 🎨 Theme customization system
 - 🌍 Multi-language support
-- ☁️ Optional cloud sync
 - 📱 Data export functionality
+- 🔔 Emotion reminder feature
 
 ## 🤝 Contributing Guidelines
 
@@ -539,7 +297,7 @@ We welcome all forms of contributions!
 2. **Create Feature Branch** - `git checkout -b feature/amazing-feature`
 3. **Commit Changes** - `git commit -m 'Add amazing feature'`
 4. **Push Branch** - `git push origin feature/amazing-feature`
-5. **Create Pull Request** - Submit PR with detailed description of changes
+5. **Create Pull Request** - Submit PR with detailed description
 
 ### Development Standards
 
@@ -549,31 +307,21 @@ We welcome all forms of contributions!
 - Ensure all features work properly before submitting
 - Maintain consistent code style
 
-### Reporting Issues
-
-If you find bugs or have feature suggestions:
-
-1. Check if related Issue already exists
-2. Create new Issue with detailed problem description
-3. Provide reproduction steps and environment information
-4. Add relevant screenshots or logs
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## 📞 Contact Us
 
-- 📧 **Email**: <your-email@example.com>
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/emotion-diary/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/emotion-diary/discussions)
+- 🐛 **Bug Reports**: Please create an Issue in the project repository
+- 💬 **Discussions**: Welcome to start discussions in the project repository
 - ⭐ **Support**: If this project helps you, please give us a Star!
 
 ---
 
 <div align="center">
 
-**💖 Thanks for using Emotion Diary, making emotion management simpler!**
+**🌱 Thanks for using Emotion Diary, may your mind garden flourish!**
 
 Made with ❤️ by Your Team
 

@@ -1,39 +1,46 @@
 import { Deadline, MoodLevel, Status } from './types';
+
+// 情绪图标配置 - 使用天气主题图标，符合"情绪气象站"定位
 export const MOOD_CONFIG = {
   [MoodLevel.ANNOYED]: {
     level: 1,
-    emoji: '😒',
-    label: '有点烦',
+    iconName: 'Droplet', // 雨滴 - 轻微的情绪波动
+    label: '有点委屈',
     color: 'bg-yellow-100',
     textColor: 'text-yellow-700',
+    iconColor: '#F59E0B', // 黄色
   },
   [MoodLevel.UPSET]: {
     level: 2,
-    emoji: '😔',
-    label: '不开心',
+    iconName: 'Cloud', // 云朵 - 心情低落
+    label: '心情低落',
     color: 'bg-orange-100',
     textColor: 'text-orange-700',
+    iconColor: '#F97316', // 橙色
   },
   [MoodLevel.ANGRY]: {
     level: 3,
-    emoji: '😠',
-    label: '生气了',
+    iconName: 'CloudRain', // 雨云 - 感到生气
+    label: '感到生气',
     color: 'bg-red-100',
     textColor: 'text-red-700',
+    iconColor: '#EF4444', // 红色
   },
   [MoodLevel.FURIOUS]: {
     level: 4,
-    emoji: '🤬',
-    label: '很生气',
+    iconName: 'CloudLightning', // 闪电云 - 非常愤怒
+    label: '非常愤怒',
     color: 'bg-red-200',
     textColor: 'text-red-800',
+    iconColor: '#DC2626', // 深红色
   },
   [MoodLevel.EXPLOSIVE]: {
     level: 5,
-    emoji: '💥',
-    label: '爆炸了',
+    iconName: 'Zap', // 闪电 - 情绪爆发
+    label: '情绪爆发',
     color: 'bg-red-300',
     textColor: 'text-red-900',
+    iconColor: '#991B1B', // 最深红色
   },
 };
 
@@ -78,58 +85,4 @@ export const TRIGGER_OPTIONS = [
   '信任',
   '隐私',
   '其他',
-];
-
-export const MOCK_ENTRIES = [
-  {
-    id: '1',
-    timestamp: Date.now() - 86400000, // 1 day ago
-    moodLevel: MoodLevel.ANGRY,
-    content: '又迟到，而且毫无歉意，完全不尊重我的时间！每次约会都这样，真的受够了！',
-    deadline: Deadline.TODAY,
-    people: ['男朋友'],
-    triggers: ['迟到', '沟通'],
-    status: Status.ACTIVE,
-  },
-  {
-    id: '2',
-    timestamp: Date.now() - 172800000, // 2 days ago
-    moodLevel: MoodLevel.UPSET,
-    content: '说好一起做家务，结果又是我一个人收拾整个房子，感觉像保姆一样。',
-    deadline: Deadline.THIS_WEEK,
-    people: ['室友'],
-    triggers: ['家务'],
-    status: Status.ACTIVE,
-  },
-  {
-    id: '3',
-    timestamp: Date.now() - 259200000, // 3 days ago
-    moodLevel: MoodLevel.ANNOYED,
-    content: '答应帮我看看简历，结果一周了都没回复，感觉很失望。',
-    deadline: Deadline.THIS_MONTH,
-    people: ['朋友'],
-    triggers: ['工作', '信任'],
-    status: Status.RESOLVED,
-    resolvedAt: Date.now() - 86400000,
-  },
-  {
-    id: '4',
-    timestamp: Date.now() - 345600000, // 4 days ago
-    moodLevel: MoodLevel.FURIOUS,
-    content: '翻我手机聊天记录！这是侵犯隐私，完全没有信任可言！',
-    deadline: Deadline.TODAY,
-    people: ['女朋友'],
-    triggers: ['隐私', '信任'],
-    status: Status.ACTIVE,
-  },
-  {
-    id: '5',
-    timestamp: Date.now() - 432000000, // 5 days ago
-    moodLevel: MoodLevel.EXPLOSIVE,
-    content: '工资卡被冻结了，事先完全没有商量，凭什么这么独断专行！',
-    deadline: Deadline.LATER,
-    people: ['老公'],
-    triggers: ['金钱', '沟通'],
-    status: Status.ACTIVE,
-  },
 ];

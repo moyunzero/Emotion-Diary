@@ -1,11 +1,33 @@
 import { Canvas, Fill, ImageShader, Shader, SkImage, Skia } from '@shopify/react-native-skia';
-import { CheckCircle, Flame, Trash2 } from 'lucide-react-native';
+import { CheckCircle, Cloud, CloudLightning, CloudRain, Droplet, Edit, Flame, Trash2, Zap } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Animated, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { DEADLINE_CONFIG, MOOD_CONFIG } from '../constants';
-import { useApp } from '../context/AppContext';
+import { useHapticFeedback } from '../hooks/useHapticFeedback';
+import { useAppStore } from '../store/useAppStore';
 import { Deadline, MoodEntry, MoodLevel, Status } from '../types';
+import { formatDateChinese } from '../utils/dateUtils';
+import EditEntryModal from './EditEntryModal';
+
+// 根据图标名称返回对应的图标组件
+const getMoodIcon = (iconName: string, color: string, size: number = 20) => {
+  const iconProps = { size, color };
+  switch (iconName) {
+    case 'Droplet':
+      return <Droplet {...iconProps} />;
+    case 'Cloud':
+      return <Cloud {...iconProps} />;
+    case 'CloudRain':
+      return <CloudRain {...iconProps} />;
+    case 'CloudLightning':
+      return <CloudLightning {...iconProps} />;
+    case 'Zap':
+      return <Zap {...iconProps} />;
+    default:
+      return <Droplet {...iconProps} />;
+  }
+};
 
 interface Props {
   entry: MoodEntry;
@@ -13,12 +35,18 @@ interface Props {
   onBurn?: (id: string, text: string) => void;
 }
 
-// 更加逼真的纸张燃烧 Shader
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
+// 确保Android LayoutAnimation配置生效（在应用启动时执行）
+// 这个配置应该在应用启动时执行一次，但为了确保，我们在使用时也会检查
+const ensureLayoutAnimationEnabled = () => {
+  if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
   }
-}
+};
+
+// 立即执行一次，确保配置生效
+ensureLayoutAnimationEnabled();
 
 const burnShaderCode = `
 uniform shader image;
@@ -80,8 +108,14 @@ vec4 main(vec2 pos) {
 }
 `;
 
-// 预编译 Shader
-const runtimeEffect = Skia.RuntimeEffect.Make(burnShaderCode);
+// 预编译 Shader（如果失败则返回null，用于降级处理）
+let runtimeEffect: any = null;
+try {
+  runtimeEffect = Skia.RuntimeEffect.Make(burnShaderCode);
+} catch (e) {
+  console.warn('Skia RuntimeEffect创建失败，燃烧动画将使用降级方案:', e);
+  runtimeEffect = null;
+}
 
 const makeImageFromView = async (viewRef: React.RefObject<View | null>): Promise<SkImage | null> => {
   try {
@@ -100,8 +134,11 @@ const makeImageFromView = async (viewRef: React.RefObject<View | null>): Promise
 };
 
 const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
-  const { resolveEntry, deleteEntry } = useApp();
+  const resolveEntry = useAppStore((state) => state.resolveEntry);
+  const deleteEntry = useAppStore((state) => state.deleteEntry);
+  const { trigger: triggerHaptic } = useHapticFeedback();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const isResolved = entry.status === Status.RESOLVED;
   
   const moodConfig = MOOD_CONFIG[entry.moodLevel] || MOOD_CONFIG[MoodLevel.ANNOYED];
@@ -118,53 +155,132 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
   // 这样可以完全避开 Reanimated 和 Skia 之间的 JSI 桥接问题
   const [burnProgress, setBurnProgress] = useState(0);
 
+  const handleResolve = () => {
+    triggerHaptic('success');
+    resolveEntry(entry.id);
+    setIsExpanded(false); // 操作完成后折叠卡片
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      '确认删除',
+      `确定要删除这条记录吗？\n\n"${entry.content.substring(0, 30)}${entry.content.length > 30 ? '...' : ''}"`,
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '删除',
+          style: 'destructive',
+          onPress: () => {
+            triggerHaptic('error');
+            deleteEntry(entry.id);
+            setIsExpanded(false); // 操作完成后折叠卡片
+          },
+        },
+      ]
+    );
+  };
+
   const handleBurn = async () => {
     if (!onBurn || isPreparing) return;
-    setIsPreparing(true);
     
-    // 给一点时间让 UI 响应 loading 状态
-    setTimeout(async () => {
-      try {
-        // 1. 截图
-        const image = await makeImageFromView(viewRef);
-        
-        if (image) {
-          setSnapshot(image);
-          setIsBurning(true); // 切换到 Skia 视图
-          
-          // 2. 开始动画 (使用 requestAnimationFrame)
-          let start = performance.now();
-          const duration = 2000;
-
-          const animate = (time: number) => {
-            const elapsed = time - start;
-            const p = Math.min(elapsed / duration, 1);
+    Alert.alert(
+      '确认焚烧',
+      '确定要焚烧这条记录吗？焚烧后无法恢复。',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '确认焚烧',
+          style: 'destructive',
+          onPress: async () => {
+            setIsPreparing(true);
+            triggerHaptic('medium');
             
-            setBurnProgress(p);
+            // 检查Skia是否可用（降级方案）
+            const isSkiaAvailable = runtimeEffect !== null;
+            
+            // 给一点时间让 UI 响应 loading 状态
+            setTimeout(async () => {
+              try {
+                // 如果Skia不可用，直接删除，不显示动画
+                if (!isSkiaAvailable) {
+                  console.log('Skia不可用，使用降级方案：直接删除');
+                  onBurn(entry.id, entry.content);
+                  setIsPreparing(false);
+                  return;
+                }
+                
+                // 1. 截图
+                const image = await makeImageFromView(viewRef);
+                
+                if (image) {
+                  setSnapshot(image);
+                  setIsBurning(true); // 切换到 Skia 视图
+                  
+                  // 2. 开始动画 (使用 requestAnimationFrame，但优化更新频率)
+                  let start = performance.now();
+                  const duration = 2000;
+                  let animationFrameId: number | null = null;
+                  let lastUpdateTime = start;
+                  let lastProgress = 0; // 跟踪上次的进度值
 
-            if (p < 1) {
-              requestAnimationFrame(animate);
-            } else {
-              // 动画结束
-              onBurn(entry.id, entry.content);
-              // 重置状态 (虽然组件可能已经被卸载或重新渲染)
-              setIsBurning(false);
-              setIsPreparing(false);
-            }
-          };
-          
-          requestAnimationFrame(animate);
-        } else {
-          // 截图失败降级处理
-          onBurn(entry.id, entry.content);
-          setIsPreparing(false);
-        }
-      } catch (e) {
-        console.error('Burn effect failed:', e);
-        onBurn(entry.id, entry.content);
-        setIsPreparing(false);
-      }
-    }, 50);
+                  const animate = (time: number) => {
+                    const elapsed = time - start;
+                    const p = Math.min(elapsed / duration, 1);
+                    
+                    // 优化：只在进度有明显变化时更新状态（减少重渲染次数）
+                    // 每16ms（约60fps）更新一次，或者进度变化超过0.02时更新
+                    const timeSinceLastUpdate = time - lastUpdateTime;
+                    const progressChange = Math.abs(p - lastProgress);
+                    
+                    if (timeSinceLastUpdate >= 16 || progressChange >= 0.02 || p >= 1) {
+                      setBurnProgress(p);
+                      lastProgress = p;
+                      lastUpdateTime = time;
+                    }
+
+                    if (p < 1) {
+                      animationFrameId = requestAnimationFrame(animate);
+                    } else {
+                      // 动画结束
+                      setBurnProgress(1); // 确保最终状态
+                      onBurn(entry.id, entry.content);
+                      // 重置状态 (虽然组件可能已经被卸载或重新渲染)
+                      setIsBurning(false);
+                      setIsPreparing(false);
+                    }
+                  };
+                  
+                  animationFrameId = requestAnimationFrame(animate);
+                  
+                  // 设置超时保护，防止动画卡死
+                  const timeoutId = setTimeout(() => {
+                    if (animationFrameId !== null) {
+                      cancelAnimationFrame(animationFrameId);
+                      onBurn(entry.id, entry.content);
+                      setIsBurning(false);
+                      setIsPreparing(false);
+                    }
+                  }, duration + 500); // 比动画时长多500ms
+                  
+                  // 注意：清理函数应该在useEffect中返回，而不是在这里
+                  // 这里只是一个异步函数，无法返回清理函数
+                } else {
+                  // 截图失败降级处理
+                  console.log('截图失败，使用降级方案：直接删除');
+                  onBurn(entry.id, entry.content);
+                  setIsPreparing(false);
+                }
+              } catch (e) {
+                console.error('Burn effect failed:', e);
+                // 降级处理：直接删除
+                onBurn(entry.id, entry.content);
+                setIsPreparing(false);
+              }
+            }, 50);
+          },
+        },
+      ]
+    );
   };
 
   const getMoodColor = () => {
@@ -178,9 +294,9 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('zh-CN');
+  // 使用统一的时间戳格式化函数
+  const formatEntryDate = (timestamp: number) => {
+    return formatDateChinese(timestamp);
   };
 
   // 如果正在燃烧且有截图和 Shader，渲染 Skia Canvas
@@ -203,101 +319,131 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
     );
   }
 
+  const handleEdit = () => {
+    triggerHaptic('light');
+    setIsEditModalVisible(true);
+  };
+
   return (
-    <View 
-      style={styles.wrapper} 
-      ref={viewRef} 
-      collapsable={false}
-      onLayout={(e) => setLayout(e.nativeEvent.layout)}
-    >
-      <Animated.View style={[styles.container, isResolved && styles.resolvedContainer]}>
-        <TouchableOpacity 
-          onPress={() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            setIsExpanded(!isExpanded);
-          }} 
-          activeOpacity={1}
-        >
-          <View style={styles.content}>
-            {/* Emoji Badge */}
-            <View style={[styles.emojiBadge, { backgroundColor: getMoodColor() }]}>
-              <Text style={styles.emojiText}>{moodConfig.emoji}</Text>
-            </View>
-
-            {/* Content */}
-            <View style={styles.textContainer}>
-              <View style={styles.header}>
-                <Text style={styles.peopleText} numberOfLines={1}>
-                  {entry.people.join(', ')}
-                </Text>
-                <Text style={styles.dateText}>
-                  {formatDate(entry.timestamp)}
-                </Text>
+    <>
+      <View 
+        style={styles.wrapper} 
+        ref={viewRef} 
+        collapsable={false}
+        onLayout={(e) => setLayout(e.nativeEvent.layout)}
+      >
+          <Animated.View style={[styles.container, isResolved && styles.resolvedContainer]}>
+            <TouchableOpacity 
+              onPress={() => {
+                // 确保Android LayoutAnimation配置生效
+                ensureLayoutAnimationEnabled();
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                setIsExpanded(!isExpanded);
+              }} 
+              activeOpacity={1}
+            >
+            <View style={styles.content}>
+              {/* Mood Icon Badge */}
+              <View style={[styles.moodIconBadge, { backgroundColor: getMoodColor() }]}>
+                {getMoodIcon(moodConfig.iconName, '#FFFFFF', 20)}
               </View>
-              <Text style={styles.contentText} numberOfLines={isExpanded ? undefined : 3}>
-                {entry.content}
-              </Text>
-              
-              {/* Tags */}
-              <View style={styles.tagsContainer}>
-                <View style={styles.deadlineTag}>
-                  <Text style={styles.deadlineText}>{deadlineLabel}</Text>
+
+              {/* Content */}
+              <View style={styles.textContainer}>
+                <View style={styles.header}>
+                  <Text style={styles.peopleText} numberOfLines={1}>
+                    {entry.people.join(', ')}
+                  </Text>
+                  <Text style={styles.dateText}>
+                    {formatEntryDate(entry.timestamp)}
+                  </Text>
                 </View>
-                {entry.triggers.map((t, index) => (
-                  <View key={index} style={styles.triggerTag}>
-                    <Text style={styles.triggerText}>#{t}</Text>
+                <Text style={styles.contentText} numberOfLines={isExpanded ? undefined : 3}>
+                  {entry.content}
+                </Text>
+                
+                {/* Tags */}
+                <View style={styles.tagsContainer}>
+                  <View style={styles.deadlineTag}>
+                    <Text style={styles.deadlineText}>{deadlineLabel}</Text>
                   </View>
-                ))}
+                  {entry.triggers.map((t, index) => (
+                    <View key={index} style={styles.triggerTag}>
+                      <Text style={styles.triggerText}>#{t}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
 
-        {/* Expanded Actions */}
-        {isExpanded && !isResolved && (
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => resolveEntry(entry.id)}
-            >
-              <View style={styles.actionIcon}>
-                <CheckCircle size={20} color="#10B981" />
-              </View>
-              <Text style={styles.actionText}>和解打卡</Text>
-            </TouchableOpacity>
-
-            {onBurn && (
+          {/* Expanded Actions */}
+          {isExpanded && !isResolved && (
+            <View style={styles.actionsContainer}>
               <TouchableOpacity 
-                style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
-                onPress={handleBurn}
-                disabled={isPreparing}
+                style={styles.actionButton}
+                onPress={handleEdit}
               >
-                {isPreparing ? (
-                  <ActivityIndicator size="small" color="#F97316" />
-                ) : (
-                  <>
-                    <View style={styles.actionIcon}>
-                      <Flame size={20} color="#F97316" />
-                    </View>
-                    <Text style={styles.actionText}>气话焚烧</Text>
-                  </>
-                )}
+                <View style={styles.actionIcon}>
+                  <Edit size={20} color="#3B82F6" />
+                </View>
+                <Text style={styles.actionText}>编辑</Text>
               </TouchableOpacity>
-            )}
 
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => deleteEntry(entry.id)}
-            >
-              <View style={styles.actionIcon}>
-                <Trash2 size={20} color="#9CA3AF" />
-              </View>
-              <Text style={styles.actionText}>删除</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </Animated.View>
-    </View>
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={handleResolve}
+              >
+                <View style={styles.actionIcon}>
+                  <CheckCircle size={20} color="#10B981" />
+                </View>
+                <Text style={styles.actionText}>和解打卡</Text>
+              </TouchableOpacity>
+
+              {onBurn && (
+                <TouchableOpacity 
+                  style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
+                  onPress={handleBurn}
+                  disabled={isPreparing}
+                >
+                  {isPreparing ? (
+                    <ActivityIndicator size="small" color="#F97316" />
+                  ) : (
+                    <>
+                      <View style={styles.actionIcon}>
+                        <Flame size={20} color="#F97316" />
+                      </View>
+                      <Text style={styles.actionText}>气话焚烧</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={handleDelete}
+              >
+                <View style={styles.actionIcon}>
+                  <Trash2 size={20} color="#9CA3AF" />
+                </View>
+                <Text style={styles.actionText}>删除</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Animated.View>
+      </View>
+      
+      {/* 编辑模态框 */}
+      <EditEntryModal
+        entry={entry}
+        visible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        onSuccess={() => {
+          triggerHaptic('success');
+          setIsExpanded(false);
+        }}
+      />
+    </>
   );
 };
 
@@ -326,7 +472,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12,
   },
-  emojiBadge: {
+  moodIconBadge: {
     width: 48,
     height: 48,
     borderRadius: 16,
@@ -338,9 +484,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
-  },
-  emojiText: {
-    fontSize: 24,
   },
   textContainer: {
     flex: 1,

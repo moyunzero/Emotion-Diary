@@ -1,12 +1,27 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import Record from '../../components/Record';
+import { Toast, ToastManager } from '../../components/Toast';
 
 export default function RecordTab() {
   const router = useRouter();
+  const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
   const handleClose = () => {
     router.back();
   };
 
-  return <Record onClose={handleClose} />;
+  const handleSuccess = () => {
+    setToast({
+      message: '记录成功！已保存到你的情绪日记 💫',
+      type: 'success',
+    });
+  };
+
+  return (
+    <>
+      <Record onClose={handleClose} onSuccess={handleSuccess} />
+      <ToastManager toast={toast} onHide={() => setToast(null)} />
+    </>
+  );
 }

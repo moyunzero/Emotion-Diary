@@ -1,19 +1,75 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Filter } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
-import { FlatList, Image, ListRenderItem, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Filter, PenLine } from 'lucide-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, FlatList, Image, ListRenderItem, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
+import { useAppStore } from '../store/useAppStore';
 import { MoodEntry, Status } from '../types';
+import { formatDateChinese } from '../utils/dateUtils';
 import EntryCard from './EntryCard';
 import WeatherStation from './WeatherStation';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
-  const { entries, weather, deleteEntry, user } = useApp();
+  const entries = useAppStore((state) => state.entries);
+  const weather = useAppStore((state) => state.weather);
+  const deleteEntry = useAppStore((state) => state.deleteEntry);
+  const user = useAppStore((state) => state.user);
   const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('active');
-  
+  const [avatarError, setAvatarError] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterButtonLayout, setFilterButtonLayout] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const filterButtonRef = useRef<TouchableOpacity>(null);
+  const windowWidth = Dimensions.get('window').width;
+  
+  // 加载过滤偏好
+  useEffect(() => {
+    const loadFilterPreference = async () => {
+      try {
+        const savedFilter = await AsyncStorage.getItem('dashboard_filter');
+        if (savedFilter && ['all', 'active', 'resolved'].includes(savedFilter)) {
+          setFilter(savedFilter as 'all' | 'active' | 'resolved');
+        }
+      } catch (error) {
+        console.error('加载过滤偏好失败:', error);
+      }
+    };
+    loadFilterPreference();
+  }, []);
+  
+  // 保存过滤偏好
+  const handleFilterChange = useCallback((newFilter: 'all' | 'active' | 'resolved') => {
+    setFilter(newFilter);
+    setIsFilterOpen(false);
+    AsyncStorage.setItem('dashboard_filter', newFilter).catch(err => {
+      console.error('保存过滤偏好失败:', err);
+    });
+  }, []);
+
+  // 处理筛选按钮点击，测量按钮位置
+  const handleFilterButtonPress = useCallback(() => {
+    if (filterButtonRef.current) {
+      filterButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        // pageX, pageY 是相对于屏幕的绝对位置
+        setFilterButtonLayout({
+          x: pageX,
+          y: pageY,
+          width,
+          height,
+        });
+        setIsFilterOpen(!isFilterOpen);
+      });
+    } else {
+      setIsFilterOpen(!isFilterOpen);
+    }
+  }, [isFilterOpen]);
+
 
   const filteredEntries = (() => {
     let filtered = entries;
@@ -67,95 +123,149 @@ const Dashboard: React.FC = () => {
     return weather.condition === 'sunny' ? '宜开心' : '宜沟通';
   };
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>情绪气象站</Text>
-          <Text style={styles.subtitle}>
-            {new Date().toLocaleDateString('zh-CN')} · {getWeatherAdvice()}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.avatar}>
-          <Image 
-            source={{ uri: user?.avatar || 'https://picsum.photos/100/100' }} 
-            style={styles.avatarImage} 
-          />
-        </TouchableOpacity>
-      </View>
-
+  // 渲染列表头部（只包含天气站和标题）
+  const renderListHeader = () => (
+    <>
       {/* Weather Station */}
       <View style={styles.weatherSection}>
         <WeatherStation />
       </View>
 
-      {/* List Header */}
+      {/* List Header - 标题和筛选按钮 */}
       <View style={styles.listHeader}>
         <Text style={styles.listTitle}>
           {getFilterLabel()}
           <Text style={styles.count}> ({filteredEntries.length})</Text>
         </Text>
         
+        <TouchableOpacity 
+          ref={filterButtonRef}
+          onPress={handleFilterButtonPress}
+          onLayout={() => {
+            // 当布局变化时重新测量（例如列表滚动时）
+            if (filterButtonRef.current && isFilterOpen) {
+              filterButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+                setFilterButtonLayout({
+                  x: pageX,
+                  y: pageY,
+                  width,
+                  height,
+                });
+              });
+            }
+          }}
+          style={[styles.filterButton, isFilterOpen && styles.filterButtonActive]}
+        >
+          <Filter size={18} color={isFilterOpen ? '#EF4444' : '#6B7280'} />
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Header - 固定在顶部 */}
+      <View style={styles.header}>
         <View>
-          <TouchableOpacity 
-            onPress={() => setIsFilterOpen(!isFilterOpen)}
-            style={[styles.filterButton, isFilterOpen && styles.filterButtonActive]}
-          >
-            <Filter size={18} color={isFilterOpen ? '#EF4444' : '#6B7280'} />
-          </TouchableOpacity>
-          
-          {isFilterOpen && (
-            <View style={styles.filterDropdown}>
-              <TouchableOpacity 
-                onPress={() => { setFilter('active'); setIsFilterOpen(false); }} 
-                style={[styles.filterOption, filter === 'active' && styles.filterOptionActive]}
-              >
-                <Text style={[styles.filterOptionText, filter === 'active' && styles.filterOptionTextActive]}>
-                  未处理
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => { setFilter('resolved'); setIsFilterOpen(false); }} 
-                style={[styles.filterOption, filter === 'resolved' && styles.filterOptionActive]}
-              >
-                <Text style={[styles.filterOptionText, filter === 'resolved' && styles.filterOptionTextActive]}>
-                  已和解
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => { setFilter('all'); setIsFilterOpen(false); }} 
-                style={[styles.filterOption, filter === 'all' && styles.filterOptionActive]}
-              >
-                <Text style={[styles.filterOptionText, filter === 'all' && styles.filterOptionTextActive]}>
-                  全部
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <Text style={styles.title}>情绪气象站</Text>
+          <Text style={styles.subtitle}>
+            {formatDateChinese(Date.now())} · {getWeatherAdvice()}
+          </Text>
         </View>
+        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.avatar}>
+          {avatarError || !user?.avatar ? (
+            <View style={[styles.avatarImage, styles.avatarPlaceholder]}>
+              <Text style={styles.avatarPlaceholderText}>
+                {user?.name?.charAt(0) || '?'}
+              </Text>
+            </View>
+          ) : (
+            <Image 
+              source={{ uri: user.avatar }} 
+              style={styles.avatarImage}
+              onError={() => {
+                setAvatarError(true);
+              }}
+            />
+          )}
+        </TouchableOpacity>
       </View>
 
-      {/* List */}
+      {/* List - 包含天气站作为头部 */}
       <FlatList
         style={styles.listContainer}
         data={filteredEntries}
         renderItem={renderEntry}
         keyExtractor={keyExtractor}
+        ListHeaderComponent={renderListHeader}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>🍃</Text>
-            <Text style={styles.emptyText}>这里空空如也，一片祥和</Text>
+            <View style={styles.emptyIconContainer}>
+              <PenLine size={48} color="#D1D5DB" />
+            </View>
+            <Text style={styles.emptyTitle}>开始记录你的第一份情绪吧</Text>
+            <Text style={styles.emptyText}>记录情绪，让每一次表达都成为照料心灵的过程</Text>
+            <TouchableOpacity 
+              style={styles.emptyButton}
+              onPress={() => router.push('/record')}
+            >
+              <Text style={styles.emptyButtonText}>去记录 ✍️</Text>
+            </TouchableOpacity>
           </View>
         }
         contentContainerStyle={styles.flatListContent}
         removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-        initialNumToRender={10}
-        windowSize={10}
+        maxToRenderPerBatch={15}
+        updateCellsBatchingPeriod={100}
+        initialNumToRender={15}
+        windowSize={21}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* 筛选下拉菜单 - 显示在按钮下方 */}
+      {isFilterOpen && filterButtonLayout && (
+        <>
+          <TouchableOpacity 
+            style={styles.filterBackdrop}
+            activeOpacity={1}
+            onPress={() => setIsFilterOpen(false)}
+          />
+          <View 
+            style={[
+              styles.filterDropdown,
+              {
+                top: filterButtonLayout.y + filterButtonLayout.height + 8,
+                right: windowWidth - filterButtonLayout.x - filterButtonLayout.width,
+              }
+            ]}
+          >
+            <TouchableOpacity 
+              onPress={() => handleFilterChange('active')} 
+              style={[styles.filterOption, filter === 'active' && styles.filterOptionActive]}
+            >
+              <Text style={[styles.filterOptionText, filter === 'active' && styles.filterOptionTextActive]}>
+                未处理
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => handleFilterChange('resolved')} 
+              style={[styles.filterOption, filter === 'resolved' && styles.filterOptionActive]}
+            >
+              <Text style={[styles.filterOptionText, filter === 'resolved' && styles.filterOptionTextActive]}>
+                已和解
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => handleFilterChange('all')} 
+              style={[styles.filterOption, filter === 'all' && styles.filterOptionActive]}
+            >
+              <Text style={[styles.filterOptionText, filter === 'all' && styles.filterOptionTextActive]}>
+                全部
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -208,8 +318,18 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
+  avatarPlaceholder: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarPlaceholderText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   weatherSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   listHeader: {
     flexDirection: 'row',
@@ -248,24 +368,33 @@ const styles = StyleSheet.create({
   filterButtonActive: {
     backgroundColor: '#FEF2F2',
   },
+  filterBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    zIndex: 998,
+  },
   filterDropdown: {
     position: 'absolute',
-    right: 0,
-    top: 40,
-    width: 120,
+    width: 130,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1, // 调低透明度
-    shadowRadius: 12,
-    elevation: 4, // 调低 elevation
-    overflow: 'hidden',
-    zIndex: 30,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    zIndex: 999,
   },
   filterOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     backgroundColor: '#FFFFFF',
   },
   filterOptionActive: {
@@ -273,18 +402,16 @@ const styles = StyleSheet.create({
   },
   filterOptionText: {
     fontFamily: 'Lato_400Regular',
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 19.6,
+    fontSize: 15,
+    fontWeight: '500',
+    lineHeight: 21,
     letterSpacing: 0,
-    color: '#374151',
+    color: '#6B7280',
+    textAlign: 'center',
   },
   filterOptionTextActive: {
-    fontFamily: 'Lato_400Regular',
-    fontSize: 12,
-    fontWeight: '500',
-    lineHeight: 16.8,
-    letterSpacing: 0.5,
+    fontFamily: 'Lato_700Bold',
+    fontWeight: '700',
     color: '#EF4444',
   },
   listContainer: {
@@ -296,19 +423,54 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+    paddingHorizontal: 24,
   },
-  emptyEmoji: {
-    fontSize: 48,
+  emptyIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F9FAFB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontFamily: 'Lato_700Bold',
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 25.2,
+    letterSpacing: 0,
+    color: '#1F2937',
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptyText: {
     fontFamily: 'Lato_400Regular',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '400',
-    lineHeight: 22.4,
+    lineHeight: 20,
     letterSpacing: 0,
-    color: '#D1D5DB',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  emptyButton: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  emptyButtonText: {
+    fontFamily: 'Lato_700Bold',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });
 

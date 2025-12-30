@@ -1,15 +1,46 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from 'expo-router';
-import { ArrowLeft, Plus, X } from 'lucide-react-native';
+import { ArrowLeft, Cloud, CloudLightning, CloudRain, Droplet, Plus, X, Zap } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, MOOD_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../constants';
-import { useApp } from '../context/AppContext';
+import { useHapticFeedback } from '../hooks/useHapticFeedback';
+import { useAppStore } from '../store/useAppStore';
 import { Deadline, MoodLevel } from '../types';
+import { clearDraft, loadDraft, saveDraft, type DraftEntry } from '../utils/draftManager';
 
-const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { addEntry } = useApp();
+// 情绪等级描述
+const MOOD_DESCRIPTIONS: Record<MoodLevel, string> = {
+  [MoodLevel.ANNOYED]: '轻微的失落感，像小雨滴落在心上，需要一点理解和安慰',
+  [MoodLevel.UPSET]: '心情有些低落，像云朵遮住了阳光，需要一些时间和空间',
+  [MoodLevel.ANGRY]: '感到生气和不满，像雨云聚集，需要表达和沟通',
+  [MoodLevel.FURIOUS]: '非常愤怒，像闪电划破天空，需要冷静和深度沟通',
+  [MoodLevel.EXPLOSIVE]: '情绪爆发，像闪电雷鸣，需要紧急处理和冷静',
+};
+
+// 根据图标名称返回对应的图标组件
+const getMoodIcon = (iconName: string, color: string, size: number = 32) => {
+  const iconProps = { size, color };
+  switch (iconName) {
+    case 'Droplet':
+      return <Droplet {...iconProps} />;
+    case 'Cloud':
+      return <Cloud {...iconProps} />;
+    case 'CloudRain':
+      return <CloudRain {...iconProps} />;
+    case 'CloudLightning':
+      return <CloudLightning {...iconProps} />;
+    case 'Zap':
+      return <Zap {...iconProps} />;
+    default:
+      return <Droplet {...iconProps} />;
+  }
+};
+
+const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({ onClose, onSuccess }) => {
+  const addEntry = useAppStore((state) => state.addEntry);
+  const insets = useSafeAreaInsets();
+  const { trigger: triggerHaptic } = useHapticFeedback();
   
   const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.ANNOYED);
   const [content, setContent] = useState('');
@@ -30,6 +61,13 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // Combined Options
   const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
   const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
+  
+  // 草稿保存防抖定时器
+  const draftSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  
+  // 情绪等级提示 Modal
+  const [moodTipVisible, setMoodTipVisible] = useState(false);
+  const [selectedMoodTip, setSelectedMoodTip] = useState<MoodLevel | null>(null);
 
   const resetForm = () => {
     setMoodLevel(MoodLevel.ANNOYED);
@@ -41,16 +79,57 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setSelectedTriggers([]);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        resetForm();
+  // 保存草稿（防抖）
+  const saveDraftDebounced = useCallback(() => {
+    if (draftSaveTimeoutRef.current) {
+      clearTimeout(draftSaveTimeoutRef.current);
+    }
+    
+    draftSaveTimeoutRef.current = setTimeout(async () => {
+      const draft: DraftEntry = {
+        moodLevel,
+        content,
+        deadline,
+        customDeadlineText,
+        isCustomDeadline,
+        selectedPeople,
+        selectedTriggers,
       };
-    }, [])
-  );
+      await saveDraft(draft);
+    }, 1000); // 1秒防抖
+  }, [moodLevel, content, deadline, customDeadlineText, isCustomDeadline, selectedPeople, selectedTriggers]);
 
+  // 当表单内容变化时自动保存草稿
   useEffect(() => {
-    loadCustomOptions();
+    if (content.trim() || selectedPeople.length > 0 || selectedTriggers.length > 0) {
+      saveDraftDebounced();
+    }
+    return () => {
+      if (draftSaveTimeoutRef.current) {
+        clearTimeout(draftSaveTimeoutRef.current);
+      }
+    };
+  }, [content, selectedPeople, selectedTriggers, saveDraftDebounced]);
+
+  // 加载草稿和自定义选项
+  useEffect(() => {
+    const loadData = async () => {
+      await loadCustomOptions();
+      
+      // 加载草稿
+      const draft = await loadDraft();
+      if (draft) {
+        setMoodLevel(draft.moodLevel as MoodLevel);
+        setContent(draft.content);
+        setDeadline(draft.deadline);
+        setIsCustomDeadline(draft.isCustomDeadline);
+        setCustomDeadlineText(draft.customDeadlineText);
+        setSelectedPeople(draft.selectedPeople);
+        setSelectedTriggers(draft.selectedTriggers);
+      }
+    };
+    
+    loadData();
   }, []);
 
   const loadCustomOptions = async () => {
@@ -66,7 +145,8 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      Alert.alert('提示', '请输入发生了什么');
+      Alert.alert('提示', '写点什么吧，哪怕只是一句话 💙');
+      triggerHaptic('warning');
       return;
     }
     
@@ -80,7 +160,22 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       triggers: selectedTriggers,
     });
     
-    onClose();
+    // 清除草稿
+    await clearDraft();
+    
+    // 触发成功反馈
+    triggerHaptic('success');
+    
+    // 提交成功后重置表单
+    resetForm();
+    
+    // 调用成功回调（用于显示Toast）
+    onSuccess?.();
+    
+    // 延迟关闭，让用户看到反馈
+    setTimeout(() => {
+      onClose();
+    }, 300);
   };
 
   const toggleSelection = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
@@ -142,7 +237,8 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView 
         style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
@@ -150,7 +246,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <TouchableOpacity onPress={onClose} style={styles.backButton}>
             <ArrowLeft size={24} color="#6B7280" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>记录情绪</Text>
+          <Text style={styles.headerTitle}>记录这一刻 ✍️</Text>
           <View style={styles.placeholder} /> 
         </View>
 
@@ -158,7 +254,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           
           {/* 1. Mood Selector */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>现在多生气？</Text>
+            <Text style={styles.sectionTitle}>此刻的心情是？</Text>
             <View style={styles.moodContainer}>
               {Object.values(MoodLevel).filter(v => typeof v === 'number').map((level) => {
                 const config = MOOD_CONFIG[level as MoodLevel];
@@ -167,11 +263,16 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <TouchableOpacity
                     key={level}
                     onPress={() => setMoodLevel(level as MoodLevel)}
+                    onLongPress={() => {
+                      setSelectedMoodTip(level as MoodLevel);
+                      setMoodTipVisible(true);
+                      triggerHaptic('light');
+                    }}
                     style={[styles.moodButton, isSelected && styles.moodButtonSelected]}
                   >
-                    <Text style={[styles.moodEmoji, isSelected && styles.moodEmojiSelected]}>
-                      {config.emoji}
-                    </Text>
+                    <View style={[styles.moodIconContainer, isSelected && styles.moodIconContainerSelected]}>
+                      {getMoodIcon(config.iconName, config.iconColor, isSelected ? 36 : 28)}
+                    </View>
                     <Text style={[styles.moodLabel, isSelected && styles.moodLabelSelected]}>
                       {config.label}
                     </Text>
@@ -183,11 +284,11 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* 2. Content Input */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>发生什么事了？</Text>
+            <Text style={styles.sectionTitle}>发生了什么？</Text>
             <TextInput
               value={content}
               onChangeText={setContent}
-              placeholder="尽情吐槽吧，这里很安全..."
+              placeholder="无论是委屈、愤怒还是难过，都可以写下来..."
               multiline
               numberOfLines={4}
               style={styles.contentInput}
@@ -197,7 +298,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* 3. Deadline */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>打算记多久？</Text>
+            <Text style={styles.sectionTitle}>打算什么时候聊聊？</Text>
             <View style={styles.deadlineContainer}>
               {Object.entries(DEADLINE_CONFIG).map(([key, config]) => (
                 <TouchableOpacity
@@ -239,7 +340,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <TextInput
                 value={customDeadlineText}
                 onChangeText={setCustomDeadlineText}
-                placeholder="输入期限，例如：直到他道歉 / 3天后"
+                placeholder="比如：等他主动联系、周末见面时、下个月..."
                 style={styles.customDeadlineInput}
                 placeholderTextColor="#9CA3AF"
                 autoFocus
@@ -249,7 +350,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* 4. People Tags */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>涉事人员</Text>
+            <Text style={styles.sectionTitle}>和谁有关？（可选）</Text>
             <View style={styles.tagsContainer}>
               {allPeople.map(p => {
                 const isSelected = selectedPeople.includes(p);
@@ -281,7 +382,7 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           {/* 5. Trigger Tags */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>触发事件</Text>
+            <Text style={styles.sectionTitle}>因为什么？（可选）</Text>
             <View style={styles.tagsContainer}>
               {allTriggers.map(t => {
                 const isSelected = selectedTriggers.includes(t);
@@ -320,10 +421,48 @@ const Record: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           disabled={!content.trim()}
           style={[styles.submitButton, !content.trim() && styles.submitButtonDisabled]}
         >
-          <Text style={styles.submitText}>记录下来</Text>
+          <Text style={styles.submitText}>记录完成 💫</Text>
         </TouchableOpacity>
       </View>
       </KeyboardAvoidingView>
+      
+      {/* 情绪等级提示 Modal */}
+      <Modal
+        visible={moodTipVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setMoodTipVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setMoodTipVisible(false)}
+        >
+          <View style={styles.moodTipContainer}>
+            {selectedMoodTip && (
+              <>
+                <View style={styles.moodTipIconContainer}>
+                  {getMoodIcon(
+                    MOOD_CONFIG[selectedMoodTip].iconName,
+                    MOOD_CONFIG[selectedMoodTip].iconColor,
+                    48
+                  )}
+                </View>
+                <Text style={styles.moodTipTitle}>{MOOD_CONFIG[selectedMoodTip].label}</Text>
+                <Text style={styles.moodTipDescription}>
+                  {MOOD_DESCRIPTIONS[selectedMoodTip]}
+                </Text>
+                <TouchableOpacity
+                  style={styles.moodTipCloseButton}
+                  onPress={() => setMoodTipVisible(false)}
+                >
+                  <Text style={styles.moodTipCloseText}>知道了</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -342,7 +481,7 @@ const AddTagInput: React.FC<{ onAdd: (val: string) => void }> = ({ onAdd }) => {
           onChangeText={setVal}
           onBlur={() => { if (val) onAdd(val); setIsEditing(false); setVal(''); }}
           onSubmitEditing={() => { if (val) onAdd(val); setIsEditing(false); setVal(''); }}
-          placeholder="输入..."
+          placeholder="添加新标签..."
           style={styles.addTagInput}
         />
         <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.addTagCancel}>
@@ -415,26 +554,29 @@ const styles = StyleSheet.create({
   },
   moodButton: {
     alignItems: 'center',
-    opacity: 0.4,
+    opacity: 0.5,
   },
   moodButtonSelected: {
     opacity: 1,
     transform: [{ scale: 1.1 }],
   },
-  moodEmoji: {
-    fontSize: 32,
+  moodIconContainer: {
     marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  moodEmojiSelected: {
-    // Additional styles for selected emoji if needed
+  moodIconContainerSelected: {
+    // 选中时图标容器可以添加额外样式
   },
   moodLabel: {
     fontSize: 10,
     fontWeight: 'bold',
     color: '#4B5563',
+    textAlign: 'center',
   },
   moodLabelSelected: {
-    // Additional styles for selected label if needed
+    color: '#1F2937',
+    fontWeight: '800',
   },
   contentInput: {
     width: '100%',
@@ -554,7 +696,8 @@ const styles = StyleSheet.create({
   },
   submitContainer: {
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: 16, // 与 paddingTop 保持一致，确保上下间距一致
     borderTopWidth: 1,
     borderTopColor: '#F9FAFB',
   },
@@ -577,6 +720,53 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  moodTipContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    maxWidth: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  moodTipIconContainer: {
+    marginBottom: 16,
+  },
+  moodTipTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  moodTipDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  moodTipCloseButton: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  moodTipCloseText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
