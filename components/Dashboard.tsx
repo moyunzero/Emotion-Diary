@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
     width: number;
     height: number;
   } | null>(null);
-  const filterButtonRef = useRef<TouchableOpacity>(null);
+  const filterButtonRef = useRef<View>(null);
   const windowWidth = Dimensions.get('window').width;
   
   // 加载过滤偏好
@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
   // 处理筛选按钮点击，测量按钮位置
   const handleFilterButtonPress = useCallback(() => {
     if (filterButtonRef.current) {
-      filterButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+      filterButtonRef.current.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
         // pageX, pageY 是相对于屏幕的绝对位置
         setFilterButtonLayout({
           x: pageX,
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
           onLayout={() => {
             // 当布局变化时重新测量（例如列表滚动时）
             if (filterButtonRef.current && isFilterOpen) {
-              filterButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+              filterButtonRef.current.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
                 setFilterButtonLayout({
                   x: pageX,
                   y: pageY,

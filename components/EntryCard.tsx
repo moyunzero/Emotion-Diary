@@ -1,5 +1,5 @@
 import { Canvas, Fill, ImageShader, Shader, SkImage, Skia } from '@shopify/react-native-skia';
-import { CheckCircle, Cloud, CloudLightning, CloudRain, Droplet, Edit, Flame, Trash2, Zap } from 'lucide-react-native';
+import { CheckCircle, Edit, Flame, Trash2 } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
@@ -8,26 +8,8 @@ import { useHapticFeedback } from '../hooks/useHapticFeedback';
 import { useAppStore } from '../store/useAppStore';
 import { Deadline, MoodEntry, MoodLevel, Status } from '../types';
 import { formatDateChinese } from '../utils/dateUtils';
+import { getMoodIcon } from '../utils/moodIconUtils';
 import EditEntryModal from './EditEntryModal';
-
-// 根据图标名称返回对应的图标组件
-const getMoodIcon = (iconName: string, color: string, size: number = 20) => {
-  const iconProps = { size, color };
-  switch (iconName) {
-    case 'Droplet':
-      return <Droplet {...iconProps} />;
-    case 'Cloud':
-      return <Cloud {...iconProps} />;
-    case 'CloudRain':
-      return <CloudRain {...iconProps} />;
-    case 'CloudLightning':
-      return <CloudLightning {...iconProps} />;
-    case 'Zap':
-      return <Zap {...iconProps} />;
-    default:
-      return <Droplet {...iconProps} />;
-  }
-};
 
 interface Props {
   entry: MoodEntry;
@@ -253,7 +235,7 @@ const EntryCard: React.FC<Props> = ({ entry, onBurn }) => {
                   animationFrameId = requestAnimationFrame(animate);
                   
                   // 设置超时保护，防止动画卡死
-                  const timeoutId = setTimeout(() => {
+                  setTimeout(() => {
                     if (animationFrameId !== null) {
                       cancelAnimationFrame(animationFrameId);
                       onBurn(entry.id, entry.content);

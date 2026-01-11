@@ -1,4 +1,4 @@
-import { Deadline, MoodLevel, Status } from './types';
+import { Deadline, MoodLevel } from './types';
 
 // 情绪图标配置 - 使用天气主题图标，符合"情绪气象站"定位
 export const MOOD_CONFIG = {
@@ -6,40 +6,30 @@ export const MOOD_CONFIG = {
     level: 1,
     iconName: 'Droplet', // 雨滴 - 轻微的情绪波动
     label: '有点委屈',
-    color: 'bg-yellow-100',
-    textColor: 'text-yellow-700',
     iconColor: '#F59E0B', // 黄色
   },
   [MoodLevel.UPSET]: {
     level: 2,
     iconName: 'Cloud', // 云朵 - 心情低落
     label: '心情低落',
-    color: 'bg-orange-100',
-    textColor: 'text-orange-700',
     iconColor: '#F97316', // 橙色
   },
   [MoodLevel.ANGRY]: {
     level: 3,
     iconName: 'CloudRain', // 雨云 - 感到生气
     label: '感到生气',
-    color: 'bg-red-100',
-    textColor: 'text-red-700',
     iconColor: '#EF4444', // 红色
   },
   [MoodLevel.FURIOUS]: {
     level: 4,
     iconName: 'CloudLightning', // 闪电云 - 非常愤怒
     label: '非常愤怒',
-    color: 'bg-red-200',
-    textColor: 'text-red-800',
     iconColor: '#DC2626', // 深红色
   },
   [MoodLevel.EXPLOSIVE]: {
     level: 5,
     iconName: 'Zap', // 闪电 - 情绪爆发
     label: '情绪爆发',
-    color: 'bg-red-300',
-    textColor: 'text-red-900',
     iconColor: '#991B1B', // 最深红色
   },
 };

@@ -52,7 +52,8 @@ export default function ProfileScreen() {
   const logout = useAppStore((state) => state.logout);
   const updateUser = useAppStore((state) => state.updateUser);
   const syncToCloud = useAppStore((state) => state.syncToCloud);
-  const syncFromCloud = useAppStore((state) => state.syncFromCloud);
+  // syncFromCloud 目前用于未来的完整同步功能
+  // const syncFromCloud = useAppStore((state) => state.syncFromCloud);
   const register = useAppStore((state) => state.register);
   const recoverFromCloud = useAppStore((state) => state.recoverFromCloud);
   
@@ -245,7 +246,7 @@ export default function ProfileScreen() {
     try {
       await updateUser({ name: editName, avatar: editAvatar });
       setIsEditProfileOpen(false);
-    } catch (error) {
+    } catch {
       Alert.alert('保存失败', '请稍后重试');
     } finally {
       setIsLoading(false);
@@ -266,7 +267,7 @@ export default function ProfileScreen() {
             try {
               await logout();
               router.back();
-            } catch (error) {
+            } catch {
               Alert.alert('退出失败', '请稍后重试');
             } finally {
               setIsLoading(false);

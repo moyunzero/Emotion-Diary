@@ -553,7 +553,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
             if (parsedUser.id && parsedUser.id.startsWith('temp_user_')) {
               await AsyncStorage.removeItem('user_session');
             }
-          } catch (e) {
+          } catch {
             // 忽略解析错误，直接清除
             await AsyncStorage.removeItem('user_session');
           }
@@ -1297,9 +1297,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
             timestamp: ensureMilliseconds(cloudEntry.timestamp), // 确保时间戳为毫秒
           }));
         
-        // 创建云端数据的ID映射，用于快速查找
-        const cloudEntriesMap = new Map(transformedCloudData.map(entry => [entry.id, entry]));
-        
         // 合并数据：使用时间戳策略解决冲突（最后写入获胜）
         // 创建本地数据的ID映射
         const localEntriesMap = new Map(currentLocalEntries.map(entry => [entry.id, entry]));
@@ -1442,9 +1439,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
             resolvedAt: cloudEntry.resolvedat ? ensureMilliseconds(cloudEntry.resolvedat) : cloudEntry.resolvedAt, // 确保时间戳为毫秒
             timestamp: ensureMilliseconds(cloudEntry.timestamp), // 确保时间戳为毫秒
           }));
-        
-        // 创建云端数据的ID映射，用于快速查找
-        const cloudEntriesMap = new Map(transformedCloudData.map(entry => [entry.id, entry]));
         
         // 合并数据：使用时间戳策略解决冲突（最后写入获胜）
         // 创建本地数据的ID映射

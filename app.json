@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "emotion-diary",
+    "name": "心晴",
     "slug": "emotion-diary",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,8 @@
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "output": "static",

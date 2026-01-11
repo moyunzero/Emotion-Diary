@@ -1,13 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowLeft, Cloud, CloudLightning, CloudRain, Droplet, Plus, X, Zap } from 'lucide-react-native';
+import { ArrowLeft, Plus, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, MOOD_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../constants';
 import { useHapticFeedback } from '../hooks/useHapticFeedback';
 import { useAppStore } from '../store/useAppStore';
 import { Deadline, MoodLevel } from '../types';
 import { clearDraft, loadDraft, saveDraft, type DraftEntry } from '../utils/draftManager';
+import { getMoodIcon } from '../utils/moodIconUtils';
 
 // 情绪等级描述
 const MOOD_DESCRIPTIONS: Record<MoodLevel, string> = {
@@ -18,28 +19,8 @@ const MOOD_DESCRIPTIONS: Record<MoodLevel, string> = {
   [MoodLevel.EXPLOSIVE]: '情绪爆发，像闪电雷鸣，需要紧急处理和冷静',
 };
 
-// 根据图标名称返回对应的图标组件
-const getMoodIcon = (iconName: string, color: string, size: number = 32) => {
-  const iconProps = { size, color };
-  switch (iconName) {
-    case 'Droplet':
-      return <Droplet {...iconProps} />;
-    case 'Cloud':
-      return <Cloud {...iconProps} />;
-    case 'CloudRain':
-      return <CloudRain {...iconProps} />;
-    case 'CloudLightning':
-      return <CloudLightning {...iconProps} />;
-    case 'Zap':
-      return <Zap {...iconProps} />;
-    default:
-      return <Droplet {...iconProps} />;
-  }
-};
-
 const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({ onClose, onSuccess }) => {
   const addEntry = useAppStore((state) => state.addEntry);
-  const insets = useSafeAreaInsets();
   const { trigger: triggerHaptic } = useHapticFeedback();
   
   const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.ANNOYED);
@@ -63,7 +44,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({ onC
   const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
   
   // 草稿保存防抖定时器
-  const draftSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const draftSaveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // 情绪等级提示 Modal
   const [moodTipVisible, setMoodTipVisible] = useState(false);

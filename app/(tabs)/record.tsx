@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import Record from '../../components/Record';
-import { Toast, ToastManager } from '../../components/Toast';
+import { ToastManager } from '../../components/Toast';
 
 export default function RecordTab() {
   const router = useRouter();

@@ -1,10 +1,11 @@
+// GestureHandler 副作用必须在最顶部导入
 import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Lato_400Regular, Lato_700Bold, useFonts } from '@expo-google-fonts/lato';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { Platform, StatusBar } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { initializeStore } from '../store/useAppStore';
 
