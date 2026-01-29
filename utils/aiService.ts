@@ -34,7 +34,7 @@ const cache = new Map<string, CacheEntry>();
 /**
  * 清理过期缓存
  */
-const cleanExpiredCache = () => {
+const cleanExpiredCache = (): void => {
   const now = Date.now();
   for (const [key, value] of cache.entries()) {
     if (now - value.timestamp >= value.ttl) {
@@ -46,7 +46,7 @@ const cleanExpiredCache = () => {
 /**
  * 清理最旧的缓存条目（当缓存超过最大大小时）
  */
-const evictOldestCache = () => {
+const evictOldestCache = (): void => {
   if (cache.size <= MAX_CACHE_SIZE) return;
   
   // 按时间戳排序，删除最旧的条目

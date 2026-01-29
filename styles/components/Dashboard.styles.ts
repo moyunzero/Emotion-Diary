@@ -103,7 +103,6 @@ export const styles = StyleSheet.create({
   },
   filterDropdown: {
     position: 'absolute',
-    width: 130,
     backgroundColor: COLORS.background.primary,
     borderRadius: DESIGN_TOKENS.borderRadius.large,
     ...DESIGN_TOKENS.shadow.xl,

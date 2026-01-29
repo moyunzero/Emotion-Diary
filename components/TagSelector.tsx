@@ -37,8 +37,8 @@ const TagSelector: React.FC<TagSelectorProps> = ({
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.tagsContainer}>
         {options.map((item) => {
-          const isSelected = selected.includes(item);
-          const isCustom = customOptions.includes(item);
+          const isSelected = selected?.includes(item) ?? false;
+          const isCustom = customOptions?.includes(item) ?? false;
           return (
             <View
               key={item}

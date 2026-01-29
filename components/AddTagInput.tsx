@@ -12,7 +12,7 @@ interface AddTagInputProps {
   onAdd: (value: string) => void;
 }
 
-const AddTagInput: React.FC<AddTagInputProps> = ({ onAdd }) => {
+const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState('');
   const isSubmittingRef = useRef(false);
@@ -128,6 +128,12 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
 });
+
+/**
+ * Memoized AddTagInput component
+ * Prevents re-renders when parent re-renders but onAdd callback hasn't changed
+ */
+const AddTagInput = React.memo(AddTagInputComponent);
 
 export default AddTagInput;
 

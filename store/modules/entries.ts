@@ -4,20 +4,12 @@
  */
 
 import { EditHistory, MoodEntry, Status } from '../../types';
-import { EntriesModule } from './types';
+import { EntriesModule, ModuleCreator } from './types';
 
 /**
  * 创建条目管理模块
  */
-export const createEntriesModule = (
-  set: (partial: Partial<EntriesModule>) => void,
-  get: () => EntriesModule & { 
-    _saveEntries: () => void; 
-    _calculateWeather: () => void;
-    updateFirstEntryDate?: (timestamp: number) => Promise<void>;
-    clearFirstEntryDate?: () => Promise<void>;
-  }
-): EntriesModule => ({
+export const createEntriesModule: ModuleCreator<EntriesModule> = (set, get) => ({
   entries: [],
 
   /**
@@ -30,7 +22,7 @@ export const createEntriesModule = (
   /**
    * 添加新条目
    */
-  addEntry: async (entryData) => {
+  addEntry: async (entryData): Promise<void> => {
     const newEntry: MoodEntry = {
       ...entryData,
       id: Date.now().toString(),
@@ -56,7 +48,7 @@ export const createEntriesModule = (
   /**
    * 更新条目（支持编辑历史）
    */
-  updateEntry: (id, updates) => {
+  updateEntry: (id, updates): void => {
     const { entries } = get();
     const entry = entries.find((e) => e.id === id);
 
@@ -101,7 +93,7 @@ export const createEntriesModule = (
   /**
    * 解决条目
    */
-  resolveEntry: (id) => {
+  resolveEntry: (id): void => {
     const { entries } = get();
     const updatedEntries = entries.map((e) =>
       e.id === id
@@ -118,7 +110,7 @@ export const createEntriesModule = (
   /**
    * 焚烧条目（标记为已焚烧，不真正删除）
    */
-  burnEntry: (id) => {
+  burnEntry: (id): void => {
     const { entries } = get();
     const updatedEntries = entries.map((e) =>
       e.id === id
@@ -135,7 +127,7 @@ export const createEntriesModule = (
   /**
    * 删除条目（真正删除，不保留任何痕迹）
    */
-  deleteEntry: async (id) => {
+  deleteEntry: async (id): Promise<void> => {
     const { entries } = get();
     const updatedEntries = entries.filter((e) => e.id !== id);
     set({ entries: updatedEntries });
@@ -154,14 +146,14 @@ export const createEntriesModule = (
   /**
    * 加载本地条目（占位符，实际实现在主 Store 中）
    */
-  _loadEntries: async () => {
+  _loadEntries: async (): Promise<void> => {
     // 实现在主 Store 中
   },
 
   /**
    * 保存条目到本地（占位符，实际实现在主 Store 中）
    */
-  _saveEntries: () => {
+  _saveEntries: (): void => {
     // 实现在主 Store 中
   },
 });

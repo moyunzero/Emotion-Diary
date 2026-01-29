@@ -49,7 +49,7 @@ class PerformanceMonitor {
   end(name: string, metadata?: Record<string, unknown>): number {
     const startTime = this.timers.get(name);
     if (!startTime) {
-      console.warn(`Performance timer "${name}" not found`);
+      // console.warn(`Performance timer "${name}" not found`);
       return 0;
     }
 

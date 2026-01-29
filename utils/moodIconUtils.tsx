@@ -8,7 +8,7 @@ import React from 'react';
  * @param size 图标大小，默认为 20
  * @returns React 图标组件
  */
-export const getMoodIcon = (iconName: string, color: string, size: number = 20) => {
+export const getMoodIcon = (iconName: string, color: string, size: number = 20): React.JSX.Element => {
   const iconProps = { size, color };
   switch (iconName) {
     case 'Droplet':

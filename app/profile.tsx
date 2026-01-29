@@ -1,10 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
-    Camera,
     CheckCircle,
-    ChevronLeft,
-    ChevronRight,
     CloudDownload,
     CloudUpload,
     LogOut,
@@ -30,17 +27,25 @@ import {
     TouchableWithoutFeedback,
     View,
 } from "react-native";
-import {
-    SafeAreaView,
-    useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import Avatar from "../components/Avatar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CompanionDaysCard from "../components/CompanionDaysCard";
 import CompanionDaysModal from "../components/CompanionDaysModal";
+import {
+    ProfileHeader,
+    ProfileMenuItem,
+    ProfileSectionHeader,
+    ProfileStatCard,
+    ProfileUserCard,
+} from "../components/Profile";
+import ScreenContainer from "../components/ScreenContainer";
 import { Toast } from "../components/Toast";
 import { useAppStore } from "../store/useAppStore";
+import {
+    profileContentPadding,
+    profileStyles,
+} from "../styles/components/Profile.styles";
 
-const { width, height: windowHeight } = Dimensions.get("window");
+const { height: windowHeight } = Dimensions.get("window");
 
 const AVATARS = [
   "https://picsum.photos/id/64/200/200",
@@ -68,7 +73,8 @@ export default function ProfileScreen() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [isCompanionDaysModalOpen, setIsCompanionDaysModalOpen] = useState(false);
+  const [isCompanionDaysModalOpen, setIsCompanionDaysModalOpen] =
+    useState(false);
 
   // 使用 ref 防止同步操作重复触发
   const isSyncingRef = useRef(false);
@@ -130,7 +136,7 @@ export default function ProfileScreen() {
           setLastSyncTime(parseInt(time, 10));
         }
       } catch (error) {
-        console.error("加载最后同步时间失败:", error);
+        // console.error("加载最后同步时间失败:", error);
       }
     };
     loadLastSyncTime();
@@ -164,7 +170,6 @@ export default function ProfileScreen() {
         () => {
           if (emailInputRef.current) {
             emailInputRef.current.focus();
-            console.log("Attempting to focus email input after mode switch");
           }
         },
         Platform.OS === "android" ? 500 : 250,
@@ -527,185 +532,110 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Decorative Background Circle */}
-      <View style={styles.bgCircle} />
+    <View style={profileStyles.container}>
+      <View style={profileStyles.bgCircle} />
 
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <ChevronLeft size={28} color="#1F2937" />
-          </TouchableOpacity>
-          <View style={styles.headerActions} />
+      <ScreenContainer
+        edges={["top", "bottom"]}
+        scrollable
+        contentContainerStyle={profileContentPadding}
+      >
+        <ProfileHeader onBack={handleBack} />
+
+        <ProfileUserCard
+          avatarUri={user?.avatar}
+          name={user?.name}
+          handle={user ? user.email || `@user_${user.id.slice(0, 8)}` : null}
+          moodText={
+            user ? `今日心情: ${weather.score > 20 ? "🌧️" : "☀️"}` : undefined
+          }
+          isLoggedIn={!!user}
+          onPress={user ? openEditProfile : () => setIsLoginModalOpen(true)}
+        />
+
+        <View style={profileStyles.statsContainer}>
+          <ProfileStatCard value={entries.length} label="心事记录" />
+          <ProfileStatCard value={weather.score} label="心情指数" accent />
+          <CompanionDaysCard
+            onPress={() => setIsCompanionDaysModalOpen(true)}
+          />
         </View>
 
-        <ScrollView
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* User Profile Section */}
-          <View style={styles.profileSection}>
-            <TouchableOpacity
-              onPress={user ? openEditProfile : () => setIsLoginModalOpen(true)}
-              style={styles.avatarWrapper}
-            >
-              <Avatar
-                uri={user?.avatar}
-                name={user?.name}
-                size={88}
-                style={styles.avatar}
-              />
-              {user && (
-                <View style={styles.editBadge}>
-                  <Camera size={14} color="#FFF" />
-                </View>
-              )}
-            </TouchableOpacity>
+        <View style={profileStyles.menuContainer}>
+          <ProfileSectionHeader title="数据与安全" />
 
-            <View style={styles.userInfo}>
-              {user ? (
-                <>
-                  <Text style={styles.userName}>{user.name}</Text>
-                  <Text style={styles.userHandle}>
-                    {user.email || `@user_${user.id.slice(0, 8)}`}
+          {user && (
+            <View style={profileStyles.syncStatusContainer}>
+              <View style={profileStyles.syncStatusRow}>
+                <View style={profileStyles.syncStatusLeft}>
+                  {syncStatus === "syncing" && (
+                    <ActivityIndicator
+                      size="small"
+                      color="#3B82F6"
+                      style={{ marginRight: 8 }}
+                    />
+                  )}
+                  {syncStatus === "success" && (
+                    <CheckCircle
+                      size={16}
+                      color="#10B981"
+                      style={{ marginRight: 8 }}
+                    />
+                  )}
+                  {syncStatus === "error" && (
+                    <X size={16} color="#EF4444" style={{ marginRight: 8 }} />
+                  )}
+                  <Text style={profileStyles.syncStatusText}>
+                    {syncProgress ||
+                      `最后同步：${formatLastSyncTime(lastSyncTime)}`}
                   </Text>
-                  <View style={styles.moodBadge}>
-                    <Text style={styles.moodText}>
-                      今日心情: {weather.score > 20 ? "🌧️" : "☀️"}
-                    </Text>
-                  </View>
-                </>
-              ) : (
-                <TouchableOpacity onPress={() => setIsLoginModalOpen(true)}>
-                  <Text style={styles.loginTitle}>点击登录</Text>
-                  <Text style={styles.loginSubtitle}>开启您的情绪之旅</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
-          {/* Stats Cards */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>{entries.length}</Text>
-              <Text style={styles.statLabel}>心事记录</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: "#EF4444" }]}>
-                {weather.score}
-              </Text>
-              <Text style={styles.statLabel}>心情指数</Text>
-            </View>
-            <CompanionDaysCard onPress={() => setIsCompanionDaysModalOpen(true)} />
-          </View>
-
-          {/* Menu Groups */}
-          <View style={styles.menuContainer}>
-            <Text style={styles.menuHeader}>数据与安全</Text>
-
-            {/* 同步状态指示器 */}
-            {user && (
-              <View style={styles.syncStatusContainer}>
-                <View style={styles.syncStatusRow}>
-                  <View style={styles.syncStatusLeft}>
-                    {syncStatus === "syncing" && (
-                      <ActivityIndicator
-                        size="small"
-                        color="#3B82F6"
-                        style={{ marginRight: 8 }}
-                      />
-                    )}
-                    {syncStatus === "success" && (
-                      <CheckCircle
-                        size={16}
-                        color="#10B981"
-                        style={{ marginRight: 8 }}
-                      />
-                    )}
-                    {syncStatus === "error" && (
-                      <X size={16} color="#EF4444" style={{ marginRight: 8 }} />
-                    )}
-                    <Text style={styles.syncStatusText}>
-                      {syncProgress ||
-                        `最后同步：${formatLastSyncTime(lastSyncTime)}`}
-                    </Text>
-                  </View>
                 </View>
               </View>
-            )}
-
-            <View style={styles.menuGroup}>
-              <TouchableOpacity
-                style={[styles.menuItem, isLoading && styles.menuItemDisabled]}
-                onPress={() => handleSyncAction("upload")}
-                disabled={isLoading}
-              >
-                <View style={[styles.menuIcon, { backgroundColor: "#FEF2F2" }]}>
-                  <CloudUpload size={20} color="#EF4444" />
-                </View>
-                <View style={styles.menuTextContainer}>
-                  <Text style={styles.menuText}>备份心事</Text>
-                  {syncStatus === "syncing" && (
-                    <Text style={styles.menuSubtext}>正在备份...</Text>
-                  )}
-                </View>
-                {syncStatus !== "syncing" && (
-                  <ChevronRight size={20} color="#D1D5DB" />
-                )}
-              </TouchableOpacity>
-
-              <View style={styles.menuDivider} />
-
-              <TouchableOpacity
-                style={[styles.menuItem, isLoading && styles.menuItemDisabled]}
-                onPress={() => handleSyncAction("download")}
-                disabled={isLoading}
-              >
-                <View style={[styles.menuIcon, { backgroundColor: "#EFF6FF" }]}>
-                  <CloudDownload size={20} color="#3B82F6" />
-                </View>
-                <View style={styles.menuTextContainer}>
-                  <Text style={styles.menuText}>找回回忆</Text>
-                  {syncStatus === "syncing" && (
-                    <Text style={styles.menuSubtext}>正在同步...</Text>
-                  )}
-                </View>
-                {syncStatus !== "syncing" && (
-                  <ChevronRight size={20} color="#D1D5DB" />
-                )}
-              </TouchableOpacity>
             </View>
+          )}
 
-            {user && (
-              <>
-                <Text style={styles.menuHeader}>其他</Text>
-                <View style={styles.menuGroup}>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={handleLogout}
-                  >
-                    <View
-                      style={[styles.menuIcon, { backgroundColor: "#FEF2F2" }]}
-                    >
-                      <LogOut size={20} color="#EF4444" />
-                    </View>
-                    <Text style={[styles.menuText, { color: "#EF4444" }]}>
-                      退出登录
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
+          <View style={profileStyles.menuGroup}>
+            <ProfileMenuItem
+              icon={<CloudUpload size={20} color="#EF4444" />}
+              iconBgColor="#FEF2F2"
+              title="备份心事"
+              subtext={syncStatus === "syncing" ? "正在备份..." : undefined}
+              showChevron={syncStatus !== "syncing"}
+              disabled={isLoading}
+              onPress={() => handleSyncAction("upload")}
+            />
+            <View style={profileStyles.menuDivider} />
+            <ProfileMenuItem
+              icon={<CloudDownload size={20} color="#3B82F6" />}
+              iconBgColor="#EFF6FF"
+              title="找回回忆"
+              subtext={syncStatus === "syncing" ? "正在同步..." : undefined}
+              showChevron={syncStatus !== "syncing"}
+              disabled={isLoading}
+              onPress={() => handleSyncAction("download")}
+            />
           </View>
-        </ScrollView>
-      </SafeAreaView>
 
-      {/* Loading Overlay */}
+          {user && (
+            <>
+              <ProfileSectionHeader title="其他" />
+              <View style={profileStyles.menuGroup}>
+                <ProfileMenuItem
+                  icon={<LogOut size={20} color="#EF4444" />}
+                  iconBgColor="#FEF2F2"
+                  title="退出登录"
+                  showChevron={false}
+                  danger
+                  onPress={handleLogout}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      </ScreenContainer>
+
       {isLoading && (
-        <View style={styles.loadingOverlay}>
+        <View style={profileStyles.loadingOverlay}>
           <ActivityIndicator size="large" color="#EF4444" />
         </View>
       )}
@@ -739,10 +669,13 @@ export default function ProfileScreen() {
         statusBarTranslucent={true}
       >
         <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}
+          >
             <View style={styles.modalOverlayBackground} />
           </TouchableWithoutFeedback>
-          
+
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             style={styles.keyboardAvoidingView}
@@ -756,387 +689,387 @@ export default function ProfileScreen() {
                   marginBottom: Math.max(insets.bottom, 20), // 底部安全区域
                   maxHeight: Math.min(
                     windowHeight * 0.75,
-                      windowHeight - insets.top - Math.max(insets.bottom, 20) - 40,
-                    ),
-                  },
-                ]}
+                    windowHeight -
+                      insets.top -
+                      Math.max(insets.bottom, 20) -
+                      40,
+                  ),
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  setIsLoginModalOpen(false);
+                  setIsRegisterMode(false);
+                  setEmail("");
+                  setPassword("");
+                  setConfirmPassword("");
+                  setRegisterName("");
+                  setLoginEmailError("");
+                  setLoginPasswordError("");
+                  setRegisterNameError("");
+                  setRegisterEmailError("");
+                  setRegisterPasswordError("");
+                  setRegisterConfirmPasswordError("");
+                  setLoginGlobalError("");
+                  setRegisterGlobalError("");
+                }}
               >
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => {
-                    setIsLoginModalOpen(false);
-                    setIsRegisterMode(false);
-                    setEmail("");
-                    setPassword("");
-                    setConfirmPassword("");
-                    setRegisterName("");
-                    setLoginEmailError("");
-                    setLoginPasswordError("");
-                    setRegisterNameError("");
-                    setRegisterEmailError("");
-                    setRegisterPasswordError("");
-                    setRegisterConfirmPasswordError("");
-                    setLoginGlobalError("");
-                    setRegisterGlobalError("");
-                  }}
-                >
-                  <X size={24} color="#9CA3AF" />
-                </TouchableOpacity>
+                <X size={24} color="#9CA3AF" />
+              </TouchableOpacity>
 
-                <ScrollView
-                  ref={modalScrollViewRef}
-                  style={styles.modalScrollView}
-                  contentContainerStyle={styles.modalScrollContent}
-                  keyboardShouldPersistTaps="handled"
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled={true}
-                  keyboardDismissMode={
-                    Platform.OS === "ios" ? "interactive" : "on-drag"
-                  }
-                >
-                  <View style={styles.modalHeader}>
-                    <View style={styles.loginIconBox}>
-                      <UserIcon size={32} color="#EF4444" />
-                    </View>
-                    <Text style={styles.modalTitle}>
-                      {isRegisterMode ? "创建账号" : "开启云端守护"}
-                    </Text>
-                    <Text style={styles.modalSubtitle}>
-                      {isRegisterMode
-                        ? "注册账号，让情绪记录永久保存"
-                        : "登录后，您的情绪记录将安全地存储在云端，随时随地找回。"}
-                    </Text>
+              <ScrollView
+                ref={modalScrollViewRef}
+                style={styles.modalScrollView}
+                contentContainerStyle={styles.modalScrollContent}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}
+                keyboardDismissMode={
+                  Platform.OS === "ios" ? "interactive" : "on-drag"
+                }
+              >
+                <View style={styles.modalHeader}>
+                  <View style={styles.loginIconBox}>
+                    <UserIcon size={32} color="#EF4444" />
                   </View>
+                  <Text style={styles.modalTitle}>
+                    {isRegisterMode ? "创建账号" : "开启云端守护"}
+                  </Text>
+                  <Text style={styles.modalSubtitle}>
+                    {isRegisterMode
+                      ? "注册账号，让情绪记录永久保存"
+                      : "登录后，您的情绪记录将安全地存储在云端，随时随地找回。"}
+                  </Text>
+                </View>
 
-                  {!isRegisterMode ? (
-                    // 登录表单
-                    <View style={styles.formContainer} key="login-form">
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>邮箱</Text>
-                        <TextInput
-                          key="login-email-input"
-                          ref={emailInputRef}
-                          style={styles.input}
-                          value={email}
-                          onChangeText={(value) => {
-                            setEmail(value);
-                            if (!isRegisterMode) {
-                              setLoginEmailError(validateEmail(value));
-                            } else {
-                              setRegisterEmailError(validateEmail(value));
-                            }
-                          }}
-                          placeholder="输入你的邮箱地址"
-                          keyboardType="email-address"
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="email"
-                          textContentType="emailAddress"
-                          editable={true}
-                          selectTextOnFocus={false}
-                          returnKeyType="next"
-                          onSubmitEditing={() => {
-                            // 查找密码输入框并聚焦
-                            const passwordInputs = modalScrollViewRef.current;
-                            if (passwordInputs) {
-                              // 在登录模式下，直接跳到密码输入框
-                              setTimeout(() => {
-                                modalScrollViewRef.current?.scrollToEnd({
-                                  animated: true,
-                                });
-                              }, 100);
-                            }
-                          }}
-                          blurOnSubmit={false}
-                          onFocus={() => {
-                            // 确保输入框获得焦点时可以正常输入
-                            console.log("Email input focused");
-                          }}
-                        />
-                      </View>
-
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>密码</Text>
-                        <TextInput
-                          style={styles.input}
-                          value={password}
-                          onChangeText={(value) => {
-                            setPassword(value);
-                            if (!isRegisterMode) {
-                              setLoginPasswordError(
-                                validatePassword(value, false),
-                              );
-                            } else {
-                              setRegisterPasswordError(
-                                validatePassword(value, true),
-                              );
-                              if (confirmPassword) {
-                                if (value !== confirmPassword) {
-                                  setRegisterConfirmPasswordError(
-                                    "两次输入的密码不一致",
-                                  );
-                                } else {
-                                  setRegisterConfirmPasswordError("");
-                                }
-                              }
-                            }
-                          }}
-                          placeholder="输入你的密码"
-                          secureTextEntry
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="password"
-                          textContentType="password"
-                          returnKeyType="done"
-                          onSubmitEditing={handleLogin}
-                          onFocus={() => {
+                {!isRegisterMode ? (
+                  // 登录表单
+                  <View style={styles.formContainer} key="login-form">
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>邮箱</Text>
+                      <TextInput
+                        key="login-email-input"
+                        ref={emailInputRef}
+                        style={styles.input}
+                        value={email}
+                        onChangeText={(value) => {
+                          setEmail(value);
+                          if (!isRegisterMode) {
+                            setLoginEmailError(validateEmail(value));
+                          } else {
+                            setRegisterEmailError(validateEmail(value));
+                          }
+                        }}
+                        placeholder="输入你的邮箱地址"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="email"
+                        textContentType="emailAddress"
+                        editable={true}
+                        selectTextOnFocus={false}
+                        returnKeyType="next"
+                        onSubmitEditing={() => {
+                          // 查找密码输入框并聚焦
+                          const passwordInputs = modalScrollViewRef.current;
+                          if (passwordInputs) {
+                            // 在登录模式下，直接跳到密码输入框
                             setTimeout(() => {
                               modalScrollViewRef.current?.scrollToEnd({
                                 animated: true,
                               });
                             }, 100);
-                          }}
-                        />
-                      </View>
-                      {loginEmailError ? (
-                        <Text style={styles.errorText}>{loginEmailError}</Text>
-                      ) : null}
-                      {loginPasswordError ? (
-                        <Text style={styles.errorText}>
-                          {loginPasswordError}
-                        </Text>
-                      ) : null}
+                          }
+                        }}
+                        blurOnSubmit={false}
+                        onFocus={() => {
+                          // 确保输入框获得焦点时可以正常输入
+                        }}
+                      />
                     </View>
-                  ) : (
-                    // 注册表单
-                    <View style={styles.formContainer}>
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>昵称</Text>
-                        <TextInput
-                          ref={registerNameInputRef}
-                          style={styles.input}
-                          value={registerName}
-                          onChangeText={(value) => {
-                            setRegisterName(value);
-                            setRegisterNameError(
-                              value.trim() ? "" : tError("username_required"),
+
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>密码</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={password}
+                        onChangeText={(value) => {
+                          setPassword(value);
+                          if (!isRegisterMode) {
+                            setLoginPasswordError(
+                              validatePassword(value, false),
                             );
-                          }}
-                          placeholder="给自己起个好听的名字吧~"
-                          autoCapitalize="words"
-                          autoCorrect={false}
-                          autoComplete="name"
-                          textContentType="name"
-                          maxLength={20}
-                          returnKeyType="next"
-                          onSubmitEditing={() => registerEmailInputRef.current?.focus()}
-                          blurOnSubmit={false}
-                        />
-                      </View>
-                      {registerNameError ? (
-                        <Text style={styles.errorText}>
-                          {registerNameError}
-                        </Text>
-                      ) : null}
-
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>邮箱</Text>
-                        <TextInput
-                          ref={registerEmailInputRef}
-                          style={styles.input}
-                          value={email}
-                          onChangeText={(value) => {
-                            setEmail(value);
-                            setRegisterEmailError(validateEmail(value));
-                          }}
-                          placeholder="输入你的邮箱地址"
-                          keyboardType="email-address"
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="email"
-                          textContentType="emailAddress"
-                          returnKeyType="next"
-                          onSubmitEditing={() => registerPasswordInputRef.current?.focus()}
-                          blurOnSubmit={false}
-                        />
-                      </View>
-                      {registerEmailError ? (
-                        <Text style={styles.errorText}>
-                          {registerEmailError}
-                        </Text>
-                      ) : null}
-
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>密码</Text>
-                        <TextInput
-                          ref={registerPasswordInputRef}
-                          style={styles.input}
-                          value={password}
-                          onChangeText={(value) => {
-                            setPassword(value);
-                            const error = (() => {
-                              if (!value.trim())
-                                return tError("password_required");
-                              if (value.trim().length < 6)
-                                return tError("password_weak");
-                              return "";
-                            })();
-                            setRegisterPasswordError(error);
+                          } else {
+                            setRegisterPasswordError(
+                              validatePassword(value, true),
+                            );
                             if (confirmPassword) {
                               if (value !== confirmPassword) {
                                 setRegisterConfirmPasswordError(
-                                  tError("confirm_mismatch"),
+                                  "两次输入的密码不一致",
                                 );
                               } else {
                                 setRegisterConfirmPasswordError("");
                               }
                             }
-                          }}
-                          placeholder="设置密码（至少6位）"
-                          secureTextEntry
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="password-new"
-                          textContentType="newPassword"
-                          returnKeyType="next"
-                          onSubmitEditing={() => registerConfirmPasswordInputRef.current?.focus()}
-                          blurOnSubmit={false}
-                          onFocus={() => {
-                            setTimeout(() => {
-                              modalScrollViewRef.current?.scrollToEnd({
-                                animated: true,
-                              });
-                            }, 100);
-                          }}
-                        />
-                      </View>
-                      {registerPasswordError ? (
-                        <Text style={styles.errorText}>
-                          {registerPasswordError}
-                        </Text>
-                      ) : null}
+                          }
+                        }}
+                        placeholder="输入你的密码"
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="password"
+                        textContentType="password"
+                        returnKeyType="done"
+                        onSubmitEditing={handleLogin}
+                        onFocus={() => {
+                          setTimeout(() => {
+                            modalScrollViewRef.current?.scrollToEnd({
+                              animated: true,
+                            });
+                          }, 100);
+                        }}
+                      />
+                    </View>
+                    {loginEmailError ? (
+                      <Text style={styles.errorText}>{loginEmailError}</Text>
+                    ) : null}
+                    {loginPasswordError ? (
+                      <Text style={styles.errorText}>{loginPasswordError}</Text>
+                    ) : null}
+                  </View>
+                ) : (
+                  // 注册表单
+                  <View style={styles.formContainer}>
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>昵称</Text>
+                      <TextInput
+                        ref={registerNameInputRef}
+                        style={styles.input}
+                        value={registerName}
+                        onChangeText={(value) => {
+                          setRegisterName(value);
+                          setRegisterNameError(
+                            value.trim() ? "" : tError("username_required"),
+                          );
+                        }}
+                        placeholder="给自己起个好听的名字吧~"
+                        autoCapitalize="words"
+                        autoCorrect={false}
+                        autoComplete="name"
+                        textContentType="name"
+                        maxLength={20}
+                        returnKeyType="next"
+                        onSubmitEditing={() =>
+                          registerEmailInputRef.current?.focus()
+                        }
+                        blurOnSubmit={false}
+                      />
+                    </View>
+                    {registerNameError ? (
+                      <Text style={styles.errorText}>{registerNameError}</Text>
+                    ) : null}
 
-                      <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>确认密码</Text>
-                        <TextInput
-                          ref={registerConfirmPasswordInputRef}
-                          style={styles.input}
-                          value={confirmPassword}
-                          onChangeText={(value) => {
-                            setConfirmPassword(value);
-                            if (!value.trim()) {
-                              setRegisterConfirmPasswordError(
-                                tError("confirm_required"),
-                              );
-                            } else if (value !== password) {
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>邮箱</Text>
+                      <TextInput
+                        ref={registerEmailInputRef}
+                        style={styles.input}
+                        value={email}
+                        onChangeText={(value) => {
+                          setEmail(value);
+                          setRegisterEmailError(validateEmail(value));
+                        }}
+                        placeholder="输入你的邮箱地址"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="email"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        onSubmitEditing={() =>
+                          registerPasswordInputRef.current?.focus()
+                        }
+                        blurOnSubmit={false}
+                      />
+                    </View>
+                    {registerEmailError ? (
+                      <Text style={styles.errorText}>{registerEmailError}</Text>
+                    ) : null}
+
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>密码</Text>
+                      <TextInput
+                        ref={registerPasswordInputRef}
+                        style={styles.input}
+                        value={password}
+                        onChangeText={(value) => {
+                          setPassword(value);
+                          const error = (() => {
+                            if (!value.trim())
+                              return tError("password_required");
+                            if (value.trim().length < 6)
+                              return tError("password_weak");
+                            return "";
+                          })();
+                          setRegisterPasswordError(error);
+                          if (confirmPassword) {
+                            if (value !== confirmPassword) {
                               setRegisterConfirmPasswordError(
                                 tError("confirm_mismatch"),
                               );
                             } else {
                               setRegisterConfirmPasswordError("");
                             }
-                          }}
-                          placeholder="请再次输入密码"
-                          secureTextEntry
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="password-new"
-                          textContentType="newPassword"
-                          returnKeyType="done"
-                          onSubmitEditing={handleLogin}
-                          onFocus={() => {
-                            setTimeout(() => {
-                              modalScrollViewRef.current?.scrollToEnd({
-                                animated: true,
-                              });
-                            }, 100);
-                          }}
-                        />
-                      </View>
-                      {registerConfirmPasswordError ? (
-                        <Text style={styles.errorText}>
-                          {registerConfirmPasswordError}
-                        </Text>
-                      ) : null}
+                          }
+                        }}
+                        placeholder="设置密码（至少6位）"
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="password-new"
+                        textContentType="newPassword"
+                        returnKeyType="next"
+                        onSubmitEditing={() =>
+                          registerConfirmPasswordInputRef.current?.focus()
+                        }
+                        blurOnSubmit={false}
+                        onFocus={() => {
+                          setTimeout(() => {
+                            modalScrollViewRef.current?.scrollToEnd({
+                              animated: true,
+                            });
+                          }, 100);
+                        }}
+                      />
                     </View>
-                  )}
-
-                  {!isRegisterMode && !!loginGlobalError && (
-                    <Text style={styles.globalErrorText}>
-                      {loginGlobalError}
-                    </Text>
-                  )}
-                  {isRegisterMode && !!registerGlobalError && (
-                    <Animated.View
-                      style={{
-                        opacity: globalErrorOpacity,
-                        transform: [
-                          {
-                            translateY: globalErrorOpacity.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [8, 0],
-                            }),
-                          },
-                        ],
-                      }}
-                    >
-                      <Text style={styles.globalErrorText}>
-                        {registerGlobalError}
+                    {registerPasswordError ? (
+                      <Text style={styles.errorText}>
+                        {registerPasswordError}
                       </Text>
-                    </Animated.View>
-                  )}
+                    ) : null}
 
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={handleLogin}
-                    disabled={
-                      isLoading ||
-                      (!isRegisterMode &&
-                        (!!loginEmailError ||
-                          !!loginPasswordError ||
-                          !email.trim() ||
-                          !password.trim())) ||
-                      (isRegisterMode &&
-                        (!!registerNameError ||
-                          !!registerEmailError ||
-                          !!registerPasswordError ||
-                          !!registerConfirmPasswordError ||
-                          !registerName.trim() ||
-                          !email.trim() ||
-                          !password.trim() ||
-                          !confirmPassword.trim()))
-                    }
-                  >
-                    {isLoading ? (
-                      <ActivityIndicator color="#FFFFFF" />
-                    ) : (
-                      <Text style={styles.primaryButtonText}>
-                        {isRegisterMode ? "注册账号" : "登录"}
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.inputLabel}>确认密码</Text>
+                      <TextInput
+                        ref={registerConfirmPasswordInputRef}
+                        style={styles.input}
+                        value={confirmPassword}
+                        onChangeText={(value) => {
+                          setConfirmPassword(value);
+                          if (!value.trim()) {
+                            setRegisterConfirmPasswordError(
+                              tError("confirm_required"),
+                            );
+                          } else if (value !== password) {
+                            setRegisterConfirmPasswordError(
+                              tError("confirm_mismatch"),
+                            );
+                          } else {
+                            setRegisterConfirmPasswordError("");
+                          }
+                        }}
+                        placeholder="请再次输入密码"
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="password-new"
+                        textContentType="newPassword"
+                        returnKeyType="done"
+                        onSubmitEditing={handleLogin}
+                        onFocus={() => {
+                          setTimeout(() => {
+                            modalScrollViewRef.current?.scrollToEnd({
+                              animated: true,
+                            });
+                          }, 100);
+                        }}
+                      />
+                    </View>
+                    {registerConfirmPasswordError ? (
+                      <Text style={styles.errorText}>
+                        {registerConfirmPasswordError}
                       </Text>
-                    )}
-                  </TouchableOpacity>
-
-                  <View style={styles.switchModeContainer}>
-                    <Text style={styles.switchModeText}>
-                      {isRegisterMode ? "已有账号？" : "还没有账号？"}
-                    </Text>
-                    <TouchableOpacity onPress={handleSwitchMode}>
-                      <Text style={styles.switchModeLink}>
-                        {isRegisterMode ? "立即登录" : "立即注册"}
-                      </Text>
-                    </TouchableOpacity>
+                    ) : null}
                   </View>
-                </ScrollView>
-              </View>
-            </KeyboardAvoidingView>
+                )}
+
+                {!isRegisterMode && !!loginGlobalError && (
+                  <Text style={styles.globalErrorText}>{loginGlobalError}</Text>
+                )}
+                {isRegisterMode && !!registerGlobalError && (
+                  <Animated.View
+                    style={{
+                      opacity: globalErrorOpacity,
+                      transform: [
+                        {
+                          translateY: globalErrorOpacity.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [8, 0],
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    <Text style={styles.globalErrorText}>
+                      {registerGlobalError}
+                    </Text>
+                  </Animated.View>
+                )}
+
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleLogin}
+                  disabled={
+                    isLoading ||
+                    (!isRegisterMode &&
+                      (!!loginEmailError ||
+                        !!loginPasswordError ||
+                        !email.trim() ||
+                        !password.trim())) ||
+                    (isRegisterMode &&
+                      (!!registerNameError ||
+                        !!registerEmailError ||
+                        !!registerPasswordError ||
+                        !!registerConfirmPasswordError ||
+                        !registerName.trim() ||
+                        !email.trim() ||
+                        !password.trim() ||
+                        !confirmPassword.trim()))
+                  }
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.primaryButtonText}>
+                      {isRegisterMode ? "注册账号" : "登录"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+
+                <View style={styles.switchModeContainer}>
+                  <Text style={styles.switchModeText}>
+                    {isRegisterMode ? "已有账号？" : "还没有账号？"}
+                  </Text>
+                  <TouchableOpacity onPress={handleSwitchMode}>
+                    <Text style={styles.switchModeLink}>
+                      {isRegisterMode ? "立即登录" : "立即注册"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
-      {/* Edit Profile Modal */}
+      {/* Edit Profile Modal - 修改资料窗口居中 */}
       <Modal
         visible={isEditProfileOpen}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => {
           Keyboard.dismiss();
           setIsEditProfileOpen(false);
@@ -1144,116 +1077,116 @@ export default function ProfileScreen() {
         statusBarTranslucent={true}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <SafeAreaView style={styles.modalOverlay} edges={["top"]}>
+          <View style={styles.editProfileModalOverlay}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : undefined}
               style={[
-                styles.keyboardAvoidingView,
-                { 
-                  paddingBottom: isKeyboardVisible 
-                    ? Math.max(insets.bottom + 20, 40)  // 键盘显示时：确保有足够空间
-                    : Math.max(insets.bottom, 16)       // 键盘隐藏时：最小间距
+                styles.editProfileKeyboardView,
+                {
+                  paddingBottom: isKeyboardVisible
+                    ? Math.max(insets.bottom + 20, 40)
+                    : Math.max(insets.bottom, 16),
                 },
               ]}
               keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
               enabled={Platform.OS === "ios"}
             >
-            <View
-              style={[
-                styles.modalContent,
-                {
-                  maxHeight: Math.min(
-                    windowHeight * 0.8,
-                    windowHeight -
-                      insets.top -
-                      Math.max(insets.bottom, 16) -
-                      48,
-                  ),
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setIsEditProfileOpen(false)}
+              <View
+                style={[
+                  styles.modalContent,
+                  {
+                    maxHeight: Math.min(
+                      windowHeight * 0.8,
+                      windowHeight -
+                        insets.top -
+                        Math.max(insets.bottom, 16) -
+                        48,
+                    ),
+                  },
+                ]}
               >
-                <X size={24} color="#9CA3AF" />
-              </TouchableOpacity>
-
-              <Text style={styles.modalTitle}>修改资料</Text>
-
-              <View style={styles.avatarSelection}>
-                <Image
-                  source={{ uri: editAvatar }}
-                  style={styles.previewAvatar}
-                  onError={() => {
-                    // 头像加载失败，使用默认头像
-                  }}
-                />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.avatarList}
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setIsEditProfileOpen(false)}
                 >
-                  {AVATARS.map((uri, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setEditAvatar(uri);
-                      }}
-                      style={[
-                        styles.avatarOption,
-                        editAvatar === uri && styles.avatarOptionSelected,
-                      ]}
-                    >
-                      <Image
-                        source={{ uri }}
-                        style={styles.avatarOptionImage}
-                        onError={() => {
-                          // 头像选项加载失败
+                  <X size={24} color="#9CA3AF" />
+                </TouchableOpacity>
+
+                <Text style={styles.modalTitle}>修改资料</Text>
+
+                <View style={styles.avatarSelection}>
+                  <Image
+                    source={{ uri: editAvatar }}
+                    style={styles.previewAvatar}
+                    onError={() => {
+                      // 头像加载失败，使用默认头像
+                    }}
+                  />
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.avatarList}
+                  >
+                    {AVATARS.map((uri, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setEditAvatar(uri);
                         }}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
+                        style={[
+                          styles.avatarOption,
+                          editAvatar === uri && styles.avatarOptionSelected,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.avatarOptionImage}
+                          onError={() => {
+                            // 头像选项加载失败
+                          }}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>昵称</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editName}
-                  onChangeText={setEditName}
-                  placeholder="给自己起个好听的名字吧"
-                  maxLength={20}
-                  returnKeyType="done"
-                  onSubmitEditing={handleSaveProfile}
-                  autoCapitalize="words"
-                />
-              </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>昵称</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={editName}
+                    onChangeText={setEditName}
+                    placeholder="给自己起个好听的名字吧"
+                    maxLength={20}
+                    returnKeyType="done"
+                    onSubmitEditing={handleSaveProfile}
+                    autoCapitalize="words"
+                  />
+                </View>
 
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleSaveProfile}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <Text style={styles.primaryButtonText}>保存修改</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
-        </SafeAreaView>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleSaveProfile}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.primaryButtonText}>保存修改</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
         </TouchableWithoutFeedback>
       </Modal>
-      
+
       {/* Companion Days Modal */}
       <CompanionDaysModal
         visible={isCompanionDaysModalOpen}
         onClose={() => setIsCompanionDaysModalOpen(false)}
       />
-      
+
       {toast && (
         <Toast
           message={toast.message}
@@ -1266,250 +1199,26 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF5F5", // 浅粉色背景
-  },
-  bgCircle: {
-    position: "absolute",
-    top: -width * 0.5,
-    left: -width * 0.2,
-    width: width * 1.4,
-    height: width * 1.4,
-    borderRadius: width * 0.7,
-    backgroundColor: "#FEF2F2", // 更浅的粉色
-    opacity: 0.6,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  backButton: {
-    padding: 8,
-    marginLeft: -8,
-  },
-  headerActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  iconButton: {
-    padding: 8,
-    backgroundColor: "rgba(255,255,255,0.5)",
-    borderRadius: 20,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  profileSection: {
-    marginTop: 20,
-    marginBottom: 32,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatarWrapper: {
-    position: "relative",
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    borderWidth: 4,
-    borderColor: "#FFFFFF",
-  },
-  avatarPlaceholder: {
-    backgroundColor: "#EF4444",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarPlaceholderText: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    fontWeight: "bold",
-  },
-  editBadge: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#EF4444",
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-  },
-  userInfo: {
-    marginLeft: 20,
-    flex: 1,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#1F2937",
-    marginBottom: 4,
-    fontFamily: "Lato_700Bold",
-  },
-  userHandle: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginBottom: 8,
-    fontFamily: "Lato_400Regular",
-  },
-  moodBadge: {
-    backgroundColor: "#FEF2F2",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    borderWidth: 1,
-    borderColor: "#FECACA",
-  },
-  moodText: {
-    fontSize: 12,
-    color: "#EF4444",
-    fontWeight: "600",
-  },
-  loginTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#1F2937",
-    marginBottom: 4,
-  },
-  loginSubtitle: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 32,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#1F2937",
-    marginBottom: 4,
-    fontFamily: "Lato_700Bold",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    fontFamily: "Lato_400Regular",
-  },
-  menuContainer: {
-    marginBottom: 20,
-  },
-  menuHeader: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#6B7280",
-    marginBottom: 12,
-    marginLeft: 4,
-  },
-  menuGroup: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    overflow: "hidden",
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-  },
-  menuIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  menuTextContainer: {
-    flex: 1,
-  },
-  menuText: {
-    fontSize: 16,
-    color: "#374151",
-    fontWeight: "500",
-  },
-  menuSubtext: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    marginTop: 2,
-  },
-  menuItemDisabled: {
-    opacity: 0.5,
-  },
-  syncStatusContainer: {
-    backgroundColor: "#F9FAFB",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-  },
-  syncStatusRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  syncStatusLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  syncStatusText: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  menuDivider: {
-    height: 1,
-    backgroundColor: "#F3F4F6",
-    marginLeft: 68,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 100,
-  },
   // Modal Styles
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 24,
+  },
+  // 修改资料弹窗：整体居中（水平 + 垂直）
+  editProfileModalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  editProfileKeyboardView: {
+    width: "100%",
+    maxWidth: 340,
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalOverlayBackground: {
     position: "absolute",

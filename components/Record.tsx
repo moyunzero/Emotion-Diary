@@ -1,17 +1,14 @@
 import { ArrowLeft, Sparkles } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Keyboard,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../constants";
 import { COLORS } from "../constants/colors";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -20,18 +17,19 @@ import { styles } from "../styles/components/Record.styles";
 import { formStyles } from "../styles/sharedStyles";
 import { Deadline, MoodLevel } from "../types";
 import {
-  addCustomPerson,
-  addCustomTrigger,
-  loadCustomOptions,
-  removeCustomPerson,
-  removeCustomTrigger,
+    addCustomPerson,
+    addCustomTrigger,
+    loadCustomOptions,
+    removeCustomPerson,
+    removeCustomTrigger,
 } from "../utils/customTagsManager";
 import {
-  clearDraft,
-  loadDraft,
-  saveDraft,
-  type DraftEntry,
+    clearDraft,
+    loadDraft,
+    saveDraft,
+    type DraftEntry,
 } from "../utils/draftManager";
+import { ScreenContainer } from "./ScreenContainer";
 import AppIcon from "./icons/AppIcon";
 import MoodForm from "./MoodForm";
 
@@ -251,102 +249,97 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
 
   if (isInitializing) {
     return (
-      <SafeAreaView
-        style={formStyles.container}
-        edges={["top", "left", "right"]}
-      >
+      <ScreenContainer edges={["top", "left", "right"]}>
         <View style={formStyles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
-      </SafeAreaView>
+      </ScreenContainer>
     );
   }
 
   const isSubmitDisabled = !content.trim();
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={onClose}
-            style={styles.backButton}
-            accessibilityRole="button"
-            accessibilityLabel="返回"
-            accessibilityHint="点击返回上一页"
-          >
-            <ArrowLeft size={24} color="#6B7280" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            记录这一刻
-          </Text>
-          <View style={styles.placeholder} />
-        </View>
+    <ScreenContainer 
+      edges={["top", "left", "right"]} 
+      keyboardAware
+      style={styles.container}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={onClose}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="返回"
+          accessibilityHint="点击返回上一页"
+        >
+          <ArrowLeft size={24} color="#6B7280" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle} accessibilityRole="header">
+          记录这一刻
+        </Text>
+        <View style={styles.placeholder} />
+      </View>
 
-        <View style={styles.body}>
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollViewContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="interactive"
-          >
-            <View style={styles.content}>
-              <MoodForm
-                moodLevel={moodLevel}
-                content={content}
-                deadline={deadline}
-                isCustomDeadline={isCustomDeadline}
-                customDeadlineText={customDeadlineText}
-                selectedPeople={selectedPeople}
-                selectedTriggers={selectedTriggers}
-                customPeopleOptions={customPeopleOptions}
-                customTriggerOptions={customTriggerOptions}
-                allPeople={allPeople}
-                allTriggers={allTriggers}
-                onMoodLevelChange={setMoodLevel}
-                onContentChange={setContent}
-                onDeadlineChange={setDeadline}
-                onCustomDeadlineChange={(isCustom, text) => {
-                  setIsCustomDeadline(isCustom);
-                  setCustomDeadlineText(text);
-                }}
-                onPeopleToggle={handlePeopleToggle}
-                onTriggersToggle={handleTriggersToggle}
-                onAddCustomPerson={handleAddCustomPerson}
-                onAddCustomTrigger={handleAddCustomTrigger}
-                onDeleteCustomPerson={handleDeleteCustomPerson}
-                onDeleteCustomTrigger={handleDeleteCustomTrigger}
-                onSubmit={handleSubmit}
-              />
-            </View>
-          </ScrollView>
-          {/* 悬浮操作栏：与 TabBar 贴合，无间距 */}
-          <View style={styles.submitContainer}>
-            <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={isSubmitDisabled}
-              style={[styles.submitButton, isSubmitDisabled && styles.submitButtonDisabled]}
-              accessibilityRole="button"
-              accessibilityLabel="提交情绪记录"
-              accessibilityHint={content.trim() ? "点击保存这条情绪记录" : "请先输入情绪内容才能提交"}
-              accessibilityState={{ disabled: isSubmitDisabled }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-                <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
-                <Text style={styles.submitText}>记录完成</Text>
-              </View>
-            </TouchableOpacity>
+      <View style={styles.body}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        >
+          <View style={styles.content}>
+            <MoodForm
+              moodLevel={moodLevel}
+              content={content}
+              deadline={deadline}
+              isCustomDeadline={isCustomDeadline}
+              customDeadlineText={customDeadlineText}
+              selectedPeople={selectedPeople}
+              selectedTriggers={selectedTriggers}
+              customPeopleOptions={customPeopleOptions}
+              customTriggerOptions={customTriggerOptions}
+              allPeople={allPeople}
+              allTriggers={allTriggers}
+              onMoodLevelChange={setMoodLevel}
+              onContentChange={setContent}
+              onDeadlineChange={setDeadline}
+              onCustomDeadlineChange={(isCustom, text) => {
+                setIsCustomDeadline(isCustom);
+                setCustomDeadlineText(text);
+              }}
+              onPeopleToggle={handlePeopleToggle}
+              onTriggersToggle={handleTriggersToggle}
+              onAddCustomPerson={handleAddCustomPerson}
+              onAddCustomTrigger={handleAddCustomTrigger}
+              onDeleteCustomPerson={handleDeleteCustomPerson}
+              onDeleteCustomTrigger={handleDeleteCustomTrigger}
+              onSubmit={handleSubmit}
+            />
           </View>
+        </ScrollView>
+        {/* 悬浮操作栏：与 TabBar 贴合，无间距 */}
+        <View style={styles.submitContainer}>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={isSubmitDisabled}
+            style={[styles.submitButton, isSubmitDisabled && styles.submitButtonDisabled]}
+            accessibilityRole="button"
+            accessibilityLabel="提交情绪记录"
+            accessibilityHint={content.trim() ? "点击保存这条情绪记录" : "请先输入情绪内容才能提交"}
+            accessibilityState={{ disabled: isSubmitDisabled }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+              <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
+              <Text style={styles.submitText}>记录完成</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </View>
+    </ScreenContainer>
   );
 };
 

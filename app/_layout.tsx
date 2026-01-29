@@ -6,7 +6,7 @@ import { Platform, StatusBar } from 'react-native';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { initializeStore } from '../store/useAppStore';
+import { initializeStore, cleanupStoreTimers } from '../store/useAppStore';
 
 // 防止启动画面自动隐藏
 SplashScreen.preventAutoHideAsync();
@@ -40,12 +40,20 @@ export default function RootLayout() {
     
     // 返回清理函数
     return () => {
+      // 清理认证监听器
       if (cleanup) {
         try {
           cleanup();
         } catch (error) {
           console.error('清理初始化资源失败:', error);
         }
+      }
+      
+      // 清理所有 store 定时器（防抖定时器、保存定时器等）
+      try {
+        cleanupStoreTimers();
+      } catch (error) {
+        console.error('清理 store 定时器失败:', error);
       }
     };
   }, []); // 只在组件挂载时执行一次

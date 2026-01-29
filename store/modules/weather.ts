@@ -3,8 +3,8 @@
  * 负责计算和管理情绪天气状态
  */
 
-import { MoodEntry, Status, WeatherState } from '../../types';
-import { WeatherModule } from './types';
+import { Status, WeatherState } from '../../types';
+import { ModuleCreator, WeatherModule } from './types';
 
 /**
  * 天气阈值配置
@@ -18,10 +18,7 @@ const WEATHER_THRESHOLDS = {
 /**
  * 创建天气状态模块
  */
-export const createWeatherModule = (
-  set: (partial: Partial<WeatherModule>) => void,
-  get: () => WeatherModule & { entries: MoodEntry[] }
-): WeatherModule => ({
+export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => ({
   weather: {
     score: 0,
     condition: 'sunny',
@@ -31,7 +28,7 @@ export const createWeatherModule = (
   /**
    * 设置天气状态
    */
-  _setWeather: (weather: WeatherState) => {
+  _setWeather: (weather: WeatherState): void => {
     set({ weather });
   },
 
@@ -39,7 +36,7 @@ export const createWeatherModule = (
    * 计算天气状态
    * 基于活跃情绪记录的情绪等级总和
    */
-  _calculateWeather: () => {
+  _calculateWeather: (): void => {
     const { entries } = get();
     
     // 只计算活跃状态的条目

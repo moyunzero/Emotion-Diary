@@ -89,9 +89,9 @@ export const withExponentialBackoff = async <T>(
 
       // 计算延迟时间并等待
       const delayTime = calculateDelay(attempt, finalConfig);
-      console.log(
-        `重试 ${attempt + 1}/${finalConfig.maxRetries}，等待 ${delayTime}ms...`
-      );
+      // console.log(
+      //   `重试 ${attempt + 1}/${finalConfig.maxRetries}，等待 ${delayTime}ms...`
+      // );
       await delay(delayTime);
     }
   }

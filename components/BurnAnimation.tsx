@@ -82,7 +82,7 @@ try {
   runtimeEffect = null;
 }
 
-const BurnAnimation: React.FC<BurnAnimationProps> = ({ snapshot, width, height, onComplete }) => {
+const BurnAnimationComponent: React.FC<BurnAnimationProps> = ({ snapshot, width, height, onComplete }) => {
   const [burnProgress, setBurnProgress] = useState(0);
   const animationFrameRef = useRef<number | null>(null);
   const isMountedRef = useRef(true);
@@ -181,5 +181,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 });
+
+/**
+ * Memoized BurnAnimation component
+ * Prevents re-renders when parent re-renders but props haven't changed
+ */
+const BurnAnimation = React.memo(BurnAnimationComponent);
 
 export default BurnAnimation;

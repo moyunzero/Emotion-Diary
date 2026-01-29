@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.moyunzero.emotiondiary",
+      "minimumOsVersion": "14.0",
       "splash": {
         "image": "./assets/images/app-icon.png",
         "resizeMode": "contain",
@@ -27,10 +28,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png"
       },
       "package": "com.moyunzero.emotiondiary",
-      "permissions": [
-        "INTERNET",
-        "ACCESS_NETWORK_STATE"
-      ],
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {

@@ -1,34 +1,34 @@
 // Jest setup file for React Native testing
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
 // Mock expo-secure-store
-jest.mock('expo-secure-store', () => ({
+jest.mock("expo-secure-store", () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),
   deleteItemAsync: jest.fn(),
 }));
 
 // Mock expo-constants
-jest.mock('expo-constants', () => ({
+jest.mock("expo-constants", () => ({
   expoConfig: {
     extra: {},
   },
 }));
 
 // Mock react-native-reanimated
-jest.mock('react-native-reanimated', () => {
-  const Reanimated = require('react-native-reanimated/mock');
+jest.mock("react-native-reanimated", () => {
+  const Reanimated = require("react-native-reanimated/mock");
   Reanimated.default.call = () => {};
   return Reanimated;
 });
 
 // Mock react-native-gesture-handler
-jest.mock('react-native-gesture-handler', () => {
-  const View = require('react-native/Libraries/Components/View/View');
+jest.mock("react-native-gesture-handler", () => {
+  const View = require("react-native/Libraries/Components/View/View");
   return {
     Swipeable: View,
     DrawerLayout: View,
@@ -59,21 +59,39 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
+// Mock @shopify/react-native-skia
+jest.mock("@shopify/react-native-skia", () => ({
+  Skia: {
+    Image: {
+      MakeImageFromEncoded: jest.fn(),
+    },
+    Paint: jest.fn(),
+    Path: jest.fn(),
+    Canvas: jest.fn(),
+  },
+  Canvas: "Canvas",
+  Path: "Path",
+  SkImage: "SkImage",
+  useImage: jest.fn(),
+  useFont: jest.fn(),
+}));
+
 // Mock expo-router
-jest.mock('expo-router', () => ({
+jest.mock("expo-router", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
     back: jest.fn(),
   }),
   useLocalSearchParams: () => ({}),
-  Link: 'Link',
-  Stack: 'Stack',
-  Tabs: 'Tabs',
+  Link: "Link",
+  Stack: "Stack",
+  Tabs: "Tabs",
+  usePathname: jest.fn(() => "/"),
 }));
 
 // Mock Supabase
-jest.mock('@supabase/supabase-js', () => ({
+jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
     auth: {
       signInWithPassword: jest.fn(),
@@ -84,26 +102,23 @@ jest.mock('@supabase/supabase-js', () => ({
       })),
     },
     from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          single: jest.fn(),
+          order: jest.fn(),
+        })),
+        order: jest.fn(),
+      })),
+      insert: jest.fn(() => ({ select: jest.fn() })),
+      update: jest.fn(() => ({ eq: jest.fn() })),
+      delete: jest.fn(() => ({ eq: jest.fn() })),
     })),
   })),
 }));
 
-// Mock Groq SDK
-jest.mock('groq-sdk', () => ({
-  Groq: jest.fn().mockImplementation(() => ({
-    chat: {
-      completions: {
-        create: jest.fn(),
-      },
-    },
-  })),
+// Mock react-native-safe-area-context
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaProvider: ({ children }) => children,
+  SafeAreaView: ({ children }) => children,
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
 }));
-
-// Set up global test timeout
-jest.setTimeout(10000);

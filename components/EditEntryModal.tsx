@@ -12,6 +12,18 @@ import { getMoodIcon } from '../utils/moodIconUtils';
 import AddTagInput from './AddTagInput';
 import AppIcon from './icons/AppIcon';
 
+// Pure helper function moved to module level
+/**
+ * Toggle an item in a list (add if not present, remove if present)
+ */
+const toggleSelection = <T,>(list: T[], item: T): T[] => {
+  if (list.includes(item)) {
+    return list.filter(i => i !== item);
+  } else {
+    return [...list, item];
+  }
+};
+
 interface EditEntryModalProps {
   entry: MoodEntry;
   visible: boolean;
@@ -19,7 +31,7 @@ interface EditEntryModalProps {
   onSuccess?: () => void;
 }
 
-const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose, onSuccess }) => {
+const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({ entry, visible, onClose, onSuccess }) => {
   const updateEntry = useAppStore((state) => state.updateEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const insets = useSafeAreaInsets();
@@ -30,8 +42,8 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
   const [deadline, setDeadline] = useState<string>(entry.deadline);
   const [isCustomDeadline, setIsCustomDeadline] = useState(false);
   const [customDeadlineText, setCustomDeadlineText] = useState('');
-  const [selectedPeople, setSelectedPeople] = useState<string[]>(entry.people);
-  const [selectedTriggers, setSelectedTriggers] = useState<string[]>(entry.triggers);
+  const [selectedPeople, setSelectedPeople] = useState<string[]>(entry.people || []);
+  const [selectedTriggers, setSelectedTriggers] = useState<string[]>(entry.triggers || []);
   
   // Custom Tags Options
   const [customPeopleOptions, setCustomPeopleOptions] = useState<string[]>([]);
@@ -49,8 +61,8 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
       setDeadline(entry.deadline);
       setIsCustomDeadline(isCustom);
       setCustomDeadlineText(isCustom ? entry.deadline : '');
-      setSelectedPeople(entry.people);
-      setSelectedTriggers(entry.triggers);
+      setSelectedPeople(entry.people || []);
+      setSelectedTriggers(entry.triggers || []);
       loadCustomOptionsData();
     }
   }, [visible, entry]);
@@ -90,12 +102,12 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
     }, 200);
   };
 
-  const toggleSelection = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
-    if (list.includes(item)) {
-      setList(list.filter(i => i !== item));
-    } else {
-      setList([...list, item]);
-    }
+  const handleTogglePerson = (person: string) => {
+    setSelectedPeople(prev => toggleSelection(prev, person));
+  };
+
+  const handleToggleTrigger = (trigger: string) => {
+    setSelectedTriggers(prev => toggleSelection(prev, trigger));
   };
 
   const handleAddCustomTag = async (type: 'people' | 'trigger', value: string) => {
@@ -156,7 +168,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <X size={24} color="#6B7280" />
             </TouchableOpacity>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={styles.headerTitleContainer}>
               <AppIcon name={Edit} size={20} color="#1F2937" />
               <Text style={styles.headerTitle}>编辑记录</Text>
             </View>
@@ -251,7 +263,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                       isCustomDeadline && styles.deadlineButtonSelected
                     ]}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <View style={styles.deadlineCustomContainer}>
                       <AppIcon name={Edit} size={14} color={isCustomDeadline ? '#FFFFFF' : '#6B7280'} />
                       <Text style={[
                         styles.deadlineText,
@@ -289,7 +301,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                     return (
                       <View key={p} style={[styles.tag, isSelected && styles.tagSelected]}>
                         <TouchableOpacity
-                          onPress={() => toggleSelection(selectedPeople, setSelectedPeople, p)}
+                          onPress={() => handleTogglePerson(p)}
                           style={styles.tagMain}
                         >
                           <Text style={[styles.tagText, isSelected && styles.tagTextSelected]}>
@@ -321,7 +333,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                     return (
                       <View key={t} style={[styles.tag, isSelected && styles.tagSelected]}>
                         <TouchableOpacity
-                          onPress={() => toggleSelection(selectedTriggers, setSelectedTriggers, t)}
+                          onPress={() => handleToggleTrigger(t)}
                           style={styles.tagMain}
                         >
                           <Text style={[styles.tagText, isSelected && styles.tagTextSelected]}>
@@ -352,7 +364,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
               disabled={!content.trim()}
               style={[styles.submitButton, !content.trim() && styles.submitButtonDisabled]}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+              <View style={styles.submitButtonContent}>
                 <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
                 <Text style={styles.submitText}>保存修改</Text>
               </View>
@@ -399,6 +411,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.text.primary,
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   placeholder: {
     width: 32,
@@ -485,6 +502,11 @@ const styles = StyleSheet.create({
   deadlineTextSelected: {
     color: COLORS.text.inverse,
   },
+  deadlineCustomContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   customDeadlineInput: {
     width: '100%',
     backgroundColor: COLORS.background.secondary,
@@ -550,12 +572,24 @@ const styles = StyleSheet.create({
   submitButtonDisabled: {
     opacity: 0.5,
   },
+  submitButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    justifyContent: 'center',
+  },
   submitText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.text.inverse,
   },
 });
+
+/**
+ * Memoized EditEntryModal component
+ * Prevents re-renders when parent re-renders but props haven't changed
+ */
+const EditEntryModal = React.memo(EditEntryModalComponent);
 
 export default EditEntryModal;
 

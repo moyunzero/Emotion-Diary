@@ -1,4 +1,4 @@
-import { MoodEntry, MoodLevel } from '../../../types';
+import { MoodEntry, MoodLevel, Status } from '../../../types';
 import { predictEmotionTrend } from '../../../utils/aiService';
 
 describe('aiService - Emoji Removal', () => {
@@ -14,7 +14,7 @@ describe('aiService - Emoji Removal', () => {
           deadline: '今天',
           people: ['伴侣'],
           triggers: ['沟通'],
-          status: 'pending',
+          status: Status.ACTIVE,
         },
         {
           id: '2',
@@ -24,7 +24,7 @@ describe('aiService - Emoji Removal', () => {
           deadline: '今天',
           people: ['伴侣'],
           triggers: ['沟通'],
-          status: 'pending',
+          status: Status.ACTIVE,
         },
         {
           id: '3',
@@ -34,7 +34,7 @@ describe('aiService - Emoji Removal', () => {
           deadline: '今天',
           people: ['伴侣'],
           triggers: ['沟通'],
-          status: 'pending',
+          status: Status.ACTIVE,
         },
       ];
 
@@ -64,7 +64,7 @@ describe('aiService - Emoji Removal', () => {
           deadline: '今天',
           people: ['伴侣'],
           triggers: ['沟通'],
-          status: 'pending',
+          status: Status.ACTIVE,
         },
       ];
 
@@ -90,7 +90,7 @@ describe('aiService - Emoji Removal', () => {
         deadline: '今天',
         people: ['伴侣'],
         triggers: ['沟通'],
-        status: 'pending' as const,
+        status: Status.ACTIVE,
       }));
 
       const forecast = await predictEmotionTrend(mockEntries, 7);

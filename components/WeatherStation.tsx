@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
 
-const WeatherStation: React.FC = () => {
+const WeatherStationComponent: React.FC = () => {
   const weather = useAppStore((state) => state.weather);
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
@@ -416,5 +416,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+/**
+ * Memoized WeatherStation component
+ * Since this component uses Zustand selectors internally and has no props,
+ * React.memo will prevent re-renders when parent components re-render
+ * but the Zustand state hasn't changed (Zustand handles its own optimization)
+ */
+const WeatherStation = React.memo(WeatherStationComponent);
 
 export default WeatherStation;

@@ -1,24 +1,20 @@
+import { Image } from 'expo-image';
 import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-interface AvatarProps {
-  uri?: string | null;
-  name?: string | null;
-  size?: number;
-  onPress?: () => void;
-  style?: any;
-}
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AvatarProps } from '../types/components';
 
 /**
  * 统一的头像组件
  * 处理头像显示、错误处理和占位符
+ * 使用 expo-image 提供高级缓存和加载功能
  */
 const Avatar: React.FC<AvatarProps> = ({ 
   uri, 
   name, 
   size = 40, 
   onPress,
-  style 
+  style,
+  placeholder 
 }) => {
   const [avatarError, setAvatarError] = useState(false);
 
@@ -37,6 +33,10 @@ const Avatar: React.FC<AvatarProps> = ({
       <Image 
         source={{ uri }} 
         style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]}
+        contentFit="cover"
+        transition={200}
+        placeholder={placeholder}
+        cachePolicy="memory-disk"
         onError={() => setAvatarError(true)}
       />
     );
@@ -46,14 +46,14 @@ const Avatar: React.FC<AvatarProps> = ({
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} style={[styles.container, style]}>
+      <TouchableOpacity onPress={onPress} style={[styles.container, style]} testID="avatar">
         {content}
       </TouchableOpacity>
     );
   }
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style]} testID="avatar">
       {content}
     </View>
   );

@@ -9,20 +9,114 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useShallow } from "zustand/shallow";
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { styles } from "../styles/components/Dashboard.styles";
+import { calculateResponsiveDimension } from "../styles/constants";
 import { MoodEntry, Status } from "../types";
 import { formatDateChinese } from "../utils/dateUtils";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
+import ScreenContainer from "./ScreenContainer";
 import WeatherStation from "./WeatherStation";
+
+// Pure helper functions moved to module level
+/**
+ * Get the display label for a filter type
+ */
+const getFilterLabel = (filter: "all" | "active" | "resolved" | "burned"): string => {
+  switch (filter) {
+    case "active":
+      return "未处理";
+    case "resolved":
+      return "已和解";
+    case "burned":
+      return "灰烬回忆";
+    default:
+      return "全部记录";
+  }
+};
+
+/**
+ * Get weather advice based on weather condition
+ */
+const getWeatherAdvice = (condition: string): string => {
+  return condition === "sunny" ? "宜开心" : "宜沟通";
+};
+
+/**
+ * Get empty state content based on filter type
+ */
+const getEmptyStateContent = (filter: "all" | "active" | "resolved" | "burned"): {
+  title: string;
+  desc: string;
+  showButton: boolean;
+} => {
+  switch (filter) {
+    case "active":
+      return {
+        title: "暂无待处理的情绪",
+        desc: "你的心情花园正在茁壮成长",
+        showButton: true,
+      };
+    case "resolved":
+      return {
+        title: "还没有已和解的记录",
+        desc: "记录情绪，与自己和解",
+        showButton: true,
+      };
+    case "burned":
+      return {
+        title: "还没有焚烧过的气话",
+        desc: "负面情绪可以通过焚烧释放",
+        showButton: true,
+      };
+    default:
+      return {
+        title: "开始记录你的第一份情绪吧",
+        desc: "让每一次表达都成为照料心灵的过程",
+        showButton: true,
+      };
+  }
+};
+
+/**
+ * Calculate filter dropdown position with boundary detection
+ * Uses responsive sizing based on screen width
+ */
+const calculateDropdownPosition = (
+  filterButtonLayout: { x: number; y: number; width: number; height: number },
+  windowWidth: number,
+  windowHeight: number,
+  dropdownWidth: number,
+  dropdownHeight: number = 200
+): { top: number; right: number } => {
+  const rightPosition = windowWidth - filterButtonLayout.x - filterButtonLayout.width;
+  const topPosition = filterButtonLayout.y + filterButtonLayout.height + 8;
+
+  // Boundary detection: ensure menu doesn't exceed screen bounds
+  const adjustedRight = Math.max(
+    16,
+    Math.min(rightPosition, windowWidth - dropdownWidth - 16),
+  );
+  const adjustedTop =
+    topPosition + dropdownHeight > windowHeight
+      ? filterButtonLayout.y - dropdownHeight - 8 // Show above if not enough space below
+      : topPosition;
+
+  return { top: adjustedTop, right: adjustedRight };
+};
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  
+  // Calculate responsive dimensions based on screen width
+  const dropdownWidth = useMemo(() => calculateResponsiveDimension(windowWidth, 0.35), [windowWidth]); // 35% of screen width
+  const dropdownHeight = useMemo(() => 200, []); // Fixed height for dropdown
+  
   // 优化：使用单个 selector 减少多次渲染，使用 useShallow 避免无限循环
   const { entries, weather, user } = useAppStore(
     useShallow((state) => ({
@@ -43,7 +137,6 @@ const Dashboard: React.FC = () => {
     height: number;
   } | null>(null);
   const filterButtonRef = useRef<View>(null);
-  const windowWidth = Dimensions.get("window").width;
 
   // 加载过滤偏好
   useEffect(() => {
@@ -128,37 +221,13 @@ const Dashboard: React.FC = () => {
     return filtered.sort((a, b) => b.timestamp - a.timestamp);
   }, [entries, filter]);
 
-  const getEmptyStateContent = useMemo(() => {
-    switch (filter) {
-      case "active":
-        return {
-          title: "暂无待处理的情绪",
-          desc: "你的心情花园正在茁壮成长",
-          showButton: true,
-        };
-      case "resolved":
-        return {
-          title: "还没有已和解的记录",
-          desc: "记录情绪，与自己和解",
-          showButton: true,
-        };
-      case "burned":
-        return {
-          title: "还没有焚烧过的气话",
-          desc: "负面情绪可以通过焚烧释放",
-          showButton: true,
-        };
-      default:
-        return {
-          title: "开始记录你的第一份情绪吧",
-          desc: "让每一次表达都成为照料心灵的过程",
-          showButton: true,
-        };
-    }
-  }, [filter]);
+  // Use pure functions for computed values
+  const emptyStateContent = useMemo(() => getEmptyStateContent(filter), [filter]);
+  const filterLabel = useMemo(() => getFilterLabel(filter), [filter]);
+  const weatherAdvice = useMemo(() => getWeatherAdvice(weather.condition), [weather.condition]);
 
   // 焚烧处理函数已在 EntryCard 内部处理，这里无需操作
-  const handleBurn = useCallback((id: string) => {
+  const handleBurn = useCallback((_id: string) => {
     // EntryCard 内部会调用 burnEntry，这里保留空函数用于兼容
   }, []);
 
@@ -171,25 +240,8 @@ const Dashboard: React.FC = () => {
   // FlatList key 提取函数
   const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
 
-  const getFilterLabel = () => {
-    switch (filter) {
-      case "active":
-        return "未处理";
-      case "resolved":
-        return "已和解";
-      case "burned":
-        return "灰烬回忆";
-      default:
-        return "全部记录";
-    }
-  };
-
-  const getWeatherAdvice = () => {
-    return weather.condition === "sunny" ? "宜开心" : "宜沟通";
-  };
-
   // 渲染列表头部（只包含天气站和标题）
-  const renderListHeader = () => (
+  const renderListHeader = useCallback(() => (
     <>
       {/* Weather Station */}
       <View style={styles.weatherSection}>
@@ -199,7 +251,7 @@ const Dashboard: React.FC = () => {
       {/* List Header - 标题和筛选按钮 */}
       <View style={styles.listHeader}>
         <Text style={[styles.listTitle, { color: colors.text.primary }]}>
-          {getFilterLabel()}
+          {filterLabel}
           <Text style={[styles.count, { color: colors.text.tertiary }]}>
             {" "}
             ({filteredEntries.length})
@@ -237,7 +289,7 @@ const Dashboard: React.FC = () => {
             { backgroundColor: colors.background.primary },
           ]}
           accessibilityRole="button"
-          accessibilityLabel={`筛选按钮，当前显示${getFilterLabel()}`}
+          accessibilityLabel={`筛选按钮，当前显示${filterLabel}`}
           accessibilityHint="点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆"
           accessibilityState={{ expanded: isFilterOpen }}
         >
@@ -248,13 +300,10 @@ const Dashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
     </>
-  );
+  ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress]);
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background.page }]}
-      edges={["top", "left", "right"]}
-    >
+    <ScreenContainer edges={["top", "left", "right"]}>
       {/* Header - 固定在顶部 */}
       <View style={styles.header}>
         <View>
@@ -262,7 +311,7 @@ const Dashboard: React.FC = () => {
             情绪气象站
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {formatDateChinese(Date.now())} · {getWeatherAdvice()}
+            {formatDateChinese(Date.now())} · {weatherAdvice}
           </Text>
         </View>
         <Avatar
@@ -287,12 +336,12 @@ const Dashboard: React.FC = () => {
               <PenLine size={48} color="#D1D5DB" />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
-              {getEmptyStateContent.title}
+              {emptyStateContent.title}
             </Text>
             <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-              {getEmptyStateContent.desc}
+              {emptyStateContent.desc}
             </Text>
-            {getEmptyStateContent.showButton && (
+            {emptyStateContent.showButton && (
               <TouchableOpacity
                 style={[styles.emptyButton, { backgroundColor: colors.submit }]}
                 onPress={() => router.push("/record")}
@@ -319,23 +368,13 @@ const Dashboard: React.FC = () => {
       {isFilterOpen &&
         filterButtonLayout &&
         (() => {
-          const dropdownWidth = 130;
-          const dropdownHeight = 200; // 估算高度：4个选项 * 约50px每个
-          const screenHeight = Dimensions.get("window").height;
-          const rightPosition =
-            windowWidth - filterButtonLayout.x - filterButtonLayout.width;
-          const topPosition =
-            filterButtonLayout.y + filterButtonLayout.height + 8;
-
-          // 边界检测：确保菜单不超出屏幕
-          const adjustedRight = Math.max(
-            16,
-            Math.min(rightPosition, windowWidth - dropdownWidth - 16),
+          const dropdownPosition = calculateDropdownPosition(
+            filterButtonLayout,
+            windowWidth,
+            windowHeight,
+            dropdownWidth,
+            dropdownHeight
           );
-          const adjustedTop =
-            topPosition + dropdownHeight > screenHeight
-              ? filterButtonLayout.y - dropdownHeight - 8 // 如果下方空间不足，显示在上方
-              : topPosition;
 
           return (
             <>
@@ -348,8 +387,9 @@ const Dashboard: React.FC = () => {
                 style={[
                   styles.filterDropdown,
                   {
-                    top: adjustedTop,
-                    right: adjustedRight,
+                    width: dropdownWidth,
+                    top: dropdownPosition.top,
+                    right: dropdownPosition.right,
                     backgroundColor: colors.background.primary,
                     borderColor: colors.border.light,
                   },
@@ -463,7 +503,7 @@ const Dashboard: React.FC = () => {
             </>
           );
         })()}
-    </SafeAreaView>
+    </ScreenContainer>
   );
 };
 

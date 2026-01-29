@@ -30,7 +30,7 @@ export const getDeviceType = (): 'phone' | 'tablet' | 'desktop' => {
 // 响应式 padding
 export const responsivePadding = {
   // 水平内边距
-  horizontal: (base: number = 20) => {
+  horizontal: (base: number = 20): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -46,7 +46,7 @@ export const responsivePadding = {
     }
   },
   // 垂直内边距
-  vertical: (base: number = 16) => {
+  vertical: (base: number = 16): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -58,7 +58,7 @@ export const responsivePadding = {
     }
   },
   // 卡片内边距
-  card: (base: number = 20) => {
+  card: (base: number = 20): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -74,7 +74,7 @@ export const responsivePadding = {
 // 响应式字体大小
 export const responsiveFontSize = {
   // 标题字号
-  title: (base: number = 24) => {
+  title: (base: number = 24): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -86,7 +86,7 @@ export const responsiveFontSize = {
     }
   },
   // 卡片标题字号
-  cardTitle: (base: number = 16) => {
+  cardTitle: (base: number = 16): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -98,7 +98,7 @@ export const responsiveFontSize = {
     }
   },
   // 正文字号
-  body: (base: number = 14) => {
+  body: (base: number = 14): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -110,7 +110,7 @@ export const responsiveFontSize = {
     }
   },
   // 小字号
-  small: (base: number = 12) => {
+  small: (base: number = 12): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -126,7 +126,7 @@ export const responsiveFontSize = {
 // 响应式间距
 export const responsiveSpacing = {
   // 卡片间距
-  cardGap: () => {
+  cardGap: (): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -138,7 +138,7 @@ export const responsiveSpacing = {
     }
   },
   // 组件内部间距
-  component: (base: number = 16) => {
+  component: (base: number = 16): number => {
     const deviceType = getDeviceType();
     switch (deviceType) {
       case 'desktop':
@@ -166,15 +166,15 @@ export const getMaxContentWidth = (): number => {
 
 // 响应式图标大小
 export const responsiveIconSize = {
-  small: () => {
+  small: (): number => {
     const deviceType = getDeviceType();
     return deviceType === 'desktop' ? 20 : deviceType === 'tablet' ? 18 : 16;
   },
-  medium: () => {
+  medium: (): number => {
     const deviceType = getDeviceType();
     return deviceType === 'desktop' ? 28 : deviceType === 'tablet' ? 24 : 20;
   },
-  large: () => {
+  large: (): number => {
     const deviceType = getDeviceType();
     return deviceType === 'desktop' ? 36 : deviceType === 'tablet' ? 32 : 28;
   },
@@ -182,11 +182,11 @@ export const responsiveIconSize = {
 
 // 响应式圆角
 export const responsiveBorderRadius = {
-  card: () => {
+  card: (): number => {
     const deviceType = getDeviceType();
     return deviceType === 'desktop' ? 16 : deviceType === 'tablet' ? 14 : 12;
   },
-  large: () => {
+  large: (): number => {
     const deviceType = getDeviceType();
     return deviceType === 'desktop' ? 24 : deviceType === 'tablet' ? 20 : 16;
   },
@@ -195,7 +195,7 @@ export const responsiveBorderRadius = {
 // 响应式网格布局（用于关系花盆等）
 export const responsiveGrid = {
   // 计算每行显示数量（根据实际屏幕宽度动态计算）
-  columns: () => {
+  columns: (): number => {
     const deviceType = getDeviceType();
     const horizontalPadding = responsivePadding.horizontal();
     const cardPadding = responsivePadding.card();
@@ -235,7 +235,7 @@ export const responsiveGrid = {
     return columns;
   },
   // 计算项目宽度（考虑gap）
-  itemWidth: (gap: number = 8) => {
+  itemWidth: (gap: number = 8): number => {
     const columns = responsiveGrid.columns();
     const horizontalPadding = responsivePadding.horizontal();
     const cardPadding = responsivePadding.card();
@@ -247,7 +247,7 @@ export const responsiveGrid = {
     return (availableWidth - totalGap) / columns;
   },
   // 获取响应式 gap
-  gap: () => {
+  gap: (): number => {
     const deviceType = getDeviceType();
     // 减少 gap 以更紧凑的布局
     return deviceType === 'desktop' ? 10 : deviceType === 'tablet' ? 8 : 8;

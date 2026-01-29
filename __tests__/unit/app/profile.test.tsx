@@ -49,6 +49,16 @@ jest.mock('../../../components/Avatar', () => {
   };
 });
 
+// Mock ScreenContainer component
+jest.mock('../../../components/ScreenContainer', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ children }: any) => <>{children}</>,
+    ScreenContainer: ({ children }: any) => <>{children}</>,
+  };
+});
+
 // Mock Toast component
 jest.mock('../../../components/Toast', () => ({
   Toast: () => null,

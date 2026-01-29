@@ -54,9 +54,9 @@ export const formatDateShort = (timestamp: number): string => {
  * @returns 毫秒级时间戳
  */
 export const ensureMilliseconds = (timestamp: number): number => {
-  // 如果时间戳小于一个合理的毫秒值（例如 2000-01-01 的时间戳），认为是秒级时间戳
-  // 2000-01-01 00:00:00 UTC 的毫秒时间戳约为 946684800000
-  if (timestamp < 946684800000) {
+  // 10000000000 (10 billion) is year 2286 in seconds, and April 1970 in milliseconds.
+  // This threshold safely distinguishes between seconds and milliseconds for practical dates.
+  if (timestamp < 10000000000) {
     return timestamp * 1000;
   }
   return timestamp;

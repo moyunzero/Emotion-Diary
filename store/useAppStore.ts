@@ -3,31 +3,37 @@
  * 使用模块化架构，提高可维护性和可测试性
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import 'react-native-url-polyfill/auto';
-import { create } from 'zustand';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { MoodEntry, User } from '../types';
-import { ensureMilliseconds } from '../utils/dateUtils';
-import { isAuthError, isNetworkError } from '../utils/errorHandler';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import "react-native-url-polyfill/auto";
+import { create } from "zustand";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { MoodEntry, User } from "../types";
+import { ensureMilliseconds } from "../utils/dateUtils";
+import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
-import { createAIModule } from './modules/ai';
-import { createEntriesModule } from './modules/entries';
+import { createAIModule } from "./modules/ai";
+import { createEntriesModule } from "./modules/entries";
 import {
-  checkGuestData,
-  getStorageKey,
-  loadFromStorage,
-  migrateFromLegacyStorage,
-  migrateGuestDataToUser,
-  migrateUserDataToGuest,
-  saveToStorage,
-} from './modules/storage';
-import { AppStore } from './modules/types';
-import { createWeatherModule } from './modules/weather';
+    checkGuestData,
+    getStorageKey,
+    loadFromStorage,
+    migrateFromLegacyStorage,
+    migrateGuestDataToUser,
+    migrateUserDataToGuest,
+    saveToStorage,
+} from "./modules/storage";
+import { AppStore } from "./modules/types";
+import { createWeatherModule } from "./modules/weather";
 
 // 同步操作互斥锁，防止竞态条件
 let isSyncingRef = false;
+
+// 待处理的同步请求标志
+let pendingSyncRef = false;
+
+// 同步请求防抖定时器
+let syncDebounceTimerRef: ReturnType<typeof setTimeout> | null = null;
 
 // AsyncStorage 写入防抖定时器
 let saveEntriesTimeoutRef: ReturnType<typeof setTimeout> | null = null;
@@ -40,76 +46,104 @@ export const cleanupStoreTimers = (): void => {
     clearTimeout(saveEntriesTimeoutRef);
     saveEntriesTimeoutRef = null;
   }
+  if (syncDebounceTimerRef) {
+    clearTimeout(syncDebounceTimerRef);
+    syncDebounceTimerRef = null;
+  }
+};
+
+/**
+ * 处理待处理的同步请求（带防抖）
+ * 当同步操作完成后，如果有待处理的同步请求，则在短暂延迟后执行同步
+ * 这样可以合并快速连续的同步请求
+ */
+const processPendingSync = async (): Promise<void> => {
+  if (pendingSyncRef && !isSyncingRef) {
+    // 清除现有的防抖定时器
+    if (syncDebounceTimerRef) {
+      clearTimeout(syncDebounceTimerRef);
+    }
+
+    // 设置新的防抖定时器（300ms）
+    syncDebounceTimerRef = setTimeout(async () => {
+      if (pendingSyncRef && !isSyncingRef) {
+        pendingSyncRef = false;
+        console.log("处理待处理的同步请求");
+        await useAppStore.getState().syncToCloud();
+      }
+      syncDebounceTimerRef = null;
+    }, 300);
+  }
 };
 
 /**
  * 获取用户友好的错误消息
  */
 const getErrorMessage = (error: unknown): string => {
-  if (!error) return '操作失败，请稍后重试';
+  if (!error) return "操作失败，请稍后重试";
 
   const errorMessage = error instanceof Error ? error.message : String(error);
 
   // 使用统一的错误判断函数
   if (isNetworkError(error)) {
-    return '网络连接失败，请检查网络设置';
+    return "网络连接失败，请检查网络设置";
   }
 
   if (isAuthError(error)) {
-    if (errorMessage.includes('Invalid login credentials')) {
-      return '邮箱或密码错误，请重新输入';
+    if (errorMessage.includes("Invalid login credentials")) {
+      return "邮箱或密码错误，请重新输入";
     }
-    return '认证失败，请重新登录';
+    return "认证失败，请重新登录";
   }
 
-  if (errorMessage.includes('User already registered')) {
-    return '该邮箱已被注册';
+  if (errorMessage.includes("User already registered")) {
+    return "该邮箱已被注册";
   }
 
-  if (errorMessage.includes('Email rate limit')) {
-    return '请求过于频繁，请稍后再试';
+  if (errorMessage.includes("Email rate limit")) {
+    return "请求过于频繁，请稍后再试";
   }
 
   // 数据库相关错误
   if (
-    errorMessage.includes('relation') &&
-    errorMessage.includes('does not exist')
+    errorMessage.includes("relation") &&
+    errorMessage.includes("does not exist")
   ) {
-    return '数据库表不存在，请联系管理员';
+    return "数据库表不存在，请联系管理员";
   }
 
   // 主键冲突错误
   if (
-    errorMessage.includes('23505') ||
-    errorMessage.includes('duplicate key') ||
-    errorMessage.includes('unique constraint')
+    errorMessage.includes("23505") ||
+    errorMessage.includes("duplicate key") ||
+    errorMessage.includes("unique constraint")
   ) {
-    return '记录已存在，将尝试更新';
+    return "记录已存在，将尝试更新";
   }
 
   // RLS 策略错误
   if (
-    errorMessage.includes('42501') ||
-    errorMessage.includes('row-level security') ||
-    errorMessage.includes('violates row-level security policy')
+    errorMessage.includes("42501") ||
+    errorMessage.includes("row-level security") ||
+    errorMessage.includes("violates row-level security policy")
   ) {
-    return '数据库权限配置错误，请联系管理员检查行级安全策略';
+    return "数据库权限配置错误，请联系管理员检查行级安全策略";
   }
 
   if (
-    errorMessage.includes('permission denied') ||
-    errorMessage.includes('PGRST')
+    errorMessage.includes("permission denied") ||
+    errorMessage.includes("PGRST")
   ) {
-    return '权限不足，请检查账号状态';
+    return "权限不足，请检查账号状态";
   }
 
   // 超时错误
-  if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
-    return '请求超时，请检查网络连接';
+  if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+    return "请求超时，请检查网络连接";
   }
 
   // 默认错误消息
-  return errorMessage.length > 50 ? '操作失败，请稍后重试' : errorMessage;
+  return errorMessage.length > 50 ? "操作失败，请稍后重试" : errorMessage;
 };
 
 /**
@@ -117,14 +151,14 @@ const getErrorMessage = (error: unknown): string => {
  */
 const initializeDatabase = async (): Promise<void> => {
   if (!isSupabaseConfigured()) {
-    console.log('Supabase 未配置，跳过数据库初始化');
+    // Supabase 未配置，跳过数据库初始化
     return;
   }
 
   try {
     const { error: checkError } = await supabase
-      .from('profiles')
-      .select('id')
+      .from("profiles")
+      .select("id")
       .limit(1);
 
     if (checkError) {
@@ -133,17 +167,17 @@ const initializeDatabase = async (): Promise<void> => {
         checkError.message.includes('relation "public.profiles" does not exist')
       ) {
         console.log(
-          'Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.'
+          "Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.",
         );
       } else {
         console.warn(
-          'Database initialization check failed:',
-          checkError.message
+          "Database initialization check failed:",
+          checkError.message,
         );
       }
     }
   } catch (error) {
-    console.error('Database initialization error:', error);
+    console.error("Database initialization error:", error);
   }
 };
 
@@ -152,9 +186,9 @@ const initializeDatabase = async (): Promise<void> => {
  */
 export const useAppStore = create<AppStore>((set, get) => {
   // 创建各个模块
-  const entriesModule = createEntriesModule(set as any, get as any);
-  const weatherModule = createWeatherModule(set as any, get as any);
-  const aiModule = createAIModule(set as any, get as any);
+  const entriesModule = createEntriesModule(set, get);
+  const weatherModule = createWeatherModule(set, get);
+  const aiModule = createAIModule(set, get);
 
   return {
     // 合并所有模块的状态和方法
@@ -164,6 +198,9 @@ export const useAppStore = create<AppStore>((set, get) => {
 
     // 用户管理状态
     user: null,
+
+    // 同步状态（用于 UI 反馈）
+    syncStatus: "idle" as "idle" | "syncing" | "pending" | "error",
 
     /**
      * 设置用户
@@ -179,73 +216,85 @@ export const useAppStore = create<AppStore>((set, get) => {
      */
     initializeFirstEntryDate: async () => {
       const { user, entries } = get();
-      
+
       // 如果已有firstEntryDate，检查是否需要与游客数据合并
       if (user?.firstEntryDate) {
         // 检查游客存储中是否有更早的 firstEntryDate
         try {
-          const guestDate = await AsyncStorage.getItem('guest_first_entry_date');
+          const guestDate = await AsyncStorage.getItem(
+            "guest_first_entry_date",
+          );
           if (guestDate) {
             const guestTimestamp = parseInt(guestDate, 10);
             if (guestTimestamp < user.firstEntryDate) {
               // 游客数据更早，更新用户的 firstEntryDate
               const updatedUser = { ...user, firstEntryDate: guestTimestamp };
               set({ user: updatedUser });
-              await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
-              
+              await AsyncStorage.setItem(
+                "user_session",
+                JSON.stringify(updatedUser),
+              );
+
               if (user.email) {
                 await get()._syncFirstEntryDateToCloud();
               }
-              
-              console.log(`合并游客 firstEntryDate: ${guestTimestamp} (早于用户数据)`);
+
+              // console.log(
+              //   `合并游客 firstEntryDate: ${guestTimestamp} (早于用户数据)`,
+              // );
             }
             // 清除游客的 firstEntryDate（已合并到用户数据）
-            await AsyncStorage.removeItem('guest_first_entry_date');
+            await AsyncStorage.removeItem("guest_first_entry_date");
           }
         } catch (error) {
-          console.error('合并游客 firstEntryDate 失败:', error);
+          console.error("合并游客 firstEntryDate 失败:", error);
         }
         return;
       }
-      
+
       // 如果没有记录，无需初始化
       if (entries.length === 0) return;
-      
+
       // 从记录中找到最早的时间戳
-      const oldestTimestamp = Math.min(...entries.map(e => e.timestamp));
-      
+      const oldestTimestamp = Math.min(...entries.map((e) => e.timestamp));
+
       // 检查游客存储中是否有 firstEntryDate
       let finalTimestamp = oldestTimestamp;
       try {
-        const guestDate = await AsyncStorage.getItem('guest_first_entry_date');
+        const guestDate = await AsyncStorage.getItem("guest_first_entry_date");
         if (guestDate) {
           const guestTimestamp = parseInt(guestDate, 10);
           // 选择更早的时间戳
           finalTimestamp = Math.min(oldestTimestamp, guestTimestamp);
-          console.log(`合并游客 firstEntryDate: ${guestTimestamp}, 记录最早: ${oldestTimestamp}, 最终: ${finalTimestamp}`);
+          // console.log(
+          //   `合并游客 firstEntryDate: ${guestTimestamp}, 记录最早: ${oldestTimestamp}, 最终: ${finalTimestamp}`,
+          // );
         }
       } catch (error) {
-        console.error('读取游客 firstEntryDate 失败:', error);
+        console.error("读取游客 firstEntryDate 失败:", error);
       }
-      
+
       // 更新user对象
       if (user) {
         const updatedUser = { ...user, firstEntryDate: finalTimestamp };
         set({ user: updatedUser });
-        
+
         // 保存到本地存储
-        await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
-        
+        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+
         // 如果已登录，同步到云端
         if (user.email) {
           await get()._syncFirstEntryDateToCloud();
         }
-        
+
         // 清除游客的 firstEntryDate（已合并到用户数据）
-        await AsyncStorage.removeItem('guest_first_entry_date');
+        await AsyncStorage.removeItem("guest_first_entry_date");
       } else {
         // 游客用户，保存到本地存储
-        await AsyncStorage.setItem('guest_first_entry_date', finalTimestamp.toString());
+        await AsyncStorage.setItem(
+          "guest_first_entry_date",
+          finalTimestamp.toString(),
+        );
       }
     },
 
@@ -256,25 +305,30 @@ export const useAppStore = create<AppStore>((set, get) => {
      */
     updateFirstEntryDate: async (timestamp: number) => {
       const { user } = get();
-      
+
       // 如果已有firstEntryDate且新记录不更早，无需更新
       if (user?.firstEntryDate && timestamp >= user.firstEntryDate) return;
-      
+
       if (user) {
         // 已登录用户
         const updatedUser = { ...user, firstEntryDate: timestamp };
         set({ user: updatedUser });
-        
-        await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
-        
+
+        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+
         if (user.email) {
           await get()._syncFirstEntryDateToCloud();
         }
       } else {
         // 游客用户
-        const existingDate = await AsyncStorage.getItem('guest_first_entry_date');
+        const existingDate = await AsyncStorage.getItem(
+          "guest_first_entry_date",
+        );
         if (!existingDate || timestamp < parseInt(existingDate)) {
-          await AsyncStorage.setItem('guest_first_entry_date', timestamp.toString());
+          await AsyncStorage.setItem(
+            "guest_first_entry_date",
+            timestamp.toString(),
+          );
         }
       }
     },
@@ -285,21 +339,21 @@ export const useAppStore = create<AppStore>((set, get) => {
      */
     clearFirstEntryDate: async () => {
       const { user, entries } = get();
-      
+
       // 只有在没有记录时才清除
       if (entries.length > 0) return;
-      
+
       if (user) {
         const updatedUser = { ...user, firstEntryDate: undefined };
         set({ user: updatedUser });
-        
-        await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
-        
+
+        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+
         if (user.email) {
           await get()._syncFirstEntryDateToCloud();
         }
       } else {
-        await AsyncStorage.removeItem('guest_first_entry_date');
+        await AsyncStorage.removeItem("guest_first_entry_date");
       }
     },
 
@@ -310,27 +364,32 @@ export const useAppStore = create<AppStore>((set, get) => {
     _syncFirstEntryDateToCloud: async () => {
       const { user } = get();
       if (!user?.email) return;
-      
+
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from("profiles")
           .update({
             first_entry_date: user.firstEntryDate || null,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id);
-        
+          .eq("id", user.id);
+
         if (error) {
           // 如果是字段不存在的错误，只记录警告，不影响应用使用
-          if (error.code === 'PGRST204' || error.message?.includes('first_entry_date')) {
-            console.warn('数据库中 first_entry_date 字段不存在，请执行数据库迁移。详见: docs/FIRST_ENTRY_DATE_MIGRATION.md');
-            console.warn('应用将继续使用本地计算，不影响功能。');
+          if (
+            error.code === "PGRST204" ||
+            error.message?.includes("first_entry_date")
+          ) {
+            console.warn(
+              "数据库中 first_entry_date 字段不存在，请执行数据库迁移。详见: docs/FIRST_ENTRY_DATE_MIGRATION.md",
+            );
+            console.warn("应用将继续使用本地计算，不影响功能。");
           } else {
-            console.error('同步firstEntryDate到云端失败:', error);
+            console.error("同步firstEntryDate到云端失败:", error);
           }
         }
       } catch (error) {
-        console.error('同步firstEntryDate到云端异常:', error);
+        console.error("同步firstEntryDate到云端异常:", error);
       }
     },
 
@@ -341,41 +400,47 @@ export const useAppStore = create<AppStore>((set, get) => {
     _syncFirstEntryDateFromCloud: async () => {
       const { user } = get();
       if (!user?.email) return;
-      
+
       try {
         // 获取云端的firstEntryDate
         const { data, error } = await supabase
-          .from('profiles')
-          .select('first_entry_date')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("first_entry_date")
+          .eq("id", user.id)
           .single();
-        
+
         if (error || !data) return;
-        
+
         const cloudFirstEntryDate = data.first_entry_date;
         const localFirstEntryDate = user.firstEntryDate;
-        
+
         // 选择更早的时间戳
         let finalFirstEntryDate: number | undefined;
-        
+
         if (cloudFirstEntryDate && localFirstEntryDate) {
-          finalFirstEntryDate = Math.min(cloudFirstEntryDate, localFirstEntryDate);
+          finalFirstEntryDate = Math.min(
+            cloudFirstEntryDate,
+            localFirstEntryDate,
+          );
         } else {
           finalFirstEntryDate = cloudFirstEntryDate || localFirstEntryDate;
         }
-        
+
         // 如果有变化，更新本地和云端
         if (finalFirstEntryDate !== localFirstEntryDate) {
           const updatedUser = { ...user, firstEntryDate: finalFirstEntryDate };
           set({ user: updatedUser });
-          await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
+          await AsyncStorage.setItem(
+            "user_session",
+            JSON.stringify(updatedUser),
+          );
         }
-        
+
         if (finalFirstEntryDate !== cloudFirstEntryDate) {
           await get()._syncFirstEntryDateToCloud();
         }
       } catch (error) {
-        console.error('从云端同步firstEntryDate异常:', error);
+        console.error("从云端同步firstEntryDate异常:", error);
       }
     },
 
@@ -403,7 +468,7 @@ export const useAppStore = create<AppStore>((set, get) => {
         // 重新计算天气
         get()._calculateWeather();
       } catch (error) {
-        console.error('Error loading entries:', error);
+        console.error("Error loading entries:", error);
         set({ entries: [] });
       }
     },
@@ -422,7 +487,7 @@ export const useAppStore = create<AppStore>((set, get) => {
           const storageKey = getStorageKey(user?.id || null);
           await saveToStorage(storageKey, entries);
         } catch (error) {
-          console.error('Error saving entries:', error);
+          console.error("Error saving entries:", error);
         } finally {
           saveEntriesTimeoutRef = null;
         }
@@ -444,20 +509,20 @@ export const useAppStore = create<AppStore>((set, get) => {
             name:
               session.user.user_metadata?.name ||
               session.user.user_metadata?.display_name ||
-              session.user.email?.split('@')[0] ||
-              '情绪旅者',
-            email: session.user.email || '',
+              session.user.email?.split("@")[0] ||
+              "情绪旅者",
+            email: session.user.email || "",
             avatar:
               session.user.user_metadata?.avatar ||
-              'https://picsum.photos/100/100',
+              "https://picsum.photos/100/100",
           };
 
           // 尝试获取 profile 信息
           try {
             const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
+              .from("profiles")
+              .select("*")
+              .eq("id", session.user.id)
               .single();
 
             if (!profileError && profile) {
@@ -466,7 +531,7 @@ export const useAppStore = create<AppStore>((set, get) => {
                 name: profile.name || userData.name,
                 avatar: profile.avatar || userData.avatar,
               };
-            } else if (profileError && profileError.code === 'PGRST116') {
+            } else if (profileError && profileError.code === "PGRST116") {
               // 创建 profile
               const newProfile = {
                 id: session.user.id,
@@ -476,21 +541,21 @@ export const useAppStore = create<AppStore>((set, get) => {
                 updated_at: new Date().toISOString(),
               };
 
-              await supabase.from('profiles').insert(newProfile);
+              await supabase.from("profiles").insert(newProfile);
             }
           } catch (err) {
-            console.error('Profile operation exception:', err);
+            console.error("Profile operation exception:", err);
           }
 
           set({ user: userData });
           get()._loadEntries();
         } else {
           set({ user: null });
-          await AsyncStorage.removeItem('user_session');
+          await AsyncStorage.removeItem("user_session");
           get()._loadEntries();
         }
       } catch (error) {
-        console.error('Error loading user:', error);
+        console.error("Error loading user:", error);
         set({ user: null });
         get()._loadEntries();
       }
@@ -513,15 +578,15 @@ export const useAppStore = create<AppStore>((set, get) => {
         });
 
         if (error) {
-          console.error('Registration error:', error);
-          if (error.message.includes('User already registered')) {
-            throw new Error('User already registered');
+          console.error("Registration error:", error);
+          if (error.message.includes("User already registered")) {
+            throw new Error("User already registered");
           }
-          if (error.message.includes('Password should be at least')) {
-            throw new Error('密码强度不足，请尝试设置更复杂的密码');
+          if (error.message.includes("Password should be at least")) {
+            throw new Error("密码强度不足，请尝试设置更复杂的密码");
           }
-          if (error.message.includes('Invalid email')) {
-            throw new Error('邮箱格式不正确，请确认后重试');
+          if (error.message.includes("Invalid email")) {
+            throw new Error("邮箱格式不正确，请确认后重试");
           }
           return false;
         }
@@ -532,7 +597,7 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         return false;
       } catch (error) {
-        console.error('Registration error:', error);
+        console.error("Registration error:", error);
         throw error;
       }
     },
@@ -543,7 +608,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     login: async (email: string, password: string) => {
       try {
         if (!email || !password) {
-          console.error('邮箱和密码不能为空');
+          console.error("邮箱和密码不能为空");
           return false;
         }
 
@@ -553,18 +618,18 @@ export const useAppStore = create<AppStore>((set, get) => {
         });
 
         if (error) {
-          console.error('登录失败:', error.message);
-          if (error.message.includes('Invalid login credentials')) {
-            throw new Error('邮箱或密码不正确');
+          console.error("登录失败:", error.message);
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("邮箱或密码不正确");
           }
-          if (error.message.includes('Email not confirmed')) {
-            throw new Error('邮箱尚未完成验证，请先前往邮箱完成验证');
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("邮箱尚未完成验证，请先前往邮箱完成验证");
           }
           if (
-            error.message.includes('Failed to fetch') ||
-            error.message.includes('Network')
+            error.message.includes("Failed to fetch") ||
+            error.message.includes("Network")
           ) {
-            throw new Error('网络连接异常，请稍后重试');
+            throw new Error("网络连接异常，请稍后重试");
           }
           return false;
         }
@@ -575,20 +640,20 @@ export const useAppStore = create<AppStore>((set, get) => {
             name:
               data.user.user_metadata?.name ||
               data.user.user_metadata?.display_name ||
-              data.user.email?.split('@')[0] ||
-              '情绪旅人',
-            email: data.user.email || '',
+              data.user.email?.split("@")[0] ||
+              "情绪旅人",
+            email: data.user.email || "",
             avatar:
               data.user.user_metadata?.avatar ||
-              'https://picsum.photos/100/100',
+              "https://picsum.photos/100/100",
           };
 
           // 尝试获取 profile
           try {
             const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', data.user.id)
+              .from("profiles")
+              .select("*")
+              .eq("id", data.user.id)
               .single();
 
             if (!profileError && profile) {
@@ -597,7 +662,7 @@ export const useAppStore = create<AppStore>((set, get) => {
                 name: profile.name || userData.name,
                 avatar: profile.avatar || userData.avatar,
               };
-            } else if (profileError && profileError.code === 'PGRST116') {
+            } else if (profileError && profileError.code === "PGRST116") {
               const newProfile = {
                 id: data.user.id,
                 name: userData.name,
@@ -606,10 +671,10 @@ export const useAppStore = create<AppStore>((set, get) => {
                 updated_at: new Date().toISOString(),
               };
 
-              await supabase.from('profiles').insert(newProfile);
+              await supabase.from("profiles").insert(newProfile);
             }
           } catch (err) {
-            console.error('Profile operation exception:', err);
+            console.error("Profile operation exception:", err);
           }
 
           // 检查用户切换
@@ -617,12 +682,12 @@ export const useAppStore = create<AppStore>((set, get) => {
           const isUserSwitching = currentUser && currentUser.id !== userData.id;
 
           if (isUserSwitching) {
-            console.log('检测到用户切换，清除旧账号数据');
+            console.log("检测到用户切换，清除旧账号数据");
             set({ entries: [] });
           }
 
           set({ user: userData });
-          await AsyncStorage.setItem('user_session', JSON.stringify(userData));
+          await AsyncStorage.setItem("user_session", JSON.stringify(userData));
 
           // 检查游客数据迁移
           const guestData = await checkGuestData();
@@ -645,7 +710,7 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         return false;
       } catch (error) {
-        console.error('Login error:', error);
+        console.error("Login error:", error);
         throw error;
       }
     },
@@ -659,7 +724,7 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         if (!user) {
           set({ user: null });
-          await AsyncStorage.removeItem('user_session');
+          await AsyncStorage.removeItem("user_session");
           await get()._loadEntries();
           return;
         }
@@ -672,7 +737,10 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         // 保存 firstEntryDate 到游客存储（重要：确保退出后陪伴天数不丢失）
         if (user.firstEntryDate) {
-          await AsyncStorage.setItem('guest_first_entry_date', user.firstEntryDate.toString());
+          await AsyncStorage.setItem(
+            "guest_first_entry_date",
+            user.firstEntryDate.toString(),
+          );
         }
 
         // 合并到游客存储
@@ -681,11 +749,11 @@ export const useAppStore = create<AppStore>((set, get) => {
         // 登出
         const { error } = await supabase.auth.signOut();
         if (error) {
-          console.error('Logout error:', error);
+          console.error("Logout error:", error);
         }
 
         set({ user: null });
-        await AsyncStorage.removeItem('user_session');
+        await AsyncStorage.removeItem("user_session");
 
         // 更新数据
         if (migrationResult.success && migrationResult.data) {
@@ -695,9 +763,9 @@ export const useAppStore = create<AppStore>((set, get) => {
           await get()._loadEntries();
         }
       } catch (error) {
-        console.error('Logout error:', error);
+        console.error("Logout error:", error);
         set({ user: null });
-        await AsyncStorage.removeItem('user_session');
+        await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
       }
     },
@@ -711,23 +779,23 @@ export const useAppStore = create<AppStore>((set, get) => {
 
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from("profiles")
           .update({
             ...updates,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id);
+          .eq("id", user.id);
 
         if (error) {
-          console.error('Error updating user profile:', error);
+          console.error("Error updating user profile:", error);
           throw error;
         }
 
         const updatedUser = { ...user, ...updates };
         set({ user: updatedUser });
-        await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
+        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
       } catch (error) {
-        console.error('Error updating user:', error);
+        console.error("Error updating user:", error);
         throw error;
       }
     },
@@ -739,16 +807,20 @@ export const useAppStore = create<AppStore>((set, get) => {
       const { user, entries } = get();
 
       if (!user) {
-        console.error('用户未登录');
+        console.error("用户未登录");
+        set({ syncStatus: "error" });
         return false;
       }
 
       if (isSyncingRef) {
-        console.warn('同步操作正在进行中');
+        console.log("同步操作正在进行中，标记为待处理");
+        pendingSyncRef = true;
+        set({ syncStatus: "pending" });
         return false;
       }
 
       isSyncingRef = true;
+      set({ syncStatus: "syncing" });
 
       try {
         const {
@@ -757,11 +829,11 @@ export const useAppStore = create<AppStore>((set, get) => {
         } = await supabase.auth.getSession();
 
         if (sessionError || !session?.user) {
-          throw new Error('认证状态验证失败，请重新登录');
+          throw new Error("认证状态验证失败，请重新登录");
         }
 
         if (session.user.id !== user.id) {
-          throw new Error('用户身份验证失败，请重新登录');
+          throw new Error("用户身份验证失败，请重新登录");
         }
 
         const currentUserId = session.user.id;
@@ -777,11 +849,11 @@ export const useAppStore = create<AppStore>((set, get) => {
             id: entry.id,
             timestamp: entry.timestamp,
             moodlevel: entry.moodLevel || 1,
-            content: entry.content || '',
-            deadline: entry.deadline || 'later',
+            content: entry.content || "",
+            deadline: entry.deadline || "later",
             people: peopleArray,
             triggers: triggersArray,
-            status: entry.status || 'active',
+            status: entry.status || "active",
             resolvedat: entry.resolvedAt || null,
             burnedat: entry.burnedAt || null,
             user_id: currentUserId,
@@ -790,12 +862,12 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         // 获取云端数据
         const { data: existingCloudData, error: fetchError } = await supabase
-          .from('entries')
-          .select('id, user_id')
-          .eq('user_id', currentUserId);
+          .from("entries")
+          .select("id, user_id")
+          .eq("user_id", currentUserId);
 
         if (fetchError) {
-          console.warn('获取云端数据失败:', fetchError);
+          console.warn("获取云端数据失败:", fetchError);
         }
 
         // 删除云端多余数据
@@ -815,44 +887,50 @@ export const useAppStore = create<AppStore>((set, get) => {
 
         if (idsToDelete.length > 0) {
           await supabase
-            .from('entries')
+            .from("entries")
             .delete()
-            .in('id', idsToDelete)
-            .eq('user_id', currentUserId);
+            .in("id", idsToDelete)
+            .eq("user_id", currentUserId);
         }
 
         // 同步数据
         if (entriesToSync.length > 0) {
           // 使用 upsert 操作，但需要确保 RLS 策略正确配置
           // 如果 upsert 失败，回退到分离的 insert/update 操作
-          
+
           try {
             const { error: upsertError } = await supabase
-              .from('entries')
+              .from("entries")
               .upsert(entriesToSync, {
-                onConflict: 'id',
+                onConflict: "id",
                 ignoreDuplicates: false,
               });
 
             if (upsertError) {
               // 如果是 RLS 错误，尝试使用分离的操作
-              if (upsertError.code === '42501') {
-                console.log('upsert 遇到 RLS 问题，使用分离的 insert/update 操作');
-                
-                const existingIds = new Set(
-                  existingCloudData ? existingCloudData.map((e) => e.id) : []
+              if (upsertError.code === "42501") {
+                console.log(
+                  "upsert 遇到 RLS 问题，使用分离的 insert/update 操作",
                 );
 
-                const newEntries = entriesToSync.filter((e) => !existingIds.has(e.id));
-                const updateEntries = entriesToSync.filter((e) => existingIds.has(e.id));
+                const existingIds = new Set(
+                  existingCloudData ? existingCloudData.map((e) => e.id) : [],
+                );
+
+                const newEntries = entriesToSync.filter(
+                  (e) => !existingIds.has(e.id),
+                );
+                const updateEntries = entriesToSync.filter((e) =>
+                  existingIds.has(e.id),
+                );
 
                 // 插入新记录
                 if (newEntries.length > 0) {
                   const { error: insertError } = await supabase
-                    .from('entries')
+                    .from("entries")
                     .insert(newEntries);
 
-                  if (insertError && insertError.code !== '23505') {
+                  if (insertError && insertError.code !== "23505") {
                     // 忽略主键冲突错误，其他错误抛出
                     throw insertError;
                   }
@@ -862,7 +940,7 @@ export const useAppStore = create<AppStore>((set, get) => {
                 if (updateEntries.length > 0) {
                   for (const entry of updateEntries) {
                     const { error: updateError } = await supabase
-                      .from('entries')
+                      .from("entries")
                       .update({
                         timestamp: entry.timestamp,
                         moodlevel: entry.moodlevel,
@@ -874,9 +952,9 @@ export const useAppStore = create<AppStore>((set, get) => {
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
                       })
-                      .eq('id', entry.id)
-                      .eq('user_id', currentUserId);
-                    
+                      .eq("id", entry.id)
+                      .eq("user_id", currentUserId);
+
                     if (updateError) {
                       console.warn(`更新记录 ${entry.id} 失败:`, updateError);
                     }
@@ -888,40 +966,42 @@ export const useAppStore = create<AppStore>((set, get) => {
               }
             }
           } catch (error: any) {
-            console.error('同步记录失败:', error);
-            console.error('失败的记录数量:', entriesToSync.length);
-            console.error('第一条记录示例:', entriesToSync[0]);
-            
+            console.error("同步记录失败:", error);
+            console.error("失败的记录数量:", entriesToSync.length);
+            console.error("第一条记录示例:", entriesToSync[0]);
+
             // 如果是约束错误，提供更详细的信息
-            if (error.code === '23514') {
-              console.error('数据库约束检查失败 (23514)');
-              console.error('错误详情:', {
+            if (error.code === "23514") {
+              console.error("数据库约束检查失败 (23514)");
+              console.error("错误详情:", {
                 message: error.message,
                 details: error.details,
                 hint: error.hint,
               });
-              
-              throw new Error(
-                '数据库约束检查失败。请查看控制台日志了解详情。'
-              );
+
+              throw new Error("数据库约束检查失败。请查看控制台日志了解详情。");
             }
-            
+
             throw error;
           }
         }
 
-        console.log('成功同步到云端');
-        
+        console.log("成功同步到云端");
+
         // 同步 firstEntryDate 到云端
         await get()._syncFirstEntryDateToCloud();
-        
+
+        set({ syncStatus: "idle" });
         return true;
       } catch (error) {
         const errorMsg = getErrorMessage(error);
-        console.error('同步到云端失败:', errorMsg);
+        console.error("同步到云端失败:", errorMsg);
+        set({ syncStatus: "error" });
         throw new Error(errorMsg);
       } finally {
         isSyncingRef = false;
+        // 处理待处理的同步请求
+        setTimeout(() => processPendingSync(), 100);
       }
     },
 
@@ -932,16 +1012,20 @@ export const useAppStore = create<AppStore>((set, get) => {
       const { user, entries } = get();
 
       if (!user) {
-        console.error('用户未登录');
+        console.error("用户未登录");
+        set({ syncStatus: "error" });
         return false;
       }
 
       if (isSyncingRef) {
-        console.warn('同步操作正在进行中');
+        console.log("同步操作正在进行中，标记为待处理");
+        pendingSyncRef = true;
+        set({ syncStatus: "pending" });
         return false;
       }
 
       isSyncingRef = true;
+      set({ syncStatus: "syncing" });
 
       try {
         const {
@@ -950,20 +1034,20 @@ export const useAppStore = create<AppStore>((set, get) => {
         } = await supabase.auth.getSession();
 
         if (sessionError || !session?.user) {
-          throw new Error('认证状态验证失败，请重新登录');
+          throw new Error("认证状态验证失败，请重新登录");
         }
 
         if (session.user.id !== user.id) {
-          throw new Error('用户身份验证失败，请重新登录');
+          throw new Error("用户身份验证失败，请重新登录");
         }
 
         const currentUserId = session.user.id;
 
         const { data, error } = await supabase
-          .from('entries')
-          .select('*')
-          .eq('user_id', currentUserId)
-          .order('timestamp', { ascending: false });
+          .from("entries")
+          .select("*")
+          .eq("user_id", currentUserId)
+          .order("timestamp", { ascending: false });
 
         if (error) {
           const errorMsg = getErrorMessage(error);
@@ -980,7 +1064,7 @@ export const useAppStore = create<AppStore>((set, get) => {
               return {
                 ...cloudEntry,
                 moodLevel: cloudEntry.moodlevel || cloudEntry.moodLevel || 1,
-                status: cloudEntry.status || 'active',
+                status: cloudEntry.status || "active",
                 resolvedAt: cloudEntry.resolvedat
                   ? ensureMilliseconds(cloudEntry.resolvedat)
                   : cloudEntry.resolvedAt,
@@ -993,7 +1077,7 @@ export const useAppStore = create<AppStore>((set, get) => {
 
           // 合并数据
           const localEntriesMap = new Map(
-            entries.map((entry) => [entry.id, entry])
+            entries.map((entry) => [entry.id, entry]),
           );
           const mergedEntriesMap = new Map<string, MoodEntry>();
 
@@ -1026,21 +1110,26 @@ export const useAppStore = create<AppStore>((set, get) => {
 
           get()._calculateWeather();
 
-          console.log('成功从云端同步数据');
-          
+          console.log("成功从云端同步数据");
+
           // 从云端同步 firstEntryDate
           await get()._syncFirstEntryDateFromCloud();
-          
+
+          set({ syncStatus: "idle" });
           return true;
         }
 
+        set({ syncStatus: "idle" });
         return true;
       } catch (error) {
         const errorMsg = getErrorMessage(error);
-        console.error('从云端同步失败:', errorMsg);
+        console.error("从云端同步失败:", errorMsg);
+        set({ syncStatus: "error" });
         throw new Error(errorMsg);
       } finally {
         isSyncingRef = false;
+        // 处理待处理的同步请求
+        setTimeout(() => processPendingSync(), 100);
       }
     },
 
@@ -1062,22 +1151,21 @@ export const initializeStore = (): (() => void) => {
     const store = useAppStore.getState();
 
     initializeDatabase().catch((error) => {
-      console.error('数据库初始化失败:', error);
+      console.error("数据库初始化失败:", error);
     });
 
     try {
       store._loadUser().then(() => {
         // 在用户数据加载完成后，初始化 firstEntryDate
         store.initializeFirstEntryDate().catch((error) => {
-          console.error('初始化 firstEntryDate 失败:', error);
+          console.error("初始化 firstEntryDate 失败:", error);
         });
       });
     } catch (error) {
-      console.error('加载用户数据失败:', error);
+      console.warn("加载用户数据失败:", error);
     }
 
     if (!isSupabaseConfigured()) {
-      console.log('Supabase 未配置，跳过认证监听器设置');
       return () => {};
     }
 
@@ -1094,23 +1182,23 @@ export const initializeStore = (): (() => void) => {
                 currentUser && currentUser.id !== session.user.id;
 
               if (isUserSwitching) {
-                console.log('检测到用户切换，清除旧账号数据');
+                console.log("检测到用户切换，清除旧账号数据");
                 useAppStore.getState()._setEntries([]);
               }
 
               let profile = null;
               try {
                 const { data, error } = await supabase
-                  .from('profiles')
-                  .select('*')
-                  .eq('id', session.user.id)
+                  .from("profiles")
+                  .select("*")
+                  .eq("id", session.user.id)
                   .single();
 
                 if (!error) {
                   profile = data;
                 }
               } catch (error) {
-                console.error('查询用户资料时发生错误:', error);
+                console.error("查询用户资料时发生错误:", error);
               }
 
               const userData: User = {
@@ -1119,17 +1207,17 @@ export const initializeStore = (): (() => void) => {
                   profile?.name ||
                   session.user.user_metadata?.name ||
                   session.user.user_metadata?.display_name ||
-                  session.user.email?.split('@')[0] ||
-                  '情绪旅者',
-                email: session.user.email || '',
+                  session.user.email?.split("@")[0] ||
+                  "情绪旅者",
+                email: session.user.email || "",
                 avatar:
                   profile?.avatar ||
                   session.user.user_metadata?.avatar ||
-                  'https://picsum.photos/100/100',
+                  "https://picsum.photos/100/100",
               };
 
               if (userData.id !== session.user.id) {
-                console.error('用户ID不匹配，跳过加载数据');
+                console.error("用户ID不匹配，跳过加载数据");
                 return;
               }
 
@@ -1138,25 +1226,25 @@ export const initializeStore = (): (() => void) => {
               try {
                 useAppStore.getState()._loadEntries();
               } catch (error) {
-                console.error('加载本地数据失败:', error);
+                console.error("加载本地数据失败:", error);
               }
             } else {
               useAppStore.getState()._setUser(null);
               try {
                 useAppStore.getState()._loadEntries();
               } catch (error) {
-                console.error('加载本地数据失败:', error);
+                console.error("加载本地数据失败:", error);
               }
             }
           } catch (error) {
-            console.error('处理认证状态变化时发生错误:', error);
+            console.error("处理认证状态变化时发生错误:", error);
           }
-        }
+        },
       );
 
       authListener = listenerResult.data;
     } catch (error) {
-      console.error('设置认证监听器失败:', error);
+      console.error("设置认证监听器失败:", error);
       return () => {};
     }
 
@@ -1166,11 +1254,11 @@ export const initializeStore = (): (() => void) => {
           authListener.subscription.unsubscribe();
         }
       } catch (error) {
-        console.error('取消订阅认证监听器失败:', error);
+        console.error("取消订阅认证监听器失败:", error);
       }
     };
   } catch (error) {
-    console.error('初始化 Store 时发生严重错误:', error);
+    console.error("初始化 Store 时发生严重错误:", error);
     return () => {};
   }
 };

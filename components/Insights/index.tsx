@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS as GlobalColors } from '../../constants/colors';
+import { StyleSheet, View } from 'react-native';
 import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
 import { getMaxContentWidth, responsivePadding } from '../../utils/responsiveUtils';
+import { ScreenContainer } from '../ScreenContainer';
 import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
 import { GardenFooter } from './GardenFooter';
@@ -61,72 +60,54 @@ const Insights: React.FC = () => {
   // 如果没有任何条目，显示整体空状态
   if (entries.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScreenContainer edges={['top', 'left', 'right']}>
         <EmptyGarden />
-      </SafeAreaView>
+      </ScreenContainer>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <ScrollView 
-        style={styles.scrollView} 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* 内容包装器 - 在大屏设备上居中显示 */}
-        <View style={[styles.contentWrapper, { maxWidth }]}>
-          {/* 花园主题头部 */}
-          <GardenHeader 
-            totalEntries={stats.total} 
+    <ScreenContainer edges={['top', 'left', 'right']} scrollable>
+      {/* 内容包装器 - 在大屏设备上居中显示 */}
+      <View style={[styles.contentWrapper, { maxWidth }]}>
+        {/* 花园主题头部 */}
+        <GardenHeader 
+          totalEntries={stats.total} 
+          resolvedCount={stats.resolved} 
+        />
+
+        <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
+          {/* 本周情绪天气 */}
+          <WeeklyMoodWeather entries={entries} />
+
+          {/* 治愈进度 */}
+          <HealingProgress 
+            totalCount={stats.total} 
             resolvedCount={stats.resolved} 
           />
 
-          <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
-            {/* 本周情绪天气 */}
-            <WeeklyMoodWeather entries={entries} />
+          {/* 情绪播客 */}
+          <EmotionPodcast />
 
-            {/* 治愈进度 */}
-            <HealingProgress 
-              totalCount={stats.total} 
-              resolvedCount={stats.resolved} 
-            />
+          {/* 关系花盆 */}
+          <RelationshipGarden entries={entries} />
 
-            {/* 情绪播客 */}
-            <EmotionPodcast />
+          {/* 情绪触发洞察 */}
+          <TriggerInsight entries={entries} />
 
-            {/* 关系花盆 */}
-            <RelationshipGarden entries={entries} />
-
-            {/* 情绪触发洞察 */}
-            <TriggerInsight entries={entries} />
-
-            {/* 底部鼓励语 */}
-            <GardenFooter 
-              thisMonthCount={stats.thisMonthCount}
-              lastMonthCount={stats.lastMonthCount}
-              resolvedCount={stats.resolved}
-            />
-          </View>
+          {/* 底部鼓励语 */}
+          <GardenFooter 
+            thisMonthCount={stats.thisMonthCount}
+            lastMonthCount={stats.lastMonthCount}
+            resolvedCount={stats.resolved}
+          />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: GlobalColors.background.page,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 8,
-    paddingBottom: responsivePadding.vertical(20),
-    alignItems: 'center', // 居中内容包装器
-  },
   contentWrapper: {
     width: '100%', // 在小屏设备上全宽
   },

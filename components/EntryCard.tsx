@@ -2,15 +2,15 @@ import { SkImage, Skia } from "@shopify/react-native-skia";
 import { CheckCircle, Edit, Flame, Trash2 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    LayoutAnimation,
-    Platform,
-    Text,
-    TouchableOpacity,
-    UIManager,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  LayoutAnimation,
+  Platform,
+  Text,
+  TouchableOpacity,
+  UIManager,
+  View,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
@@ -25,7 +25,7 @@ import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
 import EditEntryModal from "./EditEntryModal";
 
-interface Props {
+export interface EntryCardProps {
   entry: MoodEntry;
   onBurn?: (id: string) => void;
 }
@@ -97,7 +97,13 @@ const makeImageFromView = async (
   }
 };
 
-const EntryCardComponent: React.FC<Props> = ({ entry, onBurn }) => {
+/**
+ * EntryCard Component
+ *
+ * Displays a single mood entry with options to edit, resolve, or burn.
+ * Uses React.memo with a custom comparison function for performance optimization.
+ */
+const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const resolveEntry = useAppStore((state) => state.resolveEntry);
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);
@@ -368,7 +374,7 @@ const EntryCardComponent: React.FC<Props> = ({ entry, onBurn }) => {
             }}
             activeOpacity={1}
             accessibilityRole="button"
-            accessibilityLabel={`情绪记录卡片，涉及${entry.people.join("和")}，${isExpanded ? "已展开" : "点击展开查看详情"}`}
+            accessibilityLabel={`情绪记录卡片，涉及${entry.people?.join("和") || "相关人"}，${isExpanded ? "已展开" : "点击展开查看详情"}`}
             accessibilityHint={
               isExpanded ? "点击收起卡片" : "点击展开查看完整内容和操作选项"
             }
@@ -389,7 +395,7 @@ const EntryCardComponent: React.FC<Props> = ({ entry, onBurn }) => {
               <View style={styles.textContainer}>
                 <View style={styles.header}>
                   <Text style={styles.peopleText} numberOfLines={1}>
-                    {entry.people.join(", ")}
+                    {entry.people?.join(", ") || ""}
                   </Text>
                   <Text style={styles.dateText}>
                     {formatEntryDate(entry.timestamp)}
@@ -407,7 +413,7 @@ const EntryCardComponent: React.FC<Props> = ({ entry, onBurn }) => {
                   <View style={styles.deadlineTag}>
                     <Text style={styles.deadlineText}>{deadlineLabel}</Text>
                   </View>
-                  {entry.triggers.map((t, index) => (
+                  {entry.triggers?.map((t, index) => (
                     <View key={index} style={styles.triggerTag}>
                       <Text style={styles.triggerText}>#{t}</Text>
                     </View>
@@ -506,19 +512,99 @@ const EntryCardComponent: React.FC<Props> = ({ entry, onBurn }) => {
   );
 };
 
+/**
+ * Custom comparison function for React.memo optimization.
+ * 
+ * Performs a deep comparison of EntryCard props to prevent unnecessary re-renders.
+ * Specifically handles:
+ * - Basic prop comparison (id, status, content, etc.)
+ * - Deep equality check for arrays (people, triggers) to handle different references with same content
+ * 
+ * @param prevProps - Previous props
+ * @param nextProps - Next props
+ * @returns true if props are equal (no re-render needed), false otherwise
+ */
+export const areEntryCardPropsEqual = (
+  prevProps: EntryCardProps,
+  nextProps: EntryCardProps,
+) => {
+  try {
+    // Basic property comparisons
+    if (
+      prevProps.entry.id !== nextProps.entry.id ||
+      prevProps.entry.status !== nextProps.entry.status ||
+      prevProps.entry.content !== nextProps.entry.content ||
+      prevProps.entry.moodLevel !== nextProps.entry.moodLevel ||
+      prevProps.entry.timestamp !== nextProps.entry.timestamp ||
+      prevProps.entry.deadline !== nextProps.entry.deadline ||
+      prevProps.entry.burnedAt !== nextProps.entry.burnedAt ||
+      prevProps.entry.resolvedAt !== nextProps.entry.resolvedAt ||
+      prevProps.onBurn !== nextProps.onBurn
+    ) {
+      return false;
+    }
+
+    // Deep equality check for people array
+    const prevPeople = prevProps.entry.people;
+    const nextPeople = nextProps.entry.people;
+
+    // Handle null/undefined cases
+    if (!prevPeople && !nextPeople) {
+      // Both null/undefined - equal
+    } else if (!prevPeople || !nextPeople) {
+      // One is null/undefined, other is not - not equal
+      return false;
+    } else if (!Array.isArray(prevPeople) || !Array.isArray(nextPeople)) {
+      // One or both are not arrays - not equal
+      return false;
+    } else if (prevPeople.length !== nextPeople.length) {
+      // Different lengths - not equal
+      return false;
+    } else {
+      // Check each element
+      for (let i = 0; i < prevPeople.length; i++) {
+        if (prevPeople[i] !== nextPeople[i]) {
+          return false;
+        }
+      }
+    }
+
+    // Deep equality check for triggers array
+    const prevTriggers = prevProps.entry.triggers;
+    const nextTriggers = nextProps.entry.triggers;
+
+    // Handle null/undefined cases
+    if (!prevTriggers && !nextTriggers) {
+      // Both null/undefined - equal
+    } else if (!prevTriggers || !nextTriggers) {
+      // One is null/undefined, other is not - not equal
+      return false;
+    } else if (!Array.isArray(prevTriggers) || !Array.isArray(nextTriggers)) {
+      // One or both are not arrays - not equal
+      return false;
+    } else if (prevTriggers.length !== nextTriggers.length) {
+      // Different lengths - not equal
+      return false;
+    } else {
+      // Check each element
+      for (let i = 0; i < prevTriggers.length; i++) {
+        if (prevTriggers[i] !== nextTriggers[i]) {
+          return false;
+        }
+      }
+    }
+
+    // All checks passed - props are equal
+    return true;
+  } catch (error) {
+    console.error("EntryCard memo comparison error:", error);
+    // On error, assume props are different (safe default - will re-render)
+    return false;
+  }
+};
+
 // 使用 React.memo 优化性能，避免不必要的重渲染
-const EntryCard = React.memo(EntryCardComponent, (prevProps, nextProps) => {
-  // 自定义比较函数：只有当 entry 的 id 或关键属性变化时才重渲染
-  return (
-    prevProps.entry.id === nextProps.entry.id &&
-    prevProps.entry.status === nextProps.entry.status &&
-    prevProps.entry.content === nextProps.entry.content &&
-    prevProps.entry.moodLevel === nextProps.entry.moodLevel &&
-    prevProps.entry.timestamp === nextProps.entry.timestamp &&
-    prevProps.entry.burnedAt === nextProps.entry.burnedAt &&
-    prevProps.onBurn === nextProps.onBurn
-  );
-});
+const EntryCard = React.memo(EntryCardComponent, areEntryCardPropsEqual);
 
 EntryCard.displayName = "EntryCard";
 

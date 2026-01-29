@@ -1,13 +1,13 @@
 import { Edit } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    Alert,
-    Keyboard,
-    Modal,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Keyboard,
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { DEADLINE_CONFIG, MOOD_CONFIG, MOOD_DESCRIPTIONS } from "../constants";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -49,7 +49,7 @@ interface MoodFormProps {
  * 情绪记录表单组件
  * 提取 Record 和 EditEntryModal 的公共表单逻辑
  */
-const MoodForm: React.FC<MoodFormProps> = ({
+const MoodFormComponent: React.FC<MoodFormProps> = ({
   moodLevel,
   content,
   deadline,
@@ -347,5 +347,82 @@ const MoodForm: React.FC<MoodFormProps> = ({
     </>
   );
 };
+
+/**
+ * Helper function to compare arrays for equality
+ * Handles null and undefined gracefully
+ */
+const arraysEqual = (a: string[] | null | undefined, b: string[] | null | undefined): boolean => {
+  // Handle null/undefined cases
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  return a.every((item, index) => item === b[index]);
+};
+
+/**
+ * Memoization comparison function for MoodForm
+ * Performs deep equality checks on array props
+ */
+const MoodFormComparison = (
+  prevProps: MoodFormProps,
+  nextProps: MoodFormProps
+): boolean => {
+  try {
+    // Compare primitive values
+    if (
+      prevProps.moodLevel !== nextProps.moodLevel ||
+      prevProps.content !== nextProps.content ||
+      prevProps.deadline !== nextProps.deadline ||
+      prevProps.isCustomDeadline !== nextProps.isCustomDeadline ||
+      prevProps.customDeadlineText !== nextProps.customDeadlineText
+    ) {
+      return false;
+    }
+
+    // Compare arrays with deep equality
+    if (
+      !arraysEqual(prevProps.selectedPeople, nextProps.selectedPeople) ||
+      !arraysEqual(prevProps.selectedTriggers, nextProps.selectedTriggers) ||
+      !arraysEqual(prevProps.customPeopleOptions, nextProps.customPeopleOptions) ||
+      !arraysEqual(prevProps.customTriggerOptions, nextProps.customTriggerOptions) ||
+      !arraysEqual(prevProps.allPeople, nextProps.allPeople) ||
+      !arraysEqual(prevProps.allTriggers, nextProps.allTriggers)
+    ) {
+      return false;
+    }
+
+    // Compare callback functions by reference
+    // Note: Parent components should use useCallback for these to maintain referential equality
+    if (
+      prevProps.onMoodLevelChange !== nextProps.onMoodLevelChange ||
+      prevProps.onContentChange !== nextProps.onContentChange ||
+      prevProps.onDeadlineChange !== nextProps.onDeadlineChange ||
+      prevProps.onCustomDeadlineChange !== nextProps.onCustomDeadlineChange ||
+      prevProps.onPeopleToggle !== nextProps.onPeopleToggle ||
+      prevProps.onTriggersToggle !== nextProps.onTriggersToggle ||
+      prevProps.onAddCustomPerson !== nextProps.onAddCustomPerson ||
+      prevProps.onAddCustomTrigger !== nextProps.onAddCustomTrigger ||
+      prevProps.onDeleteCustomPerson !== nextProps.onDeleteCustomPerson ||
+      prevProps.onDeleteCustomTrigger !== nextProps.onDeleteCustomTrigger ||
+      prevProps.onSubmit !== nextProps.onSubmit
+    ) {
+      return false;
+    }
+
+    // All props are equal
+    return true;
+  } catch (error) {
+    console.error('MoodForm memo comparison error:', error);
+    // On error, assume props are different (safe default - will re-render)
+    return false;
+  }
+};
+
+/**
+ * Memoized MoodForm component
+ * Prevents unnecessary re-renders when parent state changes don't affect form props
+ */
+const MoodForm = React.memo(MoodFormComponent, MoodFormComparison);
 
 export default MoodForm;

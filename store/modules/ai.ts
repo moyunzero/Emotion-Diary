@@ -3,29 +3,26 @@
  * 负责情绪预测和播客生成
  */
 
-import { EmotionForecast, EmotionPodcast, MoodEntry } from '../../types';
+import { EmotionForecast, EmotionPodcast } from '../../types';
 import { generateEmotionPodcast, predictEmotionTrend } from '../../utils/aiService';
-import { AIModule } from './types';
+import { AIModule, ModuleCreator } from './types';
 
 /**
  * 创建 AI 功能模块
  */
-export const createAIModule = (
-  set: (partial: Partial<AIModule>) => void,
-  get: () => AIModule & { entries: MoodEntry[] }
-): AIModule => ({
+export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
   emotionForecast: null,
   emotionPodcast: null,
 
   /**
    * 生成情绪预测
    */
-  generateForecast: async (days: number = 7) => {
+  generateForecast: async (days: number = 7): Promise<void> => {
     try {
       const { entries } = get();
 
       if (entries.length < 3) {
-        console.log('数据不足，无法生成预测');
+        // 数据不足，无法生成预测
         set({ emotionForecast: null });
         return;
       }
@@ -46,7 +43,7 @@ export const createAIModule = (
   /**
    * 生成情绪播客
    */
-  generatePodcast: async (period: 'week' | 'month' = 'week') => {
+  generatePodcast: async (period: 'week' | 'month' = 'week'): Promise<void> => {
     try {
       const { entries } = get();
 
@@ -70,14 +67,14 @@ export const createAIModule = (
   /**
    * 清除情绪预测
    */
-  clearForecast: () => {
+  clearForecast: (): void => {
     set({ emotionForecast: null });
   },
 
   /**
    * 清除情绪播客
    */
-  clearPodcast: () => {
+  clearPodcast: (): void => {
     set({ emotionPodcast: null });
   },
 });
