@@ -1,5 +1,14 @@
 import { Deadline, MoodLevel } from './types';
 
+// 情绪等级描述 - 详细说明每个情绪等级的含义和建议
+export const MOOD_DESCRIPTIONS: Record<MoodLevel, string> = {
+  [MoodLevel.ANNOYED]: '轻微的失落感，像小雨滴落在心上，需要一点理解和安慰',
+  [MoodLevel.UPSET]: '心情有些低落，像云朵遮住了阳光，需要一些时间和空间',
+  [MoodLevel.ANGRY]: '感到生气和不满，像雨云聚集，需要表达和沟通',
+  [MoodLevel.FURIOUS]: '非常愤怒，像闪电划破天空，需要冷静和深度沟通',
+  [MoodLevel.EXPLOSIVE]: '情绪爆发，像闪电雷鸣，需要紧急处理和冷静',
+};
+
 // 情绪图标配置 - 使用天气主题图标，符合"情绪气象站"定位
 export const MOOD_CONFIG = {
   [MoodLevel.ANNOYED]: {

@@ -1,6 +1,11 @@
 import { Loader2, Mic, RefreshCw, Share2 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  responsiveBorderRadius,
+  responsiveFontSize,
+  responsivePadding,
+} from '../../utils/responsiveUtils';
 import { useAppStore } from '../../store/useAppStore';
 
 /**
@@ -163,8 +168,8 @@ const EmotionPodcast: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: responsiveBorderRadius.large(),
+    padding: responsivePadding.card(),
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -179,12 +184,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontSize: 18,
+    fontSize: responsiveFontSize.cardTitle(18),
     fontWeight: 'bold',
     color: '#1F2937',
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: responsiveFontSize.small(12),
     color: '#6B7280',
     marginBottom: 16,
     marginLeft: 34,
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDA4AF',
   },
   periodButtonText: {
-    fontSize: 14,
+    fontSize: responsiveFontSize.body(14),
     fontWeight: '500',
     color: '#6B7280',
   },
@@ -218,16 +223,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingVertical: responsivePadding.vertical(14),
+    paddingHorizontal: responsivePadding.horizontal(24),
+    borderRadius: responsiveBorderRadius.card(),
     backgroundColor: '#FDA4AF',
   },
   generateButtonDisabled: {
     opacity: 0.6,
   },
   generateButtonText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize.cardTitle(16),
     fontWeight: '600',
     color: '#FFFFFF',
   },
@@ -248,7 +253,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   podcastPeriod: {
-    fontSize: 14,
+    fontSize: responsiveFontSize.body(14),
     fontWeight: '600',
     color: '#1F2937',
   },
@@ -266,12 +271,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   podcastText: {
-    fontSize: 15,
+    fontSize: responsiveFontSize.body(15),
     lineHeight: 24,
     color: '#374151',
   },
   podcastFooter: {
-    fontSize: 12,
+    fontSize: responsiveFontSize.small(12),
     color: '#9CA3AF',
     textAlign: 'right',
   },

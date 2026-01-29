@@ -4,24 +4,34 @@
     "slug": "emotion-diary",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/first-img.png",
+    "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.moyunzero.emotiondiary",
+      "splash": {
+        "image": "./assets/images/app-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FFF5F5",
-        "foregroundImage": "./assets/images/first-img.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png"
       },
       "package": "com.moyunzero.emotiondiary",
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
       ],
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",
@@ -32,7 +42,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/first-img.png",
+          "image": "./assets/images/app-icon.png",
           "imageWidth": 150,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",

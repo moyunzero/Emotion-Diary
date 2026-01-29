@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun, TrendingUp } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
 
@@ -12,50 +12,34 @@ const WeatherStation: React.FC = () => {
   const [isForecastExpanded, setIsForecastExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const getWeatherIcon = () => {
-    switch (weather.condition) {
-      case 'sunny':
-        return <Sun size={48} color="#F59E0B" />;
-      case 'cloudy':
-        return <Cloud size={48} color="#6B7280" />;
-      case 'rainy':
-        return <CloudRain size={48} color="#3B82F6" />;
-      case 'stormy':
-        return <CloudSnow size={48} color="#EF4444" />;
-      default:
-        return <Sun size={48} color="#F59E0B" />;
-    }
-  };
+  // 天气配置对象，统一管理图标、背景色和文字颜色（使用 useMemo 缓存）
+  const weatherConfig = useMemo(() => ({
+    sunny: {
+      icon: <Sun size={48} color="#F59E0B" />,
+      bgColor: '#FEF3C7',
+      textColor: '#92400E',
+    },
+    cloudy: {
+      icon: <Cloud size={48} color="#6B7280" />,
+      bgColor: '#F3F4F6',
+      textColor: '#374151',
+    },
+    rainy: {
+      icon: <CloudRain size={48} color="#3B82F6" />,
+      bgColor: '#DBEAFE',
+      textColor: '#1E40AF',
+    },
+    stormy: {
+      icon: <CloudSnow size={48} color="#EF4444" />,
+      bgColor: '#FEE2E2',
+      textColor: '#991B1B',
+    },
+  }), []);
 
-  const getWeatherBgColor = () => {
-    switch (weather.condition) {
-      case 'sunny':
-        return '#FEF3C7';
-      case 'cloudy':
-        return '#F3F4F6';
-      case 'rainy':
-        return '#DBEAFE';
-      case 'stormy':
-        return '#FEE2E2';
-      default:
-        return '#FEF3C7';
-    }
-  };
-
-  const getWeatherTextColor = () => {
-    switch (weather.condition) {
-      case 'sunny':
-        return '#92400E';
-      case 'cloudy':
-        return '#374151';
-      case 'rainy':
-        return '#1E40AF';
-      case 'stormy':
-        return '#991B1B';
-      default:
-        return '#92400E';
-    }
-  };
+  const currentWeather = useMemo(
+    () => weatherConfig[weather.condition] || weatherConfig.sunny,
+    [weather.condition, weatherConfig]
+  );
 
   /**
    * 生成预测
@@ -114,34 +98,34 @@ const WeatherStation: React.FC = () => {
 
   return (
     <View>
-      <Animated.View style={[styles.container, { backgroundColor: getWeatherBgColor() }]}>
+      <Animated.View style={[styles.container, { backgroundColor: currentWeather.bgColor }]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: getWeatherTextColor() }]}>
+          <Text style={[styles.title, { color: currentWeather.textColor }]}>
             关系天气
           </Text>
-          <Text style={[styles.score, { color: getWeatherTextColor() }]}>
+          <Text style={[styles.score, { color: currentWeather.textColor }]}>
             {weather.score}°
           </Text>
         </View>
         
         <View style={styles.iconContainer}>
-          {getWeatherIcon()}
+          {currentWeather.icon}
         </View>
         
-        <Text style={[styles.description, { color: getWeatherTextColor() }]}>
+        <Text style={[styles.description, { color: currentWeather.textColor }]}>
           {weather.description}
         </Text>
         
         <View style={styles.details}>
           <View style={styles.detailItem}>
             <Text style={styles.detailLabel}>情绪指数</Text>
-            <Text style={[styles.detailValue, { color: getWeatherTextColor() }]}>
+            <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
               {weather.score}
             </Text>
           </View>
           <View style={styles.detailItem}>
             <Text style={styles.detailLabel}>天气状况</Text>
-            <Text style={[styles.detailValue, { color: getWeatherTextColor() }]}>
+            <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
               {weather.condition === 'sunny' ? '晴朗' : 
                weather.condition === 'cloudy' ? '多云' : 
                weather.condition === 'rainy' ? '有雨' : '暴风雨'}

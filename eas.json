@@ -21,10 +21,14 @@
       "autoIncrement": true,
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:bundleRelease"
       },
       "ios": {
-        "distribution": "internal"
+        "distribution": "store"
+      },
+      "env": {
+        "NODE_ENV": "production"
       }
     }
   },

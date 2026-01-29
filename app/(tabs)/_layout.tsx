@@ -11,16 +11,18 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)', // 稍微增加不透明度
+            backgroundColor: 'rgba(255, 255, 255, 0.98)', // 增加不透明度，更清晰
             borderTopWidth: 0, // 移除边框，改用阴影
-            elevation: 5, // Android 阴影
+            elevation: 8, // Android 阴影增强
             shadowColor: '#000', // iOS 阴影
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 10,
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.1, // 增加阴影不透明度
+            shadowRadius: 12, // 增大阴影半径
             height: 60 + (insets.bottom || 10), // 动态高度：基础高度 + 安全区
             paddingTop: 8,
             paddingBottom: insets.bottom || 10, // 动态适配底部安全区
+            borderTopLeftRadius: 20, // 添加顶部圆角，更治愈
+            borderTopRightRadius: 20,
           },
           tabBarLabelStyle: {
             fontSize: 10,

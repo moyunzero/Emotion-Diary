@@ -1,13 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Plus, X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Edit, Sparkles, X } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Keyboard, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, MOOD_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../constants';
+import { COLORS } from '../constants/colors';
 import { useHapticFeedback } from '../hooks/useHapticFeedback';
 import { useAppStore } from '../store/useAppStore';
 import { MoodEntry, MoodLevel } from '../types';
+import { addCustomPerson, addCustomTrigger, loadCustomOptions, removeCustomPerson, removeCustomTrigger } from '../utils/customTagsManager';
 import { getMoodIcon } from '../utils/moodIconUtils';
+import AddTagInput from './AddTagInput';
+import AppIcon from './icons/AppIcon';
 
 interface EditEntryModalProps {
   entry: MoodEntry;
@@ -19,6 +22,8 @@ interface EditEntryModalProps {
 const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose, onSuccess }) => {
   const updateEntry = useAppStore((state) => state.updateEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
+  const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
   
   const [moodLevel, setMoodLevel] = useState<MoodLevel>(entry.moodLevel);
   const [content, setContent] = useState(entry.content);
@@ -46,27 +51,25 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
       setCustomDeadlineText(isCustom ? entry.deadline : '');
       setSelectedPeople(entry.people);
       setSelectedTriggers(entry.triggers);
-      loadCustomOptions();
+      loadCustomOptionsData();
     }
   }, [visible, entry]);
 
-  const loadCustomOptions = async () => {
-    try {
-      const people = await AsyncStorage.getItem('custom_people');
-      const triggers = await AsyncStorage.getItem('custom_triggers');
-      if (people) setCustomPeopleOptions(JSON.parse(people));
-      if (triggers) setCustomTriggerOptions(JSON.parse(triggers));
-    } catch (error) {
-      console.error('Error loading custom options:', error);
-    }
+  const loadCustomOptionsData = async () => {
+    const options = await loadCustomOptions();
+    setCustomPeopleOptions(options.people);
+    setCustomTriggerOptions(options.triggers);
   };
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      Alert.alert('提示', '写点什么吧，哪怕只是一句话 💙');
+      Alert.alert('提示', '写点什么吧，哪怕只是一句话');
       triggerHaptic('warning');
       return;
     }
+    
+    // 关闭键盘
+    Keyboard.dismiss();
     
     const finalDeadline = isCustomDeadline ? (customDeadlineText.trim() || '未定') : deadline;
 
@@ -80,7 +83,11 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
     
     triggerHaptic('success');
     onSuccess?.();
-    onClose();
+    
+    // 延迟关闭，让用户看到反馈
+    setTimeout(() => {
+      onClose();
+    }, 200);
   };
 
   const toggleSelection = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
@@ -96,16 +103,14 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
     
     if (type === 'people') {
       if (!allPeople.includes(value)) {
-        const newOpts = [...customPeopleOptions, value];
+        const newOpts = await addCustomPerson(customPeopleOptions, value);
         setCustomPeopleOptions(newOpts);
-        await AsyncStorage.setItem('custom_people', JSON.stringify(newOpts));
       }
       setSelectedPeople(prev => [...prev, value]);
     } else {
       if (!allTriggers.includes(value)) {
-        const newOpts = [...customTriggerOptions, value];
+        const newOpts = await addCustomTrigger(customTriggerOptions, value);
         setCustomTriggerOptions(newOpts);
-        await AsyncStorage.setItem('custom_triggers', JSON.stringify(newOpts));
       }
       setSelectedTriggers(prev => [...prev, value]);
     }
@@ -122,14 +127,12 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
           style: 'destructive',
           onPress: async () => {
             if (type === 'people') {
-              const newOpts = customPeopleOptions.filter(o => o !== value);
+              const newOpts = await removeCustomPerson(customPeopleOptions, value);
               setCustomPeopleOptions(newOpts);
-              await AsyncStorage.setItem('custom_people', JSON.stringify(newOpts));
               setSelectedPeople(prev => prev.filter(p => p !== value));
             } else {
-              const newOpts = customTriggerOptions.filter(o => o !== value);
+              const newOpts = await removeCustomTrigger(customTriggerOptions, value);
               setCustomTriggerOptions(newOpts);
-              await AsyncStorage.setItem('custom_triggers', JSON.stringify(newOpts));
               setSelectedTriggers(prev => prev.filter(t => t !== value));
             }
           }
@@ -144,27 +147,36 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
       animationType="slide"
       transparent={false}
       onRequestClose={onClose}
+      statusBarTranslucent={true}
     >
       <View style={styles.container}>
         {/* Header with SafeArea */}
-        <View style={styles.headerWrapper}>
-          <SafeAreaView edges={['top']}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <X size={24} color="#6B7280" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>编辑记录 ✏️</Text>
-              <View style={styles.placeholder} /> 
+        <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <X size={24} color="#6B7280" />
+            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <AppIcon name={Edit} size={20} color="#1F2937" />
+              <Text style={styles.headerTitle}>编辑记录</Text>
             </View>
-          </SafeAreaView>
+            <View style={styles.placeholder} /> 
+          </View>
         </View>
 
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={styles.keyboardContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 60 : 0}
         >
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.scrollView} 
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false} 
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+          >
 
             <View style={styles.content}>
               {/* 1. Mood Selector */}
@@ -203,6 +215,10 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                   numberOfLines={4}
                   style={styles.contentInput}
                   placeholderTextColor="#9CA3AF"
+                  returnKeyType="default"
+                  blurOnSubmit={false}
+                  textAlignVertical="top"
+                  maxLength={1000}
                 />
               </View>
 
@@ -235,12 +251,15 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                       isCustomDeadline && styles.deadlineButtonSelected
                     ]}
                   >
-                    <Text style={[
-                      styles.deadlineText,
-                      isCustomDeadline && styles.deadlineTextSelected
-                    ]}>
-                      ✎ 自定义
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <AppIcon name={Edit} size={14} color={isCustomDeadline ? '#FFFFFF' : '#6B7280'} />
+                      <Text style={[
+                        styles.deadlineText,
+                        isCustomDeadline && styles.deadlineTextSelected
+                      ]}>
+                        自定义
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
 
@@ -252,6 +271,10 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
                     style={styles.customDeadlineInput}
                     placeholderTextColor="#9CA3AF"
                     autoFocus
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                    maxLength={50}
+                    onSubmitEditing={() => Keyboard.dismiss()}
                   />
                 )}
               </View>
@@ -323,17 +346,18 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
           </ScrollView>
 
           {/* Submit Button */}
-          <SafeAreaView edges={['bottom']} style={styles.submitSafeArea}>
-            <View style={styles.submitContainer}>
-              <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={!content.trim()}
-                style={[styles.submitButton, !content.trim() && styles.submitButtonDisabled]}
-              >
-                <Text style={styles.submitText}>保存修改 💫</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
+          <View style={[styles.submitContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={!content.trim()}
+              style={[styles.submitButton, !content.trim() && styles.submitButtonDisabled]}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
+                <Text style={styles.submitText}>保存修改</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       </View>
     </Modal>
@@ -341,39 +365,6 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({ entry, visible, onClose
 };
 
 // AddTagInput component
-const AddTagInput: React.FC<{ onAdd: (val: string) => void }> = ({ onAdd }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [val, setVal] = useState('');
-
-  if (isEditing) {
-    return (
-      <View style={styles.addTagInputContainer}>
-        <TextInput
-          autoFocus
-          value={val}
-          onChangeText={setVal}
-          onBlur={() => { if (val) onAdd(val); setIsEditing(false); setVal(''); }}
-          onSubmitEditing={() => { if (val) onAdd(val); setIsEditing(false); setVal(''); }}
-          placeholder="添加新标签..."
-          style={styles.addTagInput}
-        />
-        <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.addTagCancel}>
-          <X size={14} color="#6B7280" />
-        </TouchableOpacity>
-      </View>
-    );
-  }
-  return (
-    <TouchableOpacity
-      onPress={() => setIsEditing(true)}
-      style={styles.addTagButton}
-    >
-      <Plus size={12} color="#6B7280" />
-      <Text style={styles.addTagText}>自定义</Text>
-    </TouchableOpacity>
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -385,10 +376,13 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
   headerWrapper: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background.primary,
     borderBottomWidth: 1,
-    borderBottomColor: '#F9FAFB',
+    borderBottomColor: COLORS.gray[50],
   },
   header: {
     flexDirection: 'row',
@@ -404,7 +398,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: COLORS.text.primary,
   },
   placeholder: {
     width: 32,
@@ -418,7 +412,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#9CA3AF',
+    color: COLORS.text.tertiary,
     marginBottom: 16,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -445,21 +439,21 @@ const styles = StyleSheet.create({
   moodLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#4B5563',
+    color: COLORS.gray[600],
     textAlign: 'center',
   },
   moodLabelSelected: {
-    color: '#1F2937',
+    color: COLORS.text.primary,
     fontWeight: '800',
   },
   contentInput: {
     width: '100%',
     height: 120,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background.secondary,
     borderRadius: 16,
     padding: 16,
     fontSize: 16,
-    color: '#374151',
+    color: COLORS.gray[700],
     textAlignVertical: 'top',
   },
   deadlineContainer: {
@@ -472,11 +466,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.gray[100],
   },
   deadlineButtonSelected: {
-    backgroundColor: '#1F2937',
-    shadowColor: '#000',
+    backgroundColor: COLORS.text.primary,
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -486,18 +480,18 @@ const styles = StyleSheet.create({
   deadlineText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#6B7280',
+    color: COLORS.text.secondary,
   },
   deadlineTextSelected: {
-    color: '#FFFFFF',
+    color: COLORS.text.inverse,
   },
   customDeadlineInput: {
     width: '100%',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background.secondary,
     borderRadius: 12,
     padding: 12,
     fontSize: 14,
-    color: '#374151',
+    color: COLORS.gray[700],
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -509,12 +503,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    borderColor: COLORS.border.light,
+    backgroundColor: COLORS.background.primary,
     overflow: 'hidden',
   },
   tagSelected: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: COLORS.background.page,
     borderColor: '#FCA5A5',
   },
   tagMain: {
@@ -524,68 +518,30 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#9CA3AF',
+    color: COLORS.text.tertiary,
   },
   tagTextSelected: {
-    color: '#EF4444',
+    color: COLORS.submit,
   },
   tagDelete: {
     paddingHorizontal: 8,
     paddingVertical: 6,
     opacity: 0.6,
   },
-  addTagInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  addTagInput: {
-    width: 80,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    fontSize: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FFFFFF',
-  },
-  addTagCancel: {
-    padding: 4,
-  },
-  addTagButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderStyle: 'dashed',
-  },
-  addTagText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#9CA3AF',
-  },
-  submitSafeArea: {
-    backgroundColor: '#FFFFFF',
-  },
   submitContainer: {
     paddingHorizontal: 24,
     paddingTop: 16,
-    paddingBottom: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F9FAFB',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: COLORS.gray[50],
+    backgroundColor: COLORS.background.primary,
   },
   submitButton: {
     width: '100%',
     paddingVertical: 16,
-    backgroundColor: '#EF4444',
+    backgroundColor: COLORS.submit,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#EF4444',
+    shadowColor: COLORS.shadow.submit,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -597,7 +553,7 @@ const styles = StyleSheet.create({
   submitText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.text.inverse,
   },
 });
 

@@ -21,18 +21,23 @@
 ## 🌟 核心功能
 
 ### 🌤️ 情绪气象站
+
 - 创新的天气隐喻可视化关系健康状态
 - 用天气图标（雨滴、云朵、雷电等）表达情绪强度
 - 实时显示当前"关系天气"和情绪指数
 
 ### ✍️ 智能记录
+
 - **5级情绪强度**：从"有点委屈"到"情绪爆发"
 - **天气主题图标**：使用 Droplet、Cloud、CloudRain、CloudLightning、Zap 等图标
-- **多维度标签系统**：支持人物标签和情绪触发器标签
-- **灵活的期限设置**：今天谈、本周内、以后说、自己消化
+- **多维度标签系统**：支持人物标签和情绪触发器标签，可自定义标签
+- **灵活的期限设置**：今天谈、本周内、本月内、以后说、自己消化
+- **自动草稿保存**：编辑过程自动保存草稿，意外退出也不会丢失
+- **编辑历史记录**：完整记录每次修改，可查看情绪变化轨迹
 - **温暖的文案引导**：降低记录门槛，让用户更愿意表达
 
 ### 🌱 心灵花园（洞察页面）
+
 全新设计的洞察页面，用植物生长隐喻展示情绪管理进度：
 
 - **本周情绪天气**：7天情绪状态一目了然，每天显示天气图标和花朵状态
@@ -42,13 +47,24 @@
 - **底部鼓励语**：动态生成的正向反馈，让用户感受到成长
 
 ### 🔥 气话焚烧
+
 - 治愈系情绪释放功能
 - 炫酷的 Skia 燃烧动画效果
 - 让负面情绪随火焰消散
 
+### 🤖 AI 智能助手
+
+- **情绪预测**：基于历史数据预测未来7天情绪走势
+- **情绪播客**：AI 生成个性化情绪疗愈播客内容
+- **情绪处方**：针对触发器提供个性化建议和应对策略
+- **智能分析**：深度分析情绪周期和触发因素
+- 使用 Groq API，支持离线使用（无API Key时显示默认内容）
+
 ### ☁️ 数据同步
+
 - **离线优先**：本地存储保护用户隐私
 - **云端备份**：可选 Supabase 云端同步，数据安全无忧
+- **智能数据迁移**：支持访客数据与登录用户数据无缝切换
 
 ## 🎨 设计亮点
 
@@ -89,6 +105,7 @@ yarn start
 | **路由** | Expo Router | ~6.0.21 |
 | **状态管理** | Zustand | ^5.0.9 |
 | **数据持久化** | AsyncStorage + Supabase | - |
+| **AI服务** | Groq SDK | ^0.37.0 |
 | **UI组件** | 自定义组件 + Lucide React Native | ^0.554.0 |
 | **图形渲染** | React Native Skia | 2.2.12 |
 | **动画** | React Native Reanimated | ~4.1.1 |
@@ -113,21 +130,33 @@ emotion-diary/
 │   ├── Record.tsx          # 记录页面组件（天气图标选择器）
 │   ├── Insights.tsx        # 洞察页面组件（心灵花园主题）
 │   ├── WeatherStation.tsx  # 情绪气象站组件
-│   ├── EntryCard.tsx       # 情绪记录卡片（天气图标显示）
-│   ├── Fireplace.tsx       # 气话焚烧动画
-│   └── Navigation.tsx      # 底部导航组件
+│   ├── EntryCard.tsx       # 情绪记录卡片（含气话焚烧动画）
+│   ├── EditEntryModal.tsx  # 编辑记录模态框
+│   ├── Toast.tsx           # Toast提示组件
+│   └── ai/                 # AI功能组件
+│       └── EmotionPodcast.tsx  # AI情绪播客组件
 ├── store/                  # 状态管理（Zustand）
 │   └── useAppStore.ts      # 全局状态Store
 ├── lib/                    # 工具库
 │   └── supabase.ts         # Supabase客户端配置
 ├── utils/                  # 工具函数
-│   └── dateUtils.ts        # 日期处理工具
-├── supabase/               # Supabase数据库脚本
-│   ├── create_entries_table.sql  # 创建entries表
-│   ├── rls_policies.sql    # 行级安全策略
-│   └── diagnose_entries.sql # 诊断脚本
+│   ├── dateUtils.ts        # 日期处理工具
+│   ├── aiService.ts        # AI服务（Groq API集成）
+│   ├── moodIconUtils.tsx   # 情绪图标工具
+│   └── draftManager.ts     # 草稿管理工具
+├── hooks/                  # 自定义Hooks
+│   └── useHapticFeedback.ts # 震动反馈Hook
 ├── assets/                 # 资源文件
 │   └── images/             # 图片资源
+├── openspec/               # OpenSpec规范文档
+│   ├── README.md           # OpenSpec使用指南
+│   ├── project-overview.md # 项目概览规范
+│   ├── data-models.md      # 数据模型规范
+│   ├── state-management.md # 状态管理规范
+│   ├── ui-components.md    # UI组件规范
+│   ├── services.md         # 服务层规范
+│   ├── utils.md            # 工具函数规范
+│   └── development-workflow.md # 开发工作流文档
 ├── types.ts               # TypeScript类型定义
 ├── constants.ts           # 应用常量配置（情绪图标映射）
 ├── app.json               # Expo应用配置
@@ -135,6 +164,43 @@ emotion-diary/
 ├── tsconfig.json          # TypeScript配置
 └── README.md              # 项目文档
 ```
+
+## 📚 OpenSpec 规范驱动开发
+
+本项目使用 **OpenSpec**（规范驱动开发工具）进行开发管理，确保代码质量和一致性。
+
+### 什么是 OpenSpec？
+
+OpenSpec 是一个规范驱动开发（Spec-driven Development，SDD）工具，通过在编写代码之前锁定意图，确保人类和 AI 在项目需求上达成一致，从而实现可预测和可审查的输出。
+
+### 规范文档
+
+所有规范文档位于 `openspec/` 目录下：
+
+- **[README.md](./openspec/README.md)** - OpenSpec 使用指南
+- **[项目概览规范](./openspec/project-overview.md)** - 项目目标、技术栈、架构概览
+- **[数据模型规范](./openspec/data-models.md)** - 数据结构定义和业务规则
+- **[状态管理规范](./openspec/state-management.md)** - Zustand Store 接口和方法
+- **[UI组件规范](./openspec/ui-components.md)** - 组件功能和交互逻辑
+- **[服务层规范](./openspec/services.md)** - AI 服务和 Supabase 服务
+- **[工具函数规范](./openspec/utils.md)** - 工具函数 API 和使用说明
+- **[开发工作流文档](./openspec/development-workflow.md)** - 开发流程和最佳实践
+
+### 开发工作流程
+
+1. **提案（Proposal）** - 创建变更提案，描述所需的规范更新
+2. **审查（Review）** - 与 AI 助手一起审查和完善提案
+3. **实施（Implementation）** - 根据批准的规范实施任务
+4. **归档（Archive）** - 将完成的变更归档，并更新规范文档
+
+### 使用规范进行开发
+
+- **查看规范**：在开始新功能开发前，先查看相关的规范文档
+- **修改规范**：当需要添加新功能或修改现有功能时，先更新相应的规范文档
+- **代码审查**：使用规范文档作为代码审查的标准
+- **AI 协作**：与 AI 工具协作时，引用规范文档确保理解和实现的一致性
+
+详细说明请参考 [OpenSpec 使用指南](./openspec/README.md) 和 [开发工作流文档](./openspec/development-workflow.md)。
 
 ## 🔧 开发配置
 
@@ -157,6 +223,7 @@ yarn install
 2. **配置环境变量**
    - 在项目根目录创建 `.env` 文件（如果不存在）
    - 添加以下配置：
+
    ```bash
    EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
    EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -221,6 +288,7 @@ eas build --platform android --profile production
 **4. 获取APK文件**
 
 构建完成后（约5-10分钟）：
+
 - 📧 **邮件通知** - 会收到构建完成的邮件，包含下载链接
 - 🌐 **EAS控制台** - 访问 [expo.dev](https://expo.dev) 下载APK文件
 - 📱 **二维码安装** - 构建结果中包含二维码，可直接扫码安装

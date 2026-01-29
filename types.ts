@@ -18,6 +18,7 @@ export enum Status {
   ACTIVE = 'active',
   PROCESSING = 'processing',
   RESOLVED = 'resolved',
+  BURNED = 'burned', // 已焚烧状态
 }
 
 /**
@@ -42,6 +43,7 @@ export interface MoodEntry {
   triggers: string[]; // e.g., "Late", "Chore"
   status: Status;
   resolvedAt?: number;
+  burnedAt?: number; // 焚烧时间戳
   editHistory?: EditHistory[]; // 编辑历史记录
 }
 
@@ -50,6 +52,7 @@ export interface User {
   name: string;
   email?: string;
   avatar?: string;
+  firstEntryDate?: number; // 第一条记录的时间戳（毫秒）
 }
 
 export interface WeatherState {

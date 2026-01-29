@@ -28,8 +28,10 @@ Emotion Diary is a healing-focused app dedicated to emotion management. Through 
 ### ✍️ Smart Recording
 - **5-Level Emotion Intensity**: From "Slightly Upset" to "Emotional Explosion"
 - **Weather-Themed Icons**: Using Droplet, Cloud, CloudRain, CloudLightning, Zap icons
-- **Multi-Dimensional Tagging**: Support for people tags and emotion trigger tags
-- **Flexible Timeline**: Today, This Week, Later, Self-Digest options
+- **Multi-Dimensional Tagging**: Support for people tags and emotion trigger tags, with custom tags
+- **Flexible Timeline**: Today, This Week, This Month, Later, Self-Digest options
+- **Auto Draft Saving**: Automatically saves drafts during editing, no data loss on accidental exit
+- **Edit History Tracking**: Complete modification history to track emotion changes
 - **Warm Copywriting**: Lower the barrier to recording, encouraging expression
 
 ### 🌱 Mind Garden (Insights Page)
@@ -46,9 +48,17 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - Cool Skia burning animation effect
 - Let negative emotions dissipate with the flames
 
+### 🤖 AI Smart Assistant
+- **Emotion Forecasting**: Predicts emotional trends for the next 7 days based on historical data
+- **Emotion Podcast**: AI-generated personalized emotional healing podcast content
+- **Emotion Prescription**: Personalized advice and coping strategies for specific triggers
+- **Smart Analysis**: Deep analysis of emotion cycles and triggering factors
+- Uses Groq API, supports offline use (shows default content without API Key)
+
 ### ☁️ Data Sync
 - **Offline-First**: Local storage protects user privacy
 - **Cloud Backup**: Optional Supabase cloud sync for data security
+- **Smart Data Migration**: Seamless switching between guest data and logged-in user data
 
 ## 🎨 Design Highlights
 
@@ -89,6 +99,7 @@ yarn start
 | **Routing** | Expo Router | ~6.0.21 |
 | **State Management** | Zustand | ^5.0.9 |
 | **Data Persistence** | AsyncStorage + Supabase | - |
+| **AI Service** | Groq SDK | ^0.37.0 |
 | **UI Components** | Custom Components + Lucide React Native | ^0.554.0 |
 | **Graphics Rendering** | React Native Skia | 2.2.12 |
 | **Animations** | React Native Reanimated | ~4.1.1 |
@@ -113,19 +124,22 @@ emotion-diary/
 │   ├── Record.tsx          # Record component (weather icon selector)
 │   ├── Insights.tsx        # Insights component (Mind Garden theme)
 │   ├── WeatherStation.tsx  # Emotion weather station component
-│   ├── EntryCard.tsx       # Emotion record card (weather icon display)
-│   ├── Fireplace.tsx       # Vent burning animation
-│   └── Navigation.tsx      # Bottom navigation component
+│   ├── EntryCard.tsx       # Emotion record card (with burn animation)
+│   ├── EditEntryModal.tsx  # Edit entry modal
+│   ├── Toast.tsx           # Toast notification component
+│   └── ai/                 # AI feature components
+│       └── EmotionPodcast.tsx  # AI emotion podcast component
 ├── store/                  # State management (Zustand)
 │   └── useAppStore.ts      # Global state Store
 ├── lib/                    # Utility libraries
 │   └── supabase.ts         # Supabase client configuration
 ├── utils/                  # Utility functions
-│   └── dateUtils.ts        # Date processing utilities
-├── supabase/               # Supabase database scripts
-│   ├── create_entries_table.sql  # Create entries table
-│   ├── rls_policies.sql    # Row-level security policies
-│   └── diagnose_entries.sql # Diagnostic script
+│   ├── dateUtils.ts        # Date processing utilities
+│   ├── aiService.ts        # AI service (Groq API integration)
+│   ├── moodIconUtils.tsx   # Mood icon utilities
+│   └── draftManager.ts     # Draft management utilities
+├── hooks/                  # Custom Hooks
+│   └── useHapticFeedback.ts # Haptic feedback Hook
 ├── assets/                 # Asset files
 │   └── images/             # Image assets
 ├── types.ts               # TypeScript type definitions

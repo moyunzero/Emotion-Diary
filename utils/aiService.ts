@@ -1,4 +1,5 @@
 import { MoodEntry, MoodLevel } from '../types';
+import { isAuthError, isNetworkError } from './errorHandler';
 
 /**
  * AI服务工具类
@@ -16,15 +17,58 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.1-8b-instant';
 
 // 缓存机制
-const cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+// 添加缓存大小限制，防止内存泄漏
+const MAX_CACHE_SIZE = 50; // 最大缓存条目数
+
+/**
+ * 缓存条目接口
+ */
+interface CacheEntry<T = unknown> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+const cache = new Map<string, CacheEntry>();
+
+/**
+ * 清理过期缓存
+ */
+const cleanExpiredCache = () => {
+  const now = Date.now();
+  for (const [key, value] of cache.entries()) {
+    if (now - value.timestamp >= value.ttl) {
+      cache.delete(key);
+    }
+  }
+};
+
+/**
+ * 清理最旧的缓存条目（当缓存超过最大大小时）
+ */
+const evictOldestCache = () => {
+  if (cache.size <= MAX_CACHE_SIZE) return;
+  
+  // 按时间戳排序，删除最旧的条目
+  const entries = Array.from(cache.entries())
+    .sort((a, b) => a[1].timestamp - b[1].timestamp);
+  
+  const toDelete = entries.slice(0, cache.size - MAX_CACHE_SIZE);
+  for (const [key] of toDelete) {
+    cache.delete(key);
+  }
+};
 
 /**
  * 从缓存获取数据
  */
-const getCached = (key: string): any | null => {
+const getCached = <T = unknown>(key: string): T | null => {
+  // 先清理过期缓存
+  cleanExpiredCache();
+  
   const cached = cache.get(key);
   if (cached && Date.now() - cached.timestamp < cached.ttl) {
-    return cached.data;
+    return cached.data as T;
   }
   cache.delete(key);
   return null;
@@ -33,12 +77,18 @@ const getCached = (key: string): any | null => {
 /**
  * 设置缓存
  */
-const setCache = (key: string, data: any, ttl: number = 24 * 60 * 60 * 1000) => {
+const setCache = <T = unknown>(key: string, data: T, ttl: number = 24 * 60 * 60 * 1000): void => {
+  // 清理过期缓存
+  cleanExpiredCache();
+  
+  // 如果缓存超过最大大小，清理最旧的条目
+  evictOldestCache();
+  
   cache.set(key, { data, timestamp: Date.now(), ttl });
 };
 
 /**
- * 错误类型枚举
+ * 错误类型枚举（用于 AI 服务特定的错误分类）
  */
 enum AIErrorType {
   NO_TOKEN = 'NO_TOKEN',           // 未配置 Token
@@ -50,21 +100,22 @@ enum AIErrorType {
 }
 
 /**
- * 分析错误类型
+ * 分析错误类型（AI 服务专用）
  */
-const classifyError = (error: any): AIErrorType => {
-  const message = error?.message || String(error);
+const classifyError = (error: Error | unknown): AIErrorType => {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
   
-  if (message.includes('401') || message.includes('Invalid') || message.includes('Unauthorized') || message.includes('invalid_api_key')) {
+  // 使用统一的错误判断函数
+  if (isAuthError(error) || message.includes('invalid_api_key')) {
     return AIErrorType.INVALID_TOKEN;
   }
-  if (message.includes('rate limit') || message.includes('429') || message.includes('Too Many Requests')) {
+  if (message.includes('rate limit') || message.includes('429') || message.includes('too many requests')) {
     return AIErrorType.RATE_LIMIT;
   }
   if (message.includes('model') || message.includes('403') || message.includes('not found')) {
     return AIErrorType.MODEL_ERROR;
   }
-  if (message.includes('network') || message.includes('ENOTFOUND') || message.includes('fetch') || message.includes('Failed to fetch')) {
+  if (isNetworkError(error)) {
     return AIErrorType.NETWORK_ERROR;
   }
   return AIErrorType.UNKNOWN;
@@ -79,6 +130,26 @@ const isApiKeyValid = (): boolean => {
 };
 
 /**
+ * Groq API 响应接口
+ */
+interface GroqResponse {
+  choices: {
+    message: {
+      content: string;
+    };
+  }[];
+}
+
+/**
+ * Groq API 错误响应接口
+ */
+interface GroqErrorResponse {
+  error?: {
+    message?: string;
+  };
+}
+
+/**
  * 调用 Groq API 生成文本
  */
 const callGroqAPI = async (
@@ -86,31 +157,53 @@ const callGroqAPI = async (
   userPrompt: string,
   maxTokens: number = 300
 ): Promise<string> => {
-  const response = await fetch(GROQ_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      max_tokens: maxTokens,
-      temperature: 0.7,
-    }),
-  });
+  try {
+    const response = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: maxTokens,
+        temperature: 0.7,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData?.error?.message || `HTTP ${response.status}`;
-    throw new Error(errorMessage);
+    if (!response.ok) {
+      let errorData: GroqErrorResponse = {};
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        console.warn('Failed to parse error response:', parseError);
+      }
+      const errorMessage = errorData?.error?.message || `HTTP ${response.status}`;
+      throw new Error(errorMessage);
+    }
+
+    let data: GroqResponse;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse API response:', parseError);
+      throw new Error('API 返回了无效的响应格式');
+    }
+
+    const content = data.choices?.[0]?.message?.content;
+    if (!content || typeof content !== 'string') {
+      throw new Error('API 返回了无效的内容格式');
+    }
+
+    return content;
+  } catch (error) {
+    // 重新抛出错误，让调用者处理
+    throw error;
   }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
 };
 
 /**
@@ -125,9 +218,9 @@ const withRetry = async <T>(
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
-    } catch (error: any) {
+    } catch (error) {
       lastError = error as Error;
-      const errorType = classifyError(error);
+      const errorType = classifyError(lastError);
       
       // 对于 Token 无效或模型错误，不需要重试
       if (errorType === AIErrorType.INVALID_TOKEN || errorType === AIErrorType.MODEL_ERROR) {
@@ -204,7 +297,7 @@ export const analyzeEmotionCycle = async (
   entries: MoodEntry[]
 ): Promise<EmotionCycleAnalysis> => {
   const cacheKey = `cycle_${entries.length}_${entries[0]?.timestamp || 0}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<EmotionCycleAnalysis>(cacheKey);
   if (cached) return cached;
 
   try {
@@ -281,11 +374,12 @@ export const analyzeEmotionCycle = async (
     return analysis;
   } catch (error) {
     console.error('情绪周期分析失败:', error);
-    return {
+    const defaultAnalysis: EmotionCycleAnalysis = {
       patterns: [],
       highRiskPeriods: [],
       triggerFactors: [],
     };
+    return defaultAnalysis;
   }
 };
 
@@ -296,8 +390,11 @@ export const predictEmotionTrend = async (
   entries: MoodEntry[],
   days: number = 7
 ): Promise<EmotionForecast> => {
-  const cacheKey = `forecast_${entries.length}_${days}_${Date.now()}`;
-  const cached = getCached(cacheKey);
+  // 修复：移除 Date.now()，使用基于数据的缓存键，避免每次调用都生成新缓存
+  // 使用最近一条记录的时间戳作为缓存键的一部分，这样数据变化时缓存会失效
+  const latestTimestamp = entries.length > 0 ? entries[0].timestamp : 0;
+  const cacheKey = `forecast_${entries.length}_${days}_${Math.floor(latestTimestamp / (60 * 60 * 1000))}`; // 按小时缓存
+  const cached = getCached<EmotionForecast>(cacheKey);
   if (cached) return cached;
 
   try {
@@ -337,13 +434,13 @@ export const predictEmotionTrend = async (
       if (riskLevel === 'high') {
         warnings.push({
           date: dateStr,
-          message: `⚠️ ${dateStr}是高风险日，记得多点耐心`,
+          message: `${dateStr}是高风险日，记得多点耐心`,
           severity: 'high',
         });
       } else if (riskLevel === 'medium') {
         warnings.push({
           date: dateStr,
-          message: `🌤️ ${dateStr}情绪可能波动，注意调节`,
+          message: `${dateStr}情绪可能波动，注意调节`,
           severity: 'medium',
         });
       }
@@ -363,11 +460,12 @@ export const predictEmotionTrend = async (
     return forecast;
   } catch (error) {
     console.error('情绪预测失败:', error);
-    return {
+    const defaultForecast: EmotionForecast = {
       predictions: [],
       warnings: [],
       summary: '预测功能暂时不可用',
     };
+    return defaultForecast;
   }
 };
 
@@ -379,7 +477,7 @@ export const generateEmotionPodcast = async (
   period: 'week' | 'month' = 'week'
 ): Promise<string | null> => {
   const cacheKey = `podcast_${period}_${entries.length}_${entries[0]?.timestamp || 0}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
   try {
@@ -394,7 +492,8 @@ export const generateEmotionPodcast = async (
       .slice(-30);
 
     if (recentEntries.length === 0) {
-      return '最近还没有情绪记录，开始记录你的情绪吧~';
+      const defaultMessage = '最近还没有情绪记录，开始记录你的情绪吧~';
+      return defaultMessage;
     }
 
     const totalCount = recentEntries.length;
@@ -439,7 +538,7 @@ export const generateEmotionPodcast = async (
 
       setCache(cacheKey, result, 24 * 60 * 60 * 1000);
       return result;
-    } catch (error: any) {
+    } catch (error) {
       const errorType = classifyError(error);
       if (errorType === AIErrorType.UNKNOWN) {
         console.warn('文本生成失败，使用默认文案:', error);
@@ -486,7 +585,7 @@ export const generateEmotionPrescription = async (
   entries: MoodEntry[]
 ): Promise<EmotionPrescription> => {
   const cacheKey = `prescription_${trigger}_${moodLevel}_${entries.length}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<EmotionPrescription>(cacheKey);
   if (cached) return cached;
 
   try {
@@ -522,7 +621,10 @@ export const generateEmotionPrescription = async (
         setCache(cacheKey, prescription, 7 * 24 * 60 * 60 * 1000);
         return prescription;
       }
-    } catch (error: any) {
+      
+      // 如果解析失败，返回默认处方
+      return getDefaultPrescription(trigger, moodLevel);
+    } catch (error) {
       const errorType = classifyError(error);
       if (errorType === AIErrorType.UNKNOWN) {
         console.warn('AI生成处方失败，使用默认处方:', error);

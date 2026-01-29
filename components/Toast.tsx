@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '../constants/colors';
 
 interface ToastProps {
   message: string;
@@ -23,8 +24,12 @@ export const Toast: React.FC<ToastProps> = ({
   const translateY = useRef(new Animated.Value(-50)).current;
 
   useEffect(() => {
+    let isMounted = true;
+    let hideAnimation: Animated.CompositeAnimation | null = null;
+    let showAnimation: Animated.CompositeAnimation | null = null;
+    
     // 显示动画
-    Animated.parallel([
+    showAnimation = Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
         duration: 300,
@@ -36,11 +41,15 @@ export const Toast: React.FC<ToastProps> = ({
         friction: 7,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
+    
+    showAnimation.start();
 
     // 自动隐藏
     const timer = setTimeout(() => {
-      Animated.parallel([
+      if (!isMounted) return;
+      
+      hideAnimation = Animated.parallel([
         Animated.timing(opacity, {
           toValue: 0,
           duration: 300,
@@ -51,24 +60,37 @@ export const Toast: React.FC<ToastProps> = ({
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start(() => {
-        onHide?.();
+      ]);
+      
+      hideAnimation.start(() => {
+        if (isMounted) {
+          onHide?.();
+        }
       });
     }, duration);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+      // 停止动画
+      if (hideAnimation) {
+        hideAnimation.stop();
+      }
+      opacity.stopAnimation();
+      translateY.stopAnimation();
+    };
   }, [duration, onHide, opacity, translateY]);
 
   const getBackgroundColor = () => {
     switch (type) {
       case 'success':
-        return '#10B981';
+        return COLORS.success;
       case 'error':
-        return '#EF4444';
+        return COLORS.error;
       case 'info':
-        return '#3B82F6';
+        return COLORS.info;
       default:
-        return '#10B981';
+        return COLORS.success;
     }
   };
 
@@ -138,7 +160,7 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   text: {
-    color: '#FFFFFF',
+    color: COLORS.text.inverse,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
