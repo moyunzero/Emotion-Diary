@@ -6,7 +6,7 @@
 
 **A Healing-Focused Emotion Tracking & Management App**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-blue)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-54.0.30-000)](https://expo.dev/)
 
@@ -16,7 +16,7 @@
 
 ## 📱 About
 
-Emotion Diary is a healing-focused app dedicated to emotion management. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden.
+**Emotion Diary** is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
 
 ## 🌟 Core Features
 
