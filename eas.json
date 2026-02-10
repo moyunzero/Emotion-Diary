@@ -31,8 +31,5 @@
         "NODE_ENV": "production"
       }
     }
-  },
-  "submit": {
-    "production": {}
   }
 }

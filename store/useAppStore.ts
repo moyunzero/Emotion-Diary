@@ -21,6 +21,7 @@ import {
     migrateFromLegacyStorage,
     migrateGuestDataToUser,
     migrateUserDataToGuest,
+    removeFromStorage,
     saveToStorage,
 } from "./modules/storage";
 import { AppStore } from "./modules/types";
@@ -767,6 +768,77 @@ export const useAppStore = create<AppStore>((set, get) => {
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
+      }
+    },
+
+    /**
+     * 注销账号（方案 C - 真删除）
+     * 删除云端 Auth 用户、profiles、entries，本地数据迁移到游客存储保留
+     */
+    deleteAccount: async () => {
+      try {
+        const { user, entries } = get();
+        if (!user) {
+          throw new Error("未登录");
+        }
+
+        // 1. 保存当前数据到用户存储
+        if (entries.length > 0) {
+          const userKey = getStorageKey(user.id);
+          await saveToStorage(userKey, entries);
+        }
+
+        // 2. 保存 firstEntryDate 到游客存储（确保注销后陪伴天数不丢失）
+        if (user.firstEntryDate) {
+          await AsyncStorage.setItem(
+            "guest_first_entry_date",
+            user.firstEntryDate.toString(),
+          );
+        }
+
+        // 3. 合并用户数据到游客存储
+        const migrationResult = await migrateUserDataToGuest(user.id);
+
+        // 4. 调用 Edge Function 删除云端账号
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          throw new Error("会话已失效，请重新登录");
+        }
+
+        const { data, error } = await supabase.functions.invoke(
+          "delete-account",
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
+
+        if (error) {
+          throw new Error(error.message || "注销失败");
+        }
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        // 5. 本地登出、清除状态
+        await supabase.auth.signOut();
+        set({ user: null });
+        await AsyncStorage.removeItem("user_session");
+        await removeFromStorage(getStorageKey(user.id));
+
+        // 6. 恢复游客数据
+        if (migrationResult.success && migrationResult.data) {
+          set({ entries: migrationResult.data });
+          get()._calculateWeather();
+        } else {
+          await get()._loadEntries();
+        }
+      } catch (error) {
+        console.error("Delete account error:", error);
+        throw error;
       }
     },
 

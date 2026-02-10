@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.moyunzero.emotiondiary",
-      "minimumOsVersion": "14.0",
+      "minimumOsVersion": "15.1",
       "splash": {
         "image": "./assets/images/app-icon.png",
         "resizeMode": "contain",

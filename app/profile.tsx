@@ -6,6 +6,7 @@ import {
     CloudUpload,
     LogOut,
     User as UserIcon,
+    UserX,
     X,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
@@ -64,6 +65,7 @@ export default function ProfileScreen() {
   const weather = useAppStore((state) => state.weather);
   const login = useAppStore((state) => state.login);
   const logout = useAppStore((state) => state.logout);
+  const deleteAccount = useAppStore((state) => state.deleteAccount);
   const updateUser = useAppStore((state) => state.updateUser);
   const syncToCloud = useAppStore((state) => state.syncToCloud);
   const register = useAppStore((state) => state.register);
@@ -531,6 +533,32 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "注销账号",
+      "注销后，您的云端账号及所有心事记录将被永久删除，无法恢复。本地记录将转为游客模式保留。\n\n确定要注销吗？",
+      [
+        { text: "取消", style: "cancel" },
+        {
+          text: "确认注销",
+          style: "destructive",
+          onPress: async () => {
+            setIsLoading(true);
+            try {
+              await deleteAccount();
+              setToast({ message: "账号已注销", type: "success" });
+              router.back();
+            } catch (e: any) {
+              Alert.alert("注销失败", e?.message || "请稍后重试");
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <View style={profileStyles.container}>
       <View style={profileStyles.bgCircle} />
@@ -627,6 +655,16 @@ export default function ProfileScreen() {
                   showChevron={false}
                   danger
                   onPress={handleLogout}
+                />
+                <View style={profileStyles.menuDivider} />
+                <ProfileMenuItem
+                  icon={<UserX size={20} color="#EF4444" />}
+                  iconBgColor="#FEF2F2"
+                  title="注销账号"
+                  subtext="永久删除云端账号及数据，本地记录保留"
+                  showChevron={false}
+                  danger
+                  onPress={handleDeleteAccount}
                 />
               </View>
             </>
