@@ -66,14 +66,17 @@ temp/
 # ==============================================
 # Environment & Configuration
 # ==============================================
-# Local env files (keep .env.example)
+# Local env files (keep .env.example for reference)
 .env
 .env.local
 .env.*.local
 .env.development
 .env.test
 .env.production
-*.env
+.env.staging
+
+# IMPORTANT: Never commit .env files with real API keys!
+# Use EAS Secrets for production: eas secret:push --scope project --env-file .env
 
 # ==============================================
 # Build Outputs & Dist
@@ -112,38 +115,78 @@ android/.gradle/
 android/local.properties
 *.iml
 
-# Keystore files (Security risk if committed!)
-*.jks
-*.keystore
-*.pem
-*.p12
-*.key
+# Android Signing (CRITICAL - Keep debug.keystore for development)
+release.keystore
+upload-keystore.jks
+!android/app/debug.keystore
 
 # ==============================================
 # Mobile - iOS
 # ==============================================
+# iOS Build Outputs
 *.ipa
 *.dSYM
-*.mobileprovision
 ios/build/
 ios/Pods/
+ios/DerivedData/
+
+# iOS User Data
 ios/*.xcworkspace/xcuserdata/
 ios/*.xcodeproj/xcuserdata/
 ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# iOS Environment
 ios/.xcode.env.local
 
+# iOS Certificates & Profiles (CRITICAL)
+ios/*.cer
+ios/*.p12
+ios/*.mobileprovision
+ios/*.provisionprofile
+ios/*.certSigningRequest
+
 # ==============================================
-# Security & Credentials
+# Security & Credentials (CRITICAL - DO NOT COMMIT!)
 # ==============================================
+# SSH Keys
 id_rsa
 id_rsa.pub
 known_hosts
+
+# API Keys & Secrets
 secrets.yaml
 secrets.json
+*secret*
+*credential*
+*password*
+
+# Mobile App Credentials
 google-services.json
 GoogleService-Info.plist
+
+# Cloud Provider Credentials
 aws-credentials
 google-cloud-key.json
+firebase-adminsdk*.json
+
+# Apple Developer Certificates & Profiles
+*.cer
+*.certSigningRequest
+*.p12
+*.mobileprovision
+*.provisionprofile
+
+# Android Signing
+*.jks
+*.keystore
+release.keystore
+debug.keystore
+!android/app/debug.keystore
+
+# Environment Files with Real Keys
+.env.production
+.env.staging
+.env.*.local
 
 # ==============================================
 # Large Media & Archives
@@ -198,7 +241,10 @@ REFACTORING_SUMMARY.md
 diagnose-db-constraint.sql
 cleanup.sh
 
-# Kiro
+# ==============================================
+# Development Tools
+# ==============================================
+# Kiro IDE
 .kiro/
 
 # Documentation folder
@@ -209,3 +255,27 @@ openspec/
 
 # Misc
 app-example/
+
+# ==============================================
+# Temporary Files (Safe to ignore)
+# ==============================================
+START_HERE.txt
+
+# ==============================================
+# SECURITY NOTES
+# ==============================================
+# This project uses EAS Secrets for production credentials
+# Never commit files containing:
+# - API keys, tokens, or passwords
+# - Apple Developer certificates (.p12, .cer, .mobileprovision)
+# - Android signing keys (.jks, .keystore except debug.keystore)
+# - Database credentials
+# - OAuth client secrets
+#
+# For local development:
+# 1. Copy .env.example to .env
+# 2. Fill in development/test credentials
+# 3. Never commit .env with real keys
+#
+# For production:
+# Use EAS Secrets: eas secret:create --scope project --name KEY_NAME --value "value"

@@ -34,6 +34,8 @@
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
@@ -46,7 +48,9 @@
       <true/>
     </dict>
     <key>NSFaceIDUsageDescription</key>
-    <string>心晴使用 Face ID 保护您的日记隐私，确保只有您能访问个人情绪记录</string>
+    <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>心晴需要访问麦克风以录制语音日记（如果您使用此功能）</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>

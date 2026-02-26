@@ -97,10 +97,55 @@ yarn start
 2. **📲 APK下载** - 从 Releases 页面下载预编译APK（需要先配置 EAS Build）
 3. **🌐 Web版本** - 运行 `yarn web` 在浏览器中体验
 
-### 📦 发布与上架
+### 🔒 安全性
 
-- **上架前必读**：[上架检查清单](./docs/release-checklist.md) — EAS Secrets、构建命令、商店后台配置与发布前自检。
-- **包体积优化**：[iOS 包体积优化指南](./docs/ios-bundle-size.md) — 减小商店下载体积、静态资源压缩与发布前检查。
+本项目遵循严格的安全最佳实践：
+
+- ✅ 所有敏感信息使用 EAS Secrets 管理
+- ✅ `.gitignore` 配置完善，防止敏感文件泄露
+- ✅ 环境变量模板化（`.env.example`）
+- ✅ 定期安全审计和依赖更新
+
+详细信息请查看 [SECURITY.md](./SECURITY.md)
+
+### 安全检查
+
+```bash
+# 运行安全检查脚本
+./scripts/security-check.sh
+
+# 检查项目配置
+./scripts/pre-build-check.sh
+```
+
+## 📦 发布与上架
+
+#### 🚀 快速开始（推荐）
+- **准备完成指南**：[APP_STORE_READY.md](./APP_STORE_READY.md) — 一站式 App Store 提交指南，包含所有必要步骤
+- **30分钟快速上手**：[快速开始](./docs/app-store-submission/QUICK_START.md) — 从零到提交的完整流程
+- **完整检查清单**：[CHECKLIST.md](./docs/app-store-submission/CHECKLIST.md) — 逐项检查确保万无一失
+
+#### 🛠️ 自动化脚本
+```bash
+# 1. 运行设置向导（配置证书和 App Store Connect）
+./scripts/setup-app-store.sh
+
+# 2. 构建前检查
+./scripts/pre-build-check.sh
+
+# 3. 一键构建和提交
+./scripts/build-and-submit.sh
+```
+
+#### 📚 详细文档
+- **完整提交指南**：[docs/app-store-submission/README.md](./docs/app-store-submission/README.md)
+- **元数据准备**：[中文描述](./docs/app-store-submission/metadata/app-description-zh.md) | [英文描述](./docs/app-store-submission/metadata/app-description-en.md)
+- **截图指南**：[screenshot-guide.md](./docs/app-store-submission/metadata/screenshot-guide.md)
+- **隐私政策**：[PRIVACY.md](./PRIVACY.md)
+
+#### 📋 其他资源
+- **上架检查清单**：[上架检查清单](./docs/release-checklist.md) — EAS Secrets、构建命令、商店后台配置
+- **包体积优化**：[iOS 包体积优化指南](./docs/ios-bundle-size.md) — 减小下载体积、资源压缩
 
 ## 🛠️ 技术栈
 
