@@ -1,8 +1,8 @@
-# 情绪日记 (Emotion Diary)
+# 焚语 (Fenyu)
 
 <div align="center">
 
-![Emotion Diary Logo](./assets/images/icon.png)
+![Fenyu Logo](./assets/images/icon.png)
 
 **一款治愈系情绪记录与管理应用**
 
@@ -16,7 +16,7 @@
 
 ## 📱 应用简介
 
-情绪日记是一款专注于情绪管理的治愈系应用。通过独特的「情绪气象站」和「心灵花园」概念，帮助用户记录、理解和管理自己的情绪，让每一次情绪的记录和解决都成为照料心灵花园的过程。
+焚语是一款专注于情绪管理的治愈系应用。通过独特的「情绪气象站」和「心灵花园」概念，帮助用户记录、理解和管理自己的情绪，让每一次情绪的记录和解决都成为照料心灵花园的过程。
 
 ## 🌟 核心功能
 
@@ -166,7 +166,7 @@ yarn start
 ## 📁 项目结构
 
 ```
-emotion-diary/
+fenyu-emotion-diary/
 ├── app/                    # Expo Router页面
 │   ├── _layout.tsx         # 根布局配置
 │   ├── profile.tsx         # 个人中心页面
@@ -438,10 +438,10 @@ eas build --platform ios --profile production
 
 <div align="center">
 
-**🌱 感谢使用情绪日记，愿你的心灵花园繁花似锦！**
+**🌱 感谢使用焚语，愿你的心灵花园繁花似锦！**
 
 Made with ❤️ by Your Team
 
-[🔝 回到顶部](#情绪日记-emotion-diary)
+[🔝 回到顶部](#焚语-fenyu)
 
 </div>

@@ -1,8 +1,8 @@
-# Emotion Diary
+# Fenyu
 
 <div align="center">
 
-![Emotion Diary Logo](./assets/images/icon.png)
+![Fenyu Logo](./assets/images/icon.png)
 
 **A Healing-Focused Emotion Tracking & Management App**
 
@@ -16,7 +16,7 @@
 
 ## 📱 About
 
-**Emotion Diary** is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
+**Fenyu** is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
 
 ## 🌟 Core Features
 
@@ -76,7 +76,7 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 ```bash
 # Clone the project
 git clone <repository-url>
-cd emotion-diary
+cd fenyu-emotion-diary
 
 # Install dependencies
 yarn install
@@ -110,7 +110,7 @@ yarn start
 ## 📁 Project Structure
 
 ```
-emotion-diary/
+fenyu-emotion-diary/
 ├── app/                    # Expo Router pages
 │   ├── _layout.tsx         # Root layout configuration
 │   ├── profile.tsx         # Profile page
@@ -335,10 +335,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**🌱 Thanks for using Emotion Diary, may your mind garden flourish!**
+**🌱 Thanks for using Fenyu, may your mind garden flourish!**
 
 Made with ❤️ by Your Team
 
-[🔝 Back to Top](#emotion-diary)
+[🔝 Back to Top](#fenyu)
 
 </div>
