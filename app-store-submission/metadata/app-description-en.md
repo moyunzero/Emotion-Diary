@@ -22,4 +22,3 @@ You can turn your emotional timeline into a review image and save it to your pho
 - Data storage is local-first, with optional cloud sync.  
 - The app may provide a gentle one-line summary as secondary support; if network/service is unavailable, fallback text is used and logging/export still works.  
 - Fenyu is not a medical app and does not provide diagnosis or treatment advice.
-
