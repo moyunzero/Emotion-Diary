@@ -15,9 +15,9 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### 重复逻辑收敛（Shared 单一来源）
 
-- [ ] **SHR-01**: 响应式/时间区间/通用格式化等重复逻辑收敛到单一来源，旧入口保留可迁移兼容层。
-- [ ] **SHR-02**: 组件内重复计算迁移到纯函数模块后，业务行为与显示结果保持一致。
-- [ ] **SHR-03**: 收敛后的 shared 模块具备基础单元测试，覆盖关键边界输入。
+- [x] **SHR-01**: 响应式/时间区间/通用格式化等重复逻辑收敛到单一来源，旧入口保留可迁移兼容层。
+- [x] **SHR-02**: 组件内重复计算迁移到纯函数模块后，业务行为与显示结果保持一致。
+- [x] **SHR-03**: 收敛后的 shared 模块具备基础单元测试，覆盖关键边界输入。
 
 ### 大文件拆分与结构重构
 
@@ -61,9 +61,9 @@ Deferred to future milestone.
 | GOV-01 | Phase 6 | Complete |
 | GOV-02 | Phase 6 | Complete |
 | GOV-03 | Phase 6 | Complete |
-| SHR-01 | Phase 7 | Pending |
-| SHR-02 | Phase 7 | Pending |
-| SHR-03 | Phase 7 | Pending |
+| SHR-01 | Phase 7 | Complete |
+| SHR-02 | Phase 7 | Complete |
+| SHR-03 | Phase 7 | Complete |
 | ARC-01 | Phase 8 | Pending |
 | ARC-02 | Phase 8 | Pending |
 | ARC-03 | Phase 8 | Pending |
