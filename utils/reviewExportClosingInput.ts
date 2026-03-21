@@ -9,12 +9,22 @@ import type { ReviewExportPreset } from './reviewStatsTimeRange';
 
 export type { ReviewExportClosingSummary } from './reviewExportDerived';
 
+function normalizeFirstEntryDate(value: number | null): number | null {
+  if (value === null) return null;
+  return value > 0 ? value : null;
+}
+
 export function buildReviewExportClosingSummary(
   entries: MoodEntry[],
   firstEntryDate: number | null,
   preset: ReviewExportPreset,
   now: Date,
 ): ReviewExportClosingSummary {
-  return computeReviewExportDerivedState(entries, firstEntryDate, preset, now)
+  return computeReviewExportDerivedState(
+    entries,
+    normalizeFirstEntryDate(firstEntryDate),
+    preset,
+    now,
+  )
     .closingSummary;
 }
