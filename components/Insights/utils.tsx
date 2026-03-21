@@ -1,16 +1,14 @@
 import { Flower2, Leaf, Sprout, Sun, TreeDeciduous } from 'lucide-react-native';
 import React from 'react';
 import { MOOD_CONFIG } from '../../constants';
+import { getMondayWeekRangeContaining } from '../../shared/time-range';
 import { MoodLevel } from '../../types';
 import { getMoodIcon } from '../../utils/moodIconUtils';
 
 // 获取本周的日期范围
 export const getWeekDates = () => {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  monday.setHours(0, 0, 0, 0);
+  const { startMs } = getMondayWeekRangeContaining(new Date());
+  const monday = new Date(startMs);
 
   const dates = [];
   for (let i = 0; i < 7; i++) {
