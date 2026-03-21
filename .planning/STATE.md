@@ -11,8 +11,8 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 
 Phase: **1** of **5**（统计与聚合基础）  
 Plan: **0** of **TBD** in current phase  
-Status: **Ready to plan**（Phase 1 讨论已完成，见 `phases/01-stats-aggregation/1-CONTEXT.md`）  
-Last activity: **2025-03-21** — `/gsd-discuss-phase 1` 口径锁定  
+Status: **Ready to execute**（Phase 1 计划已撰写：`01-01`～`01-03-PLAN.md`）  
+Last activity: **2025-03-21** — `/gsd-plan-phase 1`  
 
 Progress: [░░░░░░░░░░] 0%
 

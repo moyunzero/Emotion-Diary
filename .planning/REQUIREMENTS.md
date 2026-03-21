@@ -49,20 +49,20 @@
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| EXPORT-01 | Phase 2 | Pending |
-| EXPORT-02 | Phase 2 | Pending |
-| EXPORT-03 | Phase 2 | Pending |
-| EXPORT-04 | Phase 2 / 4 | Pending |
-| EXPORT-05 | Phase 2 | Pending |
-| EXPORT-06 | Phase 2 | Pending |
-| EXPORT-07 | Phase 3 | Pending |
-| EXPORT-08 | Phase 2 | Pending |
-| ENG-01 | Phase 1 | Pending |
-| ENG-02 | Phase 4 | Pending |
-| ANIM-01 | Phase 4 | Pending |
-| IOS-01 | Phase 5 | Pending |
+| Requirement | Phase | Plans / 说明 | Status |
+|-------------|-------|----------------|--------|
+| EXPORT-01 | Phase 1（时间边界）/ Phase 2（UI） | `01-01-PLAN` / 导出页 | Pending |
+| EXPORT-02 | Phase 1（陪伴天数）/ Phase 2（UI） | `01-01` + `calculateDaysAsOf` | Pending |
+| EXPORT-03 | Phase 1（率与环比）/ Phase 2（UI） | `01-02-PLAN` | Pending |
+| EXPORT-04 | Phase 1（月序列）/ Phase 4（图） | `01-03-PLAN` | Pending |
+| EXPORT-05 | Phase 1（Top 天气）/ Phase 2（图） | `01-03-PLAN` | Pending |
+| EXPORT-06 | Phase 1（触发器+建议）/ Phase 2（图） | `01-03-PLAN` | Pending |
+| EXPORT-07 | Phase 3 | — | Pending |
+| EXPORT-08 | Phase 2 | — | Pending |
+| ENG-01 | Phase 1 | `01-01`～`01-03-PLAN` | Pending |
+| ENG-02 | Phase 4 | — | Pending |
+| ANIM-01 | Phase 4 | — | Pending |
+| IOS-01 | Phase 5 | — | Pending |
 
 **Coverage:**
 
@@ -72,4 +72,4 @@
 
 ---
 *Requirements defined: 2025-03-21*  
-*Last updated: 2025-03-21 after roadmap creation*
+*Last updated: 2025-03-21 after plan-phase 1*
