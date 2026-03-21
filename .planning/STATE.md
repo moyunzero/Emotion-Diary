@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-21T14:58:35.595Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-21T15:02:17.370Z"
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 18
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-21)
 ## Current Position
 
 Phase: 06 (governance-baseline-gates) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ### Quick tasks（ad-hoc）
 
@@ -56,6 +56,7 @@ Plan: 2 of 3
 | Phase 05 P02 | 1 min | 3 tasks | 3 files |
 | Phase 05 P03 | 6 min | 2 tasks | 1 files |
 | Phase 06-governance-baseline-gates P01 | 1min | 2 tasks | 4 files |
+| Phase 06-governance-baseline-gates P03 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 05]: IOS-01 证据链必须显式引用 05-01/05-02 计划与 05-VERIFICATION 报告。
 - [Phase 06-governance-baseline-gates]: 将治理入口命名为 verify:governance，并以 --dry-run 提供稳定可复现摘要输出
 - [Phase 06-governance-baseline-gates]: Phase 06 首版范围仅覆盖 app/components/store/utils/hooks/services/lib，显式排除 ios/android/docs
+- [Phase 06-governance-baseline-gates]: smoke 路径固定为 record/export/sync，并通过单入口脚本编排
+- [Phase 06-governance-baseline-gates]: 导出一致性仅使用结构化断言，明确排除像素级快照比对
+- [Phase 06-governance-baseline-gates]: 每个治理重构包必须按 D-14 字段提交并遵循偏差先回退
 
 ### Pending Todos
 
@@ -94,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:58:35.592Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-21T15:02:17.365Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
