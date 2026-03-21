@@ -1,5 +1,6 @@
 import { MoodLevel, Status } from '../../../types';
 import { formatDateChinese, formatMonthDay } from '../../../shared/formatting';
+import { REVIEW_PRESET_LABEL } from '../../../shared/time-range';
 import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';
 import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
 import { getReviewExportPeriods } from '../../../utils/reviewStatsTimeRange';
@@ -74,5 +75,19 @@ describe('reviewExportDerived', () => {
     expect(formatDateChinese(derived.closingSummary.periodStartMs)).toBe(legacyChineseStart);
     expect(formatDateChinese(derived.closingSummary.periodEndMs)).toBe(legacyChineseEnd);
     expect(formatMonthDay(derived.closingSummary.periodEndMs)).toBe(legacyMonthDay);
+  });
+
+  it('keeps current/previous period semantics stable for all presets', () => {
+    const now = new Date('2025-03-15T12:00:00');
+    const presets = ['this_week', 'last_week', 'this_month', 'last_month'] as const;
+
+    presets.forEach((preset) => {
+      const derived = computeReviewExportDerivedState([], null, preset, now);
+      const expected = getReviewExportPeriods(now, preset);
+
+      expect(derived.current).toEqual(expected.current);
+      expect(derived.previous).toEqual(expected.previous);
+      expect(derived.closingSummary.presetLabel).toBe(REVIEW_PRESET_LABEL[preset]);
+    });
   });
 });
