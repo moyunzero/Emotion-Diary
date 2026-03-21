@@ -4,17 +4,17 @@
 
 See: `.planning/PROJECT.md` (updated 2025-03-21)
 
-**Core value:** 用户能把陪伴时间与情绪变化变成可保存、可分享的一张图。  
+**Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
 **Current focus:** Phase 2 — 回顾图 UI + 图片导出
 
 ## Current Position
 
 Phase: **2** of **5**（回顾图 UI + 图片导出）  
-Plan: **0** of **TBD** in current phase  
-Status: **Discuss 完成 — 见 `phases/02-ui/2-CONTEXT.md`，可 `/gsd-plan-phase 2`**  
-Last activity: **2025-03-21** — `/gsd-discuss-phase 2`  
+Plan: **3** of **3** in current phase（`02-01`～`02-03-PLAN.md`）  
+Status: **Plan 完成 — 可 `/gsd-execute-phase 2`**  
+Last activity: **2025-03-21** — `/gsd-plan-phase 2`  
 
-Progress: [░░░░░░░░░░] 0%（Phase 2）
+Progress: [░░░░░░░░░░] 0%（Phase 2，待执行）
 
 ## Performance Metrics
 
