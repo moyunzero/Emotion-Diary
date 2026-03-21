@@ -1,4 +1,5 @@
 import { MoodLevel, Status } from '../../../types';
+import { formatDateChinese, formatMonthDay } from '../../../shared/formatting';
 import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';
 import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
 import { getReviewExportPeriods } from '../../../utils/reviewStatsTimeRange';
@@ -58,5 +59,20 @@ describe('reviewExportDerived', () => {
     );
     expect(derived.closingSummary.totalEntries).toBeGreaterThanOrEqual(1);
     expect(derived.closingSummary.presetLabel).toBe('本月');
+  });
+
+  it('keeps export date semantics after formatting migration', () => {
+    const now = new Date('2025-03-15T12:00:00');
+    const derived = computeReviewExportDerivedState([], null, 'this_month', now);
+    const periodStart = new Date(derived.closingSummary.periodStartMs);
+    const periodEnd = new Date(derived.closingSummary.periodEndMs);
+
+    const legacyChineseStart = `${periodStart.getFullYear()}年${periodStart.getMonth() + 1}月${periodStart.getDate()}日`;
+    const legacyChineseEnd = `${periodEnd.getFullYear()}年${periodEnd.getMonth() + 1}月${periodEnd.getDate()}日`;
+    const legacyMonthDay = `${periodEnd.getMonth() + 1}/${periodEnd.getDate()}`;
+
+    expect(formatDateChinese(derived.closingSummary.periodStartMs)).toBe(legacyChineseStart);
+    expect(formatDateChinese(derived.closingSummary.periodEndMs)).toBe(legacyChineseEnd);
+    expect(formatMonthDay(derived.closingSummary.periodEndMs)).toBe(legacyMonthDay);
   });
 });
