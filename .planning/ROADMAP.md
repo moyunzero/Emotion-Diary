@@ -131,7 +131,7 @@ Plans:
 |2. 回顾图 UI + 图片导出|3/3|Verified|2025-03-21|
 |3. AI 温柔一句|2/2|UAT partial（3/4 自动化）|2025-03-21|
 |4. 工程与动效|3/3|Verified|2026-03-21|
-|5. Apple 上架|1/2|In Progress||
+|5. Apple 上架|2/2|Complete|2026-03-21|
 
 ---
 Roadmap created: 2025-03-21
