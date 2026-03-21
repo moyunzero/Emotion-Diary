@@ -60,6 +60,9 @@ Each task was committed atomically:
 
 1. **Task 1: 重写中英文描述主叙事** - `1bc9ab8` (feat)
 2. **Task 2: 重排截图指南并绑定提审叙事** - `0fdf5ef` (feat)
+3. **Task 2 follow-up: 修复 Markdown 格式警告** - `f157f21` (fix)
+
+**Plan metadata:** `9ee3071` (docs)
 
 ## Files Created/Modified
 
@@ -75,12 +78,20 @@ Each task was committed atomically:
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 3 - Blocking] 修复 Markdown lint 阻塞项**
+- **Found during:** Plan completion checks
+- **Issue:** 三个提审元数据文件存在多余空行，触发 `MD012` 警告。
+- **Fix:** 删除文件末尾冗余空行，保持文案语义不变。
+- **Files modified:** `app-description-zh.md`, `app-description-en.md`, `screenshot-guide.md`
+- **Verification:** `ReadLints` 对目标文件返回 `No linter errors found`
+- **Committed in:** `f157f21`
 
 ---
 
-**Total deviations:** 0 auto-fixed (0 bug, 0 missing critical, 0 blocking)
-**Impact on plan:** 无偏差，无范围蔓延，验收项全部覆盖。
+**Total deviations:** 1 auto-fixed (0 bug, 0 missing critical, 1 blocking)
+**Impact on plan:** 偏差仅为格式合规修复，不影响功能范围与验收结论。
 
 ## Issues Encountered
 
