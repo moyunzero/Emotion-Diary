@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { useAppStore } from '../../store/useAppStore';
 import type { ReviewExportPreset } from '../../utils/reviewStatsTimeRange';
 import { INSIGHTS_COLORS } from '../Insights/constants';
@@ -36,7 +37,11 @@ export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const entries = useAppStore((s) => s.entries);
-  const firstEntryDate = useAppStore((s) => s.user?.firstEntryDate ?? null);
+  const userFirstEntryDate = useAppStore((s) => s.user?.firstEntryDate);
+  const firstEntryDate = useMemo(
+    () => getEffectiveFirstEntryDateForCompanion(userFirstEntryDate, entries),
+    [userFirstEntryDate, entries],
+  );
 
   const [preset, setPreset] = useState<ReviewExportPreset>('this_month');
   const [now] = useState(() => new Date());

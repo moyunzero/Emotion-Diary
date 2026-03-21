@@ -3,7 +3,23 @@
  * 提供陪伴天数相关的计算和格式化功能
  */
 
+import { MoodEntry } from '../types';
 import { Milestone, MILESTONES } from '../types/companionDays';
+
+/**
+ * 回顾导出 / 陪伴展示用「第一条记录日」：
+ * 优先 `user.firstEntryDate`（与持久化一致）；若尚未写入但有本地 entries，则用最早一条时间戳（与 `initializeFirstEntryDate` 口径一致）。
+ */
+export function getEffectiveFirstEntryDateForCompanion(
+  userFirstEntryDate: number | null | undefined,
+  entries: MoodEntry[],
+): number | null {
+  if (userFirstEntryDate != null && userFirstEntryDate > 0) {
+    return userFirstEntryDate;
+  }
+  if (entries.length === 0) return null;
+  return Math.min(...entries.map((e) => e.timestamp));
+}
 
 /**
  * 计算陪伴天数
