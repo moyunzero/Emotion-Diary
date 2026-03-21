@@ -5,7 +5,7 @@ describe("verify-governance-smoke script", () => {
   it("prints three critical paths in dry-run mode", () => {
     const scriptPath = path.resolve(
       __dirname,
-      "../../../..",
+      "../../..",
       "scripts/verify-governance-smoke.js"
     );
 
