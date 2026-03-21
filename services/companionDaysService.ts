@@ -21,6 +21,22 @@ export function calculateDays(firstEntryDate: number | null | undefined): number
 }
 
 /**
+ * 截至指定时刻的陪伴天数（用于回顾导出「周期末日」；首页 `calculateDays` 使用「今天」可能与导出图上的 N 不一致）
+ */
+export function calculateDaysAsOf(
+  firstEntryDate: number | null | undefined,
+  asOfMs: number,
+): number {
+  if (!firstEntryDate) return 0;
+
+  const daysDiff = Math.floor(
+    (asOfMs - firstEntryDate) / (1000 * 60 * 60 * 24),
+  );
+
+  return Math.max(1, daysDiff);
+}
+
+/**
  * 获取当前达到的里程碑
  * @param days 陪伴天数
  * @returns 当前达到的最高里程碑，如果未达到任何里程碑则返回null
