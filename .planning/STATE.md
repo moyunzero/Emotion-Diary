@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-21T15:36:35.765Z"
+stopped_at: Completed 07-04-PLAN.md
+last_updated: "2026-03-21T15:39:30.220Z"
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 24
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-21)
 ## Current Position
 
 Phase: 07 (shared) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 
 ### Quick tasks（ad-hoc）
 
@@ -59,6 +59,7 @@ Plan: 2 of 6
 | Phase 06-governance-baseline-gates P03 | 3min | 2 tasks | 4 files |
 | Phase 06-governance-baseline-gates P02 | 9min | 2 tasks | 7 files |
 | Phase 07-shared P01 | 17min | 2 tasks | 8 files |
+| Phase 07-shared P04 | 14min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 06-governance-baseline-gates]: Historical unused-export debt is tracked in allowlist baseline instead of immediate cleanup.
 - [Phase 07-shared]: shared formatting 先落地纯函数，再由旧入口转调，避免关键页回归面扩大
 - [Phase 07-shared]: Phase 7 保留旧签名 thin adapter 并标注 deprecated，Phase 8 再统一删除
+- [Phase 07-shared]: 导出页采用无 UI 侵入方式接入 shared formatting（可访问标签承载日期语义）。
+- [Phase 07-shared]: 洞察页回访日期改为复用 shared/formatting 的 formatMonthDay，消除页面内手写日期拼接。
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T15:36:35.761Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-21T15:39:30.216Z
+Stopped at: Completed 07-04-PLAN.md
 Resume file: None
