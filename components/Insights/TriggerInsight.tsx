@@ -1,6 +1,7 @@
 import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { formatMonthDay } from '../../shared/formatting';
 import { MoodEntry, MoodLevel } from '../../types';
 import { responsiveBorderRadius, responsiveFontSize, responsivePadding, responsiveSpacing } from '../../utils/responsiveUtils';
 import { INSIGHTS_COLORS, TRIGGER_ADVICE } from './constants';
@@ -31,6 +32,26 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
   }, [entries]);
+
+  const actionLoop = useMemo(() => {
+    const topTrigger = triggerData[0];
+    if (!topTrigger) return null;
+
+    const latestEntry = entries
+      .filter((entry) => entry.triggers.includes(topTrigger.name))
+      .sort((a, b) => b.timestamp - a.timestamp)[0];
+
+    if (!latestEntry) return null;
+
+    const revisitTime = latestEntry.timestamp + 48 * 60 * 60 * 1000;
+    const revisitText = formatMonthDay(revisitTime);
+
+    return {
+      trigger: topTrigger.name,
+      revisitText,
+      stepOne: TRIGGER_ADVICE[topTrigger.name] || TRIGGER_ADVICE["其他"],
+    };
+  }, [entries, triggerData]);
 
   if (triggerData.length === 0) {
     const minEntries = 3;
@@ -103,6 +124,15 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           </View>
         ))}
       </View>
+
+      {actionLoop && (
+        <View style={styles.loopContainer}>
+          <Text style={styles.loopTitle}>行动闭环（焚语特色）</Text>
+          <Text style={styles.loopText}>1. 触发源：{actionLoop.trigger}</Text>
+          <Text style={styles.loopText}>2. 本次行动：{actionLoop.stepOne}</Text>
+          <Text style={styles.loopText}>3. 回访时间：{actionLoop.revisitText} 再看一次情绪变化</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -138,6 +168,23 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     gap: 12,
+  },
+  loopContainer: {
+    marginTop: 14,
+    backgroundColor: "#EFF6FF",
+    borderRadius: 10,
+    padding: 12,
+    gap: 6,
+  },
+  loopTitle: {
+    fontSize: responsiveFontSize.body(13),
+    fontWeight: "700",
+    color: "#1D4ED8",
+  },
+  loopText: {
+    fontSize: responsiveFontSize.small(12),
+    lineHeight: 18,
+    color: "#1E3A8A",
   },
   card: {
     backgroundColor: '#FAFAFA',

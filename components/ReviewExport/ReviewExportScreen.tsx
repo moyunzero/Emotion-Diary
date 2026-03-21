@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { formatDateChinese } from '../../shared/formatting';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -59,6 +60,10 @@ export const ReviewExportScreen: React.FC = () => {
     [entries, firstEntryDate, preset, now],
   );
   const summary = derived.closingSummary;
+  const exportRangeA11yLabel = useMemo(
+    () => `回顾时间范围：${formatDateChinese(summary.periodStartMs)} 到 ${formatDateChinese(summary.periodEndMs)}`,
+    [summary.periodEndMs, summary.periodStartMs],
+  );
 
   const [closingLine, setClosingLine] = useState(() =>
     getDefaultReviewExportClosingLine(summary),
@@ -215,6 +220,8 @@ export const ReviewExportScreen: React.FC = () => {
           ref={captureRootRef}
           collapsable={false}
           style={styles.captureWrap}
+          accessible
+          accessibilityLabel={exportRangeA11yLabel}
         >
           <ReviewExportCanvas
             derived={derived}
