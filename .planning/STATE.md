@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-21T14:42:00.540Z"
-last_activity: 2026-03-21 — v1.1 roadmap created (Phase 6-10)
+status: unknown
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-21T14:58:35.595Z"
 progress:
   total_phases: 10
   completed_phases: 2
-  total_plans: 15
-  completed_plans: 7
+  total_plans: 18
+  completed_plans: 8
 ---
 
 # Project State
@@ -20,14 +19,12 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Milestone v1.1 — 工程重构与代码治理
+**Current focus:** Phase 06 — governance-baseline-gates
 
 ## Current Position
 
-Phase: 6 - 治理基线与门禁
-Plan: —
-Status: Roadmap created, ready for phase planning
-Last activity: 2026-03-21 — v1.1 roadmap created (Phase 6-10)
+Phase: 06 (governance-baseline-gates) — EXECUTING
+Plan: 2 of 3
 
 ### Quick tasks（ad-hoc）
 
@@ -58,6 +55,7 @@ Last activity: 2026-03-21 — v1.1 roadmap created (Phase 6-10)
 | Phase 05 P01 | 1 min | 2 tasks | 3 files |
 | Phase 05 P02 | 1 min | 3 tasks | 3 files |
 | Phase 05 P03 | 6 min | 2 tasks | 1 files |
+| Phase 06-governance-baseline-gates P01 | 1min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -83,6 +81,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 05]: Phase 5 在 ROADMAP 中维持 IOS-01 追踪并明确 05-01/05-02 双计划闭环。
 - [Phase 05]: IOS-01 traceability 状态使用 Verified，并与 Phase 5 验证语义保持一致。
 - [Phase 05]: IOS-01 证据链必须显式引用 05-01/05-02 计划与 05-VERIFICATION 报告。
+- [Phase 06-governance-baseline-gates]: 将治理入口命名为 verify:governance，并以 --dry-run 提供稳定可复现摘要输出
+- [Phase 06-governance-baseline-gates]: Phase 06 首版范围仅覆盖 app/components/store/utils/hooks/services/lib，显式排除 ios/android/docs
 
 ### Pending Todos
 
@@ -94,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:42:00.535Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-governance-baseline-gates/06-CONTEXT.md
+Last session: 2026-03-21T14:58:35.592Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None

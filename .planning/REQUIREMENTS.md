@@ -9,7 +9,7 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### 治理基线与门禁
 
-- [ ] **GOV-01**: 项目建立治理脚手架（结构规范、检查命令、执行说明），并可在本地一键运行。
+- [x] **GOV-01**: 项目建立治理脚手架（结构规范、检查命令、执行说明），并可在本地一键运行。
 - [ ] **GOV-02**: 规则收紧采用渐进策略（report/warn -> error），并在文档中明确阶段切换条件。
 - [ ] **GOV-03**: 为关键路径建立“重构前后行为一致”的验收护栏（至少覆盖记录、导出、同步核心流）。
 
@@ -58,7 +58,7 @@ Deferred to future milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GOV-01 | Phase 6 | Pending |
+| GOV-01 | Phase 6 | Complete |
 | GOV-02 | Phase 6 | Pending |
 | GOV-03 | Phase 6 | Pending |
 | SHR-01 | Phase 7 | Pending |
