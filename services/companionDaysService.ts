@@ -5,6 +5,7 @@
 
 import { MoodEntry } from '../types';
 import { Milestone, MILESTONES } from '../types/companionDays';
+import { formatDateChinese } from '../shared/formatting';
 
 /**
  * 回顾导出 / 陪伴展示用「第一条记录日」：
@@ -93,15 +94,12 @@ export function getDaysToNextMilestone(days: number): number {
 
 /**
  * 格式化开始日期
+ * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatDateChinese`.
  * @param timestamp 时间戳（毫秒）
  * @returns 格式化的日期字符串，如"2024年1月15日"
  */
 export function formatStartDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return `${year}年${month}月${day}日`;
+  return formatDateChinese(timestamp);
 }
 
 /**

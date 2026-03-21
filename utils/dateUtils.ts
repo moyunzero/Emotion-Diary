@@ -2,6 +2,10 @@
  * 时间戳格式化工具函数
  * 统一处理时间戳格式，确保跨时区一致性
  */
+import {
+  formatDateChinese as sharedFormatDateChinese,
+  formatMonthDay as sharedFormatMonthDay,
+} from '../shared/formatting';
 
 /**
  * 格式化日期为本地日期字符串（YYYY-MM-DD格式，避免时区问题）
@@ -21,32 +25,19 @@ export const formatDate = (timestamp: number): string => {
 
 /**
  * 格式化日期为中文日期字符串
+ * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatDateChinese`.
  * @param timestamp 时间戳（毫秒）
  * @returns 格式化的日期字符串，如 "2024年1月15日"
  */
-export const formatDateChinese = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  
-  return `${year}年${month}月${day}日`;
-};
+export const formatDateChinese = (timestamp: number): string => sharedFormatDateChinese(timestamp);
 
 /**
  * 格式化日期为简短格式（用于显示）
+ * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatMonthDay`.
  * @param timestamp 时间戳（毫秒）
  * @returns 格式化的日期字符串，如 "1/15"
  */
-export const formatDateShort = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  
-  return `${month}/${day}`;
-};
+export const formatDateShort = (timestamp: number): string => sharedFormatMonthDay(timestamp);
 
 /**
  * 确保时间戳为毫秒格式（如果数据库返回秒级时间戳，转换为毫秒）

@@ -141,6 +141,10 @@ describe('CompanionDaysService', () => {
       const date = new Date('2024-02-29').getTime();
       expect(formatStartDate(date)).toBe('2024年2月29日');
     });
+
+    it('should return fallback for invalid timestamp input', () => {
+      expect(formatStartDate(Number.NaN)).toBe('日期未知');
+    });
   });
 
   describe('checkMilestoneAchieved', () => {
