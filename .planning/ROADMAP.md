@@ -8,8 +8,8 @@
 
 - [x] **Phase 1: 统计与聚合基础** — 周/月范围、解决率与环比、记录/和解笔数、Top 天气与 Top 触发器、陪伴天数数据源统一（见 `phases/01-stats-aggregation/1-VERIFICATION.md`）
 - [x] **Phase 2: 回顾图 UI + 图片导出** — 版式契约、view-shot（或等价方案）、**保存到相册**、导出前隐私提示（见 `phases/02-ui/2-VERIFICATION.md`）
-- [ ] **Phase 3: AI 温柔一句** — Groq 集成与语气约束、失败兜底、与导出图合成顺序稳定
-- [ ] **Phase 4: 工程与动效** — 增量去冗余、可选趋势图、动效审计清单与首批修复
+- [x] **Phase 3: AI 温柔一句** — Groq 集成与语气约束、失败兜底、与导出流水线顺序（见 `phases/03-ai/3-UAT.md`，真机 1 项待测）
+- [x] **Phase 4: 工程与动效** — 增量去冗余、趋势区月份标签、动效审计清单与棕地优化（见 `phases/04-engineering-motion/4-VERIFICATION.md`）
 - [ ] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
 
 ## Phase Details
@@ -69,28 +69,35 @@ Plans:
 1. 有 Key 时生成符合语气约束的一句总结；无 Key/失败时使用兜底文案。  
 2. 总结与当期统计数字大致一致（不出现明显事实错误）。  
 
-**Plans**: TBD  
+**Plans**: 已完成（代码）  
 
 Plans:
 
-- [ ] 03-01: Prompt/模板与校验  
-- [ ] 03-02: 与导出流水线顺序与错误处理  
+- [x] 03-01: Prompt/模板与校验（见 `03-01-PLAN.md`）  
+- [x] 03-02: 与导出流水线顺序与错误处理（见 `03-02-PLAN.md`）  
 
 ---
 
 ### Phase 4: 工程与动效
 
-**Goal**: 去冗余、动效收敛、可选趋势图补全。  
+**Goal**: 去冗余、动效收敛、可选趋势图补全；**增量** 优化棕地代码与 **项目结构/格式约定**（非大爆炸重构）。  
 **Depends on**: Phase 3  
-**Requirements**: ENG-02, ANIM-01, EXPORT-04（若 Phase 2 未做）  
+**Requirements**: ENG-02（含全仓增量优化子集）, ANIM-01, EXPORT-04（若 Phase 2 未做）  
 
 **Success Criteria**:
 
-1. 导出相关代码路径清晰，无主要重复块。  
-2. 动效审计清单完成且至少一批问题已修复。  
-3. （可选）月趋势图可用或明确放弃并文档化原因。  
+1. 导出相关代码路径清晰，无主要重复块（**`04-01`**）。  
+2. 动效审计清单完成且至少一批问题已修复（**`04-02`**）。  
+3. （可选）月趋势图可读性达标或文档化取舍（**`04-02`**）。  
+4. **棕地优化清单** + **≥6** 处跨目录增量优化 + **`STRUCTURE.md`** / **`.editorconfig`** 更新（**`04-03`**）。  
 
-**Plans**: TBD  
+**Plans**: 已完成（`04-01` / `04-02` / `04-03`；见 `phases/04-engineering-motion/4-VERIFICATION.md`）  
+
+Plans:
+
+- [x] 04-01: 回顾导出单一派生状态（`04-01-PLAN.md`）  
+- [x] 04-02: 趋势区 + 动效审计（`04-02-PLAN.md`）  
+- [x] 04-03: 棕地优化与 `.editorconfig` / `STRUCTURE.md`（`04-03-PLAN.md`）  
 
 ---
 
@@ -115,9 +122,9 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. 统计与聚合基础 | 3/3 | Verified | 2025-03-21 |
-| 2. 回顾图 UI + 图片导出 | 0/TBD | Not started | - |
-| 3. AI 温柔一句 | 0/TBD | Not started | - |
-| 4. 工程与动效 | 0/TBD | Not started | - |
+| 2. 回顾图 UI + 图片导出 | 3/3 | Verified | 2025-03-21 |
+| 3. AI 温柔一句 | 2/2 | UAT partial（3/4 自动化） | 2025-03-21 |
+| 4. 工程与动效 | 3/3 | Verified | 2026-03-21 |
 | 5. Apple 上架 | 0/TBD | Not started | - |
 
 ---
