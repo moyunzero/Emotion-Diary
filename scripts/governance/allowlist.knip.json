@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "policy": {
+    "mode": "baseline-allowlist",
+    "description": "Track historical debt and only block newly introduced unused exports/dependencies.",
+    "defaultSeverity": "report",
+    "focusedSeverity": "warn",
+    "promotionCondition": "Two consecutive PR rounds with zero new violations"
+  },
+  "scope": ["app", "components", "store", "utils", "hooks", "services", "lib"],
+  "historicalDebt": {
+    "unusedExports": [],
+    "unusedDependencies": [],
+    "notes": [
+      "Keep historical items traceable with owner and cleanup window.",
+      "Do not add new violations without explicit review record."
+    ]
+  }
+}
