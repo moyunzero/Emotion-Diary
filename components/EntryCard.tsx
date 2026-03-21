@@ -19,6 +19,7 @@ import { useAppStore } from "../store/useAppStore";
 import { styles } from "../styles/components/EntryCard.styles";
 import { Deadline, MoodEntry, MoodLevel, Status } from "../types";
 import { formatDateChinese } from "../utils/dateUtils";
+import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
@@ -544,54 +545,19 @@ export const areEntryCardPropsEqual = (
       return false;
     }
 
-    // Deep equality check for people array
-    const prevPeople = prevProps.entry.people;
-    const nextPeople = nextProps.entry.people;
-
-    // Handle null/undefined cases
-    if (!prevPeople && !nextPeople) {
-      // Both null/undefined - equal
-    } else if (!prevPeople || !nextPeople) {
-      // One is null/undefined, other is not - not equal
+    if (
+      !areOrderedStringArraysEqual(prevProps.entry.people, nextProps.entry.people)
+    ) {
       return false;
-    } else if (!Array.isArray(prevPeople) || !Array.isArray(nextPeople)) {
-      // One or both are not arrays - not equal
-      return false;
-    } else if (prevPeople.length !== nextPeople.length) {
-      // Different lengths - not equal
-      return false;
-    } else {
-      // Check each element
-      for (let i = 0; i < prevPeople.length; i++) {
-        if (prevPeople[i] !== nextPeople[i]) {
-          return false;
-        }
-      }
     }
 
-    // Deep equality check for triggers array
-    const prevTriggers = prevProps.entry.triggers;
-    const nextTriggers = nextProps.entry.triggers;
-
-    // Handle null/undefined cases
-    if (!prevTriggers && !nextTriggers) {
-      // Both null/undefined - equal
-    } else if (!prevTriggers || !nextTriggers) {
-      // One is null/undefined, other is not - not equal
+    if (
+      !areOrderedStringArraysEqual(
+        prevProps.entry.triggers,
+        nextProps.entry.triggers,
+      )
+    ) {
       return false;
-    } else if (!Array.isArray(prevTriggers) || !Array.isArray(nextTriggers)) {
-      // One or both are not arrays - not equal
-      return false;
-    } else if (prevTriggers.length !== nextTriggers.length) {
-      // Different lengths - not equal
-      return false;
-    } else {
-      // Check each element
-      for (let i = 0; i < prevTriggers.length; i++) {
-        if (prevTriggers[i] !== nextTriggers[i]) {
-          return false;
-        }
-      }
     }
 
     // All checks passed - props are equal
