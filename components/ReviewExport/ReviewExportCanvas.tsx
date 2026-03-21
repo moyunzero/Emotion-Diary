@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { MOOD_CONFIG } from '../../constants';
 import { calculateDaysAsOf } from '../../services/companionDaysService';
@@ -23,6 +23,15 @@ const BUCKET_TO_MOOD: Record<ExportWeatherBucket, MoodLevel> = {
   rainy: MoodLevel.ANGRY,
   stormy: MoodLevel.FURIOUS,
 };
+
+/** 回顾图纵向节奏：8 的倍数，区块略松、图表区内略紧，偏「治愈花园」呼吸感 */
+const GAP = {
+  xs: 6,
+  sm: 10,
+  md: 16,
+  lg: 22,
+  xl: 28,
+} as const;
 
 export interface ReviewExportCanvasProps {
   entries: MoodEntry[];
@@ -83,7 +92,10 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   const deltaPct =
     compare.deltaRate === null ? null : Math.round(compare.deltaRate * 100);
 
-  const chartW = 320;
+  const chartW = Math.min(
+    320,
+    Math.max(200, Dimensions.get('window').width - 72),
+  );
   const chartH = 100;
   const barPad = 4;
   const n = Math.max(1, monthlySeries.length);
@@ -97,6 +109,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       <Text style={styles.companionLine}>陪伴焚语第 {companionDays} 天</Text>
 
       <View style={styles.section}>
+        <Text style={styles.rateLabel}>本期情绪解决率</Text>
         <Text style={styles.bigRate}>
           {ratePct === null ? '—' : `${ratePct}%`}
         </Text>
@@ -112,7 +125,8 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       </View>
 
       <View style={styles.trendBlock}>
-        <Text style={styles.sectionTitle}>解决率趋势（近 6 个月）</Text>
+        <Text style={styles.trendBlockTitle}>解决率趋势（近 6 个月）</Text>
+        <View style={styles.svgWrap}>
         <Svg width={chartW} height={chartH}>
           {monthlySeries.map((pt, i) => {
             const r = pt.rate === null ? 0 : pt.rate;
@@ -133,10 +147,13 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
             );
           })}
         </Svg>
+        </View>
         <Text style={styles.trendHint}>数据已接入，样式可在后续版本美化</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>本期情绪气象站</Text>
+      <Text style={[styles.sectionTitle, styles.sectionAfterBlock]}>
+        本期情绪气象站
+      </Text>
       {topWeather.length === 0 ? (
         <Text style={styles.muted}>本期暂无天气分布数据</Text>
       ) : (
@@ -155,7 +172,9 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
         })
       )}
 
-      <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Top 情绪触发</Text>
+      <Text style={[styles.sectionTitle, styles.sectionAfterBlock]}>
+        Top 情绪触发
+      </Text>
       {topTriggers.length === 0 ? (
         <Text style={styles.muted}>本期暂无触发器统计</Text>
       ) : (
@@ -185,7 +204,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
 const styles = StyleSheet.create({
   root: {
     width: '100%',
-    padding: 20,
+    padding: 22,
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderRadius: 16,
     borderWidth: 1,
@@ -197,48 +216,75 @@ const styles = StyleSheet.create({
     color: INSIGHTS_COLORS.text,
   },
   companionLine: {
-    marginTop: 6,
+    marginTop: GAP.xs,
     fontFamily: 'Lato_400Regular',
     fontSize: 14,
     color: INSIGHTS_COLORS.textSecondary,
+    lineHeight: 20,
   },
   section: {
-    marginTop: 16,
+    marginTop: GAP.md,
+  },
+  rateLabel: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 13,
+    color: INSIGHTS_COLORS.textSecondary,
+    marginBottom: GAP.sm,
+    letterSpacing: 0.2,
   },
   bigRate: {
     fontFamily: 'Lato_700Bold',
     fontSize: 42,
     color: INSIGHTS_COLORS.accent,
+    lineHeight: 48,
   },
   deltaLine: {
-    marginTop: 4,
+    marginTop: GAP.sm,
     fontFamily: 'Lato_400Regular',
     fontSize: 15,
     color: INSIGHTS_COLORS.text,
+    lineHeight: 22,
   },
   smallCount: {
-    marginTop: 6,
+    marginTop: GAP.sm,
     fontFamily: 'Lato_400Regular',
     fontSize: 13,
     color: INSIGHTS_COLORS.textSecondary,
+    lineHeight: 20,
   },
   trendBlock: {
-    marginTop: 16,
-    padding: 12,
+    marginTop: GAP.lg,
+    paddingHorizontal: GAP.md,
+    paddingTop: GAP.md,
+    paddingBottom: GAP.md + 2,
     backgroundColor: INSIGHTS_COLORS.bgStart,
     borderRadius: 12,
+  },
+  trendBlockTitle: {
+    fontFamily: 'Lato_700Bold',
+    fontSize: 15,
+    color: INSIGHTS_COLORS.text,
+    marginBottom: GAP.sm,
+  },
+  svgWrap: {
+    alignItems: 'center',
+    paddingVertical: GAP.xs,
   },
   sectionTitle: {
     fontFamily: 'Lato_700Bold',
     fontSize: 15,
     color: INSIGHTS_COLORS.text,
-    marginBottom: 8,
+    marginBottom: GAP.sm,
+  },
+  sectionAfterBlock: {
+    marginTop: GAP.xl,
   },
   trendHint: {
-    marginTop: 6,
+    marginTop: GAP.md,
     fontFamily: 'Lato_400Regular',
     fontSize: 11,
     color: INSIGHTS_COLORS.textSecondary,
+    lineHeight: 16,
   },
   muted: {
     fontFamily: 'Lato_400Regular',
@@ -248,7 +294,7 @@ const styles = StyleSheet.create({
   weatherRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: GAP.sm,
   },
   weatherText: {
     marginLeft: 10,
@@ -257,7 +303,7 @@ const styles = StyleSheet.create({
     color: INSIGHTS_COLORS.text,
   },
   triggerBlock: {
-    marginBottom: 10,
+    marginBottom: GAP.sm,
   },
   triggerName: {
     fontFamily: 'Lato_700Bold',
@@ -272,14 +318,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   placeholderAi: {
-    marginTop: 20,
-    padding: 14,
+    marginTop: GAP.xl,
+    paddingHorizontal: GAP.md,
+    paddingVertical: GAP.md,
     backgroundColor: INSIGHTS_COLORS.primary + '18',
     borderRadius: 12,
   },
   aiEmoji: {
     fontSize: 18,
-    marginBottom: 6,
+    marginBottom: GAP.xs,
   },
   aiText: {
     fontFamily: 'Lato_400Regular',
@@ -294,7 +341,7 @@ const styles = StyleSheet.create({
     color: INSIGHTS_COLORS.textSecondary,
   },
   footerBrand: {
-    marginTop: 16,
+    marginTop: GAP.lg,
     textAlign: 'center',
     fontFamily: 'Lato_400Regular',
     fontSize: 12,
