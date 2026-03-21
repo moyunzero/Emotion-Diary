@@ -128,7 +128,8 @@ export const ReviewExportScreen: React.FC = () => {
 
   return (
     <ScreenContainer edges={['top', 'left', 'right']}>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 8) }]}>
+      <View style={styles.rootColumn}>
+      <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
@@ -142,11 +143,7 @@ export const ReviewExportScreen: React.FC = () => {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipsRow}
-      >
+      <View style={styles.presetRow}>
         {PRESETS.map((p) => {
           const selected = preset === p.key;
           return (
@@ -161,7 +158,7 @@ export const ReviewExportScreen: React.FC = () => {
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
       <ScrollView
         style={styles.scroll}
@@ -195,16 +192,22 @@ export const ReviewExportScreen: React.FC = () => {
           )}
         </Pressable>
       </View>
+      </View>
     </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  rootColumn: {
+    flex: 1,
+    flexDirection: 'column',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 8,
+    paddingTop: 4,
     paddingBottom: 8,
   },
   backBtn: {
@@ -215,18 +218,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: INSIGHTS_COLORS.text,
   },
-  chipsRow: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+  presetRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    flexShrink: 0,
+    paddingHorizontal: 12,
+    paddingBottom: 10,
+    gap: 8,
   },
   chip: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: 1,
     borderColor: INSIGHTS_COLORS.primary + '40',
-    marginRight: 8,
   },
   chipSelected: {
     backgroundColor: INSIGHTS_COLORS.primary + '25',

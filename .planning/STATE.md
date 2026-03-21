@@ -12,9 +12,15 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 Phase: **2** of **5**（回顾图 UI + 图片导出）  
 Plan: **3** of **3** in current phase（已执行）  
 Status: **Phase 2 实现完成 — 见 `phases/02-ui/2-VERIFICATION.md`**  
-Last activity: **2025-03-21** — `/gsd-execute-phase 2`  
+Last activity: **2025-03-21** — `/gsd-quick`：回顾图页顶栏去掉与 SafeArea 重复的 `insets.top` padding  
 
 Progress: [██████████] 100%（Phase 2 代码；真机相册手测待办）
+
+### Quick tasks（ad-hoc）
+
+| Date | Item |
+|------|------|
+| 2025-03-21 | 情绪回顾图：修复顶部双重安全区留白（`ReviewExportScreen` header） |
 
 ## Performance Metrics
 
