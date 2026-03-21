@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-21T13:47:58.278Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-21T13:54:10.110Z"
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 12
-  completed_plans: 4
+  total_plans: 14
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: `.planning/PROJECT.md` (updated 2025-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 04 — engineering-motion
+**Current focus:** Phase 05 — apple
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (apple) — EXECUTING
+Plan: 2 of 2
 
 ### Quick tasks（ad-hoc）
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 04-engineering-motion P02 | 1 min | 2 tasks | 4 files |
 | Phase 04-engineering-motion P04 | 17min | 2 tasks | 4 files |
 | Phase 04-engineering-motion P03 | 24min | 2 tasks | 7 files |
+| Phase 05 P01 | 1 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 04-engineering-motion]: firstEntryDate <= 0 统一归一化为 null，稳定 companionDays 口径
 - [Phase 04-engineering-motion]: 按 1 文件粒度拆分 Pkg-A/Pkg-B，确保可独立回滚。
 - [Phase 04-engineering-motion]: 抽出 utils/arrayEquality.ts 复用数组比较逻辑，避免组件内重复实现。
+- [Phase 05]: 中英文文案采用同构结构，主叙事锁定记录情绪与回顾导出。
+- [Phase 05]: 截图顺序按记录到导出到隐私路径编排，强化审核可验证性。
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:47:58.273Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-apple/05-CONTEXT.md
+Last session: 2026-03-21T13:54:10.107Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

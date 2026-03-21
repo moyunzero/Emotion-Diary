@@ -113,7 +113,12 @@ Plans:
 2. 截图/描述与 `app-store-submission/` 更新就绪。  
 3. 提审清单可勾选完成。  
 
-**Plans**: TBD  
+**Plans**: 2 plans  
+
+Plans:
+
+- [x] 05-01-PLAN.md — 对齐中英文元数据主叙事与截图指南（最小可过审包）  
+- [ ] 05-02-PLAN.md — 完成预检清单闭环、4.3(a) 回复模板与 Roadmap 可追踪入口  
 
 ---
 

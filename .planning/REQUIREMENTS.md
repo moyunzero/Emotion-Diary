@@ -27,7 +27,7 @@
 
 ### Apple 上架
 
-- [ ] **IOS-01**: 完成 **App Store 提交流程** 所需项（构建、隐私声明与用户可见文案、与导出相关的数据说明、截图/描述与现有 `app-store-submission/` 材料协同）。
+- [x] **IOS-01**: 完成 **App Store 提交流程** 所需项（构建、隐私声明与用户可见文案、与导出相关的数据说明、截图/描述与现有 `app-store-submission/` 材料协同）。
 
 ## v2 Requirements
 
