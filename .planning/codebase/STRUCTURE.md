@@ -50,3 +50,13 @@
 3. `store/modules/entries.ts`、`store/modules/storage.ts`  
 4. `lib/supabase.ts`、`utils/aiService.ts`  
 5. `components/Dashboard.tsx`、`components/Record.tsx` 与对应 `styles/`
+
+## Phase 4 工程与格式约定
+
+- **默认落点**：路由与页面在 `app/`；可复用 UI 在 `components/`；**无副作用** 的纯函数与统计在 `utils/`；带副作用或领域规则的服务在 `services/`（如 `companionDaysService`）。  
+- **新顶层目录**：非必要不新增；若必须新增（例如新的 `features/`），在 PR 或计划里 **一句话说明** 职责边界，避免与 `components/`、`utils/` 混放。  
+- **组件命名**：PascalCase 文件名，与路由文件 `index.tsx` / `record.tsx` 等区分清晰。  
+- **与 `.editorconfig` 一致**：根目录 `.editorconfig` 约定 **UTF-8、LF、2 空格缩进**；历史文件体量较大时 **不** 为对齐而整仓一次性重排，新改文件按此约定即可。  
+- **Lint**：`npm run lint` 对 `app`、`components`、`utils`、`hooks`、`store`、`lib`、`services` 等显式路径执行 ESLint（与仓库实际目录一致，避免依赖不存在的 `src/` 模板路径）。
+- **微包边界**：Phase 4 的优化按 1-2 文件微包推进，每包都要在审计文档登记「文件边界 + 回滚点 + 验证门禁」，禁止跨模块无清单扩散。
+- **回滚约定**：默认用包级提交回滚（`git revert <commit>`）；不允许通过整仓回退覆盖其他并行改动。
