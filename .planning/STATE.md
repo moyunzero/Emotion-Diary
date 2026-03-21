@@ -5,7 +5,7 @@
 See: `.planning/PROJECT.md` (updated 2025-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 2 — 回顾图 UI + 图片导出
+**Current focus:** Phase 3 — AI 温柔一句（已 discuss，待 plan/execute）  
 
 ## Current Position
 
