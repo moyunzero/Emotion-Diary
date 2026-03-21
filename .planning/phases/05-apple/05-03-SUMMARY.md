@@ -49,6 +49,7 @@ completed: 2026-03-21
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Updated `IOS-01` row in `.planning/REQUIREMENTS.md` from pending state to verified state.
 - Added explicit evidence chain references to `05-01-PLAN.md`, `05-02-PLAN.md`, and `phases/05-apple/05-VERIFICATION.md`.
 - Harmonized phase wording to reduce interpretation drift between roadmap and requirements ledger.
@@ -61,10 +62,12 @@ Each task was committed atomically:
 2. **Task 2: 交叉核对需求与路线图口径一致性** - `a6731bf` (docs)
 
 ## Files Created/Modified
+
 - `.planning/REQUIREMENTS.md` - Closed `IOS-01` traceability gap and attached Phase 5 evidence links.
 - `.planning/phases/05-apple/05-03-SUMMARY.md` - Plan execution record for audit trail.
 
 ## Decisions Made
+
 - Keep status wording as `Verified` and include explicit `Phase 5` context in the same row.
 - Limit edits strictly to `IOS-01` row to preserve other requirements as-is.
 
@@ -73,15 +76,19 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Known Stubs
+
 None.
 
 ## Next Phase Readiness
+
 - Phase 5 verification gap for ledger traceability is now addressable as closed in re-check.
 - Ready for final re-verification or phase-level completion flow.
 
