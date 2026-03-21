@@ -21,7 +21,6 @@ import { Deadline, MoodEntry, MoodLevel, Status } from "../types";
 import { formatDateChinese } from "../utils/dateUtils";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
-import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
 import EditEntryModal from "./EditEntryModal";
@@ -244,11 +243,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return formatDateChinese(timestamp);
   };
 
-  const burnReflectionPrompt =
-    entry.triggers && entry.triggers.length > 0
-      ? `下次再遇到 #${entry.triggers[0]} 时，我想先做的一件小事是？`
-      : "如果类似情绪再次出现，我希望如何温柔地照顾自己？";
-
   const handleBurnComplete = () => {
     burnEntry(entry.id);
     setIsBurning(false);
@@ -342,21 +336,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                     </Text>
                     <Text style={styles.burnedMeta}>
                       触发：{entry.triggers.map((t) => `#${t}`).join(" ")}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginTop: 10,
-                      backgroundColor: "#F0FDF4",
-                      borderRadius: 10,
-                      paddingVertical: 8,
-                      paddingHorizontal: 10,
-                    }}
-                  >
-                    <Text
-                      style={{ fontSize: 12, lineHeight: 18, color: "#166534" }}
-                    >
-                      复盘卡片：{burnReflectionPrompt}
                     </Text>
                   </View>
                 </View>
@@ -565,19 +544,54 @@ export const areEntryCardPropsEqual = (
       return false;
     }
 
-    if (
-      !areOrderedStringArraysEqual(prevProps.entry.people, nextProps.entry.people)
-    ) {
+    // Deep equality check for people array
+    const prevPeople = prevProps.entry.people;
+    const nextPeople = nextProps.entry.people;
+
+    // Handle null/undefined cases
+    if (!prevPeople && !nextPeople) {
+      // Both null/undefined - equal
+    } else if (!prevPeople || !nextPeople) {
+      // One is null/undefined, other is not - not equal
       return false;
+    } else if (!Array.isArray(prevPeople) || !Array.isArray(nextPeople)) {
+      // One or both are not arrays - not equal
+      return false;
+    } else if (prevPeople.length !== nextPeople.length) {
+      // Different lengths - not equal
+      return false;
+    } else {
+      // Check each element
+      for (let i = 0; i < prevPeople.length; i++) {
+        if (prevPeople[i] !== nextPeople[i]) {
+          return false;
+        }
+      }
     }
 
-    if (
-      !areOrderedStringArraysEqual(
-        prevProps.entry.triggers,
-        nextProps.entry.triggers,
-      )
-    ) {
+    // Deep equality check for triggers array
+    const prevTriggers = prevProps.entry.triggers;
+    const nextTriggers = nextProps.entry.triggers;
+
+    // Handle null/undefined cases
+    if (!prevTriggers && !nextTriggers) {
+      // Both null/undefined - equal
+    } else if (!prevTriggers || !nextTriggers) {
+      // One is null/undefined, other is not - not equal
       return false;
+    } else if (!Array.isArray(prevTriggers) || !Array.isArray(nextTriggers)) {
+      // One or both are not arrays - not equal
+      return false;
+    } else if (prevTriggers.length !== nextTriggers.length) {
+      // Different lengths - not equal
+      return false;
+    } else {
+      // Check each element
+      for (let i = 0; i < prevTriggers.length; i++) {
+        if (prevTriggers[i] !== nextTriggers[i]) {
+          return false;
+        }
+      }
     }
 
     // All checks passed - props are equal
