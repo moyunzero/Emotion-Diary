@@ -31,4 +31,12 @@ describe('reviewExportClosingInput', () => {
     expect(s.totalEntries).toBeGreaterThanOrEqual(1);
     expect(s.presetLabel).toBe('本月');
   });
+
+  it('normalizes non-positive firstEntryDate to keep companion days stable', () => {
+    const now = new Date('2025-03-15T12:00:00');
+    const entries: Parameters<typeof buildReviewExportClosingSummary>[0] = [];
+    const fromNull = buildReviewExportClosingSummary(entries, null, 'this_month', now);
+    const fromInvalid = buildReviewExportClosingSummary(entries, -1, 'this_month', now);
+    expect(fromInvalid.companionDays).toBe(fromNull.companionDays);
+  });
 });
