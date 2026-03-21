@@ -25,6 +25,7 @@
 - ✓ 工程化基础：TypeScript 严格模式、Zustand 模块化 store、Jest 与覆盖率门槛 — existing
 - ✓ **Apple App Store 提审闭环（IOS-01）**：中英文元数据、截图指引、预检清单、4.3(a) 回复模板与需求追踪已收口 — Validated in Phase 05 (apple)
 - ✓ **治理基线门禁（GOV-01/GOV-02/GOV-03）**：统一治理入口、渐进式门禁收紧、关键路径烟雾验证与验收模板已建立 — Validated in Phase 06 (governance-baseline-gates)
+- ✓ **Shared 重复逻辑收敛（SHR-01/SHR-02/SHR-03）**：formatting/time-range/responsive 已建立单一来源与兼容层迁移路径，关键页面最小回归与边界测试已接入 — Validated in Phase 07 (shared)
 
 ### Active
 
@@ -110,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-21 after phase 06 complete*
+*Last updated: 2026-03-21 after phase 07 complete*
