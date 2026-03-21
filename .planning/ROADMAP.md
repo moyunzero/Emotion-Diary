@@ -7,7 +7,7 @@
 ## Phases
 
 - [x] **Phase 1: 统计与聚合基础** — 周/月范围、解决率与环比、记录/和解笔数、Top 天气与 Top 触发器、陪伴天数数据源统一（见 `phases/01-stats-aggregation/1-VERIFICATION.md`）
-- [ ] **Phase 2: 回顾图 UI + 图片导出** — 版式契约、view-shot（或等价方案）、**保存到相册**、导出前隐私提示
+- [x] **Phase 2: 回顾图 UI + 图片导出** — 版式契约、view-shot（或等价方案）、**保存到相册**、导出前隐私提示（见 `phases/02-ui/2-VERIFICATION.md`）
 - [ ] **Phase 3: AI 温柔一句** — Groq 集成与语气约束、失败兜底、与导出图合成顺序稳定
 - [ ] **Phase 4: 工程与动效** — 增量去冗余、可选趋势图、动效审计清单与首批修复
 - [ ] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
@@ -48,13 +48,13 @@ Plans:
 2. **iOS/Android** 上可 **保存到相册**；导出前有明确隐私提示。  
 3. 长图生成在合理数据量下可接受（无明显长时间卡死）。
 
-**Plans**: 已生成（`/gsd-plan-phase 2`）  
+**Plans**: 已完成（`/gsd-execute-phase 2`）  
 
 Plans:
 
-- [ ] 02-01: 预设范围、路由、`ReviewExport` 画布与洞察 CTA（见 `phases/02-ui/02-01-PLAN.md`）  
-- [ ] 02-02: `view-shot` 临时 PNG（`tmpfile`）（见 `02-02-PLAN.md`）  
-- [ ] 02-03: `expo-media-library`、权限、首次保存隐私（见 `02-03-PLAN.md`）  
+- [x] 02-01: 预设范围、路由、`ReviewExport` 画布与洞察 CTA（见 `phases/02-ui/02-01-PLAN.md`）  
+- [x] 02-02: `view-shot` 临时 PNG（`tmpfile`）（见 `02-02-PLAN.md`）  
+- [x] 02-03: `expo-media-library`、权限、首次保存隐私（见 `02-03-PLAN.md`）  
 
 ---
 

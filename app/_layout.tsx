@@ -100,6 +100,10 @@ export default function RootLayout() {
               // 移除自定义动画配置，使用系统默认，避免潜在的 Native 崩溃
             }} 
           />
+          <Stack.Screen
+            name="review-export"
+            options={{ headerShown: false }}
+          />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

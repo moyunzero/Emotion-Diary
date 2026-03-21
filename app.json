@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "心晴",
+    "name": "焚语",
     "slug": "emotion-diary",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,7 +18,11 @@
         "backgroundColor": "#ffffff"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSFaceIDUsageDescription": "焚语需要使用 Face ID 以保护你的情绪日记与隐私数据",
+        "NSMicrophoneUsageDescription": "焚语需要访问麦克风以录制语音日记（仅在你使用该功能时）",
+        "NSPhotoLibraryUsageDescription": "焚语仅在你保存情绪回顾图时访问相册以完成写入。",
+        "NSPhotoLibraryAddUsageDescription": "焚语需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。"
       }
     },
     "android": {
@@ -51,7 +55,15 @@
       ],
       "expo-secure-store",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "焚语仅在你保存情绪回顾图时访问相册以完成写入。",
+          "savePhotosPermission": "焚语需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。",
+          "granularPermissions": ["photo"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

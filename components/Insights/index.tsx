@@ -1,19 +1,23 @@
+import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
 import { getMaxContentWidth, responsivePadding } from '../../utils/responsiveUtils';
 import { ScreenContainer } from '../ScreenContainer';
 import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
+import { EmotionReleaseArchive } from './EmotionReleaseArchive';
 import { GardenFooter } from './GardenFooter';
 import { GardenHeader } from './GardenHeader';
 import { HealingProgress } from './HealingProgress';
 import { RelationshipGarden } from './RelationshipGarden';
 import { TriggerInsight } from './TriggerInsight';
 import { WeeklyMoodWeather } from './WeeklyMoodWeather';
+import { INSIGHTS_COLORS } from './constants';
 
 const Insights: React.FC = () => {
+  const router = useRouter();
   const entries = useAppStore((state) => state.entries);
 
   // 计算统计数据（优化：合并多次遍历为单次遍历）
@@ -76,6 +80,19 @@ const Insights: React.FC = () => {
           resolvedCount={stats.resolved} 
         />
 
+        {/* Phase 2：回顾导出入口（空花园分支无记录，不展示） */}
+        <View style={[styles.reviewCtaWrap, { paddingHorizontal: horizontalPadding }]}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.reviewCta,
+              pressed && styles.reviewCtaPressed,
+            ]}
+            onPress={() => router.push('/review-export')}
+          >
+            <Text style={styles.reviewCtaText}>生成情绪回顾图</Text>
+          </Pressable>
+        </View>
+
         <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
           {/* 本周情绪天气 */}
           <WeeklyMoodWeather entries={entries} />
@@ -88,6 +105,9 @@ const Insights: React.FC = () => {
 
           {/* 情绪播客 */}
           <EmotionPodcast />
+
+          {/* 情绪释放档案（焚语特色闭环） */}
+          <EmotionReleaseArchive entries={entries} />
 
           {/* 关系花盆 */}
           <RelationshipGarden entries={entries} />
@@ -110,6 +130,28 @@ const Insights: React.FC = () => {
 const styles = StyleSheet.create({
   contentWrapper: {
     width: '100%', // 在小屏设备上全宽
+  },
+  reviewCtaWrap: {
+    width: '100%',
+    marginBottom: 12,
+  },
+  reviewCta: {
+    alignSelf: 'stretch',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    backgroundColor: INSIGHTS_COLORS.primary + '22',
+    borderWidth: 1,
+    borderColor: INSIGHTS_COLORS.accent + '55',
+  },
+  reviewCtaPressed: {
+    opacity: 0.88,
+  },
+  reviewCtaText: {
+    textAlign: 'center',
+    fontFamily: 'Lato_700Bold',
+    fontSize: 16,
+    color: INSIGHTS_COLORS.accent,
   },
   content: {
     // paddingHorizontal 在运行时动态设置

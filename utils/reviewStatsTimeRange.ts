@@ -62,3 +62,65 @@ export function getPreviousWeekRange(
   const prevEnd = startMs - 1;
   return { startMs: prevStart, endMs: prevEnd };
 }
+
+/** 回顾导出时间预设：本周 / 上周 / 本月 / 上月（自然周、自然月，本地时区） */
+export type ReviewExportPreset =
+  | 'this_week'
+  | 'last_week'
+  | 'this_month'
+  | 'last_month';
+
+/**
+ * 当前统计区间与「环比用」上一同期区间。
+ * `getPreviousWeekRange` 若返回 null（异常跨度），则退回「整 7 天前的同日区间」式边界，保证有数可算。
+ */
+export function getReviewExportPeriods(
+  now: Date,
+  preset: ReviewExportPreset,
+): {
+  current: { startMs: number; endMs: number };
+  previous: { startMs: number; endMs: number };
+} {
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const thisMonthStart = getCalendarMonthRange(y, m).startMs;
+
+  switch (preset) {
+    case 'this_month': {
+      const current = getCalendarMonthRange(y, m);
+      const previous = getPreviousCalendarMonthRangeBefore(current.startMs);
+      return { current, previous };
+    }
+    case 'last_month': {
+      const current = getPreviousCalendarMonthRangeBefore(thisMonthStart);
+      const previous = getPreviousCalendarMonthRangeBefore(current.startMs);
+      return { current, previous };
+    }
+    case 'this_week': {
+      const current = getMondayWeekRangeContaining(now);
+      let previous = getPreviousWeekRange(current.startMs, current.endMs);
+      if (!previous) {
+        previous = {
+          startMs: current.startMs - 7 * MS_PER_DAY,
+          endMs: current.startMs - 1,
+        };
+      }
+      return { current, previous };
+    }
+    case 'last_week': {
+      const thisWeek = getMondayWeekRangeContaining(now);
+      const lastWeek = getPreviousWeekRange(thisWeek.startMs, thisWeek.endMs);
+      if (!lastWeek) {
+        throw new Error('getReviewExportPeriods(last_week): invalid this-week span');
+      }
+      let previous = getPreviousWeekRange(lastWeek.startMs, lastWeek.endMs);
+      if (!previous) {
+        previous = {
+          startMs: lastWeek.startMs - 7 * MS_PER_DAY,
+          endMs: lastWeek.startMs - 1,
+        };
+      }
+      return { current: lastWeek, previous };
+    }
+  }
+}
