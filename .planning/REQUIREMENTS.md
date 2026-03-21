@@ -62,7 +62,7 @@
 | ENG-01 | Phase 1 | `01-01`～`01-03-PLAN` | Pending |
 | ENG-02 | Phase 4 | `04-01`（导出链）+ `04-03`（全仓增量 + STRUCTURE / .editorconfig） | Pending |
 | ANIM-01 | Phase 4 | — | Pending |
-| IOS-01 | Phase 5 | `05-01-PLAN.md` / `05-02-PLAN.md`；验证见 `phases/05-apple/05-VERIFICATION.md` | Verified |
+| IOS-01 | Phase 5（Apple） | `05-01-PLAN.md` / `05-02-PLAN.md`；验证见 `phases/05-apple/05-VERIFICATION.md` | Verified（Phase 5） |
 
 **Coverage:**
 
