@@ -56,7 +56,7 @@ Each task was committed atomically:
 1. **Task 1: 搭建治理统一入口与脚本骨架** - `dae2f24` (feat)
 2. **Task 2: 固化 Phase 6 基线文档与执行说明** - `9d193b8` (docs)
 
-**Plan metadata:** `pending`
+**Plan metadata:** `30a4661` (docs: complete plan)
 
 ## Files Created/Modified
 - `package.json` - 增加 `verify:governance` 一键入口脚本。
