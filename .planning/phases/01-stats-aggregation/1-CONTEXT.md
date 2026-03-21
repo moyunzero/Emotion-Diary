@@ -1,6 +1,6 @@
 # Phase 1: 统计与聚合基础 - Context
 
-**Gathered:** 2025-03-21  
+**Gathered:** 2026-03-21  
 **Status:** Ready for planning
 
 <domain>
@@ -126,4 +126,4 @@
 ---
 
 *Phase: 01-stats-aggregation*  
-*Context gathered: 2025-03-21*
+*Context gathered: 2026-03-21 (reconfirmed; no decision changes)*
