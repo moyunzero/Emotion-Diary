@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-engineering-motion-04-PLAN.md
-last_updated: "2026-03-21T13:33:12.976Z"
+stopped_at: Completed 04-engineering-motion-03-PLAN.md
+last_updated: "2026-03-21T13:35:07.986Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 12
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 4 of 4
 | Phase 04-engineering-motion P01 | 8min | 2 tasks | 6 files |
 | Phase 04-engineering-motion P02 | 1 min | 2 tasks | 4 files |
 | Phase 04-engineering-motion P04 | 17min | 2 tasks | 4 files |
+| Phase 04-engineering-motion P03 | 24min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 04-engineering-motion]: removeClippedSubviews stays opt-in and is enabled only on Insights.
 - [Phase 04-engineering-motion]: Groq API key 改为运行时读取，避免模块加载快照导致行为漂移
 - [Phase 04-engineering-motion]: firstEntryDate <= 0 统一归一化为 null，稳定 companionDays 口径
+- [Phase 04-engineering-motion]: 按 1 文件粒度拆分 Pkg-A/Pkg-B，确保可独立回滚。
+- [Phase 04-engineering-motion]: 抽出 utils/arrayEquality.ts 复用数组比较逻辑，避免组件内重复实现。
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:33:12.972Z
-Stopped at: Completed 04-engineering-motion-04-PLAN.md
+Last session: 2026-03-21T13:35:07.983Z
+Stopped at: Completed 04-engineering-motion-03-PLAN.md
 Resume file: None
