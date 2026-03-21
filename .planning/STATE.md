@@ -12,7 +12,7 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 Phase: **2** of **5**（回顾图 UI + 图片导出）  
 Plan: **3** of **3** in current phase（已执行）  
 Status: **Phase 2 实现完成 — 见 `phases/02-ui/2-VERIFICATION.md`**  
-Last activity: **2025-03-21** — `/gsd-phase-researcher` → `phases/03-ai/3-RESEARCH.md`（Phase 3 AI 一句）  
+Last activity: **2025-03-21** — `/gsd-discuss-phase 3` → `phases/03-ai/3-CONTEXT.md`  
 
 Progress: [██████████] 100%（Phase 2 代码；真机相册手测待办）
 
