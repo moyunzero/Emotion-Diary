@@ -8,11 +8,38 @@ import { useWindowDimensions } from 'react-native';
 
 import { createResponsiveMetrics } from '../shared/responsive';
 
+export type ResponsiveStyleValues = {
+  padding: {
+    horizontal: number;
+    vertical: number;
+    card: number;
+  };
+  fontSize: {
+    title: number;
+    cardTitle: number;
+    body: number;
+    small: number;
+  };
+  spacing: {
+    cardGap: number;
+    component: number;
+  };
+  borderRadius: {
+    card: number;
+    large: number;
+  };
+  layout: {
+    maxContentWidth: number;
+    gridColumns: number;
+    gridItemWidth: number;
+  };
+};
+
 export const useResponsiveStyles = () => {
   const { width, height } = useWindowDimensions();
 
   return useMemo(
-    () => {
+    (): ResponsiveStyleValues => {
       const metrics = createResponsiveMetrics(width, height);
       return {
       // 内边距

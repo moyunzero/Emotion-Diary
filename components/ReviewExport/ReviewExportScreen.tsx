@@ -19,6 +19,7 @@ import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateChinese } from '../../shared/formatting';
 import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
+import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -30,6 +31,7 @@ import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ScreenContainer } from '../ScreenContainer';
 import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
+import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
 
 const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
 
@@ -43,6 +45,11 @@ const PRESETS: { key: ReviewExportPreset; label: string }[] = [
 export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const responsive = useResponsiveStyles();
+  const responsiveLayout = useMemo(
+    () => buildReviewExportResponsiveLayout(responsive),
+    [responsive],
+  );
   const entries = useAppStore((s) => s.entries);
   const userFirstEntryDate = useAppStore((s) => s.user?.firstEntryDate);
   const firstEntryDate = useMemo(
@@ -179,7 +186,16 @@ export const ReviewExportScreen: React.FC = () => {
   return (
     <ScreenContainer edges={['top', 'left', 'right']}>
       <View style={styles.rootColumn}>
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingHorizontal: responsiveLayout.headerPaddingHorizontal,
+            paddingTop: responsiveLayout.headerPaddingTop,
+            paddingBottom: responsiveLayout.headerPaddingBottom,
+          },
+        ]}
+      >
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
@@ -189,20 +205,44 @@ export const ReviewExportScreen: React.FC = () => {
         >
           <ChevronLeft size={26} color={INSIGHTS_COLORS.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>情绪回顾图</Text>
+        <Text style={[styles.headerTitle, { fontSize: responsiveLayout.headerTitleFontSize }]}>
+          情绪回顾图
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <View style={styles.presetRow}>
+      <View
+        style={[
+          styles.presetRow,
+          {
+            paddingHorizontal: responsiveLayout.presetHorizontalPadding,
+            paddingBottom: responsiveLayout.presetBottomPadding,
+          },
+        ]}
+      >
         {PRESETS.map((p) => {
           const selected = preset === p.key;
           return (
             <Pressable
               key={p.key}
               onPress={() => setPreset(p.key)}
-              style={[styles.chip, selected && styles.chipSelected]}
+              style={[
+                styles.chip,
+                {
+                  paddingHorizontal: responsiveLayout.chipHorizontalPadding,
+                  paddingVertical: responsiveLayout.chipVerticalPadding,
+                  borderRadius: responsiveLayout.chipRadius,
+                },
+                selected && styles.chipSelected,
+              ]}
             >
-              <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+              <Text
+                style={[
+                  styles.chipText,
+                  { fontSize: responsiveLayout.chipTextFontSize },
+                  selected && styles.chipTextSelected,
+                ]}
+              >
                 {p.label}
               </Text>
             </Pressable>
@@ -212,14 +252,20 @@ export const ReviewExportScreen: React.FC = () => {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingHorizontal: responsiveLayout.scrollHorizontalPadding,
+            paddingBottom: responsiveLayout.scrollBottomPadding,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <View
           ref={captureRootRef}
           collapsable={false}
-          style={styles.captureWrap}
+          style={[styles.captureWrap, { borderRadius: responsiveLayout.captureRadius }]}
           accessible
           accessibilityLabel={exportRangeA11yLabel}
         >
@@ -231,16 +277,35 @@ export const ReviewExportScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+      <View
+        style={[
+          styles.footer,
+          {
+            paddingHorizontal: responsiveLayout.footerHorizontalPadding,
+            paddingTop: responsiveLayout.footerTopPadding,
+            paddingBottom: Math.max(insets.bottom, 12),
+          },
+        ]}
+      >
         <Pressable
-          style={[styles.saveBtn, isBusy && styles.saveBtnDisabled]}
+          style={[
+            styles.saveBtn,
+            {
+              paddingVertical: responsiveLayout.saveButtonVerticalPadding,
+              borderRadius: responsiveLayout.saveButtonRadius,
+              minHeight: responsiveLayout.saveButtonMinHeight,
+            },
+            isBusy && styles.saveBtnDisabled,
+          ]}
           onPress={() => void onPressSave()}
           disabled={isBusy}
         >
           {isBusy ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.saveBtnText}>保存到相册</Text>
+            <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
+              保存到相册
+            </Text>
           )}
         </Pressable>
       </View>
@@ -258,9 +323,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    paddingTop: 4,
-    paddingBottom: 8,
   },
   backBtn: {
     padding: 8,
@@ -277,14 +339,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     flexShrink: 0,
-    paddingHorizontal: 12,
-    paddingBottom: 10,
     gap: 8,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: 1,
     borderColor: INSIGHTS_COLORS.primary + '40',
@@ -295,7 +352,6 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontFamily: 'Lato_400Regular',
-    fontSize: 14,
     color: INSIGHTS_COLORS.textSecondary,
   },
   chipTextSelected: {
@@ -306,33 +362,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
   },
   captureWrap: {
-    borderRadius: 16,
     overflow: 'hidden',
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: INSIGHTS_COLORS.primary + '30',
   },
   saveBtn: {
     backgroundColor: INSIGHTS_COLORS.accent,
-    paddingVertical: 14,
-    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
   },
   saveBtnDisabled: {
     opacity: 0.7,
   },
   saveBtnText: {
     fontFamily: 'Lato_700Bold',
-    fontSize: 16,
     color: '#fff',
   },
 });

@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
-import { getMaxContentWidth, responsivePadding } from '../../utils/responsiveUtils';
 import { ScreenContainer } from '../ScreenContainer';
 import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
@@ -19,6 +19,7 @@ import { INSIGHTS_COLORS } from './constants';
 const Insights: React.FC = () => {
   const router = useRouter();
   const entries = useAppStore((state) => state.entries);
+  const responsive = useResponsiveStyles();
 
   // 计算统计数据（优化：合并多次遍历为单次遍历）
   const stats = useMemo(() => {
@@ -58,8 +59,8 @@ const Insights: React.FC = () => {
   }, [entries]);
 
   // 获取最大内容宽度和实际padding
-  const maxWidth = getMaxContentWidth();
-  const horizontalPadding = responsivePadding.horizontal(20);
+  const maxWidth = responsive.layout.maxContentWidth;
+  const horizontalPadding = responsive.padding.horizontal;
 
   // 如果没有任何条目，显示整体空状态
   if (entries.length === 0) {
