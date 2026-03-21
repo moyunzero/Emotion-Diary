@@ -72,6 +72,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   const barPad = 4;
   const n = Math.max(1, monthlySeries.length);
   const barW = (chartW - barPad * (n + 1)) / n;
+  const hasMonthlyData = monthlySeries.some((pt) => pt.rate !== null);
 
   return (
     <View style={styles.root} collapsable={false}>
@@ -99,16 +100,19 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       <View style={styles.trendBlock}>
         <Text style={styles.trendBlockTitle}>解决率趋势（近 6 个月）</Text>
         <Text style={styles.trendCaption}>
-          柱高为各自然月解决率（由旧至新）；跨年月份以「M月」区分
+          柱高代表当月已和解占比，月份从左到右由旧到新
         </Text>
+        {!hasMonthlyData ? (
+          <Text style={styles.trendEmptyHint}>最近 6 个月暂无记录，先从一条小情绪开始。</Text>
+        ) : null}
         <View style={styles.svgWrap}>
           <Svg width={chartW} height={chartH}>
             {monthlySeries.map((pt, i) => {
-              const r = pt.rate === null ? 0 : pt.rate;
-              const h = Math.max(2, r * (chartH - 24));
+              const h =
+                pt.rate === null ? 0 : Math.max(2, pt.rate * (chartH - 24));
               const x = barPad + i * (barW + barPad);
               const y = chartH - h - 8;
-              return (
+              return h > 0 ? (
                 <Rect
                   key={`${pt.year}-${pt.monthIndex0}`}
                   x={x}
@@ -119,6 +123,8 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
                   fill={INSIGHTS_COLORS.accent}
                   opacity={0.85}
                 />
+              ) : (
+                <React.Fragment key={`${pt.year}-${pt.monthIndex0}`} />
               );
             })}
           </Svg>
@@ -262,6 +268,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: INSIGHTS_COLORS.textSecondary,
     marginBottom: GAP.sm,
+    lineHeight: 16,
+  },
+  trendEmptyHint: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 11,
+    color: INSIGHTS_COLORS.textSecondary,
+    marginBottom: GAP.xs,
     lineHeight: 16,
   },
   svgWrap: {
