@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-engineering-motion-01-PLAN.md
-last_updated: "2026-03-21T13:26:30.986Z"
+stopped_at: Completed 04-engineering-motion-02-PLAN.md
+last_updated: "2026-03-21T13:29:24.540Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 12
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 ## Current Position
 
 Phase: 04 (engineering-motion) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ### Quick tasks（ad-hoc）
 
@@ -49,6 +49,7 @@ Plan: 2 of 4
 
 *Updated after each plan completion*
 | Phase 04-engineering-motion P01 | 8min | 2 tasks | 6 files |
+| Phase 04-engineering-motion P02 | 1 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - AI 需失败兜底；导出前隐私提示
 - [Phase 04-engineering-motion]: 以 derived 作为导出主链唯一统计来源，防止 Screen/Canvas 口径漂移
 - [Phase 04-engineering-motion]: closingSummary 复用 derived 输出，优先保持 D-15 用户可见行为稳定
+- [Phase 04-engineering-motion]: No pseudo bars for null monthly rates; trend bars render only for real data.
+- [Phase 04-engineering-motion]: removeClippedSubviews stays opt-in and is enabled only on Insights.
 
 ### Pending Todos
 
@@ -72,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:26:30.982Z
-Stopped at: Completed 04-engineering-motion-01-PLAN.md
+Last session: 2026-03-21T13:29:24.536Z
+Stopped at: Completed 04-engineering-motion-02-PLAN.md
 Resume file: None
