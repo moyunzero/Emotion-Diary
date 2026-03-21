@@ -118,20 +118,20 @@ Plans:
 Plans:
 
 - [x] 05-01-PLAN.md — 对齐中英文元数据主叙事与截图指南（最小可过审包）  
-- [ ] 05-02-PLAN.md — 完成预检清单闭环、4.3(a) 回复模板与 Roadmap 可追踪入口  
+- [x] 05-02-PLAN.md — 完成预检清单闭环、4.3(a) 回复模板与 Roadmap 可追踪入口  
 - 目标摘要：将 Phase 5 从“提审材料占位”推进为“可执行提审流程”（文案、截图、审核沟通三线闭环）。
 
 ---
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. 统计与聚合基础 | 3/3 | Verified | 2025-03-21 |
-| 2. 回顾图 UI + 图片导出 | 3/3 | Verified | 2025-03-21 |
-| 3. AI 温柔一句 | 2/2 | UAT partial（3/4 自动化） | 2025-03-21 |
-| 4. 工程与动效 | 3/3 | Verified | 2026-03-21 |
-| 5. Apple 上架 | 1/2 | In Progress|  |
+|Phase|Plans Complete|Status|Completed|
+|---|---|---|---|
+|1. 统计与聚合基础|3/3|Verified|2025-03-21|
+|2. 回顾图 UI + 图片导出|3/3|Verified|2025-03-21|
+|3. AI 温柔一句|2/2|UAT partial（3/4 自动化）|2025-03-21|
+|4. 工程与动效|3/3|Verified|2026-03-21|
+|5. Apple 上架|1/2|In Progress||
 
 ---
-*Roadmap created: 2025-03-21*
+Roadmap created: 2025-03-21
