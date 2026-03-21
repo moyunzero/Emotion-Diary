@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-stopped_at: Phase 01 context gathered
+milestone: v1.1
+milestone_name: 工程重构与代码治理
+status: defining_requirements
+stopped_at: Milestone v1.1 started
 last_updated: "2026-03-21T14:16:37.302Z"
 progress:
   total_phases: 5
@@ -16,15 +16,17 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2025-03-21)
+See: `.planning/PROJECT.md` (updated 2026-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 05 — apple
+**Current focus:** Milestone v1.1 — 工程重构与代码治理
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-21 — Milestone v1.1 started
 
 ### Quick tasks（ad-hoc）
 
