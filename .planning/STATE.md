@@ -11,8 +11,8 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 
 Phase: **1** of **5**（统计与聚合基础）  
 Plan: **3** of **3** in current phase（01-01～01-03 已实现）  
-Status: **Phase complete — ready for verify / Phase 2**  
-Last activity: **2025-03-21** — `/gsd-execute-phase 1`（统计层代码 + 单测）  
+Status: **Phase 1 verified — 可进入 Phase 2**  
+Last activity: **2025-03-21** — `/gsd-verify-phase 1`（见 `1-VERIFICATION.md`）  
 
 Progress: [██████████] 100%（Phase 1）
 
