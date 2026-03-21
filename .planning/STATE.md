@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-21T13:58:29.622Z"
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-03-21T14:08:56.587Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 14
-  completed_plans: 6
+  total_plans: 15
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2025-03-21)
 ## Current Position
 
 Phase: 05 (apple) — EXECUTING
-Plan: 2 of 2
+Plan: 2 of 3
 
 ### Quick tasks（ad-hoc）
 
@@ -54,6 +54,7 @@ Plan: 2 of 2
 | Phase 04-engineering-motion P03 | 24min | 2 tasks | 7 files |
 | Phase 05 P01 | 1 min | 2 tasks | 3 files |
 | Phase 05 P02 | 1 min | 3 tasks | 3 files |
+| Phase 05 P03 | 6 min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 05]: 预检清单按元数据一致性/功能演示路径/审核沟通准备分组，并为每项附证据口径。
 - [Phase 05]: 4.3(a) 回复采用保守解释优先，强调 distinct branding、core flows、verification paths。
 - [Phase 05]: Phase 5 在 ROADMAP 中维持 IOS-01 追踪并明确 05-01/05-02 双计划闭环。
+- [Phase 05]: IOS-01 traceability 状态使用 Verified，并与 Phase 5 验证语义保持一致。
+- [Phase 05]: IOS-01 证据链必须显式引用 05-01/05-02 计划与 05-VERIFICATION 报告。
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:58:29.618Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-03-21T14:08:56.582Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
