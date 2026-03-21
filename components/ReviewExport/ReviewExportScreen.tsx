@@ -18,6 +18,7 @@ import {
 import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateChinese } from '../../shared/formatting';
+import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -26,7 +27,6 @@ import {
   isGroqConfigured,
 } from '../../utils/aiService';
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
-import type { ReviewExportPreset } from '../../utils/reviewStatsTimeRange';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ScreenContainer } from '../ScreenContainer';
 import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
@@ -34,10 +34,10 @@ import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCan
 const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
 
 const PRESETS: { key: ReviewExportPreset; label: string }[] = [
-  { key: 'this_week', label: '本周' },
-  { key: 'this_month', label: '本月' },
-  { key: 'last_week', label: '上周' },
-  { key: 'last_month', label: '上月' },
+  { key: 'this_week', label: REVIEW_PRESET_LABEL.this_week },
+  { key: 'this_month', label: REVIEW_PRESET_LABEL.this_month },
+  { key: 'last_week', label: REVIEW_PRESET_LABEL.last_week },
+  { key: 'last_month', label: REVIEW_PRESET_LABEL.last_month },
 ];
 
 export const ReviewExportScreen: React.FC = () => {

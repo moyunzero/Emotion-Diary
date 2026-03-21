@@ -12,15 +12,11 @@ import {
 } from './reviewStats';
 import { getTopThreeWeatherBucketsByDays } from './reviewStatsWeather';
 import { getTopTriggersWithAdvice } from './reviewStatsTriggers';
-import type { ReviewExportPreset } from './reviewStatsTimeRange';
-import { getReviewExportPeriods } from './reviewStatsTimeRange';
-
-const PRESET_LABEL: Record<ReviewExportPreset, string> = {
-  this_week: '本周',
-  last_week: '上周',
-  this_month: '本月',
-  last_month: '上月',
-};
+import {
+  getReviewExportPeriods,
+  REVIEW_PRESET_LABEL,
+  type ReviewExportPreset,
+} from '../shared/time-range';
 
 /** 与 AI 服务、画布数字同源的结构化摘要（无日记正文） */
 export interface ReviewExportClosingSummary {
@@ -65,7 +61,7 @@ function buildClosingSummary(
     compare.deltaRate === null ? null : Math.round(compare.deltaRate * 100);
 
   return {
-    presetLabel: PRESET_LABEL[preset],
+    presetLabel: REVIEW_PRESET_LABEL[preset],
     periodStartMs: current.startMs,
     periodEndMs: current.endMs,
     companionDays,
