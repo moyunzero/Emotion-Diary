@@ -14,6 +14,7 @@ interface ScreenContainerProps {
   edges?: Edge[];
   scrollable?: boolean;
   keyboardAware?: boolean;
+  removeClippedSubviews?: boolean;
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
 }
@@ -28,6 +29,7 @@ interface ScreenContainerProps {
  * @param edges - SafeAreaView edges to apply (default: ['top', 'left', 'right', 'bottom'])
  * @param scrollable - Whether the content should be scrollable (default: false)
  * @param keyboardAware - Whether to handle keyboard interactions (default: false)
+ * @param removeClippedSubviews - Enable clipping optimization for long scroll lists (default: false)
  * @param style - Additional styles for the container or ScrollView
  * @param contentContainerStyle - Additional styles for ScrollView contentContainerStyle
  * 
@@ -54,6 +56,7 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
   edges = ['top', 'left', 'right', 'bottom'],
   scrollable = false,
   keyboardAware = false,
+  removeClippedSubviews = false,
   style,
   contentContainerStyle,
 }) => {
@@ -65,6 +68,7 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
       contentContainerStyle={contentContainerStyle}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      removeClippedSubviews={removeClippedSubviews}
     >
       {children}
     </ScrollView>

@@ -71,7 +71,11 @@ const Insights: React.FC = () => {
   }
 
   return (
-    <ScreenContainer edges={['top', 'left', 'right']} scrollable>
+    <ScreenContainer
+      edges={['top', 'left', 'right']}
+      scrollable
+      removeClippedSubviews
+    >
       {/* 内容包装器 - 在大屏设备上居中显示 */}
       <View style={[styles.contentWrapper, { maxWidth }]}>
         {/* 花园主题头部 */}
