@@ -1,0 +1,1 @@
+- 2026-03-21: `yarn test:unit __tests__/unit/components/ReviewExportScreen.responsive.test.tsx __tests__/unit/hooks/useResponsiveStyles.test.ts -i` 会触发全量 `__tests__/unit`，出现与本计划无关的 flaky 用例 `__tests__/unit/utils/performance.test.ts`（异步 duration 偶发 9ms < 10ms）。07-06 已用 `npx jest` 精确验证目标回归用例，后续在测试治理阶段再修复该 flaky 阈值。
