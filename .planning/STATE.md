@@ -5,16 +5,16 @@
 See: `.planning/PROJECT.md` (updated 2025-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成可保存、可分享的一张图。  
-**Current focus:** Phase 1 — 统计与聚合基础
+**Current focus:** Phase 2 — 回顾图 UI + 图片导出
 
 ## Current Position
 
-Phase: **1** of **5**（统计与聚合基础）  
-Plan: **3** of **3** in current phase（01-01～01-03 已实现）  
-Status: **Phase 1 verified — 可进入 Phase 2**  
-Last activity: **2025-03-21** — `/gsd-verify-phase 1`（见 `1-VERIFICATION.md`）  
+Phase: **2** of **5**（回顾图 UI + 图片导出）  
+Plan: **0** of **TBD** in current phase  
+Status: **Discuss 完成 — 见 `phases/02-ui/2-CONTEXT.md`，可 `/gsd-plan-phase 2`**  
+Last activity: **2025-03-21** — `/gsd-discuss-phase 2`  
 
-Progress: [██████████] 100%（Phase 1）
+Progress: [░░░░░░░░░░] 0%（Phase 2）
 
 ## Performance Metrics
 
