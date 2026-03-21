@@ -37,8 +37,8 @@
 
 | Package | 目标 | 文件边界 | 回滚点 | 验证门禁 | 状态 |
 |---|---|---|---|---|---|
-| Pkg-A | 收敛 `EntryCard` 冗余比较逻辑，不改用户可见行为 | `components/EntryCard.tsx` | `git revert <pkg-a-commit>` | `npm run lint` + `npx jest __tests__/unit/components/componentPropTypes.test.tsx __tests__/unit/components/iconMemoization.test.tsx` + 手动检查“记录页条目展开/折叠” | 进行中 |
-| Pkg-B | 精简 `MoodForm` 重复映射/重复比较逻辑，保持行为稳定 | `components/MoodForm.tsx` | `git revert <pkg-b-commit>` | `npm run lint` + 同上单测 + 手动检查“记录页输入/标签选择” | 进行中 |
+| Pkg-A | 收敛 `EntryCard` 冗余比较逻辑，不改用户可见行为 | `components/EntryCard.tsx` | `git revert <04-03 pkg-a commit>` | `npm run lint` + `npx jest __tests__/unit/components/componentPropTypes.test.tsx __tests__/unit/components/iconMemoization.test.tsx` + 手动检查“记录页条目展开/折叠” | 已完成 |
+| Pkg-B | 精简 `MoodForm` 重复映射/重复比较逻辑，保持行为稳定 | `components/MoodForm.tsx` | `git revert <04-03 pkg-b commit>` | `npm run lint` + 同上单测 + 手动检查“记录页输入/标签选择” | 已完成 |
 
 > 约束：每个优化包严格 1 个文件，避免格式化扩散；若出现行为风险，按 D-15 立即回滚。
 

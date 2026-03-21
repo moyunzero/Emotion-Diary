@@ -13,9 +13,14 @@ import { DEADLINE_CONFIG, MOOD_CONFIG, MOOD_DESCRIPTIONS } from "../constants";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { styles } from "../styles/components/MoodForm.styles";
 import { MoodLevel } from "../types";
+import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AppIcon from "./icons/AppIcon";
 import TagSelector from "./TagSelector";
+
+const MOOD_LEVEL_VALUES = Object.values(MoodLevel).filter(
+  (v) => typeof v === "number",
+) as MoodLevel[];
 
 interface MoodFormProps {
   // 受控组件的值
@@ -134,9 +139,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>此刻的心情是？</Text>
         <View style={styles.moodContainer}>
-          {Object.values(MoodLevel)
-            .filter((v) => typeof v === "number")
-            .map((level) => {
+          {MOOD_LEVEL_VALUES.map((level) => {
               const config = MOOD_CONFIG[level as MoodLevel];
               const isSelected = moodLevel === level;
               return (
@@ -189,7 +192,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         <TextInput
           value={content}
           onChangeText={onContentChange}
-          placeholder="无论是委屈、愤怒还是难过，都可以写下来..."
+          placeholder="把这一刻写给焚语，哪怕只是一句心里话..."
           multiline
           numberOfLines={4}
           style={styles.contentInput}
@@ -352,18 +355,6 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
  * Helper function to compare arrays for equality
  * Handles null and undefined gracefully
  */
-const arraysEqual = (a: string[] | null | undefined, b: string[] | null | undefined): boolean => {
-  // Handle null/undefined cases
-  if (a == null && b == null) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-  return a.every((item, index) => item === b[index]);
-};
-
-/**
- * Memoization comparison function for MoodForm
- * Performs deep equality checks on array props
- */
 const MoodFormComparison = (
   prevProps: MoodFormProps,
   nextProps: MoodFormProps
@@ -382,12 +373,24 @@ const MoodFormComparison = (
 
     // Compare arrays with deep equality
     if (
-      !arraysEqual(prevProps.selectedPeople, nextProps.selectedPeople) ||
-      !arraysEqual(prevProps.selectedTriggers, nextProps.selectedTriggers) ||
-      !arraysEqual(prevProps.customPeopleOptions, nextProps.customPeopleOptions) ||
-      !arraysEqual(prevProps.customTriggerOptions, nextProps.customTriggerOptions) ||
-      !arraysEqual(prevProps.allPeople, nextProps.allPeople) ||
-      !arraysEqual(prevProps.allTriggers, nextProps.allTriggers)
+      !areOrderedStringArraysEqual(
+        prevProps.selectedPeople,
+        nextProps.selectedPeople,
+      ) ||
+      !areOrderedStringArraysEqual(
+        prevProps.selectedTriggers,
+        nextProps.selectedTriggers,
+      ) ||
+      !areOrderedStringArraysEqual(
+        prevProps.customPeopleOptions,
+        nextProps.customPeopleOptions,
+      ) ||
+      !areOrderedStringArraysEqual(
+        prevProps.customTriggerOptions,
+        nextProps.customTriggerOptions,
+      ) ||
+      !areOrderedStringArraysEqual(prevProps.allPeople, nextProps.allPeople) ||
+      !areOrderedStringArraysEqual(prevProps.allTriggers, nextProps.allTriggers)
     ) {
       return false;
     }
