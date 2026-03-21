@@ -10,7 +10,12 @@
 - [x] **Phase 2: 回顾图 UI + 图片导出** — 版式契约、view-shot（或等价方案）、**保存到相册**、导出前隐私提示（见 `phases/02-ui/2-VERIFICATION.md`）
 - [x] **Phase 3: AI 温柔一句** — Groq 集成与语气约束、失败兜底、与导出流水线顺序（见 `phases/03-ai/3-UAT.md`，真机 1 项待测）
 - [x] **Phase 4: 工程与动效** — 增量去冗余、趋势区月份标签、动效审计清单与棕地优化（见 `phases/04-engineering-motion/4-VERIFICATION.md`）
-- [ ] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
+- [x] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
+- [ ] **Phase 6: 治理基线与门禁** — 建立治理脚手架、渐进门禁策略与关键路径一致性护栏
+- [ ] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层
+- [ ] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归
+- [ ] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证
+- [ ] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地
 
 ## Phase Details
 
@@ -123,6 +128,86 @@ Plans:
 
 ---
 
+### Phase 6: 治理基线与门禁
+
+**Goal**: 重构前后关键用户路径可被持续验证，并具备可渐进收紧的治理门禁。  
+**Depends on**: Phase 5  
+**Requirements**: GOV-01, GOV-02, GOV-03
+
+**Success Criteria**:
+
+1. 开发者可一键运行治理检查命令并获得一致输出（结构规范/检查命令/执行说明齐备）。  
+2. 规则收紧路径在文档中明确，团队可观察当前处于 report/warn/error 哪个阶段。  
+3. 用户关键路径（记录、导出、同步）在重构前后表现一致并可被验收护栏持续验证。
+
+**Plans**: TBD
+
+---
+
+### Phase 7: Shared 重复逻辑收敛
+
+**Goal**: 共享逻辑形成单一来源，减少语义漂移并保持现有行为一致。  
+**Depends on**: Phase 6  
+**Requirements**: SHR-01, SHR-02, SHR-03
+
+**Success Criteria**:
+
+1. 响应式/时间区间/通用格式化逻辑有唯一入口，旧调用路径仍可通过兼容层稳定运行。  
+2. 重复计算迁移后，用户可见结果（数值/显示）与迁移前一致。  
+3. shared 关键边界输入具备基础单测，重构后能快速发现语义回归。
+
+**Plans**: TBD
+
+---
+
+### Phase 8: 大文件拆分与结构重构
+
+**Goal**: 关键大文件按职责拆分并降低复杂度，同时保持用户行为和对外 API 兼容。  
+**Depends on**: Phase 7  
+**Requirements**: ARC-01, ARC-02, ARC-03
+
+**Success Criteria**:
+
+1. `app/profile.tsx` 完成壳层化后，用户在个人页的核心交互与显示无变化。  
+2. `store/useAppStore.ts` 完成首批 slice 化后，外部调用方式保持兼容且核心流程可正常运行。  
+3. 500+ 行核心组件拆分后通过回归验证，用户侧未出现功能缺失或行为漂移。
+
+**Plans**: TBD
+
+---
+
+### Phase 9: 目录边界治理与冗余清理
+
+**Goal**: 目录边界规则可执行、依赖关系可控，且高置信冗余代码被安全移除。  
+**Depends on**: Phase 8  
+**Requirements**: CLN-01, CLN-02, CLN-03
+
+**Success Criteria**:
+
+1. 新增代码不再出现跨层越界与循环依赖，边界检查可在本地与 CI 复现。  
+2. 高置信死代码已移除并保留删除证据/回滚点，仓库噪音显著下降。  
+3. 清理后通过 iOS/Android smoke 与关键路径验证，无动态引用误删导致的运行问题。
+
+**Plans**: TBD
+
+---
+
+### Phase 10: 测试治理与 CI 收口
+
+**Goal**: 测试体系围绕关键路径稳定运行，CI 在速度与风险控制之间达成平衡。  
+**Depends on**: Phase 9  
+**Requirements**: TST-01, TST-02, TST-03
+
+**Success Criteria**:
+
+1. 示例/低价值/重复测试已清理，关键路径测试集可稳定覆盖核心用户流程。  
+2. 测试目录与代码边界一致，开发者可以快速定位失败归属模块。  
+3. CI 分层门禁稳定运行，PR 阶段与进阶阶段职责清晰且反馈可操作。
+
+**Plans**: TBD
+
+---
+
 ## Progress
 
 |Phase|Plans Complete|Status|Completed|
@@ -132,6 +217,11 @@ Plans:
 |3. AI 温柔一句|2/2|UAT partial（3/4 自动化）|2025-03-21|
 |4. 工程与动效|3/3|Verified|2026-03-21|
 |5. Apple 上架|2/2|Complete|2026-03-21|
+|6. 治理基线与门禁|0/0|Not started|-|
+|7. Shared 重复逻辑收敛|0/0|Not started|-|
+|8. 大文件拆分与结构重构|0/0|Not started|-|
+|9. 目录边界治理与冗余清理|0/0|Not started|-|
+|10. 测试治理与 CI 收口|0/0|Not started|-|
 
 ---
 Roadmap created: 2025-03-21
