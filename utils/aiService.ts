@@ -1,5 +1,7 @@
 import { MoodEntry, MoodLevel } from '../types';
+import { formatDateChinese } from './dateUtils';
 import { isAuthError, isNetworkError } from './errorHandler';
+import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
 
 /**
  * AI服务工具类
@@ -7,8 +9,8 @@ import { isAuthError, isNetworkError } from './errorHandler';
  * Groq 提供免费、快速、稳定的 AI 推理服务
  */
 
-// 从环境变量获取 Groq API Key
-const GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
+// 从环境变量读取 Groq API Key（运行时读取，便于测试和热更新）
+const getGroqApiKey = (): string => process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
 
 // Groq API 配置
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -125,8 +127,9 @@ const classifyError = (error: Error | unknown): AIErrorType => {
  * 检查 Groq API Key 是否有效（基本格式检查）
  */
 const isApiKeyValid = (): boolean => {
+  const apiKey = getGroqApiKey();
   // Groq API Key 通常以 'gsk_' 开头
-  return GROQ_API_KEY.length > 0 && (GROQ_API_KEY.startsWith('gsk_') || GROQ_API_KEY.length > 20);
+  return apiKey.length > 0 && (apiKey.startsWith('gsk_') || apiKey.length > 20);
 };
 
 /**
@@ -162,7 +165,7 @@ const callGroqAPI = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${getGroqApiKey()}`,
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
@@ -468,6 +471,102 @@ export const predictEmotionTrend = async (
     return defaultForecast;
   }
 };
+
+/**
+ * 是否已配置可用的 Groq API Key（供 UI 判断是否展示「加载中」等）
+ */
+export function isGroqConfigured(): boolean {
+  return isApiKeyValid();
+}
+
+/**
+ * 回顾导出图底部一句：无网络时的固定兜底（与 Phase 2 语气接近）
+ */
+export function getDefaultReviewExportClosingLine(
+  summary: ReviewExportClosingSummary,
+): string {
+  if (summary.totalEntries === 0) {
+    return '最近还没有情绪记录，开始记录你的情绪吧~';
+  }
+  const rateText =
+    summary.resolutionRatePct === null
+      ? '本期情绪解决率暂无统计'
+      : `情绪解决率为 ${summary.resolutionRatePct}%`;
+  return `在${summary.presetLabel}，你记录了${summary.totalEntries}笔，已和解${summary.resolvedEntries}笔。${rateText}。每一次记录都值得被温柔看见，焚语会一直在。`;
+}
+
+/**
+ * 回顾导出图底部一句：Groq 生成，失败或无 Key 时返回兜底，不抛错。
+ * 可选 D-11：可按 preset+周期+entries 指纹做 24h 内存缓存，与播客共用 cache Map。
+ */
+export async function generateReviewExportClosingLine(
+  summary: ReviewExportClosingSummary,
+): Promise<string> {
+  const cacheKey = `review_export_closing_${JSON.stringify({
+    preset: summary.presetLabel,
+    start: summary.periodStartMs,
+    end: summary.periodEndMs,
+    days: summary.companionDays,
+    rate: summary.resolutionRatePct,
+    delta: summary.deltaPct,
+    total: summary.totalEntries,
+    resolved: summary.resolvedEntries,
+    weather: summary.topWeatherLines,
+    triggers: summary.topTriggerLines,
+  })}`;
+  const cached = getCached<string>(cacheKey);
+  if (cached) return cached;
+
+  if (!isApiKeyValid()) {
+    const fallback = getDefaultReviewExportClosingLine(summary);
+    setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
+    return fallback;
+  }
+
+  const systemPrompt =
+    '你是温柔的情绪陪伴者，像朋友或树洞一样用中文书写。禁止使用客服腔、禁止医疗诊断或治疗承诺。只输出一段正文，不要标题、不要列表、不要 markdown、不要英文前缀。';
+
+  const rateLine =
+    summary.resolutionRatePct === null
+      ? '本期情绪解决率：暂无'
+      : `本期情绪解决率：${summary.resolutionRatePct}%`;
+  const deltaLine =
+    summary.deltaPct === null
+      ? '环比上一期：暂无对比'
+      : `环比上一期：${summary.deltaPct >= 0 ? '↑' : '↓'}${Math.abs(summary.deltaPct)}%`;
+
+  const userPrompt = `请根据以下统计摘要，写一段温柔的一句话总结（约 80～120 字），用第二人称「你」，可自然使用花园或天气作比喻，不要编造未给出的数字。
+
+- 所选周期：${summary.presetLabel}
+- 区间：${formatDateChinese(summary.periodStartMs)}～${formatDateChinese(summary.periodEndMs)}
+- 陪伴焚语第 ${summary.companionDays} 天
+- ${rateLine}
+- ${deltaLine}
+- 本期共记录 ${summary.totalEntries} 笔，已和解 ${summary.resolvedEntries} 笔
+- Top 天气：${summary.topWeatherLines.length ? summary.topWeatherLines.join('；') : '暂无'}
+- Top 触发：${summary.topTriggerLines.length ? summary.topTriggerLines.join('；') : '暂无'}
+
+请严格只输出一段中文正文。`;
+
+  try {
+    const result = await withRetry(async () => {
+      const raw = await callGroqAPI(systemPrompt, userPrompt, 220);
+      return raw.trim().substring(0, 200);
+    });
+    if (result.length < 15) {
+      const fallback = getDefaultReviewExportClosingLine(summary);
+      setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
+      return fallback;
+    }
+    setCache(cacheKey, result, 24 * 60 * 60 * 1000);
+    return result;
+  } catch (error) {
+    console.warn('生成回顾一句失败，使用默认文案:', error);
+    const fallback = getDefaultReviewExportClosingLine(summary);
+    setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
+    return fallback;
+  }
+}
 
 /**
  * 生成情绪播客文案

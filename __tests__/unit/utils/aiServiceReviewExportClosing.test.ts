@@ -56,9 +56,13 @@ describe('generateReviewExportClosingLine', () => {
       }),
     }));
     global.fetch = mockFetch as unknown as typeof fetch;
+    const uniqueSummary: ReviewExportClosingSummary = {
+      ...baseSummary,
+      periodEndMs: 999,
+    };
 
-    const first = await generateReviewExportClosingLine(baseSummary);
-    const second = await generateReviewExportClosingLine(baseSummary);
+    const first = await generateReviewExportClosingLine(uniqueSummary);
+    const second = await generateReviewExportClosingLine(uniqueSummary);
 
     expect(first).toBe(second);
     expect(mockFetch).toHaveBeenCalledTimes(1);
