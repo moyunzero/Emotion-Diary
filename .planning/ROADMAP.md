@@ -145,7 +145,7 @@ Plans:
 Plans:
 
 - [x] 06-01-PLAN.md — 建立治理脚手架与一键执行基线（命令、范围、说明）  
-- [ ] 06-02-PLAN.md — 落地 report/warn/error 渐进门禁与升级条件  
+- [x] 06-02-PLAN.md — 落地 report/warn/error 渐进门禁与升级条件  
 - [x] 06-03-PLAN.md — 建立记录/导出/同步关键路径一致性护栏与小包验收模板
 
 ---

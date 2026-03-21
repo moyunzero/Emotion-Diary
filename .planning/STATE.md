@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-21T15:02:17.370Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-21T15:03:35.368Z"
 progress:
   total_phases: 10
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 18
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 3 of 3
 | Phase 05 P03 | 6 min | 2 tasks | 1 files |
 | Phase 06-governance-baseline-gates P01 | 1min | 2 tasks | 4 files |
 | Phase 06-governance-baseline-gates P03 | 3min | 2 tasks | 4 files |
+| Phase 06-governance-baseline-gates P02 | 9min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 06-governance-baseline-gates]: smoke 路径固定为 record/export/sync，并通过单入口脚本编排
 - [Phase 06-governance-baseline-gates]: 导出一致性仅使用结构化断言，明确排除像素级快照比对
 - [Phase 06-governance-baseline-gates]: 每个治理重构包必须按 D-14 字段提交并遵循偏差先回退
+- [Phase 06-governance-baseline-gates]: Boundaries lint gate defaults to warn and upgrades via GOV_BOUNDARIES_LEVEL=error after D-10 is met.
+- [Phase 06-governance-baseline-gates]: Historical unused-export debt is tracked in allowlist baseline instead of immediate cleanup.
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T15:02:17.365Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-03-21T15:03:35.365Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
