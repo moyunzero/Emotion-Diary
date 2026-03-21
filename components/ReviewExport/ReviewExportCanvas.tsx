@@ -1,18 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { MOOD_CONFIG } from '../../constants';
-import { calculateDaysAsOf } from '../../services/companionDaysService';
-import { MoodEntry, MoodLevel } from '../../types';
-import {
-  compareResolutionToPreviousPeriod,
-  getMonthlyResolutionRateSeries,
-} from '../../utils/reviewStats';
+import { MoodLevel } from '../../types';
+import type { ReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import type { ExportWeatherBucket } from '../../utils/reviewStatsWeather';
-import { getTopThreeWeatherBucketsByDays } from '../../utils/reviewStatsWeather';
-import { getTopTriggersWithAdvice } from '../../utils/reviewStatsTriggers';
-import type { ReviewExportPreset } from '../../utils/reviewStatsTimeRange';
-import { getReviewExportPeriods } from '../../utils/reviewStatsTimeRange';
 import { formatDateChinese } from '../../utils/dateUtils';
 import { getMoodIcon } from '../../utils/moodIconUtils';
 import { INSIGHTS_COLORS } from '../Insights/constants';
@@ -33,56 +25,36 @@ const GAP = {
   xl: 28,
 } as const;
 
+export type ReviewExportAiStatus =
+  | 'idle'
+  | 'loading'
+  | 'ready'
+  | 'fallback';
+
 export interface ReviewExportCanvasProps {
-  entries: MoodEntry[];
-  firstEntryDate: number | null;
-  preset: ReviewExportPreset;
-  /** 用于环比小字，如「上一期」 */
-  now: Date;
+  /** 与 AI 摘要同源的派生统计（画布不再重复计算） */
+  derived: ReviewExportDerivedState;
+  /** 底部温柔一句（由 Screen 调用 Groq 后传入） */
+  closingLine: string;
+  aiStatus: ReviewExportAiStatus;
 }
 
 /**
  * 解决率 null 时展示「—」（与 2-UI-SPEC 一致）
  */
 export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
-  entries,
-  firstEntryDate,
-  preset,
-  now,
+  derived,
+  closingLine,
+  aiStatus,
 }) => {
-  const { current, previous } = useMemo(
-    () => getReviewExportPeriods(now, preset),
-    [now, preset],
-  );
-
-  const compare = useMemo(
-    () =>
-      compareResolutionToPreviousPeriod(
-        entries,
-        current.startMs,
-        current.endMs,
-        previous.startMs,
-        previous.endMs,
-      ),
-    [entries, current, previous],
-  );
-
-  const companionDays = calculateDaysAsOf(firstEntryDate, current.endMs);
-
-  const monthlySeries = useMemo(
-    () => getMonthlyResolutionRateSeries(entries, 6, now),
-    [entries, now],
-  );
-
-  const topWeather = useMemo(
-    () => getTopThreeWeatherBucketsByDays(entries, current.startMs, current.endMs),
-    [entries, current.startMs, current.endMs],
-  );
-
-  const topTriggers = useMemo(
-    () => getTopTriggersWithAdvice(entries, current.startMs, current.endMs),
-    [entries, current.startMs, current.endMs],
-  );
+  const {
+    current,
+    compare,
+    companionDays,
+    monthlySeries,
+    topWeather,
+    topTriggers,
+  } = derived;
 
   const ratePct =
     compare.current.resolutionRate === null
@@ -126,29 +98,43 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
 
       <View style={styles.trendBlock}>
         <Text style={styles.trendBlockTitle}>解决率趋势（近 6 个月）</Text>
+        <Text style={styles.trendCaption}>
+          柱高为各自然月解决率（由旧至新）；跨年月份以「M月」区分
+        </Text>
         <View style={styles.svgWrap}>
-        <Svg width={chartW} height={chartH}>
-          {monthlySeries.map((pt, i) => {
-            const r = pt.rate === null ? 0 : pt.rate;
-            const h = Math.max(2, r * (chartH - 24));
-            const x = barPad + i * (barW + barPad);
-            const y = chartH - h - 8;
-            return (
-              <Rect
-                key={`${pt.year}-${pt.monthIndex0}`}
-                x={x}
-                y={y}
-                width={barW}
-                height={h}
-                rx={4}
-                fill={INSIGHTS_COLORS.accent}
-                opacity={0.85}
-              />
-            );
-          })}
-        </Svg>
+          <Svg width={chartW} height={chartH}>
+            {monthlySeries.map((pt, i) => {
+              const r = pt.rate === null ? 0 : pt.rate;
+              const h = Math.max(2, r * (chartH - 24));
+              const x = barPad + i * (barW + barPad);
+              const y = chartH - h - 8;
+              return (
+                <Rect
+                  key={`${pt.year}-${pt.monthIndex0}`}
+                  x={x}
+                  y={y}
+                  width={barW}
+                  height={h}
+                  rx={4}
+                  fill={INSIGHTS_COLORS.accent}
+                  opacity={0.85}
+                />
+              );
+            })}
+          </Svg>
         </View>
-        <Text style={styles.trendHint}>数据已接入，样式可在后续版本美化</Text>
+        <View style={styles.monthRow}>
+          {monthlySeries.map((pt) => (
+            <View
+              key={`label-${pt.year}-${pt.monthIndex0}`}
+              style={styles.monthCell}
+            >
+              <Text style={styles.monthLabel} numberOfLines={1}>
+                {pt.monthIndex0 + 1}月
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <Text style={[styles.sectionTitle, styles.sectionAfterBlock]}>
@@ -190,10 +176,15 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
 
       <View style={styles.placeholderAi}>
         <Text style={styles.aiEmoji}>💬</Text>
-        <Text style={styles.aiText}>
-          这个月你认真记录了自己的感受，这份温柔很值得被看见。焚语会一直在。
-        </Text>
-        <Text style={styles.aiHint}>（预览文案，完整版即将上线）</Text>
+        {aiStatus === 'loading' && (
+          <Text style={styles.aiLoading}>正在写一句话…</Text>
+        )}
+        <Text style={styles.aiText}>{closingLine}</Text>
+        {(aiStatus === 'fallback' || aiStatus === 'ready') && (
+          <Text style={styles.aiHint}>
+            {aiStatus === 'fallback' ? '当前为默认文案' : '由 AI 生成'}
+          </Text>
+        )}
       </View>
 
       <Text style={styles.footerBrand}>焚语 · 情绪回顾</Text>
@@ -264,11 +255,36 @@ const styles = StyleSheet.create({
     fontFamily: 'Lato_700Bold',
     fontSize: 15,
     color: INSIGHTS_COLORS.text,
+    marginBottom: GAP.xs,
+  },
+  trendCaption: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 11,
+    color: INSIGHTS_COLORS.textSecondary,
     marginBottom: GAP.sm,
+    lineHeight: 16,
   },
   svgWrap: {
     alignItems: 'center',
     paddingVertical: GAP.xs,
+  },
+  monthRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginTop: GAP.sm,
+    paddingHorizontal: 2,
+  },
+  monthCell: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+  },
+  monthLabel: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 10,
+    color: INSIGHTS_COLORS.textSecondary,
+    textAlign: 'center',
   },
   sectionTitle: {
     fontFamily: 'Lato_700Bold',
@@ -278,13 +294,6 @@ const styles = StyleSheet.create({
   },
   sectionAfterBlock: {
     marginTop: GAP.xl,
-  },
-  trendHint: {
-    marginTop: GAP.md,
-    fontFamily: 'Lato_400Regular',
-    fontSize: 11,
-    color: INSIGHTS_COLORS.textSecondary,
-    lineHeight: 16,
   },
   muted: {
     fontFamily: 'Lato_400Regular',
@@ -339,6 +348,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Lato_400Regular',
     fontSize: 11,
     color: INSIGHTS_COLORS.textSecondary,
+  },
+  aiLoading: {
+    fontFamily: 'Lato_400Regular',
+    fontSize: 11,
+    color: INSIGHTS_COLORS.textSecondary,
+    marginBottom: GAP.xs,
   },
   footerBrand: {
     marginTop: GAP.lg,

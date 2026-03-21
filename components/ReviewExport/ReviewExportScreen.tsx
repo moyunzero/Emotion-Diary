@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,10 +19,16 @@ import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { useAppStore } from '../../store/useAppStore';
+import {
+  generateReviewExportClosingLine,
+  getDefaultReviewExportClosingLine,
+  isGroqConfigured,
+} from '../../utils/aiService';
+import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import type { ReviewExportPreset } from '../../utils/reviewStatsTimeRange';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ScreenContainer } from '../ScreenContainer';
-import { ReviewExportCanvas } from './ReviewExportCanvas';
+import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
 
 const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
 
@@ -47,7 +53,41 @@ export const ReviewExportScreen: React.FC = () => {
   const [now] = useState(() => new Date());
   const [isBusy, setIsBusy] = useState(false);
 
+  const derived = useMemo(
+    () =>
+      computeReviewExportDerivedState(entries, firstEntryDate, preset, now),
+    [entries, firstEntryDate, preset, now],
+  );
+  const summary = derived.closingSummary;
+
+  const [closingLine, setClosingLine] = useState(() =>
+    getDefaultReviewExportClosingLine(summary),
+  );
+
+  const [aiStatus, setAiStatus] = useState<ReviewExportAiStatus>('idle');
+  const closingRequestIdRef = useRef(0);
+
   const captureRootRef = useRef<View>(null);
+
+  useEffect(() => {
+    const defaultLine = getDefaultReviewExportClosingLine(summary);
+    const id = ++closingRequestIdRef.current;
+
+    if (!isGroqConfigured()) {
+      setClosingLine(defaultLine);
+      setAiStatus('fallback');
+      return;
+    }
+
+    setClosingLine(defaultLine);
+    setAiStatus('loading');
+
+    void generateReviewExportClosingLine(summary).then((text) => {
+      if (id !== closingRequestIdRef.current) return;
+      setClosingLine(text);
+      setAiStatus('ready');
+    });
+  }, [summary]);
 
   const captureReviewPngUri = useCallback(async (): Promise<string> => {
     await new Promise<void>((resolve) => {
@@ -169,6 +209,7 @@ export const ReviewExportScreen: React.FC = () => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <View
           ref={captureRootRef}
@@ -176,10 +217,9 @@ export const ReviewExportScreen: React.FC = () => {
           style={styles.captureWrap}
         >
           <ReviewExportCanvas
-            entries={entries}
-            firstEntryDate={firstEntryDate}
-            preset={preset}
-            now={now}
+            derived={derived}
+            closingLine={closingLine}
+            aiStatus={aiStatus}
           />
         </View>
       </ScrollView>
