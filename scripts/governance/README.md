@@ -28,6 +28,13 @@ Run a no-side-effect dry run:
 npm run verify:governance -- --dry-run
 ```
 
+CI reproducible command (same output contract):
+
+```bash
+npm ci
+npm run verify:governance -- --dry-run
+```
+
 ## Fixed Stage Order
 
 The script runs in this exact order:
@@ -37,3 +44,9 @@ The script runs in this exact order:
 3. `eslint-plugin-boundaries`
 
 This order is fixed to keep local and CI output stable and reproducible.
+
+## Gate Level and Baseline Rule
+
+- Current gate level: `report` as default, with selected checks at `warn`.
+- Baseline strategy: record current debt once, then block only newly introduced issues.
+- allowlist updates require explicit reason and cleanup owner.
