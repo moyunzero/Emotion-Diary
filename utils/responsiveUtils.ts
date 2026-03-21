@@ -1,167 +1,109 @@
 /**
- * 响应式工具函数
- * 根据屏幕尺寸动态计算合适的间距、字体大小等
+ * @deprecated Phase 7 temporary compatibility.
+ * 请优先使用 shared/responsive 作为单一入口，本文件仅保留旧 API 适配。
  */
 
 import { Dimensions } from 'react-native';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import {
+  BREAKPOINTS,
+  createResponsiveMetrics,
+  getDeviceTypeBySize,
+  isLandscapeBySize,
+} from '../shared/responsive';
 
-// 断点定义（参考常见设备尺寸）
-export const BREAKPOINTS = {
-  small: 375,    // iPhone SE, 小屏手机
-  medium: 414,   // iPhone 11 Pro Max, 标准手机
-  large: 768,    // iPad Mini, 小平板
-  xlarge: 1024,  // iPad Pro, 大平板/小笔记本
-  xxlarge: 1440, // 桌面显示器
+const getWindowSize = () => {
+  const { width, height } = Dimensions.get('window');
+  return { width, height };
 };
 
-// 判断设备类型
+export { BREAKPOINTS };
+
 export const getDeviceType = (): 'phone' | 'tablet' | 'desktop' => {
-  const aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
-  const isTablet = SCREEN_WIDTH >= BREAKPOINTS.large && aspectRatio < 1.6;
-  const isDesktop = SCREEN_WIDTH >= BREAKPOINTS.xlarge;
-  
-  if (isDesktop) return 'desktop';
-  if (isTablet) return 'tablet';
-  return 'phone';
+  const { width, height } = getWindowSize();
+  return getDeviceTypeBySize(width, height);
 };
 
 // 响应式 padding
 export const responsivePadding = {
-  // 水平内边距
   horizontal: (base: number = 20): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        // 桌面端：根据屏幕宽度计算，但不超过最大内容宽度
-        const maxContentWidth = 1200;
-        const availableWidth = Math.min(SCREEN_WIDTH - 40, maxContentWidth);
-        return (SCREEN_WIDTH - availableWidth) / 2;
-      case 'tablet':
-        return base * 2; // 平板：40px
-      case 'phone':
-      default:
-        return base; // 手机：20px
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') {
+      return metrics.padding.horizontal;
     }
+    if (metrics.deviceType === 'tablet') {
+      return base * 2;
+    }
+    return base;
   },
-  // 垂直内边距
   vertical: (base: number = 16): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.5;
-      case 'tablet':
-        return base * 1.25;
-      default:
-        return base;
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.5;
+    if (metrics.deviceType === 'tablet') return base * 1.25;
+    return base;
   },
-  // 卡片内边距
   card: (base: number = 20): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.5; // 30px
-      case 'tablet':
-        return base * 1.25; // 25px
-      default:
-        return base; // 20px
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.5;
+    if (metrics.deviceType === 'tablet') return base * 1.25;
+    return base;
   },
 };
 
 // 响应式字体大小
 export const responsiveFontSize = {
-  // 标题字号
   title: (base: number = 24): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.25; // 30px
-      case 'tablet':
-        return base * 1.125; // 27px
-      default:
-        return base; // 24px
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.25;
+    if (metrics.deviceType === 'tablet') return base * 1.125;
+    return base;
   },
-  // 卡片标题字号
   cardTitle: (base: number = 16): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.125; // 18px
-      case 'tablet':
-        return base * 1.0625; // 17px
-      default:
-        return base; // 16px
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.125;
+    if (metrics.deviceType === 'tablet') return base * 1.0625;
+    return base;
   },
-  // 正文字号
   body: (base: number = 14): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.071; // 15px
-      case 'tablet':
-        return base * 1.036; // 14.5px
-      default:
-        return base; // 14px
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.071;
+    if (metrics.deviceType === 'tablet') return base * 1.036;
+    return base;
   },
-  // 小字号
   small: (base: number = 12): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.083; // 13px
-      case 'tablet':
-        return base * 1.042; // 12.5px
-      default:
-        return base; // 12px
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.083;
+    if (metrics.deviceType === 'tablet') return base * 1.042;
+    return base;
   },
 };
 
 // 响应式间距
 export const responsiveSpacing = {
-  // 卡片间距
   cardGap: (): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return 24;
-      case 'tablet':
-        return 20;
-      default:
-        return 16;
-    }
+    const { width, height } = getWindowSize();
+    return createResponsiveMetrics(width, height).spacing.cardGap;
   },
-  // 组件内部间距
   component: (base: number = 16): number => {
-    const deviceType = getDeviceType();
-    switch (deviceType) {
-      case 'desktop':
-        return base * 1.5;
-      case 'tablet':
-        return base * 1.25;
-      default:
-        return base;
-    }
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
+    if (metrics.deviceType === 'desktop') return base * 1.5;
+    if (metrics.deviceType === 'tablet') return base * 1.25;
+    return base;
   },
 };
 
 // 获取最大内容宽度（用于居中布局）
 export const getMaxContentWidth = (): number => {
-  const deviceType = getDeviceType();
-  switch (deviceType) {
-    case 'desktop':
-      return 1200; // 桌面端最大宽度
-    case 'tablet':
-      return 700; // 平板最大宽度
-    default:
-      return SCREEN_WIDTH; // 手机全宽
-  }
+  const { width, height } = getWindowSize();
+  return createResponsiveMetrics(width, height).layout.maxContentWidth;
 };
 
 // 响应式图标大小
@@ -183,86 +125,47 @@ export const responsiveIconSize = {
 // 响应式圆角
 export const responsiveBorderRadius = {
   card: (): number => {
-    const deviceType = getDeviceType();
-    return deviceType === 'desktop' ? 16 : deviceType === 'tablet' ? 14 : 12;
+    const { width, height } = getWindowSize();
+    return createResponsiveMetrics(width, height).borderRadius.card;
   },
   large: (): number => {
-    const deviceType = getDeviceType();
-    return deviceType === 'desktop' ? 24 : deviceType === 'tablet' ? 20 : 16;
+    const { width, height } = getWindowSize();
+    return createResponsiveMetrics(width, height).borderRadius.large;
   },
 };
 
 // 响应式网格布局（用于关系花盆等）
 export const responsiveGrid = {
-  // 计算每行显示数量（根据实际屏幕宽度动态计算）
   columns: (): number => {
-    const deviceType = getDeviceType();
-    const horizontalPadding = responsivePadding.horizontal();
-    const cardPadding = responsivePadding.card();
-    // 计算可用宽度（减去卡片内边距）
-    const availableWidth = Math.min(
-      SCREEN_WIDTH - horizontalPadding * 2 - cardPadding * 2,
-      getMaxContentWidth() - horizontalPadding * 2 - cardPadding * 2
-    );
-    
-    // 每个项目的最小宽度（包括图标56px + 一些边距）
-    const minItemWidth = 90;
-    // gap 间距
-    const gap = 8;
-    
-    // 根据可用宽度动态计算列数
-    let columns = Math.floor((availableWidth + gap) / (minItemWidth + gap));
-    
-    // 根据设备类型设置最小和最大列数限制
-    switch (deviceType) {
-      case 'desktop':
-        columns = Math.max(4, Math.min(columns, 5)); // 桌面：4-5列
-        break;
-      case 'tablet':
-        columns = Math.max(3, Math.min(columns, 4)); // 平板：3-4列
-        break;
-      default:
-        // 手机：根据屏幕宽度动态计算，但至少2列，最多4列
-        // iPhone 16 Pro (393px) 可以显示4列
-        if (SCREEN_WIDTH >= 390) {
-          columns = Math.max(3, Math.min(columns, 4)); // 大屏手机：3-4列
-        } else {
-          columns = Math.max(2, Math.min(columns, 3)); // 小屏手机：2-3列
-        }
-        break;
-    }
-    
-    return columns;
+    const { width, height } = getWindowSize();
+    return createResponsiveMetrics(width, height).layout.gridColumns;
   },
-  // 计算项目宽度（考虑gap）
   itemWidth: (gap: number = 8): number => {
-    const columns = responsiveGrid.columns();
-    const horizontalPadding = responsivePadding.horizontal();
-    const cardPadding = responsivePadding.card();
+    const { width, height } = getWindowSize();
+    const metrics = createResponsiveMetrics(width, height);
     const availableWidth = Math.min(
-      SCREEN_WIDTH - horizontalPadding * 2 - cardPadding * 2,
-      getMaxContentWidth() - horizontalPadding * 2 - cardPadding * 2
+      width - metrics.padding.horizontal * 2 - metrics.padding.card * 2,
+      metrics.layout.maxContentWidth - metrics.padding.horizontal * 2 - metrics.padding.card * 2
     );
-    const totalGap = gap * (columns - 1);
-    return (availableWidth - totalGap) / columns;
+    const totalGap = gap * (metrics.layout.gridColumns - 1);
+    return (availableWidth - totalGap) / metrics.layout.gridColumns;
   },
-  // 获取响应式 gap
   gap: (): number => {
-    const deviceType = getDeviceType();
-    // 减少 gap 以更紧凑的布局
-    return deviceType === 'desktop' ? 10 : deviceType === 'tablet' ? 8 : 8;
+    const { width, height } = getWindowSize();
+    return createResponsiveMetrics(width, height).layout.gridGap;
   },
 };
 
 // 检查是否为横屏
 export const isLandscape = (): boolean => {
-  return SCREEN_WIDTH > SCREEN_HEIGHT;
+  const { width, height } = getWindowSize();
+  return isLandscapeBySize(width, height);
 };
 
 // 导出屏幕尺寸（用于调试）
 export const SCREEN_INFO = {
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT,
+  width: getWindowSize().width,
+  height: getWindowSize().height,
   type: getDeviceType(),
   isLandscape: isLandscape(),
 };

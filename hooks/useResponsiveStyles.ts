@@ -4,48 +4,48 @@
  */
 
 import { useMemo } from 'react';
-import {
-  responsiveBorderRadius,
-  responsiveFontSize,
-  responsivePadding,
-  responsiveSpacing,
-  getMaxContentWidth,
-  responsiveGrid,
-} from '../utils/responsiveUtils';
+import { useWindowDimensions } from 'react-native';
+
+import { createResponsiveMetrics } from '../shared/responsive';
 
 export const useResponsiveStyles = () => {
+  const { width, height } = useWindowDimensions();
+
   return useMemo(
-    () => ({
+    () => {
+      const metrics = createResponsiveMetrics(width, height);
+      return {
       // 内边距
       padding: {
-        horizontal: responsivePadding.horizontal(),
-        vertical: responsivePadding.vertical(),
-        card: responsivePadding.card(),
+        horizontal: metrics.padding.horizontal,
+        vertical: metrics.padding.vertical,
+        card: metrics.padding.card,
       },
       // 字体大小
       fontSize: {
-        title: responsiveFontSize.title(),
-        cardTitle: responsiveFontSize.cardTitle(),
-        body: responsiveFontSize.body(),
-        small: responsiveFontSize.small(),
+        title: metrics.fontSize.title,
+        cardTitle: metrics.fontSize.cardTitle,
+        body: metrics.fontSize.body,
+        small: metrics.fontSize.small,
       },
       // 间距
       spacing: {
-        cardGap: responsiveSpacing.cardGap(),
-        component: responsiveSpacing.component(16),
+        cardGap: metrics.spacing.cardGap,
+        component: metrics.spacing.component,
       },
       // 圆角
       borderRadius: {
-        card: responsiveBorderRadius.card(),
-        large: responsiveBorderRadius.large(),
+        card: metrics.borderRadius.card,
+        large: metrics.borderRadius.large,
       },
       // 布局
       layout: {
-        maxContentWidth: getMaxContentWidth(),
-        gridColumns: responsiveGrid.columns(),
-        gridItemWidth: responsiveGrid.itemWidth(12),
+        maxContentWidth: metrics.layout.maxContentWidth,
+        gridColumns: metrics.layout.gridColumns,
+        gridItemWidth: metrics.layout.gridItemWidth,
       },
-    }),
-    []
+    };
+    },
+    [width, height]
   );
 };
