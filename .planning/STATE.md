@@ -135,7 +135,15 @@ None yet.
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260322-kqp | 同步 temp-ag-skills 到 ~/.cursor/skills，供全项目与 GSD 调用 | 2026-03-22 | — | [260322-kqp-temp-ag-skills-cursor-skills-gsd](./quick/260322-kqp-temp-ag-skills-cursor-skills-gsd/) |
+
 ## Session Continuity
+
+Last activity: 2026-03-22 - Completed quick task 260322-kqp: 同步 temp-ag-skills 到 ~/.cursor/skills，供全项目与 GSD 调用
 
 Last session: 2026-03-22T05:29:53.007Z
 Stopped at: Phase 10 context gathered
