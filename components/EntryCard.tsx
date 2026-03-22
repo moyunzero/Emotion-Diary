@@ -24,7 +24,7 @@ import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
-import EditEntryModal from "./EditEntryModal";
+import { EditEntryModal } from "@/components/entries";
 
 export interface EntryCardProps {
   entry: MoodEntry;
