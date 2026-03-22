@@ -319,7 +319,7 @@ Plans:
 |10. 测试治理与 CI 收口| 3/3 | Complete    | 2026-03-22 |
 |11. GitHub 仓库与可复现构建| 2/2 | Complete    | 2026-03-22 |
 |12. 代码健康、测试精炼与单文件体量| 0/? | Complete    | 2026-03-22 |
-|13. RN/Expo 约定与中文注释| 0/? | Not started | — |
+|13. RN/Expo 约定与中文注释| 3/3 | Complete | 2026-03-22 |
 |14. UI 体验与非模版化| 0/? | Not started | — |
 
 ---

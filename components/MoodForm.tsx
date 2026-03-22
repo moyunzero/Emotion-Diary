@@ -1,3 +1,8 @@
+/**
+ * 情绪记录表单：受控组件，由 Record / 编辑弹窗传入状态与 onSubmit。
+ * 负责等级、正文、期限、人物与触发器标签等录入体验，不包含路由与持久化细节。
+ */
+
 import { Edit } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import {
@@ -79,6 +84,9 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   onDeleteCustomTrigger,
   onSubmit,
 }) => {
+  // 提交与校验由父组件 onSubmit 统一处理（写 store、关弹窗等）；此处仅在用户完成表单操作后触发回调。
+  // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
+
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createMoodFormStyles(width, height),

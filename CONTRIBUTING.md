@@ -62,6 +62,10 @@
 
 请参考 [README.md](./README.md) 开头的「开发者快速上手」与「快速开始」章节。
 
+## 路由与 app 目录（Expo Router）
+
+文件式路由、`(tabs)` 分组及与 `components` / `features` 的分工说明见：[.planning/codebase/EXPO-ROUTER.md](./.planning/codebase/EXPO-ROUTER.md)。
+
 ## 📝 代码规范
 
 - **TypeScript**：本项目完全使用 TypeScript，请确保没有类型错误。

@@ -1,3 +1,8 @@
+/**
+ * 情绪回顾图页面：选择时间预设、渲染可截图画布、可选 AI 收尾句，并支持保存 PNG 到系统相册。
+ * 隐私与权限在首次保存时通过 Alert 与 AsyncStorage 标记确认。
+ */
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
@@ -102,6 +107,9 @@ export const ReviewExportScreen: React.FC = () => {
   }, [summary]);
 
   const captureReviewPngUri = useCallback(async (): Promise<string> => {
+    // 等待交互动画结束再截图，避免半帧布局；截图区域为 captureRootRef 包裹的画布。
+    // 使用 tmpfile 结果以控制内存；失败时向上抛错供 onPressSave 统一 Alert。
+
     await new Promise<void>((resolve) => {
       InteractionManager.runAfterInteractions(() => resolve());
     });

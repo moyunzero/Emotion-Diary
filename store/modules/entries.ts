@@ -3,6 +3,8 @@
  * 负责情绪条目的增删改查操作及本地持久化
  */
 
+// 防抖合并多次快速写入，减少 AsyncStorage 频繁 IO；与天气模块联动在落盘后重算。
+
 import { StateCreator } from 'zustand';
 import { EditHistory, MoodEntry, Status } from '../../types';
 import {
@@ -29,6 +31,7 @@ export const clearEntriesSaveDebounce = (): void => {
 /**
  * 创建 entries slice（StateCreator 交叉类型，get 可访问 AppStore 其余字段）
  */
+// addEntry 等路径会在内存更新后走 _saveEntries；云端同步由根 store 的 sync 方法单独触发。
 export const createEntriesSlice: StateCreator<
   AppStore,
   [],

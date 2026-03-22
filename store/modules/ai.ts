@@ -10,6 +10,7 @@ import { AIModule, ModuleCreator } from './types';
 /**
  * 创建 AI 功能模块
  */
+// 预测与播客均依赖 Groq 网络与 utils/aiService；失败时降级为 null 或空文案，避免阻塞主流程。
 export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
   emotionForecast: null,
   emotionPodcast: null,

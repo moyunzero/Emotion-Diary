@@ -18,6 +18,7 @@ const WEATHER_THRESHOLDS = {
 /**
  * 创建天气状态模块
  */
+// 天气分数仅统计 ACTIVE 条目，已和解/删除的不计入，避免「气象站」与当前心境脱节。
 export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => ({
   weather: {
     score: 0,

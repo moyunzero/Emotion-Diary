@@ -4,6 +4,10 @@
 
 **Emotion-Diary（焚语）** 是基于 **Expo / React Native** 的跨平台情绪日记应用，使用 **TypeScript** 严格模式，状态管理为 **Zustand**，路由为 **expo-router**（文件式路由）。
 
+## 配置审计（Phase 13）
+
+结构化核对结论（`app.json` / Babel / Metro / TS）见 [EXPO-RN-AUDIT — 配置审计](./EXPO-RN-AUDIT.md)。
+
 ## 语言与运行时
 
 | 层级 | 技术 |

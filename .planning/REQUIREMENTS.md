@@ -65,8 +65,8 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### React Native / Expo 约定（RN）
 
-- [ ] **RN-01**: `app.json` / `metro` / `babel` / `tsconfig` 与当前 Expo SDK 推荐实践核对；偏差写入 README 或 `.planning/codebase/`。
-- [ ] **RN-02**: 入口与路由（Expo Router）目录约定与命名在贡献文档中可查找。
+- [x] **RN-01**: `app.json` / `metro` / `babel` / `tsconfig` 与当前 Expo SDK 推荐实践核对；偏差写入 README 或 `.planning/codebase/`。
+- [x] **RN-02**: 入口与路由（Expo Router）目录约定与命名在贡献文档中可查找。
 
 ### 单文件体量（SIZE）
 
@@ -74,7 +74,7 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### 中文注释（DOC）
 
-- [ ] **DOC-01**: 对 `store` 核心切片、`features` 主流程（记录/导出/同步）、非显而易见的算法与副作用处补充 **中文** 注释或模块头说明；英文专有名词可保留。
+- [x] **DOC-01**: 对 `store` 核心切片、`features` 主流程（记录/导出/同步）、非显而易见的算法与副作用处补充 **中文** 注释或模块头说明；英文专有名词可保留。
 
 ### UI 与非模版化（UI）
 
@@ -128,9 +128,9 @@ Deferred to future milestone.
 | TST2-01 | Phase 12 | Pending |
 | TST2-02 | Phase 12 | Pending |
 | SIZE-01 | Phase 12 | Pending |
-| RN-01 | Phase 13 | Pending |
-| RN-02 | Phase 13 | Pending |
-| DOC-01 | Phase 13 | Pending |
+| RN-01 | Phase 13 | Complete |
+| RN-02 | Phase 13 | Complete |
+| DOC-01 | Phase 13 | Complete |
 | UI-01 | Phase 14 | Pending |
 | UI-02 | Phase 14 | Pending |
 

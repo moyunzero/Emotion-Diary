@@ -1,6 +1,6 @@
 /**
- * Zustand Store - 重构版本
- * 使用模块化架构，提高可维护性和可测试性
+ * Zustand 根 store：组合 entries / user / weather / AI 等 slice 与同步逻辑。
+ * 对外仍通过单一 `useAppStore` 暴露，便于组件订阅；持久化与云端同步在模块内协同。
  */
 
 import "react-native-url-polyfill/auto";
@@ -527,7 +527,8 @@ export const useAppStore = create<AppStore>()((...args) => {
 });
 
 /**
- * 初始化 Store
+ * 应用启动时初始化：触发本地库/用户会话恢复、可选地注册 Supabase 认证监听。
+ * 副作用包括异步加载条目、合并游客 firstEntryDate、在登录态变化时刷新 profile 与条目隔离。
  */
 export const initializeStore = (): (() => void) => {
   try {

@@ -1,6 +1,6 @@
 /**
- * Store 模块类型定义
- * 将 Store 拆分为多个模块以提高可维护性
+ * Zustand 各 slice 的**类型契约**：与 `useAppStore` 组合使用，保证 entries/user/weather/AI 等接口单一来源。
+ * 将 Store 拆分为多个模块以提高可维护性；实现见 `store/modules/*.ts`。
  */
 
 import {

@@ -13,6 +13,7 @@ const GUEST_STORAGE_KEY = 'mood_entries_guest';
 /**
  * 根据用户ID生成存储键
  */
+// 游客与登录用户使用不同键前缀，切换账号时必须迁移而非覆盖，避免条目丢失或串读。
 export const getStorageKey = (userId: string | null): string => {
   return userId ? `mood_entries_${userId}` : GUEST_STORAGE_KEY;
 };
