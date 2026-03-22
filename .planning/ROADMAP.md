@@ -11,8 +11,8 @@
 - [x] **Phase 3: AI 温柔一句** — Groq 集成与语气约束、失败兜底、与导出流水线顺序（见 `phases/03-ai/3-UAT.md`，真机 1 项待测）
 - [x] **Phase 4: 工程与动效** — 增量去冗余、趋势区月份标签、动效审计清单与棕地优化（见 `phases/04-engineering-motion/4-VERIFICATION.md`）
 - [x] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
-- [ ] **Phase 6: 治理基线与门禁** — 建立治理脚手架、渐进门禁策略与关键路径一致性护栏
-- [ ] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层
+- [x] **Phase 6: 治理基线与门禁** — 建立治理脚手架、渐进门禁策略与关键路径一致性护栏 (completed 2026-03-21，见 `phases/06-governance-baseline-gates/06-VERIFICATION.md`)
+- [x] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层 (completed 2026-03-21，见 `phases/07-shared/07-VERIFICATION.md`)
 - [x] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归 (completed 2026-03-22)
 - [x] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证 (completed 2026-03-22)
 - [x] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地 (completed 2026-03-22)
@@ -162,7 +162,16 @@ Plans:
 2. 重复计算迁移后，用户可见结果（数值/显示）与迁移前一致。  
 3. shared 关键边界输入具备基础单测，重构后能快速发现语义回归。
 
-**Plans**: TBD
+**Plans**: 6 plans（执行顺序含依赖：07-01 → 07-04 → 07-02 → 07-05 → 07-03 → 07-06）
+
+Plans:
+
+- [x] 07-01-PLAN.md — formatting 收敛首包：shared 单一来源 + 兼容层与单测基线（SHR-01/02/03）
+- [x] 07-04-PLAN.md — formatting 关键页替换（导出/洞察）与最小回归
+- [x] 07-02-PLAN.md — time-range 与 preset 单点映射、洞察链路 + 兼容层
+- [x] 07-05-PLAN.md — time-range 导出链路独立迁移（可与 07-02 分段回滚）
+- [x] 07-03-PLAN.md — responsive 收敛至 shared + `useResponsiveStyles` 适配
+- [x] 07-06-PLAN.md — responsive 关键页迁移与断点回归
 
 ---
 
@@ -243,8 +252,8 @@ Plans:
 |3. AI 温柔一句|2/2|UAT partial（3/4 自动化）|2025-03-21|
 |4. 工程与动效|3/3|Verified|2026-03-21|
 |5. Apple 上架|2/2|Complete|2026-03-21|
-|6. 治理基线与门禁|0/0|Not started|-|
-|7. Shared 重复逻辑收敛|0/0|Not started|-|
+|6. 治理基线与门禁|3/3|Verified|2026-03-21|
+|7. Shared 重复逻辑收敛|6/6|Verified|2026-03-21|
 |8. 大文件拆分与结构重构| 3/3 | Complete    | 2026-03-22 |
 |9. 目录边界治理与冗余清理| 5/5 | Complete    | 2026-03-22 |
 |10. 测试治理与 CI 收口| 3/3 | Complete    | 2026-03-22 |
