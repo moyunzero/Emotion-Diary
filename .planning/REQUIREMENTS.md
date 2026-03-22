@@ -28,7 +28,7 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 ### 目录边界治理与冗余清理
 
 - [x] **CLN-01**: 建立目录边界规则并执行依赖检查，避免新增跨层耦合与循环依赖。
-- [ ] **CLN-02**: 删除高置信死代码（未使用导出、废弃 hook/工具、示例脚手架），并保留删除证据与回滚点。
+- [x] **CLN-02**: 删除高置信死代码（未使用导出、废弃 hook/工具、示例脚手架），并保留删除证据与回滚点。
 - [ ] **CLN-03**: 清理后通过双端 smoke 与关键路径验证，确保无动态引用误删。
 
 ### 测试治理与 CI 收口
@@ -68,7 +68,7 @@ Deferred to future milestone.
 | ARC-02 | Phase 8 | Complete |
 | ARC-03 | Phase 8 | Complete |
 | CLN-01 | Phase 9 | Complete |
-| CLN-02 | Phase 9 | Pending |
+| CLN-02 | Phase 9 | Complete |
 | CLN-03 | Phase 9 | Pending |
 | TST-01 | Phase 10 | Pending |
 | TST-02 | Phase 10 | Pending |
