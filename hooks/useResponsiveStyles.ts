@@ -32,6 +32,7 @@ export type ResponsiveStyleValues = {
     maxContentWidth: number;
     gridColumns: number;
     gridItemWidth: number;
+    gridGap: number;
   };
 };
 
@@ -70,6 +71,7 @@ export const useResponsiveStyles = () => {
         maxContentWidth: metrics.layout.maxContentWidth,
         gridColumns: metrics.layout.gridColumns,
         gridItemWidth: metrics.layout.gridItemWidth,
+        gridGap: metrics.layout.gridGap,
       },
     };
     },

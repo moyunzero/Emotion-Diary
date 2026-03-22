@@ -1,7 +1,7 @@
 import { Flower2, Leaf } from 'lucide-react-native';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { responsiveBorderRadius, responsiveFontSize, responsivePadding } from '../../utils/responsiveUtils';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
 interface GardenFooterProps {
@@ -10,11 +10,47 @@ interface GardenFooterProps {
   resolvedCount: number;
 }
 
-const GardenFooterComponent: React.FC<GardenFooterProps> = ({ 
-  thisMonthCount, 
-  lastMonthCount, 
-  resolvedCount 
+const GardenFooterComponent: React.FC<GardenFooterProps> = ({
+  thisMonthCount,
+  lastMonthCount,
+  resolvedCount,
 }) => {
+  const { padding, fontSize, borderRadius } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          padding: padding.card,
+          marginBottom: 24,
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: '#FECACA',
+          borderRadius: borderRadius.card,
+        },
+        iconRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 12,
+        },
+        mainText: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.accent,
+          textAlign: 'center',
+          fontWeight: '500',
+          lineHeight: 20,
+        },
+        subText: {
+          fontSize: fontSize.small,
+          color: '#BE123C',
+          textAlign: 'center',
+          marginTop: 6,
+          fontStyle: 'italic',
+        },
+      }),
+    [padding, fontSize, borderRadius]
+  );
+
   const getMessage = () => {
     if (thisMonthCount === 0) {
       return '开始记录，让你的心灵花园生根发芽吧';
@@ -49,36 +85,5 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: responsivePadding.card(20),
-    marginBottom: 24,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    borderRadius: responsiveBorderRadius.card(),
-  },
-  iconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  mainText: {
-    fontSize: responsiveFontSize.body(14),
-    color: INSIGHTS_COLORS.accent,
-    textAlign: 'center',
-    fontWeight: '500',
-    lineHeight: 20,
-  },
-  subText: {
-    fontSize: responsiveFontSize.small(12),
-    color: '#BE123C',
-    textAlign: 'center',
-    marginTop: 6,
-    fontStyle: 'italic',
-  },
-});
 
 export const GardenFooter = memo(GardenFooterComponent);

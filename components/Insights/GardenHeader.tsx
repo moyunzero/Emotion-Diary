@@ -1,8 +1,8 @@
 import { Flower2 } from 'lucide-react-native';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
-import { responsiveFontSize, responsivePadding, responsiveSpacing } from '../../utils/responsiveUtils';
 
 interface GardenHeaderProps {
   totalEntries: number;
@@ -10,6 +10,35 @@ interface GardenHeaderProps {
 }
 
 const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, resolvedCount }) => {
+  const { padding, fontSize, spacing } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          paddingHorizontal: padding.horizontal,
+          paddingBottom: spacing.component,
+        },
+        titleRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 4,
+        },
+        title: {
+          fontSize: fontSize.title,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+        },
+        subtitle: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.textSecondary,
+          marginLeft: 38,
+          marginBottom: 0,
+        },
+      }),
+    [padding, fontSize, spacing]
+  );
+
   const getGardenStatus = () => {
     if (totalEntries === 0) return '开始种下你的第一颗种子吧';
     const rate = resolvedCount / totalEntries;
@@ -27,29 +56,5 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: responsivePadding.horizontal(24),
-    paddingBottom: responsiveSpacing.component(24),
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: responsiveFontSize.title(24),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-  },
-  subtitle: {
-    fontSize: responsiveFontSize.body(14),
-    color: INSIGHTS_COLORS.textSecondary,
-    marginLeft: 38,
-    marginBottom: 0,
-  },
-});
 
 export const GardenHeader = memo(GardenHeaderComponent);

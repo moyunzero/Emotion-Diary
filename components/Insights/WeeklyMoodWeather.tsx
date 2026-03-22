@@ -1,9 +1,9 @@
 import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
-import { responsiveBorderRadius, responsiveFontSize, responsivePadding, responsiveSpacing } from '../../utils/responsiveUtils';
 import { INSIGHTS_COLORS } from './constants';
 import { getMoodFlowerStatus, getMoodWeatherIcon, getWeekDates, getWeekdayName, isToday } from './utils';
 
@@ -12,6 +12,74 @@ interface WeeklyMoodWeatherProps {
 }
 
 const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries }) => {
+  const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: INSIGHTS_COLORS.cardBg,
+          marginBottom: spacing.cardGap,
+          padding: padding.card,
+          borderRadius: borderRadius.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: spacing.component,
+        },
+        title: {
+          fontSize: fontSize.cardTitle,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+        },
+        weekContainer: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        },
+        dayCard: {
+          flex: 1,
+          alignItems: 'center',
+          paddingVertical: 8,
+          paddingHorizontal: 2,
+          borderRadius: 12,
+        },
+        todayCard: {
+          backgroundColor: '#FFF1F2',
+        },
+        weekday: {
+          fontSize: fontSize.small,
+          fontWeight: '500',
+          color: INSIGHTS_COLORS.textSecondary,
+          marginBottom: 8,
+          height: 16,
+        },
+        todayText: {
+          color: INSIGHTS_COLORS.accent,
+          fontWeight: 'bold',
+        },
+        iconContainer: {
+          height: 32,
+          width: 32,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 8,
+        },
+        status: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+          textAlign: 'center',
+          height: 28,
+          lineHeight: 14,
+        },
+      }),
+    [padding, fontSize, spacing, borderRadius]
+  );
   const weekDates = getWeekDates();
 
   // 计算每天的最高情绪等级
@@ -71,69 +139,5 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    marginBottom: responsiveSpacing.cardGap(),
-    padding: responsivePadding.card(),
-    borderRadius: responsiveBorderRadius.card(),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: responsiveSpacing.component(16),
-  },
-  title: {
-    fontSize: responsiveFontSize.cardTitle(16),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-  },
-  weekContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dayCard: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 2,
-    borderRadius: 12,
-  },
-  todayCard: {
-    backgroundColor: '#FFF1F2',
-  },
-  weekday: {
-    fontSize: responsiveFontSize.small(12),
-    fontWeight: '500',
-    color: INSIGHTS_COLORS.textSecondary,
-    marginBottom: 8,
-    height: 16,
-  },
-  todayText: {
-    color: INSIGHTS_COLORS.accent,
-    fontWeight: 'bold',
-  },
-  iconContainer: {
-    height: 32,
-    width: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  status: {
-    fontSize: responsiveFontSize.small(10),
-    color: INSIGHTS_COLORS.textSecondary,
-    textAlign: 'center',
-    height: 28,
-    lineHeight: 14,
-  },
-});
 
 export const WeeklyMoodWeather = memo(WeeklyMoodWeatherComponent);

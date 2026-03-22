@@ -1,9 +1,9 @@
 import { Sparkles } from 'lucide-react-native';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
-import { responsiveFontSize } from '../../utils/responsiveUtils';
 import { INSIGHTS_COLORS } from './constants';
 
 interface PrescriptionCardProps {
@@ -13,6 +13,121 @@ interface PrescriptionCardProps {
 }
 
 const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, moodLevel, entries }) => {
+  const { fontSize } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        generateButton: {
+          flexDirection: 'row',
+          paddingVertical: 8,
+          paddingHorizontal: 12,
+          borderRadius: 8,
+          backgroundColor: INSIGHTS_COLORS.primary + '20',
+          alignSelf: 'flex-start',
+          marginTop: 8,
+        },
+        generateButtonText: {
+          fontSize: 12,
+          fontWeight: '500',
+          color: INSIGHTS_COLORS.accent,
+        },
+        loadingContainer: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          paddingVertical: 12,
+          marginTop: 8,
+        },
+        loadingText: {
+          fontSize: 12,
+          color: INSIGHTS_COLORS.textSecondary,
+          marginTop: 8,
+        },
+        errorContainer: {
+          marginTop: 12,
+          padding: 12,
+          backgroundColor: '#FEF2F2',
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#FEE2E2',
+        },
+        errorText: {
+          fontSize: 12,
+          color: '#991B1B',
+          marginBottom: 8,
+        },
+        retryButton: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingVertical: 6,
+          paddingHorizontal: 12,
+          borderRadius: 6,
+          backgroundColor: INSIGHTS_COLORS.primary + '20',
+          alignSelf: 'flex-start',
+        },
+        retryButtonText: {
+          fontSize: 12,
+          fontWeight: '500',
+          color: INSIGHTS_COLORS.accent,
+        },
+        container: {
+          marginTop: 12,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 12,
+          padding: 12,
+          borderWidth: 1,
+          borderColor: INSIGHTS_COLORS.primary + '30',
+        },
+        header: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        },
+        headerLeft: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+        },
+        headerText: {
+          fontSize: fontSize.body,
+          fontWeight: '600',
+          color: INSIGHTS_COLORS.text,
+        },
+        expandText: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+        },
+        content: {
+          marginTop: 12,
+          gap: 10,
+        },
+        prescriptionItem: {
+          flexDirection: 'row',
+          gap: 10,
+          alignItems: 'flex-start',
+        },
+        prescriptionBadge: {
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          borderRadius: 6,
+          minWidth: 50,
+          alignItems: 'center',
+        },
+        prescriptionBadgeText: {
+          fontSize: 11,
+          fontWeight: 'bold',
+        },
+        prescriptionText: {
+          flex: 1,
+          fontSize: 13,
+          lineHeight: 18,
+          color: INSIGHTS_COLORS.text,
+        },
+      }),
+    [fontSize]
+  );
+
   const [prescription, setPrescription] = useState<{ urgent: string; shortTerm: string; longTerm: string } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -152,115 +267,5 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  generateButton: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: INSIGHTS_COLORS.primary + '20',
-    alignSelf: 'flex-start',
-    marginTop: 8,
-  },
-  generateButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: INSIGHTS_COLORS.accent,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  loadingText: {
-    fontSize: 12,
-    color: INSIGHTS_COLORS.textSecondary,
-    marginTop: 8,
-  },
-  errorContainer: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#991B1B',
-    marginBottom: 8,
-  },
-  retryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: INSIGHTS_COLORS.primary + '20',
-    alignSelf: 'flex-start',
-  },
-  retryButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: INSIGHTS_COLORS.accent,
-  },
-  container: {
-    marginTop: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.primary + '30',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  headerText: {
-    fontSize: responsiveFontSize.body(13),
-    fontWeight: '600',
-    color: INSIGHTS_COLORS.text,
-  },
-  expandText: {
-    fontSize: responsiveFontSize.small(12),
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  content: {
-    marginTop: 12,
-    gap: 10,
-  },
-  prescriptionItem: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'flex-start',
-  },
-  prescriptionBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    minWidth: 50,
-    alignItems: 'center',
-  },
-  prescriptionBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-  prescriptionText: {
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 18,
-    color: INSIGHTS_COLORS.text,
-  },
-});
 
 export const PrescriptionCard = memo(PrescriptionCardComponent);

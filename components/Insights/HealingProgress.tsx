@@ -1,8 +1,8 @@
 import { Flower2, Heart, Sparkles, Sprout } from 'lucide-react-native';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { responsiveBorderRadius, responsiveFontSize, responsivePadding, responsiveSpacing } from '../../utils/responsiveUtils';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 import { getGrowthStage } from './utils';
 
@@ -12,6 +12,91 @@ interface HealingProgressProps {
 }
 
 const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, resolvedCount }) => {
+  const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: INSIGHTS_COLORS.cardBg,
+          marginBottom: spacing.cardGap,
+          padding: padding.card,
+          borderRadius: borderRadius.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: spacing.component,
+        },
+        title: {
+          fontSize: fontSize.cardTitle,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+        },
+        content: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        },
+        progressContainer: {
+          position: 'relative',
+          width: 120,
+          height: 120,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        centerIcon: {
+          position: 'absolute',
+          alignItems: 'center',
+        },
+        stageLabel: {
+          fontSize: 12,
+          color: INSIGHTS_COLORS.secondary,
+          fontWeight: 'bold',
+          marginTop: 4,
+        },
+        stats: {
+          flex: 1,
+          marginLeft: 20,
+          gap: 16,
+        },
+        statItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+        statNumber: {
+          fontSize: fontSize.title,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+        },
+        statLabel: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+        },
+        encouragement: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          marginTop: 16,
+          paddingTop: 16,
+          borderTopWidth: 1,
+          borderTopColor: '#F3F4F6',
+        },
+        encouragementText: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.accent,
+          fontStyle: 'italic',
+        },
+      }),
+    [padding, fontSize, spacing, borderRadius]
+  );
   const rate = totalCount > 0 ? resolvedCount / totalCount : 0;
   const pendingCount = totalCount - resolvedCount;
   const growthStage = getGrowthStage(rate);
@@ -91,86 +176,5 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    marginBottom: responsiveSpacing.cardGap(),
-    padding: responsivePadding.card(),
-    borderRadius: responsiveBorderRadius.card(),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: responsiveSpacing.component(16),
-  },
-  title: {
-    fontSize: responsiveFontSize.cardTitle(16),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  progressContainer: {
-    position: 'relative',
-    width: 120,
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerIcon: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  stageLabel: {
-    fontSize: 12,
-    color: INSIGHTS_COLORS.secondary,
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  stats: {
-    flex: 1,
-    marginLeft: 20,
-    gap: 16,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statNumber: {
-    fontSize: responsiveFontSize.title(20),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-  },
-  statLabel: {
-    fontSize: responsiveFontSize.small(12),
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  encouragement: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  encouragementText: {
-    fontSize: responsiveFontSize.body(13),
-    color: INSIGHTS_COLORS.accent,
-    fontStyle: 'italic',
-  },
-});
 
 export const HealingProgress = memo(HealingProgressComponent);

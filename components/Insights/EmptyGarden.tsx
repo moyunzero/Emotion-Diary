@@ -1,10 +1,90 @@
 import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { responsiveBorderRadius, responsiveFontSize } from '../../utils/responsiveUtils';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
 const EmptyGardenComponent: React.FC = () => {
+  const { fontSize, borderRadius } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 40,
+          paddingVertical: 60,
+        },
+        iconContainer: {
+          position: 'relative',
+          marginBottom: 24,
+        },
+        sparkleContainer: {
+          position: 'absolute',
+          top: -8,
+          right: -12,
+        },
+        title: {
+          fontSize: fontSize.title,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+          marginBottom: 8,
+        },
+        subtitle: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.textSecondary,
+          marginBottom: 40,
+        },
+        tipContainer: {
+          width: '100%',
+          gap: 16,
+          marginBottom: 40,
+        },
+        tipItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: INSIGHTS_COLORS.cardBg,
+          padding: 16,
+          borderRadius: borderRadius.large,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        tipIcon: {
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          backgroundColor: '#F9FAFB',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: 14,
+        },
+        tipContent: {
+          flex: 1,
+        },
+        tipTitle: {
+          fontSize: fontSize.body,
+          fontWeight: '600',
+          color: INSIGHTS_COLORS.text,
+          marginBottom: 2,
+        },
+        tipText: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+        },
+        encouragement: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.accent,
+          fontWeight: '500',
+          textAlign: 'center',
+        },
+      }),
+    [fontSize, borderRadius]
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -55,80 +135,5 @@ const EmptyGardenComponent: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 60,
-  },
-  iconContainer: {
-    position: 'relative',
-    marginBottom: 24,
-  },
-  sparkleContainer: {
-    position: 'absolute',
-    top: -8,
-    right: -12,
-  },
-  title: {
-    fontSize: responsiveFontSize.title(24),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: responsiveFontSize.body(16),
-    color: INSIGHTS_COLORS.textSecondary,
-    marginBottom: 40,
-  },
-  tipContainer: {
-    width: '100%',
-    gap: 16,
-    marginBottom: 40,
-  },
-  tipItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    padding: 16,
-    borderRadius: responsiveBorderRadius.large(),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  tipIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#F9FAFB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  tipContent: {
-    flex: 1,
-  },
-  tipTitle: {
-    fontSize: responsiveFontSize.body(15),
-    fontWeight: '600',
-    color: INSIGHTS_COLORS.text,
-    marginBottom: 2,
-  },
-  tipText: {
-    fontSize: responsiveFontSize.small(13),
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  encouragement: {
-    fontSize: responsiveFontSize.body(14),
-    color: INSIGHTS_COLORS.accent,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-});
 
 export const EmptyGarden = memo(EmptyGardenComponent);

@@ -1,11 +1,7 @@
 import { Loader2, Mic, RefreshCw, Share2 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import {
-  responsiveBorderRadius,
-  responsiveFontSize,
-  responsivePadding,
-} from '../../utils/responsiveUtils';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
 
 /**
@@ -13,6 +9,128 @@ import { useAppStore } from '../../store/useAppStore';
  * 生成并展示AI生成的情绪回顾文案
  */
 const EmotionPodcast: React.FC = () => {
+  const { padding, fontSize, borderRadius } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: '#FFFFFF',
+          borderRadius: borderRadius.large,
+          padding: padding.card,
+          marginBottom: 16,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 4,
+        },
+        title: {
+          fontSize: fontSize.cardTitle,
+          fontWeight: 'bold',
+          color: '#1F2937',
+        },
+        subtitle: {
+          fontSize: fontSize.small,
+          color: '#6B7280',
+          marginBottom: 16,
+          marginLeft: 34,
+        },
+        periodSelector: {
+          flexDirection: 'row',
+          gap: 12,
+          marginBottom: 16,
+        },
+        periodButton: {
+          flex: 1,
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderRadius: 12,
+          backgroundColor: '#F3F4F6',
+          alignItems: 'center',
+        },
+        periodButtonActive: {
+          backgroundColor: '#FDA4AF',
+        },
+        periodButtonText: {
+          fontSize: fontSize.body,
+          fontWeight: '500',
+          color: '#6B7280',
+        },
+        periodButtonTextActive: {
+          color: '#FFFFFF',
+        },
+        generateButton: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          paddingVertical: padding.vertical,
+          paddingHorizontal: padding.horizontal,
+          borderRadius: borderRadius.card,
+          backgroundColor: '#FDA4AF',
+        },
+        generateButtonDisabled: {
+          opacity: 0.6,
+        },
+        generateButtonText: {
+          fontSize: fontSize.cardTitle,
+          fontWeight: '600',
+          color: '#FFFFFF',
+        },
+        podcastCard: {
+          backgroundColor: '#FAFAFA',
+          borderRadius: 16,
+          padding: 16,
+        },
+        podcastHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12,
+        },
+        podcastHeaderLeft: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+        podcastPeriod: {
+          fontSize: fontSize.body,
+          fontWeight: '600',
+          color: '#1F2937',
+        },
+        podcastActions: {
+          flexDirection: 'row',
+          gap: 8,
+        },
+        actionButton: {
+          padding: 6,
+          borderRadius: 8,
+          backgroundColor: '#FFFFFF',
+        },
+        podcastContent: {
+          maxHeight: 200,
+          marginBottom: 12,
+        },
+        podcastText: {
+          fontSize: fontSize.body,
+          lineHeight: 24,
+          color: '#374151',
+        },
+        podcastFooter: {
+          fontSize: fontSize.small,
+          color: '#9CA3AF',
+          textAlign: 'right',
+        },
+      }),
+    [padding, fontSize, borderRadius]
+  );
+
   const { emotionPodcast, generatePodcast } = useAppStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
@@ -164,123 +282,6 @@ const EmotionPodcast: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: responsiveBorderRadius.large(),
-    padding: responsivePadding.card(),
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: responsiveFontSize.cardTitle(18),
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  subtitle: {
-    fontSize: responsiveFontSize.small(12),
-    color: '#6B7280',
-    marginBottom: 16,
-    marginLeft: 34,
-  },
-  periodSelector: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-  },
-  periodButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-  },
-  periodButtonActive: {
-    backgroundColor: '#FDA4AF',
-  },
-  periodButtonText: {
-    fontSize: responsiveFontSize.body(14),
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-  periodButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  generateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: responsivePadding.vertical(14),
-    paddingHorizontal: responsivePadding.horizontal(24),
-    borderRadius: responsiveBorderRadius.card(),
-    backgroundColor: '#FDA4AF',
-  },
-  generateButtonDisabled: {
-    opacity: 0.6,
-  },
-  generateButtonText: {
-    fontSize: responsiveFontSize.cardTitle(16),
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  podcastCard: {
-    backgroundColor: '#FAFAFA',
-    borderRadius: 16,
-    padding: 16,
-  },
-  podcastHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  podcastHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  podcastPeriod: {
-    fontSize: responsiveFontSize.body(14),
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  podcastActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionButton: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-  },
-  podcastContent: {
-    maxHeight: 200,
-    marginBottom: 12,
-  },
-  podcastText: {
-    fontSize: responsiveFontSize.body(15),
-    lineHeight: 24,
-    color: '#374151',
-  },
-  podcastFooter: {
-    fontSize: responsiveFontSize.small(12),
-    color: '#9CA3AF',
-    textAlign: 'right',
-  },
-});
 
 export default EmotionPodcast;
 

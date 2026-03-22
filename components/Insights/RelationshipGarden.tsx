@@ -1,8 +1,8 @@
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MoodEntry, Status } from '../../types';
-import { responsiveBorderRadius, responsiveFontSize, responsiveGrid, responsivePadding, responsiveSpacing } from '../../utils/responsiveUtils';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
 
@@ -11,6 +11,96 @@ interface RelationshipGardenProps {
 }
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
+  const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: INSIGHTS_COLORS.cardBg,
+          marginBottom: spacing.cardGap,
+          padding: padding.card,
+          borderRadius: borderRadius.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 4,
+        },
+        title: {
+          fontSize: fontSize.cardTitle,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+        },
+        subtitle: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+          marginBottom: spacing.component,
+          marginLeft: 28,
+        },
+        potsContainer: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          gap: layout.gridGap,
+        },
+        potItem: {
+          alignItems: 'center',
+          width: layout.gridItemWidth,
+          minWidth: 80,
+        },
+        pot: {
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 6,
+        },
+        personName: {
+          fontSize: fontSize.body,
+          fontWeight: 'bold',
+          color: INSIGHTS_COLORS.text,
+          marginBottom: 3,
+          textAlign: 'center',
+        },
+        statusBadge: {
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 10,
+          marginBottom: 3,
+        },
+        statusText: {
+          fontSize: fontSize.small,
+          fontWeight: 'bold',
+        },
+        statsText: {
+          fontSize: fontSize.small,
+          color: INSIGHTS_COLORS.textSecondary,
+        },
+        emptyContainer: {
+          alignItems: 'center',
+          paddingVertical: 24,
+        },
+        emptyText: {
+          fontSize: fontSize.body,
+          color: INSIGHTS_COLORS.textSecondary,
+          marginTop: 12,
+        },
+        emptySubtext: {
+          fontSize: fontSize.small,
+          color: '#9CA3AF',
+          marginTop: 4,
+        },
+      }),
+    [padding, fontSize, spacing, borderRadius, layout]
+  );
+
   // 计算每个人的关系健康度
   const relationshipData = useMemo(() => {
     const peopleStats: Record<string, { total: number; resolved: number }> = {};
@@ -102,90 +192,5 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    marginBottom: responsiveSpacing.cardGap(),
-    padding: responsivePadding.card(),
-    borderRadius: responsiveBorderRadius.card(),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: responsiveFontSize.cardTitle(16),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-  },
-  subtitle: {
-    fontSize: responsiveFontSize.small(12),
-    color: INSIGHTS_COLORS.textSecondary,
-    marginBottom: responsiveSpacing.component(12),
-    marginLeft: 28,
-  },
-  potsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: responsiveGrid.gap(),
-  },
-  potItem: {
-    alignItems: 'center',
-    width: responsiveGrid.itemWidth(responsiveGrid.gap()),
-    minWidth: 80,
-  },
-  pot: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  personName: {
-    fontSize: responsiveFontSize.body(13),
-    fontWeight: 'bold',
-    color: INSIGHTS_COLORS.text,
-    marginBottom: 3,
-    textAlign: 'center',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginBottom: 3,
-  },
-  statusText: {
-    fontSize: responsiveFontSize.small(10),
-    fontWeight: 'bold',
-  },
-  statsText: {
-    fontSize: responsiveFontSize.small(10),
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  emptyText: {
-    fontSize: responsiveFontSize.body(14),
-    color: INSIGHTS_COLORS.textSecondary,
-    marginTop: 12,
-  },
-  emptySubtext: {
-    fontSize: responsiveFontSize.small(12),
-    color: '#9CA3AF',
-    marginTop: 4,
-  },
-});
 
 export const RelationshipGarden = memo(RelationshipGardenComponent);
