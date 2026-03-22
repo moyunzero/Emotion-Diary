@@ -3,7 +3,7 @@ import React, { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
-import { formatDateChinese } from "../../utils/dateUtils";
+import { formatDateChinese } from "@/shared/formatting";
 import { INSIGHTS_COLORS } from "./constants";
 
 interface EmotionReleaseArchiveProps {

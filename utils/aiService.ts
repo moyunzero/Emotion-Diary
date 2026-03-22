@@ -1,5 +1,5 @@
 import { MoodEntry, MoodLevel } from '../types';
-import { formatDateChinese } from './dateUtils';
+import { formatDateChinese } from '@/shared/formatting';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
 

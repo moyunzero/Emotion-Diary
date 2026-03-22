@@ -5,7 +5,7 @@ import { MOOD_CONFIG } from '../../constants';
 import { MoodLevel } from '../../types';
 import type { ReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import type { ExportWeatherBucket } from '../../utils/reviewStatsWeather';
-import { formatDateChinese } from '../../utils/dateUtils';
+import { formatDateChinese } from '@/shared/formatting';
 import { getMoodIcon } from '../../utils/moodIconUtils';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 

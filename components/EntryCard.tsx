@@ -19,7 +19,7 @@ import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
 import { Deadline, MoodEntry, MoodLevel, Status } from "../types";
-import { formatDateChinese } from "../utils/dateUtils";
+import { formatDateChinese } from "@/shared/formatting";
 import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";

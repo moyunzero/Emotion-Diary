@@ -5,7 +5,7 @@
 
 import { MoodEntry } from '../types';
 import { Milestone, MILESTONES } from '../types/companionDays';
-import { formatDateChinese } from '../shared/formatting';
+import { formatDateChinese } from '@/shared/formatting';
 
 /**
  * 回顾导出 / 陪伴展示用「第一条记录日」：

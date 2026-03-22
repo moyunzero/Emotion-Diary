@@ -16,7 +16,7 @@ import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
 import { calculateResponsiveDimension } from "../styles/constants";
 import { MoodEntry, Status } from "../types";
-import { formatDateChinese } from "../utils/dateUtils";
+import { formatDateChinese } from "@/shared/formatting";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
 import ScreenContainer from "./ScreenContainer";
