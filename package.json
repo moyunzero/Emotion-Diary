@@ -9,6 +9,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "eslint app components features hooks lib services store utils types constants.ts constants types.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
+    "typecheck": "tsc --noEmit",
     "build:optimized": "node ./scripts/build-optimized.js",
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",
@@ -91,7 +92,7 @@
     "typescript": "~5.9.2"
   },
   "engines": {
-    "node": ">=20.0.0 <21"
+    "node": ">=20.0.0"
   },
   "private": true
 }

@@ -106,8 +106,8 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
       await fc.assert(
         fc.asyncProperty(newEntryDataArbitrary, async (entryData) => {
           // Create a test store
-          const useTestStore = create<AppState>((set, get) => {
-            const entriesModule = createEntriesSlice(set, get);
+          const useTestStore = create<AppState>((set, get, api) => {
+            const entriesModule = createEntriesSlice(set, get, api);
             return {
               ...entriesModule,
               _saveEntries: () => {},
@@ -164,8 +164,8 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
           }),
           (entry, updates) => {
             // Create a test store with initial entry
-            const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesSlice(set, get);
+            const useTestStore = create<AppState>((set, get, api) => {
+              const entriesModule = createEntriesSlice(set, get, api);
               return {
                 ...entriesModule,
                 entries: [entry],
@@ -211,8 +211,8 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
             const entryToDelete = entries[actualIndex];
 
             // Create a test store with initial entries
-            const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesSlice(set, get);
+            const useTestStore = create<AppState>((set, get, api) => {
+              const entriesModule = createEntriesSlice(set, get, api);
               return {
                 ...entriesModule,
                 entries: [...entries],
@@ -388,8 +388,8 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
           fc.array(moodEntryArbitrary, { maxLength: 5 }),
           (initialEntries) => {
             // Create a store combining all modules
-            const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesSlice(set, get);
+            const useTestStore = create<AppState>((set, get, api) => {
+              const entriesModule = createEntriesSlice(set, get, api);
               const weatherModule = createWeatherModule(set, get);
               const aiModule = createAIModule(set, get);
 

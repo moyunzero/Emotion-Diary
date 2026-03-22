@@ -1,20 +1,19 @@
-import { Status } from '../../../types';
+import { MoodEntry, Status } from '../../../types';
 import {
   calculateDaysAsOf,
   getEffectiveFirstEntryDateForCompanion,
 } from '../../../services/companionDaysService';
 
-const entry = (ts: number) =>
-  ({
-    id: String(ts),
-    timestamp: ts,
-    moodLevel: 1,
-    content: '',
-    deadline: 'today',
-    people: [],
-    triggers: [],
-    status: Status.ACTIVE,
-  }) as const;
+const entry = (ts: number): MoodEntry => ({
+  id: String(ts),
+  timestamp: ts,
+  moodLevel: 1,
+  content: '',
+  deadline: 'today',
+  people: [],
+  triggers: [],
+  status: Status.ACTIVE,
+});
 
 describe('companionDaysService calculateDaysAsOf', () => {
   it('returns 0 when firstEntryDate is missing', () => {

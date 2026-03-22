@@ -184,8 +184,9 @@ const initializeDatabase = async (): Promise<void> => {
 export const useAppStore = create<AppStore>()((...args) => {
   const set = args[0];
   const get = args[1];
+  const store = args[2];
   return {
-    ...createEntriesSlice(set, get),
+    ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
     ...createAIModule(set, get),
 

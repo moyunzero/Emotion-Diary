@@ -34,7 +34,7 @@ export const createEntriesSlice: StateCreator<
   [],
   [],
   EntriesModule
-> = (set, get) => ({
+> = (set, get, _store) => ({
   entries: [],
 
   /**
