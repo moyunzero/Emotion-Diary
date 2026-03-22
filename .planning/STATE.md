@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-stopped_at: Phase 10 context gathered
-last_updated: "2026-03-22T05:49:14.442Z"
+milestone: v1.2
+milestone_name: github-open-source-readiness
+status: defining_requirements
+stopped_at: Milestone v1.2 — roadmap created
+last_updated: "2026-03-22T00:00:00.000Z"
 progress:
-  total_phases: 10
-  completed_phases: 7
+  total_phases: 14
+  completed_phases: 10
   total_plans: 35
   completed_plans: 27
 ---
@@ -16,15 +16,17 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-03-21)
+See: `.planning/PROJECT.md` (milestone v1.2)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 10 — ci
+**Current focus:** Milestone v1.2 — GitHub 开源就绪与产品体验精炼（Phase 11 起）
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
+Phase: Not started（defining roadmap）
+Plan: —
+Status: Milestone v1.2 initialized — next: `/gsd-discuss-phase 11` or `/gsd-plan-phase 11`
+Last activity: 2026-03-22 — Milestone v1.2 started
 
 ### Quick tasks（ad-hoc）
 
@@ -145,6 +147,6 @@ None yet.
 
 Last activity: 2026-03-22 - Completed quick task 260322-kqp: 同步 temp-ag-skills 到 ~/.cursor/skills，供全项目与 GSD 调用
 
-Last session: 2026-03-22T05:29:53.007Z
-Stopped at: Phase 10 context gathered
-Resume file: .planning/phases/10-ci/10-CONTEXT.md
+Last session: 2026-03-22
+Stopped at: Milestone v1.2 roadmap ready
+Resume file: `.planning/phases/11-github-repo-hygiene/11-CONTEXT.md`（待创建）

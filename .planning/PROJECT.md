@@ -4,7 +4,21 @@
 
 **焚语** 是一款治愈系情绪记录应用（Expo / React Native）：用「情绪气象站」「心灵花园」等隐喻帮助用户记录情绪、理解触发因素，并可选使用 AI 与云端同步。当前代码库已具备记录、洞察、焚烧、AI（Groq）、Supabase 同步与离线优先等能力（见 `.planning/codebase/`）。
 
-当前进入新里程碑：**v1.1 工程重构与代码治理**。聚焦在不改变核心用户价值前提下，完成大文件拆分、目录归位、重复逻辑收敛、死代码与低价值测试清理，建立可持续演进的工程基础。
+**v1.1 工程重构与代码治理** 已收口（治理、shared、结构拆分、目录边界、测试/CI）。  
+当前进入新里程碑：**v1.2 GitHub 开源就绪与产品体验精炼** — 面向公开仓库的 **可复现构建、无密钥泄漏、代码与测试集健康、RN/Expo 约定清晰、单文件可维护、核心逻辑中文注释、UI 拒绝通用模版感**；不改变「情绪记录 + 温柔回顾」核心叙事。
+
+## Current Milestone: v1.2 GitHub 开源就绪与产品体验精炼
+
+**Goal:** 仓库达到可安全公开 GitHub 的标准，并在外观与可维护性上更贴近产品调性（非模版化、温柔治愈语境）。
+
+**Target features:**
+
+- 开源卫生：README / 许可与安全说明、`.gitignore`、无密钥、CI 与分支说明  
+- 集成可复现：依赖与脚本一致、环境变量模板与文档对齐  
+- 代码健康：死代码与无效路径清理；**精简测试集**（删示例/重复/无断言类），保留关键路径与门禁  
+- RN/Expo 约定核对与文档化；**单文件行数**超阈清单与分批拆分  
+- 核心链路 **中文注释** 补强  
+- **UI**：审计并强化差异化（拒绝「通用 AI 应用」模版感）
 
 ## Core Value
 
@@ -30,13 +44,18 @@
 - ✓ **目录边界治理与冗余清理（CLN-01/02/03）**：features/shared 纳入治理 scope、三项门禁升 error、responsiveUtils/dateUtils/reviewStatsTimeRange deprecated 清零 — Validated in Phase 09 (dir-boundary-cleanup)
 - ✓ **测试治理与 CI 收口（TST-01/02/03）**：示例与重复单测清理、`unit` 目录与源码边界对齐、GitHub Actions 分层门禁与 Node 20 锁定 — Validated in Phase 10 (ci)
 
-### Active
+### Active（v1.2）
 
-（当前里程碑下暂无未收口条目；后续想法请用 backlog / 新里程碑承接。）
+见 `.planning/REQUIREMENTS.md` **v1.2** 章节（GH / INT / QA / TST / RN / SIZE / DOC / UI）。摘要：GitHub 文档与密钥卫生、集成与 env 可复现、死代码与测试集精炼（**保留关键路径与 CI 所需测试**）、RN 标准核对、大单文件拆分、中文注释、非模版化 UI 方向与抽检。
 
-### Out of Scope（本轮明确不做或后置）
+### Out of Scope（v1.2）
 
-- **新增产品功能扩张**（如新业务模块、大范围 UI 改版）：本里程碑以工程治理为主，不引入额外产品范围。
+- **大范围新功能**：仍以开源就绪与体验精炼为主，不引入新业务能力面。
+- **删除全部自动化测试**：与 CI/治理冲突；仅允许删除已识别的低价值/重复/示例测试。
+
+### Out of Scope（历史 v1.1）
+
+- **新增产品功能扩张**（如新业务模块、大范围 UI 改版）：v1.1 以工程治理为主，不引入额外产品范围。
 - **一次性全仓大爆炸迁移**：采用增量式重构与分批 PR，确保可验证、可回滚。
 - **变更核心用户价值叙事**：继续保持“情绪记录 + 温柔回顾”主线，不在本轮改动产品定位。
 
@@ -111,4 +130,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-22 after phase 10 complete*
+*Last updated: 2026-03-22 — milestone v1.2 started*
