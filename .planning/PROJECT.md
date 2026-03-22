@@ -43,6 +43,7 @@
 - ✓ **大文件拆分治理（ARC-01/02/03）**：profile 壳层化与 features/profile 三区、entries slice 落位、EditEntryModal 目录化与 @/components/entries 出口 — Validated in Phase 08 (structure-refactor)
 - ✓ **目录边界治理与冗余清理（CLN-01/02/03）**：features/shared 纳入治理 scope、三项门禁升 error、responsiveUtils/dateUtils/reviewStatsTimeRange deprecated 清零 — Validated in Phase 09 (dir-boundary-cleanup)
 - ✓ **测试治理与 CI 收口（TST-01/02/03）**：示例与重复单测清理、`unit` 目录与源码边界对齐、GitHub Actions 分层门禁与 Node 20 锁定 — Validated in Phase 10 (ci)
+- ✓ **GitHub 仓库卫生与可复现构建（GH-01～03, INT-01～03）**：根目录 `SECURITY.md`、`yarn typecheck` 与 CI 对齐、README/CONTRIBUTING/README.en 开发者路径、`.env.example` 与代码一致、GH-02 密钥扫描记录 — Validated in Phase 11 (github-repo-hygiene)
 
 ### Active（v1.2）
 
@@ -130,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-22 — milestone v1.2 started*
+*Last updated: 2026-03-22 — Phase 11 complete; milestone v1.2 in progress*
