@@ -1,0 +1,68 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "app/_layout.tsx",
+    "app/(tabs)/_layout.tsx",
+    "app/**/*.tsx",
+    "scripts/verify-governance.js",
+    "scripts/verify-governance-smoke.js"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "store/**/*.{ts,tsx}",
+    "utils/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}",
+    "services/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "features/**/*.{ts,tsx}",
+    "shared/**/*.{ts,tsx}",
+    "constants.ts",
+    "constants/**/*.ts",
+    "types.ts",
+    "types/**/*.ts",
+    "styles/**/*.ts"
+  ],
+  "ignoreFiles": [
+    "babel.config.js",
+    "metro.config.js",
+    "scripts/governance/depcruise.cjs",
+    "scripts/verify-governance-smoke.js",
+    "shared/index.ts",
+    "supabase/functions/**",
+    "components/MilestoneBadge.tsx",
+    "components/types.ts"
+  ],
+  "ignoreDependencies": [
+    "dependency-cruiser",
+    "expo-updates",
+    "@expo/vector-icons",
+    "@react-navigation/bottom-tabs",
+    "@react-navigation/elements",
+    "@react-navigation/native",
+    "expo-av",
+    "expo-status-bar",
+    "expo-symbols",
+    "zod",
+    "@testing-library/jest-native",
+    "ts-jest"
+  ],
+  "ignoreBinaries": ["eas"],
+  "ignoreUnresolved": ["@jest/globals", "expo-updates"],
+  "ignoreIssues": {
+    "constants/**": ["exports"],
+    "hooks/**": ["exports"],
+    "shared/**": ["exports", "types"],
+    "store/**": ["exports", "types"],
+    "styles/**": ["exports", "types"],
+    "utils/**": ["exports", "types"],
+    "types.ts": ["exports", "types"],
+    "types/**": ["exports", "types"],
+    "components/EditEntryModal/**": ["types"],
+    "components/EntryCard.tsx": ["types"],
+    "components/icons/**": ["types"],
+    "components/ReviewExport/**": ["types"],
+    "components/ScreenContainer.tsx": ["exports", "duplicates"],
+    "store/modules/entries.ts": ["duplicates"]
+  }
+}

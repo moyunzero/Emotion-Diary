@@ -74,6 +74,8 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "dependency-cruiser": "^17.3.9",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^30.0.0",
