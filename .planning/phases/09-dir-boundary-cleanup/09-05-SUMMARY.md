@@ -109,6 +109,13 @@ None
 - Phase 9 完成，CLN-03 达成
 - verify:governance、smoke、test:unit 均通过，可进入 Phase 10
 
+## Self-Check: PASSED
+
+- `FOUND: .planning/phases/09-dir-boundary-cleanup/09-05-SUMMARY.md`
+- `FOUND: .planning/phases/09-dir-boundary-cleanup/09-VALIDATION.md`
+- `FOUND: 5147597` (Task 1)
+- `FOUND: 1d0ea55` (Task 2)
+
 ---
 *Phase: 09-dir-boundary-cleanup*
 *Completed: 2026-03-22*
