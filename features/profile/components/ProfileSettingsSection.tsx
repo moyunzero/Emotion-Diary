@@ -26,13 +26,15 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  useWindowDimensions,
 } from "react-native";
+import { useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ProfileMenuItem,
   ProfileSectionHeader,
 } from "@/components/Profile";
-import { profileStyles } from "@/styles/components/Profile.styles";
+import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { AVATAR_PRESETS } from "@/utils/avatarPresets";
 import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
 
@@ -156,6 +158,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     onSaveProfile,
     globalErrorOpacity,
   } = props;
+
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
 
   const tError = (key: string): string => {
     const map: Record<string, string> = {

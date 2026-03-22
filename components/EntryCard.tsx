@@ -1,6 +1,6 @@
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import { CheckCircle, Edit, Flame, Trash2 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,12 +11,13 @@ import {
   TouchableOpacity,
   UIManager,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
-import { styles } from "../styles/components/EntryCard.styles";
+import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
 import { Deadline, MoodEntry, MoodLevel, Status } from "../types";
 import { formatDateChinese } from "../utils/dateUtils";
 import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
@@ -105,6 +106,11 @@ const makeImageFromView = async (
  * Uses React.memo with a custom comparison function for performance optimization.
  */
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
+  const { width, height } = useWindowDimensions();
+  const styles = useMemo(
+    () => createEntryCardStyles(width, height),
+    [width, height]
+  );
   const resolveEntry = useAppStore((state) => state.resolveEntry);
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);

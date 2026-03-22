@@ -6,15 +6,14 @@ import {
   Keyboard,
   Platform,
   View,
+  useWindowDimensions,
 } from "react-native";
+import { useMemo } from "react";
 import CompanionDaysModal from "@/components/CompanionDaysModal";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Toast } from "@/components/Toast";
 import { useAppStore } from "@/store/useAppStore";
-import {
-  profileContentPadding,
-  profileStyles,
-} from "@/styles/components/Profile.styles";
+import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { ProfileHeaderSection } from "./components/ProfileHeaderSection";
 import { ProfileSettingsSection } from "./components/ProfileSettingsSection";
 import { ProfileStatsSection } from "./components/ProfileStatsSection";
@@ -24,6 +23,11 @@ import { useProfileSyncHandlers } from "./hooks/useProfileSyncHandlers";
 
 export function ProfileScreen() {
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
+  const { profileContentPadding, profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   const user = useAppStore((state) => state.user);
   const entries = useAppStore((state) => state.entries);
   const weather = useAppStore((state) => state.weather);

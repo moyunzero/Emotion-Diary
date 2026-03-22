@@ -3,9 +3,9 @@
  * 用于心事记录、心情指数等
  */
 
-import React from "react";
-import { Text, View } from "react-native";
-import { profileStyles } from "../../styles/components/Profile.styles";
+import React, { useMemo } from "react";
+import { Text, View, useWindowDimensions } from "react-native";
+import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 export interface ProfileStatCardProps {
   /** 主数字 */
@@ -21,6 +21,11 @@ export function ProfileStatCard({
   label,
   accent = false,
 }: ProfileStatCardProps) {
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   return (
     <View style={profileStyles.statCard}>
       <Text

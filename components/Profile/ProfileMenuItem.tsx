@@ -4,10 +4,10 @@
  */
 
 import { ChevronRight } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useMemo } from "react";
+import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { COLORS } from "../../constants/colors";
-import { profileStyles } from "../../styles/components/Profile.styles";
+import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 export interface ProfileMenuItemProps {
   /** 左侧图标组件（已传入 size/color） */
@@ -37,6 +37,11 @@ export function ProfileMenuItem({
   disabled = false,
   onPress,
 }: ProfileMenuItemProps) {
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   return (
     <TouchableOpacity
       style={[

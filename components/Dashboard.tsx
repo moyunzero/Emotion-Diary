@@ -13,7 +13,7 @@ import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native"
 import { useShallow } from "zustand/shallow";
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
-import { styles } from "../styles/components/Dashboard.styles";
+import { createDashboardStyles } from "../styles/components/Dashboard.styles";
 import { calculateResponsiveDimension } from "../styles/constants";
 import { MoodEntry, Status } from "../types";
 import { formatDateChinese } from "../utils/dateUtils";
@@ -112,7 +112,11 @@ const calculateDropdownPosition = (
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  
+  const styles = useMemo(
+    () => createDashboardStyles(windowWidth, windowHeight),
+    [windowWidth, windowHeight]
+  );
+
   // Calculate responsive dimensions based on screen width
   const dropdownWidth = useMemo(() => calculateResponsiveDimension(windowWidth, 0.35), [windowWidth]); // 35% of screen width
   const dropdownHeight = useMemo(() => 200, []); // Fixed height for dropdown

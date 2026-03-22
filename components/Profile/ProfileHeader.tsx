@@ -4,16 +4,21 @@
  */
 
 import { ChevronLeft } from "lucide-react-native";
-import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import React, { useMemo } from "react";
+import { TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { COLORS } from "../../constants/colors";
-import { profileStyles } from "../../styles/components/Profile.styles";
+import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 interface ProfileHeaderProps {
   onBack: () => void;
 }
 
 export function ProfileHeader({ onBack }: ProfileHeaderProps) {
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   return (
     <View style={profileStyles.header}>
       <TouchableOpacity

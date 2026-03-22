@@ -4,9 +4,9 @@
  */
 
 import { Camera } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { profileStyles } from "../../styles/components/Profile.styles";
+import React, { useMemo } from "react";
+import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
 
 export interface ProfileUserCardProps {
@@ -34,6 +34,11 @@ export function ProfileUserCard({
   isLoggedIn,
   onPress,
 }: ProfileUserCardProps) {
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   return (
     <View style={profileStyles.profileSection}>
       <TouchableOpacity

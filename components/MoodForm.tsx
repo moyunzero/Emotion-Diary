@@ -1,5 +1,5 @@
 import { Edit } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Alert,
   Keyboard,
@@ -8,10 +8,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { DEADLINE_CONFIG, MOOD_CONFIG, MOOD_DESCRIPTIONS } from "../constants";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
-import { styles } from "../styles/components/MoodForm.styles";
+import { createMoodFormStyles } from "../styles/components/MoodForm.styles";
 import { MoodLevel } from "../types";
 import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { getMoodIcon } from "../utils/moodIconUtils";
@@ -78,6 +79,11 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   onDeleteCustomTrigger,
   onSubmit,
 }) => {
+  const { width, height } = useWindowDimensions();
+  const styles = useMemo(
+    () => createMoodFormStyles(width, height),
+    [width, height]
+  );
   const { trigger: triggerHaptic } = useHapticFeedback();
 
   // 情绪等级提示 Modal

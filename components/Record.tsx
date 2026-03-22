@@ -1,5 +1,5 @@
 import { ArrowLeft, Sparkles } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -7,14 +7,15 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    View
+    View,
+    useWindowDimensions
 } from "react-native";
 import { PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../constants";
 import { COLORS } from "../constants/colors";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
-import { styles } from "../styles/components/Record.styles";
-import { formStyles } from "../styles/sharedStyles";
+import { createRecordStyles } from "../styles/components/Record.styles";
+import { createSharedStyles } from "../styles/sharedStyles";
 import { Deadline, MoodLevel } from "../types";
 import {
     addCustomPerson,
@@ -37,6 +38,16 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
   onClose,
   onSuccess,
 }) => {
+  const { width, height } = useWindowDimensions();
+  const recordStyles = useMemo(
+    () => createRecordStyles(width, height),
+    [width, height]
+  );
+  const { formStyles } = useMemo(
+    () => createSharedStyles(width, height),
+    [width, height]
+  );
+  const styles = recordStyles;
   const addEntry = useAppStore((state) => state.addEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const scrollViewRef = useRef<ScrollView>(null);

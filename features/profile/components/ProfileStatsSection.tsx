@@ -2,10 +2,11 @@
  * 统计区：ProfileStatCard、CompanionDaysCard
  */
 
-import { View } from "react-native";
+import { useMemo } from "react";
+import { View, useWindowDimensions } from "react-native";
 import CompanionDaysCard from "@/components/CompanionDaysCard";
 import { ProfileStatCard } from "@/components/Profile";
-import { profileStyles } from "@/styles/components/Profile.styles";
+import { createProfileStyles } from "@/styles/components/Profile.styles";
 
 export type ProfileStatsSectionProps = {
   entriesCount: number;
@@ -18,6 +19,11 @@ export function ProfileStatsSection({
   weatherScore,
   onCompanionDaysPress,
 }: ProfileStatsSectionProps) {
+  const { width, height } = useWindowDimensions();
+  const { profileStyles } = useMemo(
+    () => createProfileStyles(width, height),
+    [width, height]
+  );
   return (
     <View style={profileStyles.statsContainer}>
       <ProfileStatCard value={entriesCount} label="心事记录" />
