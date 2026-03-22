@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 9 context gathered
-last_updated: "2026-03-22T03:50:45.698Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-22T04:46:08.005Z"
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 27
-  completed_plans: 19
+  total_plans: 32
+  completed_plans: 20
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-21)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 8 — structure-refactor
+**Current focus:** Phase 9 — dir-boundary-cleanup
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
+Phase: 9 (dir-boundary-cleanup) — EXECUTING
+Plan: 2 of 5
 
 ### Quick tasks（ad-hoc）
 
@@ -67,6 +67,7 @@ Plan: Not started
 | Phase 08-structure-refactor P01 | 25 | 2 tasks | 11 files |
 | Phase 08-structure-refactor P02 | 15 | 2 tasks | 4 files |
 | Phase 08-structure-refactor P03 | 2 | 2 tasks | 11 files |
+| Phase 09-dir-boundary-cleanup P01 | 20 | 4 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,7 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 08-structure-refactor]: Profile 壳层化：app/profile.tsx 薄壳 + features/profile 三区 + hooks 下沉，ARC-01 达成
 - [Phase 08-structure-refactor]: entries slice: createEntriesSlice 正式名，createEntriesModule deprecated 别名；saveEntriesTimeoutRef 迁入 entries，通过 clearEntriesSaveDebounce 导出
 - [Phase 08-structure-refactor]: EditEntryModal 目录化：壳/Form/Fields/utils/styles 分离；@/components/entries barrel；EntryCard 迁移 D-16
+- [Phase 09-dir-boundary-cleanup]: Removed no-features-to-features depcruise rule (same-feature internal imports allowed); knip handles unused exports
 
 ### Pending Todos
 
@@ -125,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T03:50:45.694Z
-Stopped at: Phase 9 context gathered
-Resume file: .planning/phases/09-dir-boundary-cleanup/09-CONTEXT.md
+Last session: 2026-03-22T04:46:08.001Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: None

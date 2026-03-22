@@ -200,11 +200,11 @@ Plans:
 2. 高置信死代码已移除并保留删除证据/回滚点，仓库噪音显著下降。  
 3. 清理后通过 iOS/Android smoke 与关键路径验证，无动态引用误删导致的运行问题。
 
-**Plans**: 5 plans
+**Plans**: 5 plans（执行顺序 D-05：09-01 → 09-04 → 09-03 → 09-02 → 09-05）
 
 Plans:
 
-- [ ] 09-01-PLAN.md — 扩展 scope（features/shared）、depcruise/knip/boundaries 配置、三项规则升 error（CLN-01）
+- [x] 09-01-PLAN.md — 扩展 scope（features/shared）、depcruise/knip/boundaries 配置、三项规则升 error（CLN-01）
 - [ ] 09-02-PLAN.md — 删除 reviewStatsTimeRange 薄适配器，迁移至 shared/time-range（CLN-02）
 - [ ] 09-03-PLAN.md — 删除 dateUtils deprecated（formatDateChinese/formatDateShort），迁移至 shared/formatting（CLN-02）
 - [ ] 09-04-PLAN.md — 删除 responsiveUtils，迁移至 useResponsiveStyles/createResponsiveMetrics（CLN-02）
