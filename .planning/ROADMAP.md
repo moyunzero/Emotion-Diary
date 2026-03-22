@@ -255,7 +255,10 @@ Plans:
 2. 密钥与敏感配置不进入 Git；`.env.example` 与真实变量名对齐。  
 3. 新开发者在干净目录按文档可完成安装并跑通文档承诺的最小校验集。
 
-**Plans**: 待 `/gsd-plan-phase 11`
+**Plans**:
+
+- [ ] 11-01-PLAN.md — INT-01：`typecheck` 脚本 + CI；GH-01：`SECURITY.md` + README 前置开发者区块 + 链接
+- [ ] 11-02-PLAN.md — GH-03：CONTRIBUTING 对齐；GH-01：`README.en`；INT-02：`.env.example`；GH-02：自检 SUMMARY
 
 ### Phase 12: 代码健康、测试精炼与单文件体量
 
