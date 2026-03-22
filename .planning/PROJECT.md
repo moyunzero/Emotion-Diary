@@ -26,11 +26,11 @@
 - ✓ **Apple App Store 提审闭环（IOS-01）**：中英文元数据、截图指引、预检清单、4.3(a) 回复模板与需求追踪已收口 — Validated in Phase 05 (apple)
 - ✓ **治理基线门禁（GOV-01/GOV-02/GOV-03）**：统一治理入口、渐进式门禁收紧、关键路径烟雾验证与验收模板已建立 — Validated in Phase 06 (governance-baseline-gates)
 - ✓ **Shared 重复逻辑收敛（SHR-01/SHR-02/SHR-03）**：formatting/time-range/responsive 已建立单一来源与兼容层迁移路径，关键页面最小回归与边界测试已接入 — Validated in Phase 07 (shared)
+- ✓ **大文件拆分治理（ARC-01/02/03）**：profile 壳层化与 features/profile 三区、entries slice 落位、EditEntryModal 目录化与 @/components/entries 出口 — Validated in Phase 08 (structure-refactor)
 
 ### Active
 
-- [ ] **代码拆分治理**：拆分超大文件（优先 `app/profile.tsx`、`store/useAppStore.ts` 与 500+ 行核心组件）并确保行为不回归。
-- [ ] **目录结构重构**：按 feature/shared 建立清晰边界，减少跨层耦合与“同类逻辑多处落地”。
+- [ ] **目录结构重构**：按 feature/shared 建立清晰边界，减少跨层耦合与"同类逻辑多处落地"（Phase 9）。
 - [ ] **冗余清理**：统一响应式与时间区间等重复工具函数，删除未引用死代码、无效导出与过期抽象。
 - [ ] **测试治理**：删除示例/失效/重复测试，保留关键路径测试并补齐重构保护用例。
 
@@ -111,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-21 after phase 07 complete*
+*Last updated: 2026-03-22 after phase 08 complete*
