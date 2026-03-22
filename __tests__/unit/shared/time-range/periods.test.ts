@@ -55,4 +55,58 @@ describe('shared/time-range canonical', () => {
     const calendar = getCalendarMonthRange(2025, 1);
     expect(current).toEqual(calendar);
   });
+
+  it('last_month: previous period ends before current starts', () => {
+    const now = new Date(2025, 2, 10);
+    const { current, previous } = getReviewExportPeriods(now, 'last_month');
+    expect(previous.endMs).toBeLessThan(current.startMs);
+  });
+
+  it('keeps review export period semantics stable on fixed input', () => {
+    const now = new Date(2026, 2, 21, 8, 30, 0, 0);
+
+    expect(getReviewExportPeriods(now, 'this_week')).toEqual({
+      current: {
+        startMs: new Date(2026, 2, 16, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 2, 22, 23, 59, 59, 999).getTime(),
+      },
+      previous: {
+        startMs: new Date(2026, 2, 9, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 2, 15, 23, 59, 59, 999).getTime(),
+      },
+    });
+
+    expect(getReviewExportPeriods(now, 'last_week')).toEqual({
+      current: {
+        startMs: new Date(2026, 2, 9, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 2, 15, 23, 59, 59, 999).getTime(),
+      },
+      previous: {
+        startMs: new Date(2026, 2, 2, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 2, 8, 23, 59, 59, 999).getTime(),
+      },
+    });
+
+    expect(getReviewExportPeriods(now, 'this_month')).toEqual({
+      current: {
+        startMs: new Date(2026, 2, 1, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 2, 31, 23, 59, 59, 999).getTime(),
+      },
+      previous: {
+        startMs: new Date(2026, 1, 1, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 1, 28, 23, 59, 59, 999).getTime(),
+      },
+    });
+
+    expect(getReviewExportPeriods(now, 'last_month')).toEqual({
+      current: {
+        startMs: new Date(2026, 1, 1, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 1, 28, 23, 59, 59, 999).getTime(),
+      },
+      previous: {
+        startMs: new Date(2026, 0, 1, 0, 0, 0, 0).getTime(),
+        endMs: new Date(2026, 0, 31, 23, 59, 59, 999).getTime(),
+      },
+    });
+  });
 });
