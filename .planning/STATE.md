@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 09-04-PLAN.md
-last_updated: "2026-03-22T04:58:15.239Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-22T05:01:11.436Z"
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 32
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-21)
 ## Current Position
 
 Phase: 9 (dir-boundary-cleanup) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 ### Quick tasks（ad-hoc）
 
@@ -68,6 +68,7 @@ Plan: 3 of 5
 | Phase 08-structure-refactor P02 | 15 | 2 tasks | 4 files |
 | Phase 08-structure-refactor P03 | 2 | 2 tasks | 11 files |
 | Phase 09-dir-boundary-cleanup P01 | 20 | 4 tasks | 9 files |
+| Phase 09-dir-boundary-cleanup P03 | 15min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,7 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 08-structure-refactor]: EditEntryModal 目录化：壳/Form/Fields/utils/styles 分离；@/components/entries barrel；EntryCard 迁移 D-16
 - [Phase 09-dir-boundary-cleanup]: Removed no-features-to-features depcruise rule (same-feature internal imports allowed); knip handles unused exports
 - [Phase 09-dir-boundary-cleanup]: responsiveUtils removed; useResponsiveStyles + createResponsiveMetrics factory pattern
+- [Phase 09-dir-boundary-cleanup]: dateUtils: only formatDate + ensureMilliseconds; Chinese/month-day via @/shared/formatting
 
 ### Pending Todos
 
@@ -128,6 +130,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T04:58:15.235Z
-Stopped at: Completed 09-04-PLAN.md
+Last session: 2026-03-22T05:01:11.432Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
