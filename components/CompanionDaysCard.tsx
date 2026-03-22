@@ -3,48 +3,18 @@
  * 显示用户的陪伴天数，包含数字增长动画
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import { calculateDays } from '../services/companionDaysService';
-import { useAppStore } from '../store/useAppStore';
 
 interface CompanionDaysCardProps {
   onPress: () => void;
 }
 
 export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
-  const user = useAppStore(state => state.user);
-  const entries = useAppStore(state => state.entries);
-  
-  // 用于存储 firstEntryDate（支持游客用户）
-  const [firstEntryDate, setFirstEntryDate] = useState<number | null>(null);
-  
-  // 加载 firstEntryDate（登录用户或游客用户）
-  useEffect(() => {
-    const loadFirstEntryDate = async () => {
-      if (user?.firstEntryDate) {
-        // 登录用户：从 user 对象读取
-        setFirstEntryDate(user.firstEntryDate);
-      } else {
-        // 游客用户：从 AsyncStorage 读取
-        try {
-          const guestDate = await AsyncStorage.getItem('guest_first_entry_date');
-          if (guestDate) {
-            setFirstEntryDate(parseInt(guestDate, 10));
-          } else {
-            setFirstEntryDate(null);
-          }
-        } catch (error) {
-          console.error('读取游客 firstEntryDate 失败:', error);
-          setFirstEntryDate(null);
-        }
-      }
-    };
-    
-    loadFirstEntryDate();
-  }, [user?.firstEntryDate, entries.length]); // 当用户状态或记录数量变化时重新加载
-  
+  const firstEntryDate = useCompanionFirstEntryDate();
+
   // 计算陪伴天数
   const days = calculateDays(firstEntryDate);
   
@@ -58,11 +28,8 @@ export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
       return;
     }
     
-    // 动画持续时间：天数越大，动画越快
-    const duration = days > 100 ? 800 : days > 30 ? 1200 : 1500;
     const frames = 60; // 60帧动画
     const increment = days / frames;
-    const frameTime = duration / frames;
     
     let currentFrame = 0;
     let animationId: number;

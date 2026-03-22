@@ -30,6 +30,7 @@ Plan: Not started
 
 | Date | Item |
 |------|------|
+| 2026-03-22 | 陪伴天数弹窗与卡片统一数据源：`useCompanionFirstEntryDate`（游客读 `guest_first_entry_date`） |
 | 2026-03-22 | 个人页：未登录时「备份心事」「找回回忆」打开登录 Modal（`useProfileSyncHandlers`） |
 | 2026-03-22 | CI：`push` 触发分支由 `main` 改为 `master`（`.github/workflows/ci.yml`） |
 | 2025-03-21 | 情绪回顾图：修复顶部双重安全区留白（`ReviewExportScreen` header） |

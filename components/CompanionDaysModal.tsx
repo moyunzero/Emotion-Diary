@@ -6,6 +6,7 @@
 import { PartyPopper, X } from 'lucide-react-native';
 import React from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import {
     calculateDays,
     formatStartDate,
@@ -13,7 +14,6 @@ import {
     getMilestone,
     getNextMilestone,
 } from '../services/companionDaysService';
-import { useAppStore } from '../store/useAppStore';
 import AppIcon from './icons/AppIcon';
 import MilestoneIcon from './icons/MilestoneIcon';
 
@@ -23,9 +23,9 @@ interface CompanionDaysModalProps {
 }
 
 export default function CompanionDaysModal({ visible, onClose }: CompanionDaysModalProps) {
-  const user = useAppStore(state => state.user);
-  
-  const days = calculateDays(user?.firstEntryDate);
+  const firstEntryDate = useCompanionFirstEntryDate();
+
+  const days = calculateDays(firstEntryDate);
   const milestone = getMilestone(days);
   const nextMilestone = getNextMilestone(days);
   const daysToNext = getDaysToNextMilestone(days);
@@ -54,9 +54,9 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
               <Text style={styles.daysLabel}>天</Text>
             </View>
             
-            {user?.firstEntryDate && (
+            {firstEntryDate != null && firstEntryDate > 0 && (
               <Text style={styles.startDate}>
-                开始于 {formatStartDate(user.firstEntryDate)}
+                开始于 {formatStartDate(firstEntryDate)}
               </Text>
             )}
             
