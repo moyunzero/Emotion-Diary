@@ -30,7 +30,13 @@
 4. **进行开发**：
    - 请确保代码风格与现有代码保持一致。
    - 遵循项目的 OpenSpec 规范（详见 `openspec/` 目录）。
-   - 运行 `yarn lint` 检查代码规范。
+   - 提交前请依次运行（与 CI 一致）：
+     ```bash
+     yarn typecheck
+     yarn lint
+     yarn test:ci
+     ```
+   - 本地安装请使用 **Yarn** 与仓库中的 `yarn.lock`；CI 使用 `yarn install --frozen-lockfile`。
 5. **提交更改**：
    ```bash
    git commit -m "feat: 添加了XXX功能"
@@ -43,13 +49,13 @@
    git push origin feature/my-new-feature
    ```
 7. **提交 Pull Request**：
-   - 在 GitHub 上提交 PR 到 `main` 分支。
+   - 在 GitHub 上提交 PR 到 **`master` 分支**。
    - 详细描述你的更改内容。
    - 如果修复了 Issue，请在描述中关联（如 `Closes #123`）。
 
 ## 🛠 开发环境搭建
 
-请参考 [README.md](./README.md#快速开始) 中的开发环境设置指南。
+请参考 [README.md](./README.md) 开头的「开发者快速上手」与「快速开始」章节。
 
 ## 📝 代码规范
 
