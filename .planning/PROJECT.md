@@ -28,10 +28,11 @@
 - ✓ **Shared 重复逻辑收敛（SHR-01/SHR-02/SHR-03）**：formatting/time-range/responsive 已建立单一来源与兼容层迁移路径，关键页面最小回归与边界测试已接入 — Validated in Phase 07 (shared)
 - ✓ **大文件拆分治理（ARC-01/02/03）**：profile 壳层化与 features/profile 三区、entries slice 落位、EditEntryModal 目录化与 @/components/entries 出口 — Validated in Phase 08 (structure-refactor)
 - ✓ **目录边界治理与冗余清理（CLN-01/02/03）**：features/shared 纳入治理 scope、三项门禁升 error、responsiveUtils/dateUtils/reviewStatsTimeRange deprecated 清零 — Validated in Phase 09 (dir-boundary-cleanup)
+- ✓ **测试治理与 CI 收口（TST-01/02/03）**：示例与重复单测清理、`unit` 目录与源码边界对齐、GitHub Actions 分层门禁与 Node 20 锁定 — Validated in Phase 10 (ci)
 
 ### Active
 
-- [ ] **测试治理**：删除示例/失效/重复测试，保留关键路径测试并补齐重构保护用例。
+（当前里程碑下暂无未收口条目；后续想法请用 backlog / 新里程碑承接。）
 
 ### Out of Scope（本轮明确不做或后置）
 
@@ -110,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-22 after phase 08 complete*
+*Last updated: 2026-03-22 after phase 10 complete*

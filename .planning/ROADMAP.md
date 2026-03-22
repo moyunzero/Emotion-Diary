@@ -15,7 +15,7 @@
 - [ ] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层
 - [x] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归 (completed 2026-03-22)
 - [x] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证 (completed 2026-03-22)
-- [ ] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地
+- [x] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地 (completed 2026-03-22)
 
 ## Phase Details
 
@@ -230,7 +230,7 @@ Plans:
 
 - [x] 10-01-PLAN.md — TST-01：删除示例与重复 time-range 单测，test:ci + governance smoke 回归
 - [x] 10-02-PLAN.md — TST-02：`unit/features`、shared/formatting 路径对齐，README 映射与 jest collectCoverageFrom
-- [ ] 10-03-PLAN.md — TST-03：GitHub Actions 分层（PR lint+test:ci；push main 治理+smoke），Node 20 锁定
+- [x] 10-03-PLAN.md — TST-03：GitHub Actions 分层（PR lint+test:ci；push main 治理+smoke），Node 20 锁定
 
 ---
 
@@ -247,7 +247,7 @@ Plans:
 |7. Shared 重复逻辑收敛|0/0|Not started|-|
 |8. 大文件拆分与结构重构| 3/3 | Complete    | 2026-03-22 |
 |9. 目录边界治理与冗余清理| 5/5 | Complete    | 2026-03-22 |
-|10. 测试治理与 CI 收口| 2/3 | In Progress|  |
+|10. 测试治理与 CI 收口| 3/3 | Complete    | 2026-03-22 |
 
 ---
 Roadmap created: 2025-03-21
