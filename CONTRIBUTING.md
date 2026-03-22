@@ -37,6 +37,11 @@
      yarn test:ci
      ```
    - 本地安装请使用 **Yarn** 与仓库中的 `yarn.lock`；CI 使用 `yarn install --frozen-lockfile`。
+
+## 测试布局与 CI
+
+- CI 与本地推荐使用 `` `yarn test:ci` ``（与 `jest.ci.config.js` 一致的最小集）。
+- 单测目录结构、与源码目录的责任边界详见 [__tests__/README.md](./__tests__/README.md)。
 5. **提交更改**：
    ```bash
    git commit -m "feat: 添加了XXX功能"
