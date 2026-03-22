@@ -65,7 +65,7 @@ const processPendingSync = async (): Promise<void> => {
     syncDebounceTimerRef = setTimeout(async () => {
       if (pendingSyncRef && !isSyncingRef) {
         pendingSyncRef = false;
-        console.log("处理待处理的同步请求");
+        if (__DEV__) console.log("处理待处理的同步请求");
         await useAppStore.getState().syncToCloud();
       }
       syncDebounceTimerRef = null;
@@ -163,9 +163,7 @@ const initializeDatabase = async (): Promise<void> => {
         checkError.message &&
         checkError.message.includes('relation "public.profiles" does not exist')
       ) {
-        console.log(
-          "Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.",
-        );
+        if (__DEV__) console.log("Profiles table does not exist. Please execute the SQL script in Supabase SQL Editor to create it.");
       } else {
         console.warn(
           "Database initialization check failed:",
@@ -634,7 +632,7 @@ export const useAppStore = create<AppStore>()((...args) => {
           const isUserSwitching = currentUser && currentUser.id !== userData.id;
 
           if (isUserSwitching) {
-            console.log("检测到用户切换，清除旧账号数据");
+            if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
             set({ entries: [] });
           }
 
@@ -644,7 +642,7 @@ export const useAppStore = create<AppStore>()((...args) => {
           // 检查游客数据迁移
           const guestData = await checkGuestData();
           if (guestData.length > 0) {
-            console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
+            if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
             const migrationResult = await migrateGuestDataToUser(userData.id);
             if (migrationResult.success && migrationResult.data) {
               set({ entries: migrationResult.data });
@@ -836,7 +834,7 @@ export const useAppStore = create<AppStore>()((...args) => {
       }
 
       if (isSyncingRef) {
-        console.log("同步操作正在进行中，标记为待处理");
+        if (__DEV__) console.log("同步操作正在进行中，标记为待处理");
         pendingSyncRef = true;
         set({ syncStatus: "pending" });
         return false;
@@ -932,9 +930,7 @@ export const useAppStore = create<AppStore>()((...args) => {
             if (upsertError) {
               // 如果是 RLS 错误，尝试使用分离的操作
               if (upsertError.code === "42501") {
-                console.log(
-                  "upsert 遇到 RLS 问题，使用分离的 insert/update 操作",
-                );
+                if (__DEV__) console.log("upsert 遇到 RLS 问题，使用分离的 insert/update 操作");
 
                 const existingIds = new Set(
                   existingCloudData ? existingCloudData.map((e) => e.id) : [],
@@ -1009,7 +1005,7 @@ export const useAppStore = create<AppStore>()((...args) => {
           }
         }
 
-        console.log("成功同步到云端");
+        if (__DEV__) console.log("成功同步到云端");
 
         // 同步 firstEntryDate 到云端
         await get()._syncFirstEntryDateToCloud();
@@ -1041,7 +1037,7 @@ export const useAppStore = create<AppStore>()((...args) => {
       }
 
       if (isSyncingRef) {
-        console.log("同步操作正在进行中，标记为待处理");
+        if (__DEV__) console.log("同步操作正在进行中，标记为待处理");
         pendingSyncRef = true;
         set({ syncStatus: "pending" });
         return false;
@@ -1133,7 +1129,7 @@ export const useAppStore = create<AppStore>()((...args) => {
 
           get()._calculateWeather();
 
-          console.log("成功从云端同步数据");
+          if (__DEV__) console.log("成功从云端同步数据");
 
           // 从云端同步 firstEntryDate
           await get()._syncFirstEntryDateFromCloud();
@@ -1205,7 +1201,7 @@ export const initializeStore = (): (() => void) => {
                 currentUser && currentUser.id !== session.user.id;
 
               if (isUserSwitching) {
-                console.log("检测到用户切换，清除旧账号数据");
+                if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
                 useAppStore.getState()._setEntries([]);
               }
 
