@@ -1,9 +1,9 @@
 ---
 phase: 9
 slug: dir-boundary-cleanup
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-22
 ---
 
@@ -40,10 +40,12 @@ created: 2026-03-22
 
 | Plan | Wave | Requirement | Test Type | Automated Command | Status |
 |------|------|-------------|-----------|-------------------|--------|
-| 09-01 | 1 | CLN-01 | integration | `npm run verify:governance` | ⬜ pending |
-| 09-02 | 2 | CLN-02 | unit | `yarn test:unit __tests__/unit/utils/ __tests__/unit/shared/` | ⬜ pending |
-| 09-02 | 2 | CLN-02 | integration | `npm run verify:governance` (knip/depcruise) | ⬜ pending |
-| 09-03 | 3 | CLN-03 | smoke | `node scripts/verify-governance-smoke.js` | ⬜ pending |
+| 09-01 | 1 | CLN-01 | integration | `npm run verify:governance` | ✅ green |
+| 09-02 | 2 | CLN-02 | unit | `yarn test:unit __tests__/unit/utils/ __tests__/unit/shared/` | ✅ green |
+| 09-02 | 2 | CLN-02 | integration | `npm run verify:governance` (knip/depcruise) | ✅ green |
+| 09-03 | 3 | CLN-02 | dateUtils | migrate to shared/formatting | ✅ green |
+| 09-04 | 4 | CLN-02 | responsiveUtils | delete, useResponsiveStyles | ✅ green |
+| 09-05 | 5 | CLN-03 | smoke | `node scripts/verify-governance-smoke.js` | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,9 +53,9 @@ created: 2026-03-22
 
 ## Wave 0 Requirements
 
-- [ ] `verify:governance` 确认 depcruise 使用 `scripts/governance/depcruise.cjs`（传 `--config`）
-- [ ] `verify:governance` 确认 knip 使用正确 scope 与 allowlist
-- [ ] 06-SMOKE-CHECKLIST 扩展「删除/迁移路径」检查项（D-14）
+- [x] `verify:governance` 确认 depcruise 使用 `scripts/governance/depcruise.cjs`（传 `--config`）
+- [x] `verify:governance` 确认 knip 使用正确 scope 与 allowlist
+- [x] 06-SMOKE-CHECKLIST 扩展「删除/迁移路径」检查项（D-14）
 
 ---
 
@@ -67,11 +69,11 @@ created: 2026-03-22
 
 ## Validation Sign-Off
 
-- [ ] All plans have automated verify (verify:governance / test:unit / smoke)
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers depcruise/knip config path + smoke checklist extension
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter after Wave 0 complete
+- [x] All plans have automated verify (verify:governance / test:unit / smoke)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers depcruise/knip config path + smoke checklist extension
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter after Wave 0 complete
 
-**Approval:** pending
+**Approval:** complete
