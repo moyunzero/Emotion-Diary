@@ -22,7 +22,7 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 ### 大文件拆分与结构重构
 
 - [x] **ARC-01**: `app/profile.tsx` 拆分为路由壳层 + feature 模块，降低单文件复杂度且不改变用户可见行为。
-- [ ] **ARC-02**: `store/useAppStore.ts` 完成 slice 化（至少完成首批核心切片），对外 API 保持兼容。
+- [x] **ARC-02**: `store/useAppStore.ts` 完成 slice 化（至少完成首批核心切片），对外 API 保持兼容。
 - [ ] **ARC-03**: 500+ 行核心组件按职责拆分（视图、逻辑、纯函数）并通过回归验证。
 
 ### 目录边界治理与冗余清理
@@ -65,7 +65,7 @@ Deferred to future milestone.
 | SHR-02 | Phase 7 | Complete |
 | SHR-03 | Phase 7 | Complete |
 | ARC-01 | Phase 8 | Complete |
-| ARC-02 | Phase 8 | Pending |
+| ARC-02 | Phase 8 | Complete |
 | ARC-03 | Phase 8 | Pending |
 | CLN-01 | Phase 9 | Pending |
 | CLN-02 | Phase 9 | Pending |

@@ -183,7 +183,7 @@ Plans:
 Plans:
 
 - [x] 08-01-PLAN.md — profile 壳层化：`features/profile/` + 三区子区块与 hooks（ARC-01）
-- [ ] 08-02-PLAN.md — store entries slice：`_loadEntries`/`_saveEntries` 单点 + Slices Pattern（ARC-02）
+- [x] 08-02-PLAN.md — store entries slice：`_loadEntries`/`_saveEntries` 单点 + Slices Pattern（ARC-02）
 - [ ] 08-03-PLAN.md — `EditEntryModal` 目录化拆分 + `@/components/entries` 迁移（ARC-03）
 
 ---
