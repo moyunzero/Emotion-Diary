@@ -241,6 +241,61 @@ Plans:
 - [x] 10-02-PLAN.md — TST-02：`unit/features`、shared/formatting 路径对齐，README 映射与 jest collectCoverageFrom
 - [x] 10-03-PLAN.md — TST-03：GitHub Actions 分层（PR lint+test:ci；push main 治理+smoke），Node 20 锁定
 
+### Phase 11: GitHub 仓库与可复现构建
+
+**Goal**: 仓库达到可安全公开的基础：文档、许可与安全说明、无密钥、克隆即可按文档跑通基础命令。  
+**Depends on**: Phase 10  
+**Requirements**: GH-01, GH-02, GH-03, INT-01, INT-02, INT-03  
+
+**Success Criteria**:
+
+1. README 覆盖：项目简介、环境要求、安装、`typecheck`/`lint`/测试命令、分支与 CI 说明。  
+2. 密钥与敏感配置不进入 Git；`.env.example` 与真实变量名对齐。  
+3. 新开发者在干净目录按文档可完成安装并跑通文档承诺的最小校验集。
+
+**Plans**: 待 `/gsd-plan-phase 11`
+
+### Phase 12: 代码健康、测试精炼与单文件体量
+
+**Goal**: 去除高置信死代码与调试残留；**精简测试集**（删示例/重复/无价值），保留 CI 与关键路径测试；建立大单文件清单并启动拆分。  
+**Depends on**: Phase 11  
+**Requirements**: QA-01, QA-02, TST2-01, TST2-02, SIZE-01  
+
+**Success Criteria**:
+
+1. knip/治理脚本结果无未解释的回归或已记录豁免。  
+2. 删除的测试文件有清单可查；`test:ci` 与 smoke 仍绿。  
+3. 超标文件清单写入计划目录，并完成至少一批次拆分或已登记为后续 plan。
+
+**Plans**: 待 `/gsd-plan-phase 12`
+
+### Phase 13: RN/Expo 约定与中文注释
+
+**Goal**: 配置与目录约定与 RN/Expo 实践对齐并文档化；核心业务链补充中文注释。  
+**Depends on**: Phase 12  
+**Requirements**: RN-01, RN-02, DOC-01  
+
+**Success Criteria**:
+
+1. `app.json`/Metro/Babel/TS 配置核对结论写入 README 或 codebase 文档。  
+2. Expo Router 与 `app/` 约定在贡献说明中可查。  
+3. store/features 关键路径中文注释覆盖达到约定阈值（由 plan 量化）。
+
+**Plans**: 待 `/gsd-plan-phase 13`
+
+### Phase 14: UI 体验与非模版化
+
+**Goal**: 明确并落实「非通用模版」的视觉与文案原则；关键路径 UI 抽检并形成改进 backlog。  
+**Depends on**: Phase 13  
+**Requirements**: UI-01, UI-02  
+
+**Success Criteria**:
+
+1. UI-SPEC 或等价文档含差异化原则与反模式列表。  
+2. 五关键屏抽检表完成，阻塞项为 0 或已转为明确 follow-up issue/plan。
+
+**Plans**: 待 `/gsd-plan-phase 14`
+
 ---
 
 ## Progress
@@ -257,6 +312,11 @@ Plans:
 |8. 大文件拆分与结构重构| 3/3 | Complete    | 2026-03-22 |
 |9. 目录边界治理与冗余清理| 5/5 | Complete    | 2026-03-22 |
 |10. 测试治理与 CI 收口| 3/3 | Complete    | 2026-03-22 |
+|11. GitHub 仓库与可复现构建| 0/? | Not started | — |
+|12. 代码健康、测试精炼与单文件体量| 0/? | Not started | — |
+|13. RN/Expo 约定与中文注释| 0/? | Not started | — |
+|14. UI 体验与非模版化| 0/? | Not started | — |
 
 ---
-Roadmap created: 2025-03-21
+Roadmap created: 2025-03-21  
+*Phases 11–14 added: 2026-03-22 — milestone v1.2*
