@@ -2,7 +2,7 @@
  * 日期工具函数测试
  */
 
-import { ensureMilliseconds } from '../../../utils/dateUtils';
+import { ensureMilliseconds } from '@/shared/formatting';
 
 describe('dateUtils', () => {
   describe('ensureMilliseconds', () => {

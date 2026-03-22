@@ -30,6 +30,27 @@ export function formatMonthDay(input: DateInput): string {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
+/**
+ * 格式化日期为本地日期字符串（YYYY-MM-DD格式，避免时区问题）
+ */
+export function formatDate(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * 确保时间戳为毫秒格式（如果数据库返回秒级时间戳，转换为毫秒）
+ */
+export function ensureMilliseconds(timestamp: number): number {
+  if (timestamp < 10000000000) {
+    return timestamp * 1000;
+  }
+  return timestamp;
+}
+
 export function formatRelativeDayLabel(inputDate: DateInput, now: Date = new Date()): string {
   const target = toValidDate(inputDate);
   const nowDate = toValidDate(now);

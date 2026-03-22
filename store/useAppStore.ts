@@ -9,7 +9,7 @@ import { create } from "zustand";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { MoodEntry, User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
-import { ensureMilliseconds } from "../utils/dateUtils";
+import { ensureMilliseconds } from "@/shared/formatting";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块

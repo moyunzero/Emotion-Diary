@@ -14,7 +14,7 @@ import {
   createAccessibilityProps,
 } from "../../../utils/accessibility";
 import { formatDateChinese, formatMonthDay } from "../../../shared/formatting";
-import { ensureMilliseconds, formatDate } from "../../../utils/dateUtils";
+import { ensureMilliseconds, formatDate } from "@/shared/formatting";
 import { getMoodIcon } from "../../../utils/moodIconUtils";
 
 describe("Utility Function Return Types - Requirement 2.4", () => {
