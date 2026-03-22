@@ -20,11 +20,11 @@ progress:
 See: `.planning/PROJECT.md` (milestone v1.2)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 12 — code-health-tests-size
+**Current focus:** Phase 14 — UI 体验与非模版化
 
 ## Current Position
 
-Phase: 13
+Phase: 14
 Plan: Not started
 
 ### Quick tasks（ad-hoc）
