@@ -272,7 +272,7 @@ Plans:
 2. 删除的测试文件有清单可查；`test:ci` 与 smoke 仍绿。  
 3. 超标文件清单写入计划目录，并完成至少一批次拆分或已登记为后续 plan。
 
-**Plans**: 待 `/gsd-plan-phase 12`
+**Plans**: `12-01-PLAN.md`（Wave 1 清单/文档/knip 基线）· `12-02-PLAN.md`（QA-02 日志）· `12-03-PLAN.md`（user slice 拆分）· `12-04-PLAN.md`（测试删除审计）
 
 ### Phase 13: RN/Expo 约定与中文注释
 
@@ -318,7 +318,7 @@ Plans:
 |9. 目录边界治理与冗余清理| 5/5 | Complete    | 2026-03-22 |
 |10. 测试治理与 CI 收口| 3/3 | Complete    | 2026-03-22 |
 |11. GitHub 仓库与可复现构建| 2/2 | Complete    | 2026-03-22 |
-|12. 代码健康、测试精炼与单文件体量| 0/? | Not started | — |
+|12. 代码健康、测试精炼与单文件体量| 0/? | Complete    | 2026-03-22 |
 |13. RN/Expo 约定与中文注释| 0/? | Not started | — |
 |14. UI 体验与非模版化| 0/? | Not started | — |
 
