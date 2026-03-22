@@ -24,6 +24,11 @@
 | `scripts/` | 构建、校验、重置工程脚本 |
 | `app-store-submission/` | 商店元数据与检查清单（非运行时代码） |
 
+## Shared 与 Utils 边界
+
+- **新纯函数**：进 `shared/`（formatting、time-range、responsive 等），保持无业务层依赖。
+- **utils/**：仅遗留/桥接，不新增业务逻辑；deprecated 适配层在 Phase 9 清零。
+
 ## 命名约定
 
 - **页面文件**：`app/` 下多为 `index.tsx`、`record.tsx` 或与路由段同名的 `profile.tsx`。

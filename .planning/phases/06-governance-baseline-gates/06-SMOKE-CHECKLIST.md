@@ -81,6 +81,26 @@
 - 结果：
 - 回滚点：
 
+## 路径 4：删除/迁移路径（Phase 9）
+
+### 自动化
+
+- 命令：`node scripts/verify-governance-smoke.js`（已覆盖 export 路径）。
+- 迁移完成后需确认无 `utils/responsiveUtils`、`utils/dateUtils`、`utils/reviewStatsTimeRange` 的 import 残留（可用 `grep -r "responsiveUtils\|dateUtils\|reviewStatsTimeRange" --include="*.ts" --include="*.tsx"` 校验）。
+
+### 手测
+
+1. 打开洞察页、导出页、记录页。
+2. 确认无白屏或控制台报错。
+3. 验证 responsiveUtils、dateUtils、reviewStatsTimeRange 迁移后，导出、洞察、记录等关键页无引用断裂。
+
+### 证据位
+
+- 案例ID：`GOV-SMOKE-MIGRATE-01`
+- 命令：`node scripts/verify-governance-smoke.js`
+- 结果：
+- 回滚点：
+
 ## 失败处理
 
 - 任一路径失败：先记录失败证据，再按“行为偏差先回退”原则回退当前小包。
