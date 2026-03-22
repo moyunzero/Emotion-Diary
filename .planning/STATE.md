@@ -30,6 +30,7 @@ Plan: Not started
 
 | Date | Item |
 |------|------|
+| 2026-03-22 | CI：`push` 触发分支由 `main` 改为 `master`（`.github/workflows/ci.yml`） |
 | 2025-03-21 | 情绪回顾图：修复顶部双重安全区留白（`ReviewExportScreen` header） |
 | 2025-03-21 | 情绪回顾图：陪伴天数为 0 → `getEffectiveFirstEntryDateForCompanion` 与 `initializeFirstEntryDate` 口径对齐 |
 

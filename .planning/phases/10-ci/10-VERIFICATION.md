@@ -30,7 +30,7 @@ requirements: [TST-01, TST-02, TST-03]
 
 ## human_verification
 
-- [ ] 在 GitHub 上创建一次 PR，确认 `pr-gate` job 出现且通过（需远程仓库默认分支与 `on.push.branches` 配置一致；本 workflow 使用 `main`）。
+- [ ] 在 GitHub 上创建一次 PR，确认 `pr-gate` job 出现且通过；推送到 **`master`** 时应触发 `governance` job（与 `on.push.branches` 一致）。
 
 ## Gaps
 
