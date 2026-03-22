@@ -205,7 +205,7 @@ Plans:
 Plans:
 
 - [x] 09-01-PLAN.md — 扩展 scope（features/shared）、depcruise/knip/boundaries 配置、三项规则升 error（CLN-01）
-- [ ] 09-02-PLAN.md — 删除 reviewStatsTimeRange 薄适配器，迁移至 shared/time-range（CLN-02）
+- [x] 09-02-PLAN.md — 删除 reviewStatsTimeRange 薄适配器，迁移至 shared/time-range（CLN-02）
 - [x] 09-03-PLAN.md — 删除 dateUtils deprecated（formatDateChinese/formatDateShort），迁移至 shared/formatting（CLN-02）
 - [x] 09-04-PLAN.md — 删除 responsiveUtils，迁移至 useResponsiveStyles/createResponsiveMetrics（CLN-02）
 - [ ] 09-05-PLAN.md — 全量验证（verify:governance + smoke + test:unit），更新 VALIDATION（CLN-03）
