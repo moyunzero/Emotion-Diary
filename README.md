@@ -18,6 +18,43 @@
 
 焚语是一款专注于情绪管理的治愈系应用。通过独特的「情绪气象站」和「心灵花园」概念，帮助用户记录、理解和管理自己的情绪，让每一次情绪的记录和解决都成为照料心灵花园的过程。
 
+## 👩‍💻 开发者快速上手
+
+### 克隆与安装
+
+```bash
+git clone <repository-url>
+cd emotion-diary
+```
+
+请使用 **Yarn** 与仓库根目录的 `yarn.lock`。本地开发执行 `yarn install`；对齐 CI 或提交 PR 前建议在干净环境中使用 `yarn install --frozen-lockfile`，与持续集成一致。
+
+**默认分支：** `master`。
+
+### 环境变量
+
+复制 `.env.example` 为 `.env` 并按需填写（勿提交含真实密钥的 `.env`）。
+
+### 最小校验集
+
+```bash
+yarn typecheck
+yarn lint
+yarn test:ci
+```
+
+### CI 行为摘要
+
+- **Pull Request**：运行 `yarn lint`、`yarn typecheck`、`yarn test:ci`。
+- **push 到 `master`**：除上述步骤外，另运行 `yarn verify:governance` 与 `node scripts/verify-governance-smoke.js`（治理与冒烟）。
+
+### 文档与社区
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- [openspec/README.md](./openspec/README.md)
+- [.planning/codebase/STACK.md](./.planning/codebase/STACK.md)
+
 ## 🌟 核心功能
 
 ### 🌤️ 情绪气象站
@@ -77,17 +114,12 @@
 
 ## 🚀 快速开始
 
+克隆、`yarn install`、环境变量与提交前检查命令见上文 **[开发者快速上手](#-开发者快速上手)**。
+
 ### ⚡ 一分钟体验
 
 ```bash
-# 克隆项目
-git clone <repository-url>
-cd emotion-diary
-
-# 安装依赖
-yarn install
-
-# 启动开发服务器
+# 启动开发服务器（需先完成上文安装步骤）
 yarn start
 ```
 
@@ -120,32 +152,22 @@ yarn start
 
 ## 📦 发布与上架
 
-#### 🚀 快速开始（推荐）
-- **准备完成指南**：[APP_STORE_READY.md](./APP_STORE_READY.md) — 一站式 App Store 提交指南，包含所有必要步骤
-- **30分钟快速上手**：[快速开始](./docs/app-store-submission/QUICK_START.md) — 从零到提交的完整流程
-- **完整检查清单**：[CHECKLIST.md](./docs/app-store-submission/CHECKLIST.md) — 逐项检查确保万无一失
-
-#### 🛠️ 自动化脚本
-```bash
-# 1. 运行设置向导（配置证书和 App Store Connect）
-./scripts/setup-app-store.sh
-
-# 2. 构建前检查
-./scripts/pre-build-check.sh
-
-# 3. 一键构建和提交
-./scripts/build-and-submit.sh
-```
-
-#### 📚 详细文档
-- **完整提交指南**：[docs/app-store-submission/README.md](./docs/app-store-submission/README.md)
-- **元数据准备**：[中文描述](./docs/app-store-submission/metadata/app-description-zh.md) | [英文描述](./docs/app-store-submission/metadata/app-description-en.md)
-- **截图指南**：[screenshot-guide.md](./docs/app-store-submission/metadata/screenshot-guide.md)
+#### 📚 提审资料（当前可直接使用）
+- **中文描述**：[app-description-zh.md](./app-store-submission/metadata/app-description-zh.md)
+- **英文描述**：[app-description-en.md](./app-store-submission/metadata/app-description-en.md)
+- **截图指南**：[screenshot-guide.md](./app-store-submission/metadata/screenshot-guide.md)
+- **4.3(a) 回复模板**：[review-response-4.3a.md](./app-store-submission/review-response-4.3a.md)
+- **提交前检查清单**：[preflight-checklist.md](./app-store-submission/preflight-checklist.md)
 - **隐私政策**：[PRIVACY.md](./PRIVACY.md)
 
-#### 📋 其他资源
-- **上架检查清单**：[上架检查清单](./docs/release-checklist.md) — EAS Secrets、构建命令、商店后台配置
-- **包体积优化**：[iOS 包体积优化指南](./docs/ios-bundle-size.md) — 减小下载体积、资源压缩
+#### 🛠️ 构建建议
+```bash
+# 构建前检查
+./scripts/pre-build-check.sh
+
+# iOS 生产构建
+eas build --platform ios --profile production
+```
 
 ## 🛠️ 技术栈
 
