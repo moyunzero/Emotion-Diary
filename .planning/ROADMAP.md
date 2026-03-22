@@ -224,7 +224,13 @@ Plans:
 2. 测试目录与代码边界一致，开发者可以快速定位失败归属模块。  
 3. CI 分层门禁稳定运行，PR 阶段与进阶阶段职责清晰且反馈可操作。
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+
+- [ ] 10-01-PLAN.md — TST-01：删除示例与重复 time-range 单测，test:ci + governance smoke 回归
+- [ ] 10-02-PLAN.md — TST-02：`unit/features`、shared/formatting 路径对齐，README 映射与 jest collectCoverageFrom
+- [ ] 10-03-PLAN.md — TST-03：GitHub Actions 分层（PR lint+test:ci；push main 治理+smoke），Node 20 锁定
 
 ---
 
@@ -241,7 +247,7 @@ Plans:
 |7. Shared 重复逻辑收敛|0/0|Not started|-|
 |8. 大文件拆分与结构重构| 3/3 | Complete    | 2026-03-22 |
 |9. 目录边界治理与冗余清理| 5/5 | Complete    | 2026-03-22 |
-|10. 测试治理与 CI 收口|0/0|Not started|-|
+|10. 测试治理与 CI 收口|0/3|Not started|-|
 
 ---
 Roadmap created: 2025-03-21
