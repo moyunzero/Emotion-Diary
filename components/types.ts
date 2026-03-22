@@ -154,17 +154,9 @@ export interface ToastProps {
 
 /**
  * EditEntryModal 组件 Props
+ * @see types/components.ts
  */
-export interface EditEntryModalProps {
-  /** 是否可见 */
-  visible: boolean;
-  /** 要编辑的条目 */
-  entry: MoodEntry | null;
-  /** 保存事件 */
-  onSave: (id: string, updates: Partial<MoodEntry>) => void;
-  /** 取消事件 */
-  onCancel: () => void;
-}
+export type { EditEntryModalProps } from '../types/components';
 
 /**
  * AddTagInput 组件 Props

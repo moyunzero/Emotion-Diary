@@ -137,7 +137,7 @@ export interface EditEntryModalProps {
   entry: MoodEntry;
   visible: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 /**
