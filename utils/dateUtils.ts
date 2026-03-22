@@ -1,11 +1,8 @@
 /**
  * 时间戳格式化工具函数
  * 统一处理时间戳格式，确保跨时区一致性
+ * 中文/月日展示请使用 @/shared/formatting
  */
-import {
-  formatDateChinese as sharedFormatDateChinese,
-  formatMonthDay as sharedFormatMonthDay,
-} from '../shared/formatting';
 
 /**
  * 格式化日期为本地日期字符串（YYYY-MM-DD格式，避免时区问题）
@@ -14,30 +11,14 @@ import {
  */
 export const formatDate = (timestamp: number): string => {
   const date = new Date(timestamp);
-  
+
   // 使用本地时区的年月日，避免跨时区问题
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   return `${year}-${month}-${day}`;
 };
-
-/**
- * 格式化日期为中文日期字符串
- * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatDateChinese`.
- * @param timestamp 时间戳（毫秒）
- * @returns 格式化的日期字符串，如 "2024年1月15日"
- */
-export const formatDateChinese = (timestamp: number): string => sharedFormatDateChinese(timestamp);
-
-/**
- * 格式化日期为简短格式（用于显示）
- * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatMonthDay`.
- * @param timestamp 时间戳（毫秒）
- * @returns 格式化的日期字符串，如 "1/15"
- */
-export const formatDateShort = (timestamp: number): string => sharedFormatMonthDay(timestamp);
 
 /**
  * 确保时间戳为毫秒格式（如果数据库返回秒级时间戳，转换为毫秒）
@@ -52,4 +33,3 @@ export const ensureMilliseconds = (timestamp: number): number => {
   }
   return timestamp;
 };
-

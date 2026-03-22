@@ -2,24 +2,9 @@
  * 日期工具函数测试
  */
 
-import {
-  ensureMilliseconds,
-  formatDateChinese,
-  formatDateShort,
-} from '../../../utils/dateUtils';
+import { ensureMilliseconds } from '../../../utils/dateUtils';
 
 describe('dateUtils', () => {
-  describe('compatibility adapters', () => {
-    it('formatDateChinese should return stable fallback for nullish input', () => {
-      expect(formatDateChinese(null as unknown as number)).toBe('日期未知');
-    });
-
-    it('formatDateShort should keep month/day semantics', () => {
-      const date = new Date(2026, 2, 21).getTime();
-      expect(formatDateShort(date)).toBe('3/21');
-    });
-  });
-
   describe('ensureMilliseconds', () => {
     it('should keep milliseconds timestamp unchanged', () => {
       const milliseconds = 1705564800000; // 2024-01-18 00:00:00

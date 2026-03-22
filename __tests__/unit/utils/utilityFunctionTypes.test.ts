@@ -13,16 +13,12 @@ import {
   buttonAccessibility,
   createAccessibilityProps,
 } from "../../../utils/accessibility";
-import {
-  ensureMilliseconds,
-  formatDate,
-  formatDateChinese,
-  formatDateShort,
-} from "../../../utils/dateUtils";
+import { formatDateChinese, formatMonthDay } from "../../../shared/formatting";
+import { ensureMilliseconds, formatDate } from "../../../utils/dateUtils";
 import { getMoodIcon } from "../../../utils/moodIconUtils";
 
 describe("Utility Function Return Types - Requirement 2.4", () => {
-  describe("dateUtils.ts - Date Utility Functions", () => {
+  describe("dateUtils.ts & shared/formatting - date helpers", () => {
     describe("formatDate", () => {
       it("should return string type", () => {
         const result = formatDate(Date.now());
@@ -47,14 +43,14 @@ describe("Utility Function Return Types - Requirement 2.4", () => {
       });
     });
 
-    describe("formatDateShort", () => {
+    describe("formatMonthDay (shared/formatting)", () => {
       it("should return string type", () => {
-        const result = formatDateShort(Date.now());
+        const result = formatMonthDay(Date.now());
         expect(typeof result).toBe("string");
       });
 
       it("should infer correct return type", () => {
-        const result: string = formatDateShort(Date.now());
+        const result: string = formatMonthDay(Date.now());
         expect(result).toBeDefined();
       });
     });
