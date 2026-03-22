@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-22T05:06:23.018Z"
+stopped_at: Completed 09-05-PLAN.md
+last_updated: "2026-03-22T05:11:22.436Z"
 progress:
   total_phases: 10
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 32
-  completed_plans: 23
+  completed_plans: 24
 ---
 
 # Project State
@@ -70,6 +70,7 @@ Plan: 5 of 5
 | Phase 09-dir-boundary-cleanup P01 | 20 | 4 tasks | 9 files |
 | Phase 09-dir-boundary-cleanup P03 | 15min | 2 tasks | 9 files |
 | Phase 09-dir-boundary-cleanup P02 | 5 | 2 tasks | 6 files |
+| Phase 09-dir-boundary-cleanup P05 | 10 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,7 @@ Decisions are logged in `PROJECT.md` Key Decisions table. Recent:
 - [Phase 09-dir-boundary-cleanup]: responsiveUtils removed; useResponsiveStyles + createResponsiveMetrics factory pattern
 - [Phase 09-dir-boundary-cleanup]: dateUtils: only formatDate + ensureMilliseconds; Chinese/month-day via @/shared/formatting
 - [Phase 09-dir-boundary-cleanup]: reviewStatsTimeRange removed; all time-range imports canonical at @/shared/time-range
+- [Phase 09-dir-boundary-cleanup]: 09-05: dateUtils residual cleared; formatDate/ensureMilliseconds migrated to shared/formatting, utils/dateUtils.ts deleted
 
 ### Pending Todos
 
@@ -132,6 +134,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T05:06:23.016Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-03-22T05:11:18.953Z
+Stopped at: Completed 09-05-PLAN.md
 Resume file: None

@@ -67,7 +67,7 @@ completed: 2026-03-22
 ## Task Commits
 
 1. **Task 1: Run full governance and smoke verification + dateUtils migration** - `5147597` (fix)
-2. **Task 2: Update VALIDATION.md and create 09-05-SUMMARY.md** - `780a54d` (docs)
+2. **Task 2: Update VALIDATION.md and create 09-05-SUMMARY.md** - `1d0ea55` (docs)
 
 ## 验证结果
 

@@ -14,7 +14,7 @@
 - [ ] **Phase 6: 治理基线与门禁** — 建立治理脚手架、渐进门禁策略与关键路径一致性护栏
 - [ ] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层
 - [x] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归 (completed 2026-03-22)
-- [ ] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证
+- [x] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证 (completed 2026-03-22)
 - [ ] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地
 
 ## Phase Details
@@ -208,7 +208,7 @@ Plans:
 - [x] 09-02-PLAN.md — 删除 reviewStatsTimeRange 薄适配器，迁移至 shared/time-range（CLN-02）
 - [x] 09-03-PLAN.md — 删除 dateUtils deprecated（formatDateChinese/formatDateShort），迁移至 shared/formatting（CLN-02）
 - [x] 09-04-PLAN.md — 删除 responsiveUtils，迁移至 useResponsiveStyles/createResponsiveMetrics（CLN-02）
-- [ ] 09-05-PLAN.md — 全量验证（verify:governance + smoke + test:unit），更新 VALIDATION（CLN-03）
+- [x] 09-05-PLAN.md — 全量验证（verify:governance + smoke + test:unit），更新 VALIDATION（CLN-03）
 
 ---
 
@@ -240,7 +240,7 @@ Plans:
 |6. 治理基线与门禁|0/0|Not started|-|
 |7. Shared 重复逻辑收敛|0/0|Not started|-|
 |8. 大文件拆分与结构重构| 3/3 | Complete    | 2026-03-22 |
-|9. 目录边界治理与冗余清理| 2/5 | In Progress|  |
+|9. 目录边界治理与冗余清理| 5/5 | Complete   | 2026-03-22 |
 |10. 测试治理与 CI 收口|0/0|Not started|-|
 
 ---
