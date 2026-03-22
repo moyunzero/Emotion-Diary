@@ -1,13 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.2
-milestone_name: github-open-source-readiness
-status: defining_requirements
-stopped_at: Milestone v1.2 — roadmap created
-last_updated: "2026-03-22T00:00:00.000Z"
+milestone_name: milestone
+status: "Milestone v1.2 initialized — next: `/gsd-discuss-phase 11` or `/gsd-plan-phase 11`"
+stopped_at: Phase 11 context gathered
+last_updated: "2026-03-22T07:21:03.430Z"
+last_activity: 2026-03-22 — Milestone v1.2 started
 progress:
   total_phases: 14
-  completed_phases: 10
+  completed_phases: 7
   total_plans: 35
   completed_plans: 27
 ---
@@ -147,6 +148,6 @@ None yet.
 
 Last activity: 2026-03-22 - Completed quick task 260322-kqp: 同步 temp-ag-skills 到 ~/.cursor/skills，供全项目与 GSD 调用
 
-Last session: 2026-03-22
-Stopped at: Milestone v1.2 roadmap ready
-Resume file: `.planning/phases/11-github-repo-hygiene/11-CONTEXT.md`（待创建）
+Last session: 2026-03-22T07:21:03.428Z
+Stopped at: Phase 11 context gathered
+Resume file: .planning/phases/11-github-repo-hygiene/11-CONTEXT.md
