@@ -129,6 +129,12 @@ None.
 - verify:governance passes; ready for 09-02 (reviewStatsTimeRange deletion)
 - no-features-to-features rule deferred until multiple features exist
 
+## Self-Check: PASSED
+
+- knip.json, scripts/verify-governance.js, depcruise.cjs, 09-01-SUMMARY.md: FOUND
+- Commits 4386d7d, 959ffd2, 86b462a, 797ffc9, 99a280d: FOUND
+- npm run verify:governance: exit 0
+
 ---
 *Phase: 09-dir-boundary-cleanup*
 *Completed: 2026-03-22*
