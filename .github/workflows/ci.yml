@@ -16,6 +16,7 @@ jobs:
           node-version: "20"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
+      - run: yarn typecheck
       - run: yarn lint
       - run: yarn test:ci
 
@@ -29,6 +30,7 @@ jobs:
           node-version: "20"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
+      - run: yarn typecheck
       - run: yarn lint
       - run: yarn test:ci
       - run: yarn verify:governance
