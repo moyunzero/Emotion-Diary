@@ -13,7 +13,7 @@
 
 ## 状态管理（Zustand）
 
-- **单 Store 多模块**：`createEntriesModule` 等工厂接收 `set`/`get`，在 `useAppStore.ts` 中展开合并。
+- **单 Store 多模块**：`createEntriesSlice`、`createWeatherModule`、`createAIModule` 等工厂接收 `set`/`get`，在 `useAppStore.ts` 中 Slices Pattern 展开合并（`create<AppStore>()((...a) => ({ ...createEntriesSlice(...a), ... }))`）。
 - **内部方法前缀**：`_loadEntries`、`_saveEntries`、`_setWeather` 等表示「模块内或 store 内部使用」，避免与公开 API 混淆。
 - **异步与竞态**：同步云使用 `isSyncingRef`、`pendingSyncRef` 与防抖定时器，避免重复提交（详见 `store/useAppStore.ts` 文件顶部注释）。
 

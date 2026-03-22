@@ -13,7 +13,7 @@
 import fc from "fast-check";
 import { create } from "zustand";
 import { createAIModule } from "../../store/modules/ai";
-import { createEntriesModule } from "../../store/modules/entries";
+import { createEntriesSlice } from "../../store/modules/entries";
 import { AppState } from "../../store/modules/types";
 import { createWeatherModule } from "../../store/modules/weather";
 import { MoodLevel, Status } from "../../types";
@@ -107,7 +107,7 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
         fc.asyncProperty(newEntryDataArbitrary, async (entryData) => {
           // Create a test store
           const useTestStore = create<AppState>((set, get) => {
-            const entriesModule = createEntriesModule(set, get);
+            const entriesModule = createEntriesSlice(set, get);
             return {
               ...entriesModule,
               _saveEntries: () => {},
@@ -165,7 +165,7 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
           (entry, updates) => {
             // Create a test store with initial entry
             const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesModule(set, get);
+              const entriesModule = createEntriesSlice(set, get);
               return {
                 ...entriesModule,
                 entries: [entry],
@@ -212,7 +212,7 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
 
             // Create a test store with initial entries
             const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesModule(set, get);
+              const entriesModule = createEntriesSlice(set, get);
               return {
                 ...entriesModule,
                 entries: [...entries],
@@ -389,7 +389,7 @@ describe("Feature: react-native-optimization, Property 1: Store operations maint
           (initialEntries) => {
             // Create a store combining all modules
             const useTestStore = create<AppState>((set, get) => {
-              const entriesModule = createEntriesModule(set, get);
+              const entriesModule = createEntriesSlice(set, get);
               const weatherModule = createWeatherModule(set, get);
               const aiModule = createAIModule(set, get);
 

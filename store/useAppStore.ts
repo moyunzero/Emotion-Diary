@@ -14,7 +14,10 @@ import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { createAIModule } from "./modules/ai";
-import { clearEntriesSaveDebounce, createEntriesModule } from "./modules/entries";
+import {
+  clearEntriesSaveDebounce,
+  createEntriesSlice,
+} from "./modules/entries";
 import {
     checkGuestData,
     getStorageKey,
@@ -176,19 +179,15 @@ const initializeDatabase = async (): Promise<void> => {
 };
 
 /**
- * 创建 Zustand Store
+ * 创建 Zustand Store（Slices Pattern：create<AppStore>()((...a) => ({ ...slice(...a), ... }))）
  */
-export const useAppStore = create<AppStore>((set, get) => {
-  // 创建各个模块
-  const entriesModule = createEntriesModule(set, get);
-  const weatherModule = createWeatherModule(set, get);
-  const aiModule = createAIModule(set, get);
-
+export const useAppStore = create<AppStore>()((...args) => {
+  const set = args[0];
+  const get = args[1];
   return {
-    // 合并所有模块的状态和方法
-    ...entriesModule,
-    ...weatherModule,
-    ...aiModule,
+    ...createEntriesSlice(set, get),
+    ...createWeatherModule(set, get),
+    ...createAIModule(set, get),
 
     // 用户管理状态
     user: null,

@@ -3,6 +3,7 @@
  * 负责情绪条目的增删改查操作及本地持久化
  */
 
+import { StateCreator } from 'zustand';
 import { EditHistory, MoodEntry, Status } from '../../types';
 import {
   getStorageKey,
@@ -10,7 +11,7 @@ import {
   migrateFromLegacyStorage,
   saveToStorage,
 } from './storage';
-import { EntriesModule, ModuleCreator } from './types';
+import { AppStore, EntriesModule } from './types';
 
 /** 防抖保存定时器（500ms），全应用单例 */
 let saveEntriesTimeoutRef: ReturnType<typeof setTimeout> | null = null;
@@ -26,9 +27,14 @@ export const clearEntriesSaveDebounce = (): void => {
 };
 
 /**
- * 创建条目管理模块
+ * 创建 entries slice（StateCreator 交叉类型，get 可访问 AppStore 其余字段）
  */
-export const createEntriesModule: ModuleCreator<EntriesModule> = (set, get) => ({
+export const createEntriesSlice: StateCreator<
+  AppStore,
+  [],
+  [],
+  EntriesModule
+> = (set, get) => ({
   entries: [],
 
   /**
@@ -208,3 +214,6 @@ export const createEntriesModule: ModuleCreator<EntriesModule> = (set, get) => (
     }, 500);
   },
 });
+
+/** @deprecated 使用 createEntriesSlice */
+export const createEntriesModule = createEntriesSlice;
