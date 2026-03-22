@@ -4,13 +4,13 @@ milestone: v1.2
 milestone_name: milestone
 status: unknown
 stopped_at: Phase 11 context gathered
-last_updated: "2026-03-22T07:52:39.372Z"
+last_updated: "2026-03-22T16:30:00.000Z"
 last_activity: 2026-03-22
 progress:
   total_phases: 14
-  completed_phases: 9
-  total_plans: 41
-  completed_plans: 33
+  completed_phases: 10
+  total_plans: 44
+  completed_plans: 36
 ---
 
 # Project State
@@ -20,17 +20,19 @@ progress:
 See: `.planning/PROJECT.md` (milestone v1.2)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** Phase 14 — UI 体验与非模版化
+**Current focus:** v1.2 剩余项（Phase 11–12 需求：GH / INT / QA / TST2 / SIZE 等，见 REQUIREMENTS）
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
+Phase: 14 — **Complete**（2026-03-22）· 产出 `14-UI-SPEC.md`、`14-UI-AUDIT.md`  
+Plan: —
 
 ### Quick tasks（ad-hoc）
 
 | Date | Item |
 |------|------|
+| 2026-03-22 | README / README.en：修正克隆目录名、项目树、移除不存在的 `security-check.sh` / `pre-build-check.sh`，改为 `yarn verify:*`；英文技术栈 Groq 表述与中文一致 |
+| 2026-03-22 | EXPO-RN-AUDIT：补充「顶层目录与 RN/Expo 约定」表 |
 | 2026-03-22 | 陪伴天数弹窗与卡片统一数据源：`useCompanionFirstEntryDate`（游客读 `guest_first_entry_date`） |
 | 2026-03-22 | 个人页：未登录时「备份心事」「找回回忆」打开登录 Modal（`useProfileSyncHandlers`） |
 | 2026-03-22 | CI：`push` 触发分支由 `main` 改为 `master`（`.github/workflows/ci.yml`） |

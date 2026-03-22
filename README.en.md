@@ -24,8 +24,10 @@
 
 ```bash
 git clone <repository-url>
-cd emotion-diary
+cd Emotion-Diary
 ```
+
+(The folder name follows your remote repository; local checkout is commonly `Emotion-Diary`.)
 
 Use **Yarn** with the repository `yarn.lock`. Run `yarn install` locally; to match CI, use `yarn install --frozen-lockfile`.
 
@@ -111,14 +113,9 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 ### ⚡ One-Minute Experience
 
 ```bash
-# Clone the project
 git clone <repository-url>
-cd emotion-diary
-
-# Install dependencies
+cd Emotion-Diary
 yarn install
-
-# Start development server
 yarn start
 ```
 
@@ -136,7 +133,7 @@ yarn start
 | **Routing** | Expo Router | ~6.0.21 |
 | **State Management** | Zustand | ^5.0.9 |
 | **Data Persistence** | AsyncStorage + Supabase | - |
-| **AI Service** | Groq SDK | ^0.37.0 |
+| **AI Service** | Groq API (via `fetch`) | - |
 | **UI Components** | Custom Components + Lucide React Native | ^0.554.0 |
 | **Graphics Rendering** | React Native Skia | 2.2.12 |
 | **Animations** | React Native Reanimated | ~4.1.1 |
@@ -147,45 +144,39 @@ yarn start
 ## 📁 Project Structure
 
 ```
-fenyu-emotion-diary/
-├── app/                    # Expo Router pages
-│   ├── _layout.tsx         # Root layout configuration
-│   ├── profile.tsx         # Profile page
-│   └── (tabs)/             # Tab navigation group
-│       ├── _layout.tsx     # Tab navigation layout
-│       ├── index.tsx       # Home page (Dashboard)
-│       ├── record.tsx      # Record page
-│       └── insights.tsx    # Insights page (Mind Garden)
-├── components/             # Reusable UI components
-│   ├── Dashboard.tsx       # Dashboard component
-│   ├── Record.tsx          # Record component (weather icon selector)
-│   ├── Insights.tsx        # Insights component (Mind Garden theme)
-│   ├── WeatherStation.tsx  # Emotion weather station component
-│   ├── EntryCard.tsx       # Emotion record card (with burn animation)
-│   ├── EditEntryModal.tsx  # Edit entry modal
-│   ├── Toast.tsx           # Toast notification component
-│   └── ai/                 # AI feature components
-│       └── EmotionPodcast.tsx  # AI emotion podcast component
-├── store/                  # State management (Zustand)
-│   └── useAppStore.ts      # Global state Store
-├── lib/                    # Utility libraries
-│   └── supabase.ts         # Supabase client configuration
-├── utils/                  # Utility functions
-│   ├── dateUtils.ts        # Date processing utilities
-│   ├── aiService.ts        # AI service (Groq API integration)
-│   ├── moodIconUtils.tsx   # Mood icon utilities
-│   └── draftManager.ts     # Draft management utilities
-├── hooks/                  # Custom Hooks
-│   └── useHapticFeedback.ts # Haptic feedback Hook
-├── assets/                 # Asset files
-│   └── images/             # Image assets
-├── types.ts               # TypeScript type definitions
-├── constants.ts           # App constant configuration (emotion icon mapping)
-├── app.json               # Expo app configuration
-├── eas.json               # EAS build configuration
-├── tsconfig.json          # TypeScript configuration
-└── README.md              # Project documentation
+Emotion-Diary/
+├── app/                         # Expo Router (file-based routes)
+│   ├── _layout.tsx
+│   ├── profile.tsx
+│   ├── review-export.tsx
+│   └── (tabs)/
+│       ├── _layout.tsx
+│       ├── index.tsx            # Dashboard
+│       ├── record.tsx
+│       └── insights.tsx
+├── android/ ios/                # Native projects (prebuild / EAS)
+├── components/                  # Shared UI (includes subfolders: EditEntryModal/, ReviewExport/, Insights/, ai/, …)
+├── features/                    # Vertical slices (e.g. profile/)
+├── store/
+│   ├── useAppStore.ts
+│   └── modules/
+├── hooks/ lib/ utils/ services/ shared/
+├── styles/ types/ constants/    # Plus root types.ts, constants.ts
+├── assets/ __tests__/ scripts/ openspec/ docs/ app-store-submission/
+├── src/                         # Experimental / placeholder subdomains (mostly empty)
+├── app.json eas.json metro.config.js babel.config.js eslint.config.js
+└── package.json tsconfig.json README.md
 ```
+
+### Folders vs React Native / Expo conventions
+
+| Path | Notes |
+|------|------|
+| `app/` | **Expo Router** entry: only this tree defines routes. |
+| `android/` `ios/` | Standard **prebuild** output; keep shared logic in TS. |
+| `components/` `features/` | Typical split: reusable UI vs feature screens/logic. |
+
+See [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md) for SDK/build config audit.
 
 ## 🔧 Development Setup
 

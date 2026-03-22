@@ -24,8 +24,10 @@
 
 ```bash
 git clone <repository-url>
-cd emotion-diary
+cd Emotion-Diary
 ```
+
+（克隆后的文件夹名以远程仓库名为准；本仓库本地目录名为 `Emotion-Diary`。）
 
 请使用 **Yarn** 与仓库根目录的 `yarn.lock`。本地开发执行 `yarn install`；对齐 CI 或提交 PR 前建议在干净环境中使用 `yarn install --frozen-lockfile`，与持续集成一致。
 
@@ -140,15 +142,15 @@ yarn start
 
 详细信息请查看 [SECURITY.md](./SECURITY.md)
 
-### 安全检查
+### 配置与安全校验（脚本在 `package.json` 中注册）
 
 ```bash
-# 运行安全检查脚本
-./scripts/security-check.sh
-
-# 检查项目配置
-./scripts/pre-build-check.sh
+yarn verify:env          # 环境变量与密钥泄露风险（见 scripts/verify-env-security.js）
+yarn verify:all          # 聚合多项配置检查（图标、权限、EAS、隐私清单等）
+yarn verify:governance   # 治理规则（与 CI push 到 master 一致）
 ```
+
+具体检查项见各 `scripts/verify-*.js` 与 [SECURITY.md](./SECURITY.md)。
 
 ## 📦 发布与上架
 
@@ -162,8 +164,8 @@ yarn start
 
 #### 🛠️ 构建建议
 ```bash
-# 构建前检查
-./scripts/pre-build-check.sh
+# 构建前建议先跑校验（与上文「配置与安全校验」一致）
+yarn verify:all
 
 # iOS 生产构建
 eas build --platform ios --profile production
@@ -188,54 +190,55 @@ eas build --platform ios --profile production
 ## 📁 项目结构
 
 ```
-fenyu-emotion-diary/
-├── app/                    # Expo Router页面
-│   ├── _layout.tsx         # 根布局配置
-│   ├── profile.tsx         # 个人中心页面
-│   └── (tabs)/             # 标签页路由组
-│       ├── _layout.tsx     # 标签导航布局
-│       ├── index.tsx       # 主页面 (Dashboard)
-│       ├── record.tsx      # 记录页面
-│       └── insights.tsx    # 洞察页面（心灵花园）
-├── components/             # 可复用UI组件
-│   ├── Dashboard.tsx       # 主页面组件
-│   ├── Record.tsx          # 记录页面组件（天气图标选择器）
-│   ├── Insights.tsx        # 洞察页面组件（心灵花园主题）
-│   ├── WeatherStation.tsx  # 情绪气象站组件
-│   ├── EntryCard.tsx       # 情绪记录卡片（含气话焚烧动画）
-│   ├── EditEntryModal.tsx  # 编辑记录模态框
-│   ├── Toast.tsx           # Toast提示组件
-│   └── ai/                 # AI功能组件
-│       └── EmotionPodcast.tsx  # AI情绪播客组件
-├── store/                  # 状态管理（Zustand）
-│   └── useAppStore.ts      # 全局状态Store
-├── lib/                    # 工具库
-│   └── supabase.ts         # Supabase客户端配置
-├── utils/                  # 工具函数
-│   ├── dateUtils.ts        # 日期处理工具
-│   ├── aiService.ts        # AI服务（Groq API集成）
-│   ├── moodIconUtils.tsx   # 情绪图标工具
-│   └── draftManager.ts     # 草稿管理工具
-├── hooks/                  # 自定义Hooks
-│   └── useHapticFeedback.ts # 震动反馈Hook
-├── assets/                 # 资源文件
-│   └── images/             # 图片资源
-├── openspec/               # OpenSpec规范文档
-│   ├── README.md           # OpenSpec使用指南
-│   ├── project-overview.md # 项目概览规范
-│   ├── data-models.md      # 数据模型规范
-│   ├── state-management.md # 状态管理规范
-│   ├── ui-components.md    # UI组件规范
-│   ├── services.md         # 服务层规范
-│   ├── utils.md            # 工具函数规范
-│   └── development-workflow.md # 开发工作流文档
-├── types.ts               # TypeScript类型定义
-├── constants.ts           # 应用常量配置（情绪图标映射）
-├── app.json               # Expo应用配置
-├── eas.json               # EAS构建配置
-├── tsconfig.json          # TypeScript配置
-└── README.md              # 项目文档
+Emotion-Diary/
+├── app/                         # Expo Router：文件即路由（页面仅此目录）
+│   ├── _layout.tsx              # 根布局（字体、Store 初始化、Stack）
+│   ├── profile.tsx              # 个人中心
+│   ├── review-export.tsx        # 情绪回顾导出页
+│   └── (tabs)/
+│       ├── _layout.tsx          # 底部标签导航
+│       ├── index.tsx            # 主页（Dashboard）
+│       ├── record.tsx           # 记录页
+│       └── insights.tsx         # 洞察页（心灵花园）
+├── android/ ios/                # 原生工程（prebuild / EAS 生成，勿手改业务逻辑）
+├── components/                  # 跨页面可复用 UI（含子目录）
+│   ├── Dashboard.tsx Record.tsx Insights.tsx …
+│   ├── EditEntryModal/ ReviewExport/ Insights/ entries/ ai/ …
+│   └── …
+├── features/                    # 按功能垂直拆分（例：profile/ 屏幕与逻辑）
+├── store/
+│   ├── useAppStore.ts           # Zustand 根组合
+│   └── modules/                 # 分模块 slice（entries、user、ai …）
+├── hooks/                       # 可复用 Hooks
+├── lib/                         # 第三方客户端封装（如 Supabase）
+├── services/                    # 领域服务（如陪伴天数计算）
+├── utils/ shared/               # 工具函数与跨层共享（如格式化）
+├── styles/                      # StyleSheet 工厂、主题相关样式
+├── types/                       # 补充类型（components、colors …）
+├── types.ts constants.ts        # 领域模型与根级常量（与 constants/ 并存）
+├── constants/                   # 拆分的常量（如 colors）
+├── assets/                      # 图片与静态资源
+├── __tests__/                   # Jest 单测 / 属性测试 / 集成测试
+├── scripts/                     # 校验与治理脚本（verify-*）
+├── openspec/ docs/              # 规范与补充文档
+├── app-store-submission/        # 商店提审文案与清单
+├── src/                         # 预留/实验性子域目录（多数为空；少量如 core-state）
+├── app.json eas.json metro.config.js babel.config.js eslint.config.js
+└── package.json tsconfig.json README.md
 ```
+
+### 目录与 React Native / Expo 约定（摘要）
+
+| 目录 | 说明 |
+|------|------|
+| `app/` | 符合 **Expo Router** 要求：仅此处定义路由页面。 |
+| `android/` `ios/` | 标准 **预构建原生目录**；业务逻辑应放在 TS/TSX 共享层。 |
+| `components/` `features/` | 常见 RN 分层：**展示组件**与**功能切片**分离。 |
+| `store/` `hooks/` `services/` | 状态、副作用与领域服务分离，便于测试与边界（见 ESLint `boundaries`）。 |
+
+更完整的 **SDK 与构建配置核对** 见 [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md)。
+
+**说明：** `src/` 下部分子文件夹为占位结构，与主业务并置；新功能优先落在 `app/`、`components/`、`features/` 以免重复入口。
 
 ## 📚 OpenSpec 规范驱动开发
 
