@@ -7,7 +7,7 @@
     "focusedSeverity": "warn",
     "promotionCondition": "Two consecutive PR rounds with zero new violations"
   },
-  "scope": ["app", "components", "store", "utils", "hooks", "services", "lib"],
+  "scope": ["app", "components", "store", "utils", "hooks", "services", "lib", "features", "shared"],
   "historicalDebt": {
     "unusedExports": [],
     "unusedDependencies": [],

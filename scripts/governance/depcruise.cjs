@@ -6,6 +6,8 @@ const GOVERNANCE_SCOPE = [
   "^hooks/",
   "^services/",
   "^lib/",
+  "^features/",
+  "^shared/",
 ];
 
 const CANDIDATES_FOR_ERROR = [
@@ -21,9 +23,23 @@ module.exports = {
       name: "no-cross-layer-boundary",
       comment:
         "Cross-layer imports are visible as warn first, then can be promoted to error by gate policy.",
-      severity: "warn",
+      severity: "error",
       from: { path: "^store/" },
       to: { path: "^app/" },
+    },
+    {
+      name: "no-features-to-app",
+      comment: "features 不可 import app",
+      severity: "error",
+      from: { path: "^features/" },
+      to: { path: "^app/" },
+    },
+    {
+      name: "no-features-to-features",
+      comment: "features 之间不可互相 import",
+      severity: "error",
+      from: { path: "^features/" },
+      to: { path: "^features/" },
     },
     {
       name: "no-component-imports-from-app",
@@ -38,7 +54,7 @@ module.exports = {
       name: "no-new-circular",
       comment:
         "Circular dependencies are tracked as warn by default and can be promoted after two clean PR rounds.",
-      severity: "warn",
+      severity: "error",
       from: { path: GOVERNANCE_SCOPE },
       to: { circular: true },
     },
@@ -47,7 +63,7 @@ module.exports = {
       name: "no-new-unused-export",
       comment:
         "Unused exports are managed with knip baseline + allowlist and raised as warn initially.",
-      severity: "warn",
+      severity: "error",
       from: { path: GOVERNANCE_SCOPE },
       to: { pathNot: "\\.(test|spec)\\.(ts|tsx|js|jsx)$" },
     },
@@ -78,6 +94,6 @@ module.exports = {
       promoteToErrorWhen: "Two consecutive PR rounds with zero new violations",
     },
     candidatesForError: CANDIDATES_FOR_ERROR,
-    scope: ["app", "components", "store", "utils", "hooks", "services", "lib"],
+    scope: ["app", "components", "store", "utils", "hooks", "services", "lib", "features", "shared"],
   },
 };

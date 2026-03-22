@@ -10,6 +10,8 @@ const GOVERNANCE_SCOPE = [
   "hooks",
   "services",
   "lib",
+  "features",
+  "shared",
 ];
 
 const STAGES = [
@@ -23,7 +25,7 @@ const STAGES = [
     id: "dependency-cruiser",
     title: "Stage 2/3: dependency-cruiser (dependency graph checks)",
     command: "npx",
-    args: ["depcruise", ...GOVERNANCE_SCOPE],
+    args: ["depcruise", "--config", "scripts/governance/depcruise.cjs", ...GOVERNANCE_SCOPE],
   },
   {
     id: "eslint-plugin-boundaries",
