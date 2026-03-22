@@ -18,6 +18,43 @@
 
 **Fenyu** is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
 
+## 👩‍💻 Developer quick start
+
+### Clone and install
+
+```bash
+git clone <repository-url>
+cd emotion-diary
+```
+
+Use **Yarn** with the repository `yarn.lock`. Run `yarn install` locally; to match CI, use `yarn install --frozen-lockfile`.
+
+**Default branch:** `master`.
+
+### Environment
+
+Copy `.env.example` to `.env` and fill values as needed (do not commit real secrets).
+
+### Minimal checks
+
+```bash
+yarn typecheck
+yarn lint
+yarn test:ci
+```
+
+### CI summary
+
+- **Pull requests:** runs `yarn lint`, `yarn typecheck`, and `yarn test:ci`.
+- **Push to `master`:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
+
+### Community & docs
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- [SECURITY.md](./SECURITY.md)
+- [openspec/README.md](./openspec/README.md) · [.planning/codebase/STACK.md](./.planning/codebase/STACK.md)
+
 ## 🌟 Core Features
 
 ### 🌤️ Emotion Weather Station
@@ -76,7 +113,7 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 ```bash
 # Clone the project
 git clone <repository-url>
-cd fenyu-emotion-diary
+cd emotion-diary
 
 # Install dependencies
 yarn install
