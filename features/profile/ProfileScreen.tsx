@@ -39,6 +39,8 @@ export function ProfileScreen() {
     setSyncStatus: state.setSyncStatus,
     setSyncProgress: state.setSyncProgress,
     setLastSyncTime: state.setLastSyncTime,
+    setIsLoginModalOpen: state.setIsLoginModalOpen,
+    setIsRegisterMode: state.setIsRegisterMode,
   });
   const authHandlers = useProfileAuthHandlers({
     isLoading: state.isLoading,

@@ -14,6 +14,9 @@ type StateRef = {
   setSyncStatus: (v: SyncStatus) => void;
   setSyncProgress: (v: string) => void;
   setLastSyncTime: (v: number) => void;
+  /** 未登录时点击备份/恢复：打开登录弹窗（与头像区「点击登录」一致） */
+  setIsLoginModalOpen: (v: boolean) => void;
+  setIsRegisterMode: (v: boolean) => void;
 };
 
 export function useProfileSyncHandlers(state: StateRef) {
@@ -23,7 +26,11 @@ export function useProfileSyncHandlers(state: StateRef) {
 
   const handleSyncAction = useCallback(
     async (type: "upload" | "download") => {
-      if (!user) return;
+      if (!user) {
+        state.setIsRegisterMode(false);
+        state.setIsLoginModalOpen(true);
+        return;
+      }
 
       const { isSyncingRef, setIsLoading, setSyncStatus, setSyncProgress } =
         state;

@@ -3,7 +3,7 @@
  * 验证UI简化功能的实现
  */
 
-import { render } from "@testing-library/react-native";
+import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 import ProfileScreen from "../../../app/profile";
 
@@ -153,6 +153,30 @@ describe("Profile页面 - UI简化", () => {
       // 未登录时不应该显示退出登录按钮
       const logoutButton = queryByText("退出登录");
       expect(logoutButton).toBeNull();
+    });
+
+    it("点击备份心事应在未登录时打开登录弹窗", () => {
+      const { getByRole, getByText, queryByText } = render(<ProfileScreen />);
+
+      expect(
+        queryByText("登录后，您的情绪记录将安全地存储在云端，随时随地找回。"),
+      ).toBeNull();
+
+      fireEvent.press(getByRole("button", { name: "备份心事" }));
+
+      expect(
+        getByText("登录后，您的情绪记录将安全地存储在云端，随时随地找回。"),
+      ).toBeTruthy();
+    });
+
+    it("点击找回回忆应在未登录时打开登录弹窗", () => {
+      const { getByRole, getByText } = render(<ProfileScreen />);
+
+      fireEvent.press(getByRole("button", { name: "找回回忆" }));
+
+      expect(
+        getByText("登录后，您的情绪记录将安全地存储在云端，随时随地找回。"),
+      ).toBeTruthy();
     });
   });
 });
