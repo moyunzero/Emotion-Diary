@@ -13,6 +13,8 @@ module.exports = {
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
     "hooks/**/*.{ts,tsx}",
+    "features/**/*.{ts,tsx}",
+    "shared/**/*.{ts,tsx}",
     "services/**/*.{ts,tsx}",
     "store/**/*.{ts,tsx}",
     "utils/**/*.{ts,tsx}",

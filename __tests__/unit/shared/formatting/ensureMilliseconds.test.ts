@@ -1,10 +1,10 @@
 /**
- * 日期工具函数测试
+ * 单测覆盖 @/shared/formatting 的 ensureMilliseconds（与实现目录 shared/formatting 对齐）。
  */
 
 import { ensureMilliseconds } from '@/shared/formatting';
 
-describe('dateUtils', () => {
+describe('shared/formatting ensureMilliseconds', () => {
   describe('ensureMilliseconds', () => {
     it('should keep milliseconds timestamp unchanged', () => {
       const milliseconds = 1705564800000; // 2024-01-18 00:00:00

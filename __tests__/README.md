@@ -6,14 +6,35 @@
 
 ```
 __tests__/
-├── unit/           # 单元测试
-│   ├── services/   # 服务层测试
-│   ├── stores/     # Store测试
-│   ├── hooks/      # 自定义Hook测试
-│   └── utils/      # 工具函数测试
-├── property/       # 属性测试（Property-Based Testing）
-└── integration/    # 集成测试
+├── unit/              # 单元测试
+│   ├── app/           # app 路由与布局相关
+│   ├── assets/        # 资源模块
+│   ├── components/    # 组件
+│   ├── constants/     # 常量
+│   ├── features/      # features 特性层（与源码 features/ 对应）
+│   ├── hooks/         # 自定义 Hook
+│   ├── scripts/       # 仓库根 scripts/ 的脚本逻辑
+│   ├── services/      # 服务层
+│   ├── shared/        # shared 共享模块（含 formatting、time-range 等子树）
+│   ├── store/         # 状态管理
+│   └── utils/         # 工具函数（与源码 utils/ 对应）
+├── property/          # 属性测试（Property-Based Testing）
+└── integration/       # 集成测试
 ```
+
+## 源码目录 → 单测根目录映射
+
+| 源码目录 | 单元测试根目录 |
+|----------|----------------|
+| `app/` | `__tests__/unit/app/` |
+| `features/` | `__tests__/unit/features/` |
+| `shared/` | `__tests__/unit/shared/` |
+| `store/` | `__tests__/unit/store/` |
+| `utils/` | `__tests__/unit/utils/` |
+| `components/` | `__tests__/unit/components/` |
+| `hooks/` | `__tests__/unit/hooks/` |
+| `services/` | `__tests__/unit/services/` |
+| `scripts/` | `__tests__/unit/scripts/` |
 
 ## 测试类型说明
 
