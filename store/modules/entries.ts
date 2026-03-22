@@ -1,10 +1,29 @@
 /**
  * 条目管理模块
- * 负责情绪条目的增删改查操作
+ * 负责情绪条目的增删改查操作及本地持久化
  */
 
 import { EditHistory, MoodEntry, Status } from '../../types';
+import {
+  getStorageKey,
+  loadFromStorage,
+  migrateFromLegacyStorage,
+  saveToStorage,
+} from './storage';
 import { EntriesModule, ModuleCreator } from './types';
+
+/** 防抖保存定时器（500ms），全应用单例 */
+let saveEntriesTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * 清除 entries 保存防抖定时器（供 cleanupStoreTimers 调用）
+ */
+export const clearEntriesSaveDebounce = (): void => {
+  if (saveEntriesTimeoutRef) {
+    clearTimeout(saveEntriesTimeoutRef);
+    saveEntriesTimeoutRef = null;
+  }
+};
 
 /**
  * 创建条目管理模块
@@ -144,16 +163,48 @@ export const createEntriesModule: ModuleCreator<EntriesModule> = (set, get) => (
   },
 
   /**
-   * 加载本地条目（占位符，实际实现在主 Store 中）
+   * 加载本地条目（含迁移、loadFromStorage、_calculateWeather）
    */
   _loadEntries: async (): Promise<void> => {
-    // 实现在主 Store 中
+    try {
+      const { user } = get();
+      const userId = user?.id || null;
+
+      const migrationResult = await migrateFromLegacyStorage(userId);
+      if (migrationResult.success && migrationResult.data) {
+        set({ entries: migrationResult.data });
+        get()._calculateWeather();
+        return;
+      }
+
+      const storageKey = getStorageKey(userId);
+      const entries = await loadFromStorage(storageKey);
+      set({ entries });
+      get()._calculateWeather();
+    } catch (error) {
+      console.error('Error loading entries:', error);
+      set({ entries: [] });
+    }
   },
 
   /**
-   * 保存条目到本地（占位符，实际实现在主 Store 中）
+   * 保存条目到本地（500ms 防抖）
    */
   _saveEntries: (): void => {
-    // 实现在主 Store 中
+    if (saveEntriesTimeoutRef) {
+      clearTimeout(saveEntriesTimeoutRef);
+    }
+
+    saveEntriesTimeoutRef = setTimeout(async () => {
+      try {
+        const { entries, user } = get();
+        const storageKey = getStorageKey(user?.id || null);
+        await saveToStorage(storageKey, entries);
+      } catch (error) {
+        console.error('Error saving entries:', error);
+      } finally {
+        saveEntriesTimeoutRef = null;
+      }
+    }, 500);
   },
 });

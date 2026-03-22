@@ -8,17 +8,16 @@ import "react-native-url-polyfill/auto";
 import { create } from "zustand";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { MoodEntry, User } from "../types";
+import { getDefaultAvatar } from "../utils/avatarPresets";
 import { ensureMilliseconds } from "../utils/dateUtils";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { createAIModule } from "./modules/ai";
-import { createEntriesModule } from "./modules/entries";
+import { clearEntriesSaveDebounce, createEntriesModule } from "./modules/entries";
 import {
     checkGuestData,
     getStorageKey,
-    loadFromStorage,
-    migrateFromLegacyStorage,
     migrateGuestDataToUser,
     migrateUserDataToGuest,
     removeFromStorage,
@@ -36,17 +35,11 @@ let pendingSyncRef = false;
 // 同步请求防抖定时器
 let syncDebounceTimerRef: ReturnType<typeof setTimeout> | null = null;
 
-// AsyncStorage 写入防抖定时器
-let saveEntriesTimeoutRef: ReturnType<typeof setTimeout> | null = null;
-
 /**
  * 清理所有定时器（在应用关闭时调用）
  */
 export const cleanupStoreTimers = (): void => {
-  if (saveEntriesTimeoutRef) {
-    clearTimeout(saveEntriesTimeoutRef);
-    saveEntriesTimeoutRef = null;
-  }
+  clearEntriesSaveDebounce();
   if (syncDebounceTimerRef) {
     clearTimeout(syncDebounceTimerRef);
     syncDebounceTimerRef = null;
@@ -446,56 +439,6 @@ export const useAppStore = create<AppStore>((set, get) => {
     },
 
     /**
-     * 加载本地条目
-     */
-    _loadEntries: async () => {
-      try {
-        const { user } = get();
-        const userId = user?.id || null;
-
-        // 检查是否需要迁移旧版数据
-        const migrationResult = await migrateFromLegacyStorage(userId);
-        if (migrationResult.success && migrationResult.data) {
-          set({ entries: migrationResult.data });
-          get()._calculateWeather();
-          return;
-        }
-
-        // 加载数据
-        const storageKey = getStorageKey(userId);
-        const entries = await loadFromStorage(storageKey);
-        set({ entries });
-
-        // 重新计算天气
-        get()._calculateWeather();
-      } catch (error) {
-        console.error("Error loading entries:", error);
-        set({ entries: [] });
-      }
-    },
-
-    /**
-     * 保存条目到本地（带防抖）
-     */
-    _saveEntries: () => {
-      if (saveEntriesTimeoutRef) {
-        clearTimeout(saveEntriesTimeoutRef);
-      }
-
-      saveEntriesTimeoutRef = setTimeout(async () => {
-        try {
-          const { entries, user } = get();
-          const storageKey = getStorageKey(user?.id || null);
-          await saveToStorage(storageKey, entries);
-        } catch (error) {
-          console.error("Error saving entries:", error);
-        } finally {
-          saveEntriesTimeoutRef = null;
-        }
-      }, 500);
-    },
-
-    /**
      * 加载用户信息
      */
     _loadUser: async () => {
@@ -515,7 +458,11 @@ export const useAppStore = create<AppStore>((set, get) => {
             email: session.user.email || "",
             avatar:
               session.user.user_metadata?.avatar ||
-              "https://picsum.photos/100/100",
+              getDefaultAvatar(
+                session.user.user_metadata?.name ||
+                  session.user.user_metadata?.display_name ||
+                  session.user.email?.split("@")[0],
+              ),
           };
 
           // 尝试获取 profile 信息
@@ -646,7 +593,11 @@ export const useAppStore = create<AppStore>((set, get) => {
             email: data.user.email || "",
             avatar:
               data.user.user_metadata?.avatar ||
-              "https://picsum.photos/100/100",
+              getDefaultAvatar(
+                data.user.user_metadata?.name ||
+                  data.user.user_metadata?.display_name ||
+                  data.user.email?.split("@")[0],
+              ),
           };
 
           // 尝试获取 profile
@@ -1285,7 +1236,12 @@ export const initializeStore = (): (() => void) => {
                 avatar:
                   profile?.avatar ||
                   session.user.user_metadata?.avatar ||
-                  "https://picsum.photos/100/100",
+                  getDefaultAvatar(
+                    profile?.name ||
+                      session.user.user_metadata?.name ||
+                      session.user.user_metadata?.display_name ||
+                      session.user.email?.split("@")[0],
+                  ),
               };
 
               if (userData.id !== session.user.id) {
