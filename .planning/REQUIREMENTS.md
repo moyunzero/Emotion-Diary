@@ -1,7 +1,7 @@
-# Requirements: 焚语（v1.1 工程重构与代码治理）
+# Requirements: 焚语（v1.1 已完成 · v1.2 活跃）
 
-**Defined:** 2026-03-21  
-**Core Value:** 用户能把陪伴时间与情绪变化变成可保存到相册的一张图（不因工程治理而损害现有核心体验）。
+**Defined:** 2026-03-21（v1.1）· 2026-03-22（v1.2）  
+**Core Value:** 用户能把陪伴时间与情绪变化变成可保存到相册的一张图；v1.2 在 **不损害该体验** 前提下完成 GitHub 开源就绪与体验精炼。
 
 ## v1 Requirements
 
@@ -33,11 +33,55 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### 测试治理与 CI 收口
 
-- [ ] **TST-01**: 删除示例/低价值/重复测试，保留并补齐关键路径测试集。
-- [ ] **TST-02**: 测试目录与代码边界对齐（feature/store/shared/integration），可快速定位责任模块。
-- [ ] **TST-03**: CI 采用分层策略（基础门禁 + 进阶门禁），在稳定性和速度间取得平衡。
+- [x] **TST-01**: 删除示例/低价值/重复测试，保留并补齐关键路径测试集。
+- [x] **TST-02**: 测试目录与代码边界对齐（feature/store/shared/integration），可快速定位责任模块。
+- [x] **TST-03**: CI 采用分层策略（基础门禁 + 进阶门禁），在稳定性和速度间取得平衡。
 
-## v2 Requirements
+## v1.2 Requirements（GitHub 开源就绪与产品体验精炼）
+
+**Defined:** 2026-03-22
+
+### GitHub 与仓库卫生（GH）
+
+- [ ] **GH-01**: README 对开源访客说明：项目是什么、如何安装运行、脚本矩阵、默认分支与 CI 状态；LICENSE / SECURITY 或等价说明就位。
+- [ ] **GH-02**: 无密钥与私有 URL 进入版本库；`.gitignore` 覆盖常见泄漏路径；必要时提供 `git-secrets` / 人工清单结果。
+- [ ] **GH-03**: 贡献与行为准则可选但推荐（CONTRIBUTING / CODE_OF_CONDUCT 或 README 章节），与项目实际流程一致。
+
+### 集成与可复现（INT）
+
+- [ ] **INT-01**: 新克隆仓库按文档可完成安装与 `typecheck` / `lint` / `test:ci`（或文档声明的最低集）无额外隐式步骤。
+- [ ] **INT-02**: 环境变量：`.env.example`（或等价）与代码中 `process.env` / Expo 配置引用一致，并说明 Groq/Supabase 等可选性。
+- [ ] **INT-03**: 锁文件与包管理器约定在 README 中写明（避免 npm/yarn/bun 混用未说明）。
+
+### 代码健康与冗余（QA）
+
+- [ ] **QA-01**: knip（及既有治理脚本）无未解释的新增高置信死代码；或增量记入允许清单并附理由。
+- [ ] **QA-02**: 临时代码、调试残留、明显无效分支或注释块清理；与「集成仍成功」验收一致。
+
+### 测试集精炼（TST2）
+
+- [ ] **TST2-01**: **删除**已识别的示例、重复、无断言或长期跳过的测试文件；**不得**删除仍被 CI/关键路径依赖的测试；删除清单可审计。
+- [ ] **TST2-02**: 剩余测试布局符合 RN/Jest 与仓库约定，README 或 `docs/` 中可索引。
+
+### React Native / Expo 约定（RN）
+
+- [ ] **RN-01**: `app.json` / `metro` / `babel` / `tsconfig` 与当前 Expo SDK 推荐实践核对；偏差写入 README 或 `.planning/codebase/`。
+- [ ] **RN-02**: 入口与路由（Expo Router）目录约定与命名在贡献文档中可查找。
+
+### 单文件体量（SIZE）
+
+- [ ] **SIZE-01**: 建立单文件行数阈值（建议 **400～500 行** 为警告、**800 行** 为硬上限候选）；产出超标清单并按 Phase 分批拆分，不一次性大爆炸。
+
+### 中文注释（DOC）
+
+- [ ] **DOC-01**: 对 `store` 核心切片、`features` 主流程（记录/导出/同步）、非显而易见的算法与副作用处补充 **中文** 注释或模块头说明；英文专有名词可保留。
+
+### UI 与非模版化（UI）
+
+- [ ] **UI-01**: 完成 UI 方向审计：拒绝「通用 AI 产品」模版感；更新或新增 `UI-SPEC` / 设计原则段落（治愈、手帐/气象隐喻、留白与字体层级）。
+- [ ] **UI-02**: 关键路径（首页、记录、洞察、导出、个人）**抽检**：对比原则做通过/待改进列表，待改进项进入后续 plan 或 backlog。
+
+## v2 Requirements（未来）
 
 Deferred to future milestone.
 
@@ -70,15 +114,30 @@ Deferred to future milestone.
 | CLN-01 | Phase 9 | Complete |
 | CLN-02 | Phase 9 | Complete |
 | CLN-03 | Phase 9 | Complete |
-| TST-01 | Phase 10 | Pending |
-| TST-02 | Phase 10 | Pending |
-| TST-03 | Phase 10 | Pending |
+| TST-01 | Phase 10 | Complete |
+| TST-02 | Phase 10 | Complete |
+| TST-03 | Phase 10 | Complete |
+| GH-01 | Phase 11 | Pending |
+| GH-02 | Phase 11 | Pending |
+| GH-03 | Phase 11 | Pending |
+| INT-01 | Phase 11 | Pending |
+| INT-02 | Phase 11 | Pending |
+| INT-03 | Phase 11 | Pending |
+| QA-01 | Phase 12 | Pending |
+| QA-02 | Phase 12 | Pending |
+| TST2-01 | Phase 12 | Pending |
+| TST2-02 | Phase 12 | Pending |
+| SIZE-01 | Phase 12 | Pending |
+| RN-01 | Phase 13 | Pending |
+| RN-02 | Phase 13 | Pending |
+| DOC-01 | Phase 13 | Pending |
+| UI-01 | Phase 14 | Pending |
+| UI-02 | Phase 14 | Pending |
 
 **Coverage:**
-- v1 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0 ✓
+- v1.1 requirements: 15 total — mapped Phases 6–10 ✓  
+- v1.2 requirements: 17 total — mapped Phases 11–14 ✓
 
 ---
-*Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after milestone v1.1 roadmap creation (Phase 6-10 mapped)*
+*Requirements defined: 2026-03-21 (v1.1), 2026-03-22 (v1.2)*  
+*Last updated: 2026-03-22 — milestone v1.2 requirements + roadmap*
