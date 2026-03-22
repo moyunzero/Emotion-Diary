@@ -27,11 +27,10 @@
 - ✓ **治理基线门禁（GOV-01/GOV-02/GOV-03）**：统一治理入口、渐进式门禁收紧、关键路径烟雾验证与验收模板已建立 — Validated in Phase 06 (governance-baseline-gates)
 - ✓ **Shared 重复逻辑收敛（SHR-01/SHR-02/SHR-03）**：formatting/time-range/responsive 已建立单一来源与兼容层迁移路径，关键页面最小回归与边界测试已接入 — Validated in Phase 07 (shared)
 - ✓ **大文件拆分治理（ARC-01/02/03）**：profile 壳层化与 features/profile 三区、entries slice 落位、EditEntryModal 目录化与 @/components/entries 出口 — Validated in Phase 08 (structure-refactor)
+- ✓ **目录边界治理与冗余清理（CLN-01/02/03）**：features/shared 纳入治理 scope、三项门禁升 error、responsiveUtils/dateUtils/reviewStatsTimeRange deprecated 清零 — Validated in Phase 09 (dir-boundary-cleanup)
 
 ### Active
 
-- [ ] **目录结构重构**：按 feature/shared 建立清晰边界，减少跨层耦合与"同类逻辑多处落地"（Phase 9）。
-- [ ] **冗余清理**：统一响应式与时间区间等重复工具函数，删除未引用死代码、无效导出与过期抽象。
 - [ ] **测试治理**：删除示例/失效/重复测试，保留关键路径测试并补齐重构保护用例。
 
 ### Out of Scope（本轮明确不做或后置）
