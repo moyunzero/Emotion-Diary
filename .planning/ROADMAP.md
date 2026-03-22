@@ -286,7 +286,7 @@ Plans:
 2. Expo Router 与 `app/` 约定在贡献说明中可查。  
 3. store/features 关键路径中文注释覆盖达到约定阈值（由 plan 量化）。
 
-**Plans**: 待 `/gsd-plan-phase 13`
+**Plans**: `13-01-PLAN.md`（RN-01 配置审计 + STACK 索引）· `13-02-PLAN.md`（RN-02 Expo Router 文档 + CONTRIBUTING）· `13-03-PLAN.md`（DOC-01 store/主流程中文注释）
 
 ### Phase 14: UI 体验与非模版化
 
