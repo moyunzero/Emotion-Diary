@@ -5,7 +5,7 @@ import {
   computeReviewExportDerivedState,
   type ReviewExportClosingSummary,
 } from './reviewExportDerived';
-import type { ReviewExportPreset } from './reviewStatsTimeRange';
+import type { ReviewExportPreset } from '@/shared/time-range';
 
 export type { ReviewExportClosingSummary } from './reviewExportDerived';
 

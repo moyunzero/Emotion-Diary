@@ -3,7 +3,7 @@
  */
 
 import { MoodEntry, Status } from '../types';
-import { getCalendarMonthRange } from './reviewStatsTimeRange';
+import { getCalendarMonthRange } from '@/shared/time-range';
 
 export interface ResolutionPeriodStats {
   total: number;

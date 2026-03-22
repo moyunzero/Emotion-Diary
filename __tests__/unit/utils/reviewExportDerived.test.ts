@@ -3,7 +3,7 @@ import { formatDateChinese, formatMonthDay } from '../../../shared/formatting';
 import { REVIEW_PRESET_LABEL } from '../../../shared/time-range';
 import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';
 import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
-import { getReviewExportPeriods } from '../../../utils/reviewStatsTimeRange';
+import { getReviewExportPeriods } from '@/shared/time-range';
 
 describe('reviewExportDerived', () => {
   it('closingSummary matches buildReviewExportClosingSummary', () => {

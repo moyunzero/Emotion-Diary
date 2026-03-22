@@ -1,10 +1,8 @@
 import {
   REVIEW_PRESET_LABEL,
-  type ReviewExportPreset,
   getReviewExportPeriods,
   getCalendarMonthRange,
-} from '../../../utils/reviewStatsTimeRange';
-import { getReviewExportPeriods as getSharedReviewExportPeriods } from '../../../shared/time-range';
+} from '@/shared/time-range';
 
 describe('getReviewExportPeriods', () => {
   it('re-exports preset labels for compatibility', () => {
@@ -25,22 +23,6 @@ describe('getReviewExportPeriods', () => {
     const now = new Date(2025, 2, 10);
     const { current, previous } = getReviewExportPeriods(now, 'last_month');
     expect(previous.endMs).toBeLessThan(current.startMs);
-  });
-
-  it('keeps old entry and shared canonical output consistent', () => {
-    const now = new Date(2026, 2, 21, 8, 30, 0, 0);
-    const presets: ReviewExportPreset[] = [
-      'this_week',
-      'last_week',
-      'this_month',
-      'last_month',
-    ];
-
-    for (const preset of presets) {
-      expect(getReviewExportPeriods(now, preset)).toEqual(
-        getSharedReviewExportPeriods(now, preset),
-      );
-    }
   });
 
   it('keeps business semantics stable on fixed input', () => {

@@ -1,6 +1,6 @@
 import { MoodLevel, Status } from '../../../types';
 import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
-import { getReviewExportPeriods } from '../../../utils/reviewStatsTimeRange';
+import { getReviewExportPeriods } from '@/shared/time-range';
 
 describe('reviewExportClosingInput', () => {
   it('period bounds match getReviewExportPeriods', () => {
