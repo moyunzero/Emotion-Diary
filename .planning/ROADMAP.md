@@ -178,7 +178,13 @@ Plans:
 2. `store/useAppStore.ts` 完成首批 slice 化后，外部调用方式保持兼容且核心流程可正常运行。  
 3. 500+ 行核心组件拆分后通过回归验证，用户侧未出现功能缺失或行为漂移。
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+
+- [ ] 08-01-PLAN.md — profile 壳层化：`features/profile/` + 三区子区块与 hooks（ARC-01）
+- [ ] 08-02-PLAN.md — store entries slice：`_loadEntries`/`_saveEntries` 单点 + Slices Pattern（ARC-02）
+- [ ] 08-03-PLAN.md — `EditEntryModal` 目录化拆分 + `@/components/entries` 迁移（ARC-03）
 
 ---
 
@@ -225,7 +231,7 @@ Plans:
 |5. Apple 上架|2/2|Complete|2026-03-21|
 |6. 治理基线与门禁|0/0|Not started|-|
 |7. Shared 重复逻辑收敛|0/0|Not started|-|
-|8. 大文件拆分与结构重构|0/0|Not started|-|
+|8. 大文件拆分与结构重构|0/3|Not started|-|
 |9. 目录边界治理与冗余清理|0/0|Not started|-|
 |10. 测试治理与 CI 收口|0/0|Not started|-|
 
