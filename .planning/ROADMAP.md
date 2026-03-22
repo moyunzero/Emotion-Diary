@@ -13,7 +13,7 @@
 - [x] **Phase 5: Apple 上架** — 隐私与元数据、截图与描述、提审清单闭环
 - [ ] **Phase 6: 治理基线与门禁** — 建立治理脚手架、渐进门禁策略与关键路径一致性护栏
 - [ ] **Phase 7: Shared 重复逻辑收敛** — 响应式/时间/格式化逻辑单一来源化并提供兼容层
-- [ ] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归
+- [x] **Phase 8: 大文件拆分与结构重构** — `profile` 与 `store` 切分落位且外部行为/API 不回归 (completed 2026-03-22)
 - [ ] **Phase 9: 目录边界治理与冗余清理** — 依赖边界可执行化、死代码清理并双端验证
 - [ ] **Phase 10: 测试治理与 CI 收口** — 测试集提纯、目录对齐、分层 CI 稳定落地
 
@@ -184,7 +184,7 @@ Plans:
 
 - [x] 08-01-PLAN.md — profile 壳层化：`features/profile/` + 三区子区块与 hooks（ARC-01）
 - [x] 08-02-PLAN.md — store entries slice：`_loadEntries`/`_saveEntries` 单点 + Slices Pattern（ARC-02）
-- [ ] 08-03-PLAN.md — `EditEntryModal` 目录化拆分 + `@/components/entries` 迁移（ARC-03）
+- [x] 08-03-PLAN.md — `EditEntryModal` 目录化拆分 + `@/components/entries` 迁移（ARC-03）
 
 ---
 
@@ -231,7 +231,7 @@ Plans:
 |5. Apple 上架|2/2|Complete|2026-03-21|
 |6. 治理基线与门禁|0/0|Not started|-|
 |7. Shared 重复逻辑收敛|0/0|Not started|-|
-|8. 大文件拆分与结构重构|0/3|Not started|-|
+|8. 大文件拆分与结构重构| 3/3 | Complete   | 2026-03-22 |
 |9. 目录边界治理与冗余清理|0/0|Not started|-|
 |10. 测试治理与 CI 收口|0/0|Not started|-|
 
