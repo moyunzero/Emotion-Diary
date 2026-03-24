@@ -143,7 +143,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260322-kqp | 同步 temp-ag-skills 到 ~/.cursor/skills，供全项目与 GSD 调用 | 2026-03-22 | — | [260322-kqp-temp-ag-skills-cursor-skills-gsd](./quick/260322-kqp-temp-ag-skills-cursor-skills-gsd/) |
-| 260324-gvn | Fix App Store rejection: 1) App name mismatch (心晴MO vs 焚语) 2) Login network error during review | 2026-03-24 | 9cecec3 | [260324-gvn-fix-app-store-rejection-1-app-name-misma](./quick/260324-gvn-fix-app-store-rejection-1-app-name-misma/) |
+| 260324-gvn | Fix App Store rejection: 1) App name mismatch (心晴MO vs 焚语) 2) Login network error during review | 2026-03-24 | df69dbc | [260324-gvn-fix-app-store-rejection-1-app-name-misma](./quick/260324-gvn-fix-app-store-rejection-1-app-name-misma/) |
 
 ## Session Continuity
 
