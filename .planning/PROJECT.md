@@ -2,23 +2,25 @@
 
 ## What This Is
 
-**焚语** 是一款治愈系情绪记录应用（Expo / React Native）：用「情绪气象站」「心灵花园」等隐喻帮助用户记录情绪、理解触发因素，并可选使用 AI 与云端同步。当前代码库已具备记录、洞察、焚烧、AI（Groq）、Supabase 同步与离线优先等能力（见 `.planning/codebase/`）。
+**心晴MO**（品牌名 焚语）是一款治愈系情绪记录应用（Expo / React Native）：用「情绪气象站」「心灵花园」等隐喻帮助用户记录情绪、理解触发因素，并可选使用 AI 与云端同步。应用商店与设备显示名为 **心晴MO**，内部文案与品牌多用 **焚语**。当前代码库已具备记录、洞察、焚烧、AI（Groq）、Supabase 同步与离线优先等能力（见 `.planning/codebase/`）。
 
 **v1.1 工程重构与代码治理** 已收口（治理、shared、结构拆分、目录边界、测试/CI）。  
 当前进入新里程碑：**v1.2 GitHub 开源就绪与产品体验精炼** — 面向公开仓库的 **可复现构建、无密钥泄漏、代码与测试集健康、RN/Expo 约定清晰、单文件可维护、核心逻辑中文注释、UI 拒绝通用模版感**；不改变「情绪记录 + 温柔回顾」核心叙事。
 
-## Current Milestone: v1.2 GitHub 开源就绪与产品体验精炼
+## Current Milestone: v1.3 文档与元数据对齐
 
-**Goal:** 仓库达到可安全公开 GitHub 的标准，并在外观与可维护性上更贴近产品调性（非模版化、温柔治愈语境）。
+**Goal:** 根据项目最新代码，修改 README、相关文档及 App 上架元数据，确保与现有代码逻辑与品牌命名一致。
 
 **Target features:**
 
-- 开源卫生：README / 许可与安全说明、`.gitignore`、无密钥、CI 与分支说明  
-- 集成可复现：依赖与脚本一致、环境变量模板与文档对齐  
-- 代码健康：死代码与无效路径清理；**精简测试集**（删示例/重复/无断言类），保留关键路径与门禁  
-- RN/Expo 约定核对与文档化；**单文件行数**超阈清单与分批拆分  
-- 核心链路 **中文注释** 补强  
-- **UI**：审计并强化差异化（拒绝「通用 AI 应用」模版感）
+- **README 对齐**：应用名称（心晴MO / 焚语）、功能列表、项目结构、技术栈与 `app.json` 及代码实现一致  
+- **相关文档**：CONTRIBUTING、README.en、SECURITY 等与当前构建脚本、目录结构、校验命令一致  
+- **App 上架元数据**：app-description-zh/en、screenshot-guide、preflight-checklist 明确 心晴MO（应用名）与 焚语（品牌）的关系，提审资料引用正确、可追溯
+
+## Previous Milestone: v1.2 GitHub 开源就绪与产品体验精炼
+
+**Goal:** 仓库达到可安全公开 GitHub 的标准，并在外观与可维护性上更贴近产品调性（非模版化、温柔治愈语境）。  
+**Status:** Complete（Phases 11–15）
 
 ## Core Value
 
@@ -46,10 +48,11 @@
 - ✓ **GitHub 仓库卫生与可复现构建（GH-01～03, INT-01～03）**：根目录 `SECURITY.md`、`yarn typecheck` 与 CI 对齐、README/CONTRIBUTING/README.en 开发者路径、`.env.example` 与代码一致、GH-02 密钥扫描记录 — Validated in Phase 11 (github-repo-hygiene)
 - ✓ **代码健康、测试精炼与单文件体量（QA-01/02, TST2-01/02, SIZE-01）**：knip 基线快照、`useAppStore` 诊断日志收敛、`createUserSlice` 拆分、`12-SIZE-OVERVIEW` / 测试删除审计表、CONTRIBUTING 测试布局索引 — Validated in Phase 12 (code-health-tests-size)
 - ✓ **RN/Expo 约定与中文注释（RN-01/02, DOC-01）**：`EXPO-RN-AUDIT` / `EXPO-ROUTER`、STACK 与 CONTRIBUTING 索引、store 与记录/导出路径中文注释 — Validated in Phase 13 (rn-expo)
+- ✓ **UI 体验与非模版化（UI-01/02）**：`14-UI-SPEC` 全产品原则与反模式、`14-UI-AUDIT` 五关键屏抽检、CONTRIBUTING 链到 SPEC — Validated in Phase 14 (ui)
 
-### Active（v1.2）
+### Active（v1.3）
 
-见 `.planning/REQUIREMENTS.md` **v1.2** 章节（GH / INT / QA / TST / RN / SIZE / DOC / UI）。摘要：GitHub 文档与密钥卫生、集成与 env 可复现、死代码与测试集精炼（**保留关键路径与 CI 所需测试**）、RN 标准核对、大单文件拆分、中文注释、非模版化 UI 方向与抽检。
+见 `.planning/REQUIREMENTS.md` **v1.3** 章节（DOC-META-01～04）。摘要：README、相关文档、App 上架元数据与代码及品牌命名对齐。
 
 ### Out of Scope（v1.2）
 
@@ -133,4 +136,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state  
 
 ---
-*Last updated: 2026-03-22 — Phase 13 complete; milestone v1.2 in progress*
+*Last updated: 2026-03-24 — Milestone v1.3 文档与元数据对齐*

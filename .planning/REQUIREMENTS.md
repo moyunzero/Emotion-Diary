@@ -1,7 +1,7 @@
-# Requirements: 焚语（v1.1 已完成 · v1.2 活跃）
+# Requirements: 心晴MO / 焚语（v1.2 已完成 · v1.3 活跃）
 
-**Defined:** 2026-03-21（v1.1）· 2026-03-22（v1.2）  
-**Core Value:** 用户能把陪伴时间与情绪变化变成可保存到相册的一张图；v1.2 在 **不损害该体验** 前提下完成 GitHub 开源就绪与体验精炼。
+**Defined:** 2026-03-21（v1.1）· 2026-03-22（v1.2）· 2026-03-24（v1.3）  
+**Core Value:** 用户能把陪伴时间与情绪变化变成可保存到相册的一张图；v1.3 在 **不改变代码行为** 前提下完成 README、文档与 App 上架元数据对齐。
 
 ## v1 Requirements
 
@@ -78,8 +78,19 @@ Requirements for milestone v1.1. Focus on engineering governance, maintainabilit
 
 ### UI 与非模版化（UI）
 
-- [ ] **UI-01**: 完成 UI 方向审计：拒绝「通用 AI 产品」模版感；更新或新增 `UI-SPEC` / 设计原则段落（治愈、手帐/气象隐喻、留白与字体层级）。
-- [ ] **UI-02**: 关键路径（首页、记录、洞察、导出、个人）**抽检**：对比原则做通过/待改进列表，待改进项进入后续 plan 或 backlog。
+- [x] **UI-01**: 完成 UI 方向审计：拒绝「通用 AI 产品」模版感；更新或新增 `UI-SPEC` / 设计原则段落（治愈、手帐/气象隐喻、留白与字体层级）。
+- [x] **UI-02**: 关键路径（首页、记录、洞察、导出、个人）**抽检**：对比原则做通过/待改进列表，待改进项进入后续 plan 或 backlog。
+
+## v1.3 Requirements（文档与元数据对齐）
+
+**Defined:** 2026-03-24
+
+### 文档与元数据（DOC-META）
+
+- [ ] **DOC-META-01**: README.md 与当前代码一致：应用名称（心晴MO / 焚语）明确、功能列表与实现对齐、项目结构与 `app/`、`components/`、`features/` 等目录实际结构一致、技术栈版本与 `package.json` 一致。
+- [ ] **DOC-META-02**: README.en.md 与 README.md 结构对应、品牌与功能描述一致；CONTRIBUTING、SECURITY 等引用的脚本与路径正确。
+- [ ] **DOC-META-03**: App 上架元数据（app-description-zh、app-description-en、screenshot-guide）明确 心晴MO（应用名/设备名）与 焚语（品牌/产品名）的用法；提审资料引用的流程与页面与代码一致。
+- [ ] **DOC-META-04**: preflight-checklist、review-response 等提审文档与当前命名、2.3.8/2.1a 回复模板、登录说明一致；提审资料清单可交叉核对。
 
 ## v2 Requirements（未来）
 
@@ -131,13 +142,18 @@ Deferred to future milestone.
 | RN-01 | Phase 13 | Complete |
 | RN-02 | Phase 13 | Complete |
 | DOC-01 | Phase 13 | Complete |
-| UI-01 | Phase 14 | Pending |
-| UI-02 | Phase 14 | Pending |
+| UI-01 | Phase 14 | Complete |
+| UI-02 | Phase 14 | Complete |
+| DOC-META-01 | Phase 16 | Pending |
+| DOC-META-02 | Phase 16 | Pending |
+| DOC-META-03 | Phase 16 | Pending |
+| DOC-META-04 | Phase 16 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 15 total — mapped Phases 6–10 ✓  
-- v1.2 requirements: 17 total — mapped Phases 11–14 ✓
+- v1.2 requirements: 17 total — mapped Phases 11–14 ✓  
+- v1.3 requirements: 4 total — mapped Phase 16 ✓
 
 ---
-*Requirements defined: 2026-03-21 (v1.1), 2026-03-22 (v1.2)*  
-*Last updated: 2026-03-22 — milestone v1.2 requirements + roadmap*
+*Requirements defined: 2026-03-21 (v1.1), 2026-03-22 (v1.2), 2026-03-24 (v1.3)*  
+*Last updated: 2026-03-24 — Milestone v1.3 文档与元数据对齐*

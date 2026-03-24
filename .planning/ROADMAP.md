@@ -4,7 +4,9 @@
 
 在棕地代码上先建立 **可测试的统计与聚合层**，再实现 **符合契约的回顾图片**（**保存到系统相册**与隐私提示；v1 不接系统分享/第三方），随后接入 **一句 AI 温柔总结与兜底**，接着做 **动效与架构收敛**，最后完成 **Apple App Store** 提交相关项。主轴始终是 **可维护、可验证**，导出功能是本轮用户价值最高点。
 
-**Milestone v1.2（Phase 11–14）**：在 Phases 1–10 已完成基础上，推进 **GitHub 公开就绪**（文档、密钥卫生、可复现构建）、**代码与测试集健康**（含删除低价值测试，**保留** CI/关键路径测试）、**RN 约定与中文注释**、**非模版化 UI** 方向与抽检。
+**Milestone v1.2（Phase 11–15）**：在 Phases 1–10 已完成基础上，推进 **GitHub 公开就绪**、**代码与测试集健康**、**RN 约定与中文注释**、**非模版化 UI** 抽检，以及 **页面壳与顶栏令牌**。  
+
+**Milestone v1.3（Phase 16）**：**文档与元数据对齐** — README、相关文档、App 上架元数据与当前代码逻辑及品牌命名（心晴MO / 焚语）一致。
 
 ## Phases
 
@@ -299,7 +301,38 @@ Plans:
 1. UI-SPEC 或等价文档含差异化原则与反模式列表。  
 2. 五关键屏抽检表完成，阻塞项为 0 或已转为明确 follow-up issue/plan。
 
-**Plans**: 待 `/gsd-plan-phase 14`
+**Plans**: `14-01-PLAN.md`（`14-UI-SPEC` + CONTRIBUTING 入口）· `14-02-PLAN.md`（`14-UI-AUDIT` 五关键屏）· `14-03-PLAN.md`（待改进收口 + REQUIREMENTS/ROADMAP/SUMMARY）
+
+### Phase 15: 页面壳与顶栏令牌（Screen Shell）
+
+**Goal**: 在 `ScreenContainer` 之上统一栈式顶栏与可选底栏；顶栏尺寸/颜色从设计令牌读取；与 Phase 14「非模版化」区分——壳层只管结构，不统一各屏品牌内容。  
+**Depends on**: Phase 14  
+**Requirements**: （工程可维护性，见 `15-CONTEXT.md`）  
+
+**Success Criteria**:
+
+1. `StackScreenHeader` / `AppScreenShell` 落地；记一笔、情绪回顾图、资料顶栏复用。  
+2. `SCREEN_HEADER_TOKENS` + `useThemeStyles().screenHeader` 为单一来源。  
+3. CONTRIBUTING 写明滚动策略（禁止双滚动）。  
+
+**Plans**: `15-01-PLAN.md`（阶段 A）· `15-02-PLAN.md`（阶段 B）
+
+---
+
+### Phase 16: 文档与元数据对齐（v1.3）
+
+**Goal**: README、相关文档、App 上架元数据与当前代码逻辑及品牌命名（心晴MO / 焚语）一致。  
+**Depends on**: Phase 15  
+**Requirements**: DOC-META-01, DOC-META-02, DOC-META-03, DOC-META-04
+
+**Success Criteria**:
+
+1. README.md 与 README.en.md：应用名称（心晴MO / 焚语）明确、功能列表与实现一致、项目结构与目录实际一致、技术栈版本正确。  
+2. CONTRIBUTING、SECURITY 等引用的脚本、路径与当前项目一致。  
+3. app-description-zh/en、screenshot-guide 明确 心晴MO（应用名）与 焚语（品牌）的用法；preflight-checklist、review-response 与 2.3.8/2.1a 修复后状态一致。  
+4. 提审资料清单可交叉核对，无过期或矛盾引用。
+
+**Plans**: `16-01-PLAN.md`（README + 相关文档）· `16-02-PLAN.md`（App 上架元数据）
 
 ---
 
@@ -320,8 +353,12 @@ Plans:
 |11. GitHub 仓库与可复现构建| 2/2 | Complete    | 2026-03-22 |
 |12. 代码健康、测试精炼与单文件体量| 0/? | Complete    | 2026-03-22 |
 |13. RN/Expo 约定与中文注释| 3/3 | Complete | 2026-03-22 |
-|14. UI 体验与非模版化| 0/? | Not started | — |
+|14. UI 体验与非模版化| 3/3 | Complete | 2026-03-22 |
+|15. 页面壳与顶栏令牌| 2/2 | Complete | 2026-03-22 |
+|16. 文档与元数据对齐| 0/2 | Pending | — |
 
 ---
 Roadmap created: 2025-03-21  
-*Phases 11–14 added: 2026-03-22 — milestone v1.2*
+*Phases 11–14 added: 2026-03-22 — milestone v1.2*  
+*Phase 15 added: 2026-03-22 — screen shell & header tokens*  
+*Phase 16 added: 2026-03-24 — milestone v1.3 docs & metadata alignment*

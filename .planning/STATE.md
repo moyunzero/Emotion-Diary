@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: milestone
-status: unknown
-stopped_at: Phase 11 context gathered
-last_updated: "2026-03-22T16:30:00.000Z"
-last_activity: 2026-03-22
+milestone: v1.3
+milestone_name: 文档与元数据对齐
+status: defining_requirements
+stopped_at: Phase 16 not started
+last_updated: "2026-03-24T04:30:00.000Z"
+last_activity: 2026-03-24
 progress:
   total_phases: 14
   completed_phases: 10
@@ -17,15 +17,16 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (milestone v1.2)
+See: `.planning/PROJECT.md` (milestone v1.3)
 
 **Core value:** 用户能把陪伴时间与情绪变化变成 **可保存到相册** 的一张图（v1 不接入系统分享/第三方）。  
-**Current focus:** v1.2 剩余项（Phase 11–12 需求：GH / INT / QA / TST2 / SIZE 等，见 REQUIREMENTS）
+**Current focus:** v1.3 文档与元数据对齐（Phase 16：README、相关文档、App 上架元数据）
 
 ## Current Position
 
-Phase: 14 — **Complete**（2026-03-22）· 产出 `14-UI-SPEC.md`、`14-UI-AUDIT.md`  
-Plan: —
+Phase: 16 — **Not started**（文档与元数据对齐）  
+Plan: —  
+Status: Milestone v1.3 initialized — ready for `/gsd-discuss-phase 16` or `/gsd-plan-phase 16`
 
 ### Quick tasks（ad-hoc）
 
