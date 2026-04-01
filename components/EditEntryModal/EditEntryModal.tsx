@@ -1,18 +1,18 @@
 /**
  * EditEntryModal 壳层：Modal、KeyboardAvoidingView、安全区、组合 EditEntryForm
  */
-import { Edit, X } from 'lucide-react-native';
+import { Edit } from 'lucide-react-native';
 import React from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
   Platform,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { EditEntryModalProps } from '../../types/components';
+import { StackScreenHeader } from '../StackScreenHeader';
 import AppIcon from '../icons/AppIcon';
 import EditEntryForm from './EditEntryForm';
 import { styles } from './EditEntryModal.styles';
@@ -34,18 +34,18 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
       statusBarTranslucent={true}
     >
       <View style={styles.container}>
-        <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={24} color="#6B7280" />
-            </TouchableOpacity>
+        <StackScreenHeader
+          leading="close"
+          onBack={onClose}
+          headerCenter={
             <View style={styles.headerTitleContainer}>
               <AppIcon name={Edit} size={20} color="#1F2937" />
               <Text style={styles.headerTitle}>编辑记录</Text>
             </View>
-            <View style={styles.placeholder} />
-          </View>
-        </View>
+          }
+          titleAccessibilityLabel="编辑记录"
+          style={[styles.modalStackHeader, { paddingTop: insets.top }]}
+        />
 
         <KeyboardAvoidingView
           style={styles.keyboardContainer}

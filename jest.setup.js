@@ -19,6 +19,15 @@ jest.mock("expo-constants", () => ({
   },
 }));
 
+// Mock expo-image（Jest 不转译 expo-modules-core；用 RN Image 即可跑测）
+jest.mock("expo-image", () => {
+  const { Image } = require("react-native");
+  return {
+    __esModule: true,
+    Image,
+  };
+});
+
 // Mock react-native-reanimated
 jest.mock("react-native-reanimated", () => {
   const Reanimated = require("react-native-reanimated/mock");

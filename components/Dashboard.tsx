@@ -19,7 +19,7 @@ import { MoodEntry, Status } from "../types";
 import { formatDateChinese } from "@/shared/formatting";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
-import ScreenContainer from "./ScreenContainer";
+import { AppScreenShell } from "./AppScreenShell";
 import WeatherStation from "./WeatherStation";
 
 // Pure helper functions moved to module level
@@ -307,7 +307,7 @@ const Dashboard: React.FC = () => {
   ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress]);
 
   return (
-    <ScreenContainer edges={["top", "left", "right"]}>
+    <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
       {/* Header - 固定在顶部 */}
       <View style={styles.header}>
         <View>
@@ -507,7 +507,7 @@ const Dashboard: React.FC = () => {
             </>
           );
         })()}
-    </ScreenContainer>
+    </AppScreenShell>
   );
 };
 

@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -33,8 +32,8 @@ import {
   isGroqConfigured,
 } from '../../utils/aiService';
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
+import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
-import { ScreenContainer } from '../ScreenContainer';
 import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
 import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
 
@@ -136,7 +135,7 @@ export const ReviewExportScreen: React.FC = () => {
     const uri = await captureReviewPngUri();
     const perm = await MediaLibrary.requestPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('需要相册权限', '请在系统设置中允许焚语将回顾图保存到相册。');
+      Alert.alert('需要相册权限', '请在系统设置中允许心晴MO将回顾图保存到相册。');
       return;
     }
     await MediaLibrary.saveToLibraryAsync(uri);
@@ -192,33 +191,54 @@ export const ReviewExportScreen: React.FC = () => {
   }, [isBusy, performCaptureAndSave]);
 
   return (
-    <ScreenContainer edges={['top', 'left', 'right']}>
-      <View style={styles.rootColumn}>
-      <View
-        style={[
-          styles.header,
-          {
-            paddingHorizontal: responsiveLayout.headerPaddingHorizontal,
-            paddingTop: responsiveLayout.headerPaddingTop,
-            paddingBottom: responsiveLayout.headerPaddingBottom,
-          },
-        ]}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={12}
-          style={styles.backBtn}
-          accessibilityRole="button"
-          accessibilityLabel="返回"
+    <AppScreenShell
+      edges={['top', 'left', 'right']}
+      title="情绪回顾图"
+      onBack={() => router.back()}
+      titleColor={INSIGHTS_COLORS.text}
+      titleFontFamily="Lato_700Bold"
+      titleFontSize={responsiveLayout.headerTitleFontSize}
+      headerStyle={{
+        paddingHorizontal: responsiveLayout.headerPaddingHorizontal,
+        paddingTop: responsiveLayout.headerPaddingTop,
+        paddingBottom: responsiveLayout.headerPaddingBottom,
+      }}
+      footer={
+        <View
+          style={[
+            styles.footer,
+            {
+              paddingHorizontal: responsiveLayout.footerHorizontalPadding,
+              paddingTop: responsiveLayout.footerTopPadding,
+              paddingBottom: Math.max(insets.bottom, 12),
+            },
+          ]}
         >
-          <ChevronLeft size={26} color={INSIGHTS_COLORS.text} />
-        </Pressable>
-        <Text style={[styles.headerTitle, { fontSize: responsiveLayout.headerTitleFontSize }]}>
-          情绪回顾图
-        </Text>
-        <View style={{ width: 40 }} />
-      </View>
-
+          <Pressable
+            style={[
+              styles.saveBtn,
+              {
+                paddingVertical: responsiveLayout.saveButtonVerticalPadding,
+                borderRadius: responsiveLayout.saveButtonRadius,
+                minHeight: responsiveLayout.saveButtonMinHeight,
+              },
+              isBusy && styles.saveBtnDisabled,
+            ]}
+            onPress={() => void onPressSave()}
+            disabled={isBusy}
+          >
+            {isBusy ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
+                保存到相册
+              </Text>
+            )}
+          </Pressable>
+        </View>
+      }
+    >
+      <View style={styles.middleColumn}>
       <View
         style={[
           styles.presetRow,
@@ -284,61 +304,15 @@ export const ReviewExportScreen: React.FC = () => {
           />
         </View>
       </ScrollView>
-
-      <View
-        style={[
-          styles.footer,
-          {
-            paddingHorizontal: responsiveLayout.footerHorizontalPadding,
-            paddingTop: responsiveLayout.footerTopPadding,
-            paddingBottom: Math.max(insets.bottom, 12),
-          },
-        ]}
-      >
-        <Pressable
-          style={[
-            styles.saveBtn,
-            {
-              paddingVertical: responsiveLayout.saveButtonVerticalPadding,
-              borderRadius: responsiveLayout.saveButtonRadius,
-              minHeight: responsiveLayout.saveButtonMinHeight,
-            },
-            isBusy && styles.saveBtnDisabled,
-          ]}
-          onPress={() => void onPressSave()}
-          disabled={isBusy}
-        >
-          {isBusy ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
-              保存到相册
-            </Text>
-          )}
-        </Pressable>
       </View>
-      </View>
-    </ScreenContainer>
+    </AppScreenShell>
   );
 };
 
 const styles = StyleSheet.create({
-  rootColumn: {
+  middleColumn: {
     flex: 1,
     flexDirection: 'column',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backBtn: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontFamily: 'Lato_700Bold',
-    fontSize: 18,
-    color: INSIGHTS_COLORS.text,
   },
   presetRow: {
     flexDirection: 'row',

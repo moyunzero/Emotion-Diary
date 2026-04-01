@@ -47,7 +47,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
         </View>
         <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
-          焚语独有：焚烧后会保留温和的复盘线索
+          心晴MO 独有：焚烧后会保留温和的复盘线索
         </Text>
         <View style={styles.emptyCard}>
           <Wind size={28} color="#9CA3AF" />
@@ -88,7 +88,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
       </View>
       <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
-        焚语独有：释放情绪，同时保留成长证据
+        心晴MO 独有：释放情绪，同时保留成长证据
       </Text>
 
       <View style={styles.metricRow}>

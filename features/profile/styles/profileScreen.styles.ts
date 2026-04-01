@@ -148,7 +148,9 @@ export const profileScreenModalStyles = StyleSheet.create({
     borderRadius: 40,
     marginBottom: 16,
     borderWidth: 3,
-    borderColor: "#EF4444",
+    borderColor: "#FDA4AF",
+    backgroundColor: "#FFF1F2",
+    overflow: "hidden",
   },
   avatarList: {
     flexDirection: "row",
@@ -162,12 +164,14 @@ export const profileScreenModalStyles = StyleSheet.create({
     borderColor: "transparent",
   },
   avatarOptionSelected: {
-    borderColor: "#EF4444",
+    borderColor: "#FB7185",
   },
   avatarOptionImage: {
     width: 46,
     height: 46,
     borderRadius: 23,
+    backgroundColor: "#FFF1F2",
+    overflow: "hidden",
   },
   inputContainer: {
     width: "100%",

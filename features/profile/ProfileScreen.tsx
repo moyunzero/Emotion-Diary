@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
   Keyboard,
@@ -8,9 +8,8 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { useMemo } from "react";
 import CompanionDaysModal from "@/components/CompanionDaysModal";
-import ScreenContainer from "@/components/ScreenContainer";
+import { AppScreenShell } from "@/components/AppScreenShell";
 import { Toast } from "@/components/Toast";
 import { useAppStore } from "@/store/useAppStore";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
@@ -153,8 +152,9 @@ export function ProfileScreen() {
     <View style={profileStyles.container}>
       <View style={profileStyles.bgCircle} />
 
-      <ScreenContainer
+      <AppScreenShell
         edges={["top", "bottom"]}
+        showHeader={false}
         scrollable
         contentContainerStyle={profileContentPadding}
       >
@@ -243,7 +243,7 @@ export function ProfileScreen() {
           onSaveProfile={authHandlers.handleSaveProfile}
           globalErrorOpacity={state.globalErrorOpacity}
         />
-      </ScreenContainer>
+      </AppScreenShell>
 
       {state.isLoading && (
         <View style={profileStyles.loadingOverlay}>

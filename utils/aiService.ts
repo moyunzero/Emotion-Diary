@@ -492,7 +492,7 @@ export function getDefaultReviewExportClosingLine(
     summary.resolutionRatePct === null
       ? '本期情绪解决率暂无统计'
       : `情绪解决率为 ${summary.resolutionRatePct}%`;
-  return `在${summary.presetLabel}，你记录了${summary.totalEntries}笔，已和解${summary.resolvedEntries}笔。${rateText}。每一次记录都值得被温柔看见，焚语会一直在。`;
+  return `在${summary.presetLabel}，你记录了${summary.totalEntries}笔，已和解${summary.resolvedEntries}笔。${rateText}。每一次记录都值得被温柔看见，心晴MO 会一直在。`;
 }
 
 /**
@@ -539,7 +539,7 @@ export async function generateReviewExportClosingLine(
 
 - 所选周期：${summary.presetLabel}
 - 区间：${formatDateChinese(summary.periodStartMs)}～${formatDateChinese(summary.periodEndMs)}
-- 陪伴焚语第 ${summary.companionDays} 天
+- 陪伴心晴MO第 ${summary.companionDays} 天
 - ${rateLine}
 - ${deltaLine}
 - 本期共记录 ${summary.totalEntries} 笔，已和解 ${summary.resolvedEntries} 笔

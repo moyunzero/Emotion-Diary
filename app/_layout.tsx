@@ -3,8 +3,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { Platform, StatusBar } from 'react-native';
+/* eslint-disable import/no-duplicates -- RNGH：入口须先 side-effect 再命名导出 */
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+/* eslint-enable import/no-duplicates */
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { initializeStore, cleanupStoreTimers } from '../store/useAppStore';
 

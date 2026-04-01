@@ -1,8 +1,8 @@
-# Fenyu
+# Xinqing MO
 
 <div align="center">
 
-![Fenyu Logo](./assets/images/icon.png)
+![Xinqing MO Logo](./assets/images/icon.png)
 
 **A Healing-Focused Emotion Tracking & Management App**
 
@@ -14,9 +14,13 @@
 
 </div>
 
+## 📲 Get it on the App Store
+
+**Xinqing MO**（display name **心晴MO**）is available on the [**Apple App Store**](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686). Tap the link on your iPhone or iPad, or search for **心晴MO** in the App Store. For local development or bleeding-edge builds, see **Developer quick start** below.
+
 ## 📱 About
 
-**Fenyu** is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
+**Xinqing MO**（Chinese display name **心晴MO**）is an open-source **Mood Tracker** & **Mental Health App** built with **React Native** and **Expo**. Through unique concepts like "Emotion Weather Station" and "Mind Garden", it helps users record, understand, and manage their emotions, turning every emotional record and resolution into a process of nurturing their inner garden. Whether you are looking for a tool to manage your mental health or want to learn React Native development, this project is an excellent choice.
 
 ## 👩‍💻 Developer quick start
 
@@ -57,6 +61,16 @@ yarn test:ci
 - [SECURITY.md](./SECURITY.md)
 - [openspec/README.md](./openspec/README.md) · [.planning/codebase/STACK.md](./.planning/codebase/STACK.md)
 
+## 📦 Release & App Store
+
+- [app-description-zh.md](./app-store-submission/metadata/app-description-zh.md) · [app-description-en.md](./app-store-submission/metadata/app-description-en.md)
+- [screenshot-guide.md](./app-store-submission/metadata/screenshot-guide.md)
+- [review-response-4.3a.md](./app-store-submission/review-response-4.3a.md)
+- [review-response-2.3.8-2.1a.md](./app-store-submission/review-response-2.3.8-2.1a.md)
+- [supabase-login-checklist.md](./app-store-submission/supabase-login-checklist.md)
+- [preflight-checklist.md](./app-store-submission/preflight-checklist.md)
+- [PRIVACY.md](./PRIVACY.md)
+
 ## 🌟 Core Features
 
 ### 🌤️ Emotion Weather Station
@@ -81,9 +95,10 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Relationship Pots**: Each person corresponds to a flower pot, showing relationship health (Blooming/Growing/Needs Water)
 - **Trigger Insights**: Analyze Top 3 emotion triggers with warm "gardening advice"
 - **Encouraging Footer**: Dynamically generated positive feedback to show growth
+- **Weekly/Monthly Review & Export**: View stats for a chosen range and generate a review image, save to Photos (`review-export` route)
 
-### 🔥 Vent Burning
-- Therapeutic emotional release feature
+### 🔥 Vent Burning & Release Archive
+- Therapeutic emotional release with an **Emotion Release Archive** to revisit releases and trigger context
 - Cool Skia burning animation effect
 - Let negative emotions dissipate with the flames
 
@@ -92,7 +107,7 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Emotion Podcast**: AI-generated personalized emotional healing podcast content
 - **Emotion Prescription**: Personalized advice and coping strategies for specific triggers
 - **Smart Analysis**: Deep analysis of emotion cycles and triggering factors
-- Uses Groq API, supports offline use (shows default content without API Key)
+- **Review export closing line**: Optional Groq-generated line at the bottom of the export image; without an API key or when the network/service fails, local fallback copy is used (Groq calls require network)
 
 ### ☁️ Data Sync
 - **Offline-First**: Local storage protects user privacy
@@ -119,17 +134,19 @@ yarn install
 yarn start
 ```
 
-### 📱 Three Ways to Experience
+### 📱 Four Ways to Experience
 
-1. **📲 Expo Go Preview** - Install [Expo Go](https://expo.dev/go) on your phone, scan the QR code
-2. **📲 APK Download** - Download pre-compiled APK from Releases page
-3. **🌐 Web Version** - Run `yarn web` to experience in browser
+1. **🍎 App Store (for users)** - [**Download on the App Store**](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686) (iPhone / iPad); you can also search for **心晴MO** in the App Store
+2. **📲 Expo Go Preview** - Install [Expo Go](https://expo.dev/go) on your phone, scan the QR code
+3. **📲 APK Download** - Download pre-compiled APK from Releases page
+4. **🌐 Web Version** - Run `yarn web` to experience in browser
 
 ## 🛠️ Tech Stack
 
 | Category | Technology | Version |
 |----------|------------|---------|
 | **Framework** | React Native + Expo | 0.81.5 + ~54.0.30 |
+| **UI Runtime** | React | 19.1.0 |
 | **Routing** | Expo Router | ~6.0.21 |
 | **State Management** | Zustand | ^5.0.9 |
 | **Data Persistence** | AsyncStorage + Supabase | - |
@@ -162,7 +179,9 @@ Emotion-Diary/
 │   └── modules/
 ├── hooks/ lib/ utils/ services/ shared/
 ├── styles/ types/ constants/    # Plus root types.ts, constants.ts
-├── assets/ __tests__/ scripts/ openspec/ docs/ app-store-submission/
+├── assets/ __tests__/ scripts/ openspec/ docs/
+├── .planning/                   # Planning & phases; codebase/ notes (stack, router, etc.)
+├── app-store-submission/
 ├── src/                         # Experimental / placeholder subdomains (mostly empty)
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
 └── package.json tsconfig.json README.md
@@ -363,10 +382,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**🌱 Thanks for using Fenyu, may your mind garden flourish!**
+**🌱 Thanks for using Xinqing MO, may your mind garden flourish!**
 
 Made with ❤️ by Your Team
 
-[🔝 Back to Top](#fenyu)
+[🔝 Back to Top](#xinqing-mo)
 
 </div>

@@ -34,13 +34,11 @@ jest.mock("../../components/Avatar", () => {
   };
 });
 
-// Mock ScreenContainer component
-jest.mock("../../components/ScreenContainer", () => {
+jest.mock("../../components/AppScreenShell", () => {
   const React = require("react");
   return {
     __esModule: true,
-    default: ({ children }: any) => <>{children}</>,
-    ScreenContainer: ({ children }: any) => <>{children}</>,
+    AppScreenShell: ({ children }: any) => <>{children}</>,
   };
 });
 

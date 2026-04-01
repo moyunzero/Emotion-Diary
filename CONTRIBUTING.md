@@ -1,6 +1,6 @@
 # 贡献指南 (Contributing Guide)
 
-感谢你对 Emotion Diary 项目感兴趣！我们非常欢迎各种形式的贡献，包括但不限于提交代码、报告 Bug、完善文档、提出新功能建议等。
+感谢你对 **心晴MO**（仓库名 Emotion-Diary）项目感兴趣！我们非常欢迎各种形式的贡献，包括但不限于提交代码、报告 Bug、完善文档、提出新功能建议等。
 
 ## 🤝 如何参与贡献
 
@@ -65,6 +65,20 @@
 ## 路由与 app 目录（Expo Router）
 
 文件式路由、`(tabs)` 分组及与 `components` / `features` 的分工说明见：[.planning/codebase/EXPO-ROUTER.md](./.planning/codebase/EXPO-ROUTER.md)。
+
+## UI 与设计原则
+
+全产品界面气质、隐喻、反模式与抽检约定（非「通用 AI 应用」模版感）见：[.planning/phases/14-ui/14-UI-SPEC.md](./.planning/phases/14-ui/14-UI-SPEC.md)。
+
+## 页面壳与滚动（Phase 15）
+
+- **栈式二级页**（返回 + 标题）：优先使用 `AppScreenShell` + `StackScreenHeader`（见 `components/AppScreenShell.tsx`、`components/StackScreenHeader.tsx`）。顶栏尺寸与默认色来自 `styles/screenHeaderTokens.ts`，经 `useThemeStyles().screenHeader` 读取；各屏仍可用 props 覆盖（如洞察/回顾图主题色）。
+- **Tab 根页**（气象站、心灵花园等）：使用 `AppScreenShell` 且 **`showHeader={false}`**，在子树内保留自定义头部（花园头图、气象站标题区等），与栈式顶栏区分。
+- **全屏 Modal**（如编辑记录）：可直接使用 `StackScreenHeader`，`leading="close"` + `headerCenter` 组合中间区（图标+标题），不必包一层 `AppScreenShell`（避免与 Modal 内安全区重复）。
+- **滚动策略（避免双滚动）**：下列二选一，不要叠用——  
+  1. `AppScreenShell` / `ScreenContainer` 设 `scrollable`，由壳内 `ScrollView` 承载整页内容；  
+  2. 壳不滚动，在**单一**内层 `ScrollView`（或 `FlashList`）中滚动。  
+  禁止：`scrollable` 为 true 时再包一层全屏 `ScrollView` 滚动同一主轴内容。
 
 ## 📝 代码规范
 

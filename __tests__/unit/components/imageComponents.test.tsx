@@ -44,38 +44,35 @@ describe('Image Components', () => {
       expect(expoImage).toBeTruthy();
     });
 
-    it('should display placeholder when uri is not provided', () => {
-      const { getByText } = render(
+    it('should display default SVG avatar when uri is not provided', () => {
+      const { getByTestId } = render(
         <Avatar name="Test User" />
       );
       
-      // Should show first letter of name as placeholder
-      const placeholder = getByText('T');
-      expect(placeholder).toBeTruthy();
+      const innerImage = getByTestId('expo-image-inner');
+      expect(innerImage.props.source?.uri).toMatch(/^data:image\/svg\+xml/);
     });
 
-    it('should display placeholder when uri is null', () => {
-      const { getByText } = render(
+    it('should display default SVG avatar when uri is null', () => {
+      const { getByTestId } = render(
         <Avatar uri={null} name="Test User" />
       );
       
-      // Should show first letter of name as placeholder
-      const placeholder = getByText('T');
-      expect(placeholder).toBeTruthy();
+      const innerImage = getByTestId('expo-image-inner');
+      expect(innerImage.props.source?.uri).toMatch(/^data:image\/svg\+xml/);
     });
 
-    it('should display placeholder with question mark when name is not provided', () => {
-      const { getByText } = render(
+    it('should display default SVG avatar when name is not provided', () => {
+      const { getByTestId } = render(
         <Avatar uri={null} />
       );
       
-      // Should show '?' as placeholder
-      const placeholder = getByText('?');
-      expect(placeholder).toBeTruthy();
+      const innerImage = getByTestId('expo-image-inner');
+      expect(innerImage.props.source?.uri).toMatch(/^data:image\/svg\+xml/);
     });
 
     it('should handle image loading errors gracefully', () => {
-      const { getByTestId, getByText } = render(
+      const { getByTestId } = render(
         <Avatar uri="https://example.com/invalid.jpg" name="Test User" />
       );
       
@@ -83,9 +80,8 @@ describe('Image Components', () => {
       const innerImage = getByTestId('expo-image-inner');
       fireEvent(innerImage, 'error');
       
-      // Should fall back to placeholder
-      const placeholder = getByText('T');
-      expect(placeholder).toBeTruthy();
+      const innerAfter = getByTestId('expo-image-inner');
+      expect(innerAfter.props.source?.uri).toMatch(/^data:image\/svg\+xml/);
     });
 
     it('should accept placeholder prop for blurhash', () => {
@@ -305,23 +301,21 @@ describe('Image Components', () => {
 
   describe('Error Handling', () => {
     it('should handle invalid URI gracefully in Avatar', () => {
-      const { getByText } = render(
+      const { getByTestId } = render(
         <Avatar uri="invalid-uri" name="Test User" />
       );
       
-      // Should eventually show placeholder after error
-      // (In real scenario, expo-image would trigger onError)
-      expect(getByText).toBeTruthy();
+      const innerImage = getByTestId('expo-image-inner');
+      expect(innerImage.props.source?.uri).toBe('invalid-uri');
     });
 
     it('should handle empty string URI in Avatar', () => {
-      const { getByText } = render(
+      const { getByTestId } = render(
         <Avatar uri="" name="Test User" />
       );
       
-      // Should show placeholder for empty URI
-      const placeholder = getByText('T');
-      expect(placeholder).toBeTruthy();
+      const innerImage = getByTestId('expo-image-inner');
+      expect(innerImage.props.source?.uri).toMatch(/^data:image\/svg\+xml/);
     });
 
     it('should handle undefined source in AppImage gracefully', () => {

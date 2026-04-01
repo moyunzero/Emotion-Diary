@@ -43,12 +43,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+/** 离线占位用假 URL（非用户可见文案）；域名与对外品牌无关 */
+const OFFLINE_SUPABASE_URL = "https://offline.fenyu.app";
+const OFFLINE_SUPABASE_KEY = "offline-mode-disabled";
+
 // 创建 Supabase 客户端
-// 即使环境变量为空，也创建客户端，避免应用崩溃
-// 后续操作会通过错误处理来处理未配置的情况
+// 即使环境变量为空，也创建一个离线占位客户端，避免应用崩溃
+// 后续操作通过 isSupabaseConfigured() 控制云端能力是否可用
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
+  supabaseUrl || OFFLINE_SUPABASE_URL,
+  supabaseAnonKey || OFFLINE_SUPABASE_KEY,
   {
     auth: {
       storage: SecureStoreAdapter,
@@ -61,5 +65,5 @@ export const supabase = createClient(
 
 // 检查 Supabase 是否已正确配置
 export const isSupabaseConfigured = (): boolean => {
-  return !!(supabaseUrl && supabaseAnonKey && supabaseUrl !== 'https://placeholder.supabase.co');
+  return !!(supabaseUrl && supabaseAnonKey);
 };

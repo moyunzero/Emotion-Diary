@@ -266,7 +266,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
 
       {actionLoop && (
         <View style={styles.loopContainer}>
-          <Text style={styles.loopTitle}>行动闭环（焚语特色）</Text>
+          <Text style={styles.loopTitle}>行动闭环（心晴MO 特色）</Text>
           <Text style={styles.loopText}>1. 触发源：{actionLoop.trigger}</Text>
           <Text style={styles.loopText}>2. 本次行动：{actionLoop.stepOne}</Text>
           <Text style={styles.loopText}>3. 回访时间：{actionLoop.revisitText} 再看一次情绪变化</Text>

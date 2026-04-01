@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodLevel } from '../../types';
@@ -64,9 +64,10 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   const deltaPct =
     compare.deltaRate === null ? null : Math.round(compare.deltaRate * 100);
 
+  const { width: windowWidth } = useWindowDimensions();
   const chartW = Math.min(
     320,
-    Math.max(200, Dimensions.get('window').width - 72),
+    Math.max(200, windowWidth - 72),
   );
   const chartH = 100;
   const barPad = 4;
@@ -79,7 +80,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       <Text style={styles.rangeTitle}>
         {formatDateChinese(current.startMs)}～{formatDateChinese(current.endMs)}
       </Text>
-      <Text style={styles.companionLine}>陪伴焚语第 {companionDays} 天</Text>
+      <Text style={styles.companionLine}>陪伴心晴MO第 {companionDays} 天</Text>
 
       <View style={styles.section}>
         <Text style={styles.rateLabel}>本期情绪解决率</Text>
@@ -193,7 +194,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
         )}
       </View>
 
-      <Text style={styles.footerBrand}>焚语 · 情绪回顾</Text>
+      <Text style={styles.footerBrand}>心晴MO · 情绪回顾</Text>
     </View>
   );
 };

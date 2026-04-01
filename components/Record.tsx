@@ -1,4 +1,4 @@
-import { ArrowLeft, Sparkles } from "lucide-react-native";
+import { Sparkles } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -30,7 +30,7 @@ import {
     saveDraft,
     type DraftEntry,
 } from "../utils/draftManager";
-import { ScreenContainer } from "./ScreenContainer";
+import { AppScreenShell } from "./AppScreenShell";
 import AppIcon from "./icons/AppIcon";
 import MoodForm from "./MoodForm";
 
@@ -260,39 +260,26 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
 
   if (isInitializing) {
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
         <View style={formStyles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
-      </ScreenContainer>
+      </AppScreenShell>
     );
   }
 
   const isSubmitDisabled = !content.trim();
 
   return (
-    <ScreenContainer 
-      edges={["top", "left", "right"]} 
+    <AppScreenShell
+      edges={["top", "left", "right"]}
       keyboardAware
       style={styles.container}
+      title="记录这一刻"
+      onBack={onClose}
+      backAccessibilityHint="点击返回上一页"
+      headerStyle={styles.stackHeader}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={onClose}
-          style={styles.backButton}
-          accessibilityRole="button"
-          accessibilityLabel="返回"
-          accessibilityHint="点击返回上一页"
-        >
-          <ArrowLeft size={24} color="#6B7280" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          记录这一刻
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
-
       <View style={styles.body}>
         <ScrollView
           ref={scrollViewRef}
@@ -350,7 +337,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
           </TouchableOpacity>
         </View>
       </View>
-    </ScreenContainer>
+    </AppScreenShell>
   );
 };
 

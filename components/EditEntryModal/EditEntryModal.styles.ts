@@ -15,21 +15,12 @@ export const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
   },
-  headerWrapper: {
+  modalStackHeader: {
     backgroundColor: COLORS.background.primary,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray[50],
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 8,
-  },
-  closeButton: {
-    padding: 8,
-    marginLeft: -8,
   },
   headerTitle: {
     fontSize: 18,
@@ -40,9 +31,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  placeholder: {
-    width: 32,
   },
   content: {
     padding: 24,

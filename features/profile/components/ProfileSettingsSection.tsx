@@ -11,11 +11,10 @@ import {
   UserX,
   X,
 } from "lucide-react-native";
+import { Image } from "expo-image";
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -35,10 +34,12 @@ import {
   ProfileSectionHeader,
 } from "@/components/Profile";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
-import { AVATAR_PRESETS } from "@/utils/avatarPresets";
+import {
+  AVATAR_PRESETS,
+  isSvgAvatarDataUri,
+} from "@/utils/avatarPresets";
 import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
 
-const { height: windowHeight } = Dimensions.get("window");
 const AVATARS = AVATAR_PRESETS;
 
 export type ProfileSettingsSectionProps = {
@@ -306,8 +307,8 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   marginTop: insets.top + 20,
                   marginBottom: Math.max(insets.bottom, 20),
                   maxHeight: Math.min(
-                    windowHeight * 0.75,
-                    windowHeight - insets.top - Math.max(insets.bottom, 20) - 40,
+                    height * 0.75,
+                    height - insets.top - Math.max(insets.bottom, 20) - 40,
                   ),
                 },
               ]}
@@ -674,8 +675,8 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   ms.modalContent,
                   {
                     maxHeight: Math.min(
-                      windowHeight * 0.8,
-                      windowHeight -
+                      height * 0.8,
+                      height -
                         insets.top -
                         Math.max(insets.bottom, 16) -
                         48,
@@ -696,6 +697,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   <Image
                     source={{ uri: editAvatar }}
                     style={ms.previewAvatar}
+                    contentFit={
+                      isSvgAvatarDataUri(editAvatar) ? "contain" : "cover"
+                    }
+                    contentPosition="center"
+                    cachePolicy="memory-disk"
+                    transition={150}
                     onError={() => {}}
                   />
                   <ScrollView
@@ -703,9 +710,9 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     showsHorizontalScrollIndicator={false}
                     style={ms.avatarList}
                   >
-                    {AVATARS.map((uri, index) => (
+                    {AVATARS.map((uri) => (
                       <TouchableOpacity
-                        key={index}
+                        key={uri}
                         onPress={() => setEditAvatar(uri)}
                         style={[
                           ms.avatarOption,
@@ -715,6 +722,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                         <Image
                           source={{ uri }}
                           style={ms.avatarOptionImage}
+                          contentFit={
+                            isSvgAvatarDataUri(uri) ? "contain" : "cover"
+                          }
+                          contentPosition="center"
+                          cachePolicy="memory-disk"
+                          transition={150}
                           onError={() => {}}
                         />
                       </TouchableOpacity>

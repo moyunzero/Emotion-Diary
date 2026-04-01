@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
-import { ScreenContainer } from '../ScreenContainer';
+import { AppScreenShell } from '../AppScreenShell';
 import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
 import { EmotionReleaseArchive } from './EmotionReleaseArchive';
@@ -65,15 +65,16 @@ const Insights: React.FC = () => {
   // 如果没有任何条目，显示整体空状态
   if (entries.length === 0) {
     return (
-      <ScreenContainer edges={['top', 'left', 'right']}>
+      <AppScreenShell edges={['top', 'left', 'right']} showHeader={false}>
         <EmptyGarden />
-      </ScreenContainer>
+      </AppScreenShell>
     );
   }
 
   return (
-    <ScreenContainer
+    <AppScreenShell
       edges={['top', 'left', 'right']}
+      showHeader={false}
       scrollable
       removeClippedSubviews
     >
@@ -111,7 +112,7 @@ const Insights: React.FC = () => {
           {/* 情绪播客 */}
           <EmotionPodcast />
 
-          {/* 情绪释放档案（焚语特色闭环） */}
+          {/* 情绪释放档案（心晴MO 特色闭环） */}
           <EmotionReleaseArchive entries={entries} />
 
           {/* 关系花盆 */}
@@ -128,7 +129,7 @@ const Insights: React.FC = () => {
           />
         </View>
       </View>
-    </ScreenContainer>
+    </AppScreenShell>
   );
 };
 

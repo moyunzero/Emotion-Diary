@@ -37,20 +37,10 @@ export function createProfileStyles(width: number, height: number) {
       backgroundColor: COLORS.background.page,
       opacity: 0.6,
     },
-    header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
+    /** Phase 15：栈顶栏外边距（布局由 StackScreenHeader 负责） */
+    stackHeader: {
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
-    },
-    backButton: {
-      padding: spacing.sm,
-      marginLeft: -spacing.sm,
-    },
-    headerActions: {
-      flexDirection: "row",
-      gap: spacing.sm,
     },
     profileSection: {
       marginTop: SPACING.xl,

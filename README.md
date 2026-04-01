@@ -1,8 +1,8 @@
-# 焚语 (Fenyu)
+# 心晴MO
 
 <div align="center">
 
-![Fenyu Logo](./assets/images/icon.png)
+![心晴MO Logo](./assets/images/icon.png)
 
 **一款治愈系情绪记录与管理应用**
 
@@ -14,9 +14,13 @@
 
 </div>
 
+## 📲 欢迎从 App Store 下载
+
+欢迎你在 **苹果 App Store（应用商店）** [**下载心晴MO**](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)，亦可在商店内搜索 **「心晴MO」**，在 iPhone 与 iPad 上随时记录情绪、照料你的心灵花园。若你希望参与开发或体验调试构建，可继续阅读下文「开发者快速上手」与「快速开始」。
+
 ## 📱 应用简介
 
-焚语是一款专注于情绪管理的治愈系应用。通过独特的「情绪气象站」和「心灵花园」概念，帮助用户记录、理解和管理自己的情绪，让每一次情绪的记录和解决都成为照料心灵花园的过程。
+心晴MO 是一款专注于情绪管理的治愈系应用。通过独特的「情绪气象站」和「心灵花园」概念，帮助用户记录、理解和管理自己的情绪，让每一次情绪的记录和解决都成为照料心灵花园的过程。
 
 ## 👩‍💻 开发者快速上手
 
@@ -84,10 +88,11 @@ yarn test:ci
 - **关系花盆**：每个人对应一个花盆，显示关系健康度（繁花盛开/正常生长/需要浇水）
 - **情绪触发洞察**：分析 Top 3 情绪触发器，配合温暖的"园艺建议"
 - **底部鼓励语**：动态生成的正向反馈，让用户感受到成长
+- **周/月回顾与导出**：按所选范围查看统计并生成情绪回顾图，可保存到系统相册（路由：`review-export`）
 
-### 🔥 气话焚烧
+### 🔥 气话焚烧与情绪释放档案
 
-- 治愈系情绪释放功能
+- 治愈系情绪释放功能，配合 **情绪释放档案** 回看释放记录与触发上下文
 - 炫酷的 Skia 燃烧动画效果
 - 让负面情绪随火焰消散
 
@@ -97,7 +102,7 @@ yarn test:ci
 - **情绪播客**：AI 生成个性化情绪疗愈播客内容
 - **情绪处方**：针对触发器提供个性化建议和应对策略
 - **智能分析**：深度分析情绪周期和触发因素
-- 使用 Groq API，支持离线使用（无API Key时显示默认内容）
+- **回顾图一句总结**：导出回顾图时可选 Groq 生成底部温柔一句；无 API Key 或网络/服务失败时使用本地兜底文案（调用 Groq 时需联网）
 
 ### ☁️ 数据同步
 
@@ -125,11 +130,12 @@ yarn test:ci
 yarn start
 ```
 
-### 📱 三种体验方式
+### 📱 四种体验方式
 
-1. **📲 Expo Go预览** - 手机安装[Expo Go](https://expo.dev/go)，扫描开发服务器二维码
-2. **📲 APK下载** - 从 Releases 页面下载预编译APK（需要先配置 EAS Build）
-3. **🌐 Web版本** - 运行 `yarn web` 在浏览器中体验
+1. **🍎 App Store（推荐用户）** - [**在 App Store 打开心晴MO**](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)（iPhone / iPad）；也可在 App Store 内搜索 **「心晴MO」**
+2. **📲 Expo Go 预览** - 手机安装 [Expo Go](https://expo.dev/go)，扫描开发服务器二维码
+3. **📲 APK 下载** - 从 Releases 页面下载预编译 APK（需要先配置 EAS Build）
+4. **🌐 Web 版本** - 运行 `yarn web` 在浏览器中体验
 
 ### 🔒 安全性
 
@@ -159,6 +165,8 @@ yarn verify:governance   # 治理规则（与 CI push 到 master 一致）
 - **英文描述**：[app-description-en.md](./app-store-submission/metadata/app-description-en.md)
 - **截图指南**：[screenshot-guide.md](./app-store-submission/metadata/screenshot-guide.md)
 - **4.3(a) 回复模板**：[review-response-4.3a.md](./app-store-submission/review-response-4.3a.md)
+- **2.3.8 / 2.1(a) 审核回复**：[review-response-2.3.8-2.1a.md](./app-store-submission/review-response-2.3.8-2.1a.md)
+- **Supabase 登录排查**：[supabase-login-checklist.md](./app-store-submission/supabase-login-checklist.md)
 - **提交前检查清单**：[preflight-checklist.md](./app-store-submission/preflight-checklist.md)
 - **隐私政策**：[PRIVACY.md](./PRIVACY.md)
 
@@ -176,6 +184,7 @@ eas build --platform ios --profile production
 | 类别           | 技术选型                         | 版本              |
 | -------------- | -------------------------------- | ----------------- |
 | **框架**       | React Native + Expo              | 0.81.5 + ~54.0.30 |
+| **UI 运行时**  | React                            | 19.1.0            |
 | **路由**       | Expo Router                      | ~6.0.21           |
 | **状态管理**   | Zustand                          | ^5.0.9            |
 | **数据持久化** | AsyncStorage + Supabase          | -                 |
@@ -221,6 +230,7 @@ Emotion-Diary/
 ├── __tests__/                   # Jest 单测 / 属性测试 / 集成测试
 ├── scripts/                     # 校验与治理脚本（verify-*）
 ├── openspec/ docs/              # 规范与补充文档
+├── .planning/                   # 工程规划、阶段记录；codebase/ 下为栈与路由等说明文档
 ├── app-store-submission/        # 商店提审文案与清单
 ├── src/                         # 预留/实验性子域目录（多数为空；少量如 core-state）
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
@@ -463,10 +473,10 @@ eas build --platform ios --profile production
 
 <div align="center">
 
-**🌱 感谢使用焚语，愿你的心灵花园繁花似锦！**
+**🌱 感谢使用心晴MO，愿你的心灵花园繁花似锦！**
 
 Made with ❤️ by Your Team
 
-[🔝 回到顶部](#焚语-fenyu)
+[🔝 回到顶部](#心晴mo)
 
 </div>

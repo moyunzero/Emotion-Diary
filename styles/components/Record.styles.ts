@@ -22,26 +22,12 @@ export function createRecordStyles(width: number, height: number) {
       flexGrow: 1,
       paddingBottom: DESIGN_TOKENS.spacing.xxxl * 3,
     },
-    header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
+    /** 供 AppScreenShell / StackScreenHeader 外层：内边距与底部分割线 */
+    stackHeader: {
       paddingHorizontal: m.padding.horizontal,
       paddingVertical: DESIGN_TOKENS.spacing.sm,
       borderBottomWidth: 1,
       borderBottomColor: COLORS.gray[50],
-    },
-    backButton: {
-      padding: DESIGN_TOKENS.spacing.sm,
-      marginLeft: -DESIGN_TOKENS.spacing.sm,
-    },
-    headerTitle: {
-      fontSize: DESIGN_TOKENS.fontSize.lg,
-      fontWeight: "bold",
-      color: COLORS.text.primary,
-    },
-    placeholder: {
-      width: 32,
     },
     content: {
       padding: m.padding.horizontal,

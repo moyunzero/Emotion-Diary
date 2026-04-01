@@ -6,7 +6,7 @@
 
 ### 1. 简介
 
-欢迎使用焚语（"我们"、"我们的"或"应用"）。我们重视您的隐私，并致力于保护您的个人信息。本隐私政策说明了我们如何收集、使用和保护您的信息。
+欢迎使用心晴MO（"我们"、"我们的"或"应用"）。我们重视您的隐私，并致力于保护您的个人信息。本隐私政策说明了我们如何收集、使用和保护您的信息。
 
 ### 2. 信息收集
 
@@ -101,7 +101,7 @@
 
 ### 1. Introduction
 
-Welcome to Fenyu ("we", "our", or "the app"). We value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and protect your information.
+Welcome to Xinqing MO ("we", "our", or "the app"). We value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and protect your information.
 
 ### 2. Information Collection
 

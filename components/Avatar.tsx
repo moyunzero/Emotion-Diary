@@ -1,7 +1,8 @@
 import { Image } from 'expo-image';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AvatarProps } from '../types/components';
+import { getDefaultAvatar, isSvgAvatarDataUri } from '../utils/avatarPresets';
 
 /**
  * 统一的头像组件
@@ -18,29 +19,26 @@ const Avatar: React.FC<AvatarProps> = ({
 }) => {
   const [avatarError, setAvatarError] = useState(false);
 
-  const avatarContent = () => {
-    if (avatarError || !uri) {
-      return (
-        <View style={[styles.placeholder, { width: size, height: size, borderRadius: size / 2 }]}>
-          <Text style={[styles.placeholderText, { fontSize: size * 0.4 }]}>
-            {name?.charAt(0) || '?'}
-          </Text>
-        </View>
-      );
-    }
+  const hasRemoteUri = Boolean(uri && String(uri).trim());
+  const fallbackUri = getDefaultAvatar(name ?? undefined);
+  const displayUri = !hasRemoteUri || avatarError ? fallbackUri : String(uri).trim();
 
-    return (
-      <Image 
-        source={{ uri }} 
-        style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]}
-        contentFit="cover"
-        transition={200}
-        placeholder={placeholder}
-        cachePolicy="memory-disk"
-        onError={() => setAvatarError(true)}
-      />
-    );
-  };
+  useEffect(() => {
+    setAvatarError(false);
+  }, [uri]);
+
+  const avatarContent = () => (
+    <Image
+      source={{ uri: displayUri }}
+      style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]}
+      contentFit={isSvgAvatarDataUri(displayUri) ? 'contain' : 'cover'}
+      contentPosition="center"
+      transition={200}
+      placeholder={placeholder}
+      cachePolicy="memory-disk"
+      onError={() => setAvatarError(true)}
+    />
+  );
 
   const content = avatarContent();
 
@@ -65,15 +63,6 @@ const styles = StyleSheet.create({
   },
   image: {
     resizeMode: 'cover',
-  },
-  placeholder: {
-    backgroundColor: '#EF4444',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
 });
 

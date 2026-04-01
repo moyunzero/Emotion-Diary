@@ -50,13 +50,12 @@ jest.mock("../../../components/Avatar", () => {
   };
 });
 
-// Mock ScreenContainer component
-jest.mock("../../../components/ScreenContainer", () => {
+// Mock AppScreenShell（原 ScreenContainer 由壳内使用，Profile 仅依赖壳）
+jest.mock("../../../components/AppScreenShell", () => {
   const React = require("react");
   return {
     __esModule: true,
-    default: ({ children }: any) => <>{children}</>,
-    ScreenContainer: ({ children }: any) => <>{children}</>,
+    AppScreenShell: ({ children }: any) => <>{children}</>,
   };
 });
 

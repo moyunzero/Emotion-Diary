@@ -94,7 +94,7 @@ const EditEntryFields: React.FC<EditEntryFieldsProps> = ({
         <TextInput
           value={content}
           onChangeText={onContentChange}
-          placeholder="把这一刻写给焚语，哪怕只是一句心里话..."
+          placeholder="把这一刻写给心晴MO，哪怕只是一句心里话..."
           multiline
           numberOfLines={4}
           style={styles.contentInput}

@@ -48,6 +48,11 @@ pnpm-debug.log*
 lerna-debug.log*
 .pnpm-store/
 
+# AI / Planning / Internal Docs (keep local, do not publish to GitHub)
+.planning/
+app-store-submission/
+agent-transcripts/
+
 # Lockfiles (Project uses yarn, ignore npm/pnpm locks to avoid confusion)
 package-lock.json
 pnpm-lock.yaml

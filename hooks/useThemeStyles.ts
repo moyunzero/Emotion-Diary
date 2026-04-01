@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { COLORS, DESIGN_TOKENS } from '../constants/colors';
+import { SCREEN_HEADER_TOKENS } from '../styles/screenHeaderTokens';
 
 /**
  * Hook: 获取当前主题的样式
@@ -7,10 +8,14 @@ import { COLORS, DESIGN_TOKENS } from '../constants/colors';
  * 注意：主题切换功能已移除，现在只返回固定的浅色主题
  */
 export const useThemeStyles = () => {
-  return useMemo(() => ({
-    colors: COLORS,
-    tokens: DESIGN_TOKENS,
-  }), []);
+  return useMemo(
+    () => ({
+      colors: COLORS,
+      tokens: DESIGN_TOKENS,
+      screenHeader: SCREEN_HEADER_TOKENS,
+    }),
+    [],
+  );
 };
 
 /**
