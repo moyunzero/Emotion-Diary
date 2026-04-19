@@ -22,6 +22,7 @@ import { getStorageKey, saveToStorage } from "./modules/storage";
 import { AppStore } from "./modules/types";
 import { createUserSlice } from "./modules/user";
 import { createWeatherModule } from "./modules/weather";
+import { uploadPendingAudios } from "../services/audioSync";
 
 // 同步操作互斥锁，防止竞态条件
 let isSyncingRef = false;
@@ -375,6 +376,41 @@ export const useAppStore = create<AppStore>()((...args) => {
 
         // 同步 firstEntryDate 到云端
         await get()._syncFirstEntryDateToCloud();
+
+        // 同步音频文件到云端
+        try {
+          const allAudios = entries
+            .flatMap((e) => e.audios || [])
+            .filter((a) => a.syncStatus === "pending");
+          
+          if (allAudios.length > 0) {
+            const uploadResult = await uploadPendingAudios(allAudios, currentUserId);
+            if (__DEV__) {
+              console.log(`音频同步完成: 成功 ${uploadResult.success}, 失败 ${uploadResult.failed}`);
+            }
+            
+            if (uploadResult.results.size > 0) {
+              const updatedEntries = entries.map((entry) => {
+                if (!entry.audios?.length) return entry;
+                
+                const updatedAudios = entry.audios.map((audio) => {
+                  const remoteUrl = uploadResult.results.get(audio.id);
+                  if (remoteUrl) {
+                    return { ...audio, remoteUrl, syncStatus: "synced" as const };
+                  }
+                  return audio;
+                });
+                
+                return { ...entry, audios: updatedAudios };
+              });
+              
+              set({ entries: updatedEntries });
+              get()._saveEntries();
+            }
+          }
+        } catch (audioError) {
+          console.error("音频同步失败:", audioError);
+        }
 
         set({ syncStatus: "idle" });
         return true;

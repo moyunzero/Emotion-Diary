@@ -107,26 +107,26 @@
 
 #### 4.1 本地存储
 
-- [ ] 4.1.1 实现音频文件存储
+- [x] 4.1.1 实现音频文件存储
   - 存储路径: `FileSystem.documentDirectory/audios/{audioId}.m4a`
   - 音频格式: m4a (AAC)
 
-- [ ] 4.1.2 实现 fileHash 计算（MD5）
+- [x] 4.1.2 实现 fileHash 计算（MD5）
 
-- [ ] 4.1.3 实现删除 Entry 时的音频文件级联删除
+- [x] 4.1.3 实现删除 Entry 时的音频文件级联删除
 
 #### 4.2 云端同步
 
-- [ ] 4.2.1 实现上传流程
+- [x] 4.2.1 实现上传流程
   - 检查 pending 状态
   - 上传到 Supabase Storage
   - 更新 syncStatus
 
-- [ ] 4.2.2 实现下载流程
+- [x] 4.2.2 实现下载流程
   - 下载远程音频到本地
   - 更新 localUri
 
-- [ ] 4.2.3 扩展 syncFromCloud/syncToCloud 支持音频
+- [x] 4.2.3 扩展 syncFromCloud/syncToCloud 支持音频
 
 ---
 
