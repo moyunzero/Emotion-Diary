@@ -245,6 +245,7 @@ export const useAppStore = create<AppStore>()((...args) => {
             resolvedat: entry.resolvedAt || null,
             burnedat: entry.burnedAt || null,
             user_id: currentUserId,
+            audios: entry.audios || [],
           };
         });
 
@@ -337,6 +338,7 @@ export const useAppStore = create<AppStore>()((...args) => {
                         status: entry.status,
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
+                        audios: entry.audios || [],
                       })
                       .eq("id", entry.id)
                       .eq("user_id", currentUserId);
