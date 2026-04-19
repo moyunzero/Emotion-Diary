@@ -114,6 +114,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
           <Svg width={chartW} height={svgH}>
             {monthlySeries.map((pt, i) => {
               const barX = MARGIN_H + i * (barW + BAR_GAP);
+              const centerX = barX + barW / 2;
               const h = pt.rate === null ? 0 : Math.max(2, pt.rate * (chartH - 24));
               const y = chartH - h - 8;
               return (
@@ -130,11 +131,12 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
                     />
                   )}
                   <SvgText
-                    x={barX + barW / 2}
+                    x={centerX}
                     y={chartH + 14}
                     fontSize={10}
                     fill={INSIGHTS_COLORS.textSecondary}
                     textAnchor="middle"
+                    alignmentBaseline="middle"
                   >
                     {pt.monthIndex0 + 1}月
                   </SvgText>
