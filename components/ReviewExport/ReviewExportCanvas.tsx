@@ -294,8 +294,6 @@ const styles = StyleSheet.create({
     marginTop: GAP.sm,
   },
   monthCell: {
-    flex: 1,
-    minWidth: 0,
     alignItems: 'center',
   },
   monthLabel: {
