@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Xinqing MO Logo](./assets/images/icon.png)
+<img src="./assets/images/app-icon.png" width="150" alt="心晴MO Logo" />
 
 **A Healing-Focused Emotion Tracking & Management App**
 
