@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import Svg, { Rect } from 'react-native-svg';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { MessageCircle } from 'lucide-react-native';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodLevel } from '../../types';
@@ -71,6 +71,8 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
     Math.max(200, windowWidth - 72),
   );
   const chartH = 100;
+  const LABEL_HEIGHT = 20;
+  const svgH = chartH + LABEL_HEIGHT;
   const MARGIN_H = 12;
   const BAR_GAP = 12;
   const n = Math.max(1, monthlySeries.length);
@@ -109,44 +111,37 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
           <Text style={styles.trendEmptyHint}>最近 6 个月暂无记录，先从一条小情绪开始。</Text>
         ) : null}
         <View style={styles.svgWrap}>
-          <Svg width={chartW} height={chartH}>
+          <Svg width={chartW} height={svgH}>
             {monthlySeries.map((pt, i) => {
-              const h =
-                pt.rate === null ? 0 : Math.max(2, pt.rate * (chartH - 24));
               const barX = MARGIN_H + i * (barW + BAR_GAP);
+              const h = pt.rate === null ? 0 : Math.max(2, pt.rate * (chartH - 24));
               const y = chartH - h - 8;
-              return h > 0 ? (
-                <Rect
-                  key={`${pt.year}-${pt.monthIndex0}`}
-                  x={barX}
-                  y={y}
-                  width={barW}
-                  height={h}
-                  rx={4}
-                  fill={INSIGHTS_COLORS.accent}
-                  opacity={0.85}
-                />
-              ) : (
-                <React.Fragment key={`${pt.year}-${pt.monthIndex0}`} />
+              return (
+                <React.Fragment key={`${pt.year}-${pt.monthIndex0}`}>
+                  {h > 0 && (
+                    <Rect
+                      x={barX}
+                      y={y}
+                      width={barW}
+                      height={h}
+                      rx={4}
+                      fill={INSIGHTS_COLORS.accent}
+                      opacity={0.85}
+                    />
+                  )}
+                  <SvgText
+                    x={barX + barW / 2}
+                    y={chartH + 14}
+                    fontSize={10}
+                    fill={INSIGHTS_COLORS.textSecondary}
+                    textAnchor="middle"
+                  >
+                    {pt.monthIndex0 + 1}月
+                  </SvgText>
+                </React.Fragment>
               );
             })}
           </Svg>
-        </View>
-        <View style={styles.monthRow}>
-          {monthlySeries.map((pt, i) => {
-            const barX = MARGIN_H + i * (barW + BAR_GAP);
-            const cellMarginLeft = i === 0 ? barX : BAR_GAP / 2;
-            return (
-              <View
-                key={`label-${pt.year}-${pt.monthIndex0}`}
-                style={[styles.monthCell, { width: barW, marginLeft: cellMarginLeft }]}
-              >
-                <Text style={styles.monthLabel} numberOfLines={1}>
-                  {pt.monthIndex0 + 1}月
-                </Text>
-              </View>
-            );
-          })}
         </View>
       </View>
 
