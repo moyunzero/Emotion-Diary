@@ -232,5 +232,3 @@ const styles = StyleSheet.create({
     borderTopColor: "transparent",
   },
 });
-
-export default RecordButton;

@@ -6,7 +6,7 @@
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { AudioData } from "../../types";
-import AudioPreview from "./AudioPreview";
+import { AudioPreview } from "./AudioPreview";
 
 interface AudioListProps {
   audios: AudioData[];
@@ -88,6 +88,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
   },
-});
-
-export default AudioList;
+  });

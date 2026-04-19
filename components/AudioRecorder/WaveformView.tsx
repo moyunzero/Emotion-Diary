@@ -120,5 +120,3 @@ const styles = StyleSheet.create({
     minHeight: MIN_BAR_HEIGHT,
   },
 });
-
-export default WaveformView;

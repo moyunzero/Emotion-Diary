@@ -19,9 +19,9 @@ import { copyAsync, deleteAsync, getInfoAsync, cacheDirectory } from "expo-file-
 import { md5 } from "js-md5";
 import { AudioData } from "../../types";
 import { RecordingState } from "../../store/modules/audio";
-import RecordButton from "./RecordButton";
-import WaveformView from "./WaveformView";
-import AudioList from "./AudioList";
+import { RecordButton } from "./RecordButton";
+import { WaveformView } from "./WaveformView";
+import { AudioList } from "./AudioList";
 
 interface AudioRecorderProps {
     audios: AudioData[];
