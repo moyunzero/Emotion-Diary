@@ -13,6 +13,7 @@ import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { createAIModule } from "./modules/ai";
+import { createAudioSlice } from "./modules/audio";
 import {
   clearEntriesSaveDebounce,
   createEntriesSlice,
@@ -180,6 +181,7 @@ export const useAppStore = create<AppStore>()((...args) => {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
     ...createAIModule(set, get),
+    ...createAudioSlice(set, get, store),
 
     ...createUserSlice(set, get, store),
 

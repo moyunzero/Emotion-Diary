@@ -12,23 +12,23 @@
 
 #### 1.1 扩展类型定义
 
-- [ ] 1.1.1 在 `types.ts` 中添加 `AudioData` 接口
+- [x] 1.1.1 在 `types.ts` 中添加 `AudioData` 接口
   - id, localUri, remoteUrl, duration, fileSize, fileHash, name, createdAt, syncStatus
 
-- [ ] 1.1.2 在 `MoodEntry` 中添加 `audios?: AudioData[]` 字段
+- [x] 1.1.2 在 `MoodEntry` 中添加 `audios?: AudioData[]` 字段
 
-- [ ] 1.1.3 添加 `SyncStatus` 类型别名
+- [x] 1.1.3 添加 `SyncStatus` 类型别名
 
 #### 1.2 创建音频状态管理
 
-- [ ] 1.2.1 创建 `store/modules/audio.ts`
+- [x] 1.2.1 创建 `store/modules/audio.ts`
   - AudioState 接口（播放状态、录音状态）
   - AudioActions 接口（播放控制、录音控制）
   - useAudioStore 实现
 
-- [ ] 1.2.2 实现 `computeEntrySyncStatus` 辅助函数
+- [x] 1.2.2 实现 `computeEntrySyncStatus` 辅助函数
 
-- [ ] 1.2.3 在 `store/modules/types.ts` 中扩展 AppState
+- [x] 1.2.3 在 `store/modules/types.ts` 中扩展 AppState
 
 ---
 

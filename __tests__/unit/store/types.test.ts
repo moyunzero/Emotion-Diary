@@ -385,6 +385,25 @@ describe("Store Type Definitions", () => {
         generatePodcast: async () => {},
         clearForecast: () => {},
         clearPodcast: () => {},
+        // Audio module
+        currentAudioId: null,
+        isPlaying: false,
+        playbackPosition: 0,
+        duration: 0,
+        recordingState: 'idle',
+        recordingDuration: 0,
+        currentRecordingUri: null,
+        playAudio: () => {},
+        pauseAudio: () => {},
+        stopAudio: () => {},
+        seekTo: () => {},
+        setPlaybackPosition: () => {},
+        setRecordingState: () => {},
+        setRecordingDuration: () => {},
+        setCurrentRecordingUri: () => {},
+        startRecording: async () => {},
+        stopRecording: async () => null,
+        cancelRecording: () => {},
       };
 
       // Both should accept the same state
