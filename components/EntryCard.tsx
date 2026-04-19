@@ -21,7 +21,7 @@ import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
 import { AudioData, Deadline, MoodEntry, MoodLevel, Status } from "../types";
 import { formatDateChinese } from "@/shared/formatting";
-import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
+import { areOrderedStringArraysEqual, areAudioDataArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
@@ -715,6 +715,15 @@ export const areEntryCardPropsEqual = (
       !areOrderedStringArraysEqual(
         prevProps.entry.triggers,
         nextProps.entry.triggers,
+      )
+    ) {
+      return false;
+    }
+
+    if (
+      !areAudioDataArraysEqual(
+        prevProps.entry.audios,
+        nextProps.entry.audios,
       )
     ) {
       return false;
