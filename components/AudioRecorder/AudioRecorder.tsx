@@ -15,8 +15,8 @@ import {
     AudioStatus,
 } from "expo-audio";
 import * as Haptics from "expo-haptics";
-import { copyAsync } from "expo-file-system/legacy";
-import { cacheDirectory } from "expo-file-system/legacy";
+import { copyAsync, deleteAsync, getInfoAsync, cacheDirectory } from "expo-file-system/legacy";
+import * as Crypto from "expo-crypto";
 import { AudioData } from "../../types";
 import { RecordingState } from "../../store/modules/audio";
 import RecordButton from "./RecordButton";
@@ -51,6 +51,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [recordedUri, setRecordedUri] = useState<string | null>(null);
     const playerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
+    const tempRecordingUriRef = useRef<string | null>(null);
 
     const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
     const recorderState = useAudioRecorderState(recorder, 100);
@@ -71,6 +72,10 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 playerRef.current.pause();
                 playerRef.current.remove();
                 playerRef.current = null;
+            }
+            if (tempRecordingUriRef.current) {
+                deleteAsync(tempRecordingUriRef.current).catch(() => {});
+                tempRecordingUriRef.current = null;
             }
         };
     }, []);
@@ -112,6 +117,11 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
 
+            if (tempRecordingUriRef.current) {
+                deleteAsync(tempRecordingUriRef.current).catch(() => {});
+                tempRecordingUriRef.current = null;
+            }
+
             await setAudioModeAsync({
                 allowsRecording: true,
                 playsInSilentMode: true,
@@ -122,6 +132,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
             await recorder.prepareToRecordAsync();
             recorder.record();
+            tempRecordingUriRef.current = recorder.uri;
 
             setRecordingState("recording");
             setRecordingDuration(0);
@@ -144,7 +155,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         try {
             setRecordingState("processing");
 
-            const uri = recorder.uri;
+            const sourceUri = recorder.uri;
             const duration = recorderState.durationMillis
                 ? recorderState.durationMillis / 1000
                 : recordingDuration;
@@ -159,20 +170,32 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
             await new Promise(resolve => setTimeout(resolve, 150));
 
-            if (!uri) {
+            if (!sourceUri) {
                 throw new Error("No URI for recording");
             }
 
             const uniqueFileName = `recording_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`;
             const destUri = `${cacheDirectory || ''}${uniqueFileName}`;
-            await copyAsync({ from: uri, to: destUri });
+            await copyAsync({ from: sourceUri, to: destUri });
+
+            const fileInfo = await getInfoAsync(destUri);
+            const fileSize = fileInfo.exists ? (fileInfo.size || 0) : 0;
+
+            const fileHash = await Crypto.digestStringAsync(
+                Crypto.CryptoDigestAlgorithm.MD5,
+                destUri,
+                { encoding: Crypto.CryptoEncoding.HEX }
+            );
+
+            await deleteAsync(sourceUri).catch(() => {});
+            tempRecordingUriRef.current = null;
 
             const newAudio: AudioData = {
                 id: Date.now().toString(),
                 localUri: destUri,
                 duration: duration,
-                fileSize: 0,
-                fileHash: "",
+                fileSize: fileSize,
+                fileHash: fileHash,
                 createdAt: Date.now(),
                 syncStatus: "pending",
             };
@@ -191,6 +214,8 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
     const handleRecordingCancel = useCallback(async () => {
         try {
+            const sourceUri = recorder.uri;
+
             if (recorderState.isRecording) {
                 await recorder.stop();
             }
@@ -199,6 +224,11 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 allowsRecording: false,
                 playsInSilentMode: true,
             });
+
+            if (sourceUri) {
+                await deleteAsync(sourceUri).catch(() => {});
+            }
+            tempRecordingUriRef.current = null;
 
             setRecordingState("idle");
             setRecordingDuration(0);
