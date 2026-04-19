@@ -65,16 +65,17 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     slideOffsetY.setValue(0);
   }, [onRecordingStop, onRecordingCancel, slideOffsetY]);
 
-  const handlePressIn = () => {
-    if (disabled || recordingState !== 'idle') return;
+  const handlePressIn = useCallback(() => {
+    if (disabled) return;
+    if (recordingState !== 'idle') return;
     handleStartRecording();
-  };
+  }, [disabled, recordingState, handleStartRecording]);
 
-  const handlePressOut = () => {
+  const handlePressOut = useCallback(() => {
     if (recordingState === 'recording') {
       handleStopRecording();
     }
-  };
+  }, [recordingState, handleStopRecording]);
 
   const handleCancelRecording = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -164,7 +165,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         <Pressable
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
-          disabled={disabled || recordingState !== 'idle'}
+          disabled={disabled}
           style={getButtonStyle()}
         >
           {renderButtonContent()}
