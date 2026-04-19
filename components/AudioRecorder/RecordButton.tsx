@@ -3,7 +3,7 @@
  * 支持按住说话、滑动取消、误触保护
  */
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
 import {
   Animated,
   Pressable,
@@ -15,7 +15,6 @@ import * as Haptics from "expo-haptics";
 import { Mic, MicOff, StopCircle } from "lucide-react-native";
 import { RecordingState } from "../../store/modules/audio";
 
-const CANCEL_THRESHOLD_PX = 30;
 const PRESS_DURATION_THRESHOLD_MS = 300;
 
 interface RecordButtonProps {
@@ -34,14 +33,12 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
   disabled = false,
 }) => {
   const pressStartTimeRef = useRef<number | null>(null);
-  const [isPressed, setIsPressed] = useState(false);
   const slideOffsetY = useRef(new Animated.Value(0)).current;
 
   const handleStartRecording = useCallback(() => {
     if (disabled) return;
     
     pressStartTimeRef.current = Date.now();
-    setIsPressed(true);
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onRecordingStart();
@@ -61,7 +58,6 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     }
     
     pressStartTimeRef.current = null;
-    setIsPressed(false);
     slideOffsetY.setValue(0);
   }, [onRecordingStop, onRecordingCancel, slideOffsetY]);
 
@@ -76,17 +72,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     if (recordingState === 'recording') {
       handleStopRecording();
     }
-  }, [recordingState, handleStopRecording]);
+   }, [recordingState, handleStopRecording]);
 
-  const handleCancelRecording = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    onRecordingCancel();
-    pressStartTimeRef.current = null;
-    setIsPressed(false);
-    slideOffsetY.setValue(0);
-  };
-
-  const renderButtonContent = () => {
+   const renderButtonContent = () => {
     if (disabled) {
       return (
         <View style={styles.buttonContent}>

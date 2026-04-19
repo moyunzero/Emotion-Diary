@@ -54,10 +54,6 @@ export const WaveformView: React.FC<WaveformViewProps> = ({
             const randomTarget =
               Math.random() * (MAX_BAR_HEIGHT - MIN_BAR_HEIGHT) + MIN_BAR_HEIGHT;
             
-            const leftNeighbor = newBars[i - 1] || MIN_BAR_HEIGHT;
-            const rightNeighbor = newBars[i + 1] || MIN_BAR_HEIGHT;
-            const avgNeighbor = (newBars[i] + leftNeighbor + rightNeighbor) / 3;
-            
             newBars[i] = newBars[i] + (randomTarget - newBars[i]) * 0.5;
             newBars[i] = Math.max(MIN_BAR_HEIGHT, Math.min(MAX_BAR_HEIGHT, newBars[i]));
           }

@@ -20,7 +20,7 @@ import {
 import AppIcon from '../icons/AppIcon';
 import { normalizeDeadline, toggleSelection } from './editEntryUtils';
 import EditEntryFields from './EditEntryFields';
-import AudioRecorder from '../AudioRecorder/AudioRecorder';
+import { AudioRecorder } from '../AudioRecorder/AudioRecorder';
 import { styles } from './EditEntryModal.styles';
 
 export interface EditEntryFormProps {

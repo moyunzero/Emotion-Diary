@@ -101,7 +101,7 @@ export function ProfileScreen() {
       }
     };
     loadLastSyncTime();
-  }, [state.setLastSyncTime]);
+  }, [state]);
 
   useEffect(() => {
     const showEvent =
@@ -118,7 +118,7 @@ export function ProfileScreen() {
       showSub.remove();
       hideSub.remove();
     };
-  }, [state.setIsKeyboardVisible]);
+  }, [state]);
 
   useEffect(() => {
     if (state.isLoginModalOpen && !state.isRegisterMode) {
