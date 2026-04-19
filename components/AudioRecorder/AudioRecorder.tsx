@@ -181,7 +181,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 return;
             }
 
-            const player = createAudioPlayer({ uri });
+            const player = createAudioPlayer(uri);
             player.play();
 
             const statusListener = (status: AudioStatus) => {
