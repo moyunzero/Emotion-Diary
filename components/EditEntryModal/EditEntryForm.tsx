@@ -3,13 +3,13 @@
  * 承载 useAppStore updateEntry、useHapticFeedback、所有 useState、useEffect、handleSubmit、自定义标签 load/add/remove
  */
 import { Sparkles } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Keyboard, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../../constants';
 import { useHapticFeedback } from '../../hooks/useHapticFeedback';
 import { useAppStore } from '../../store/useAppStore';
-import { MoodEntry, MoodLevel } from '../../types';
+import { AudioData, MoodEntry, MoodLevel } from '../../types';
 import {
   addCustomPerson,
   addCustomTrigger,
@@ -20,6 +20,7 @@ import {
 import AppIcon from '../icons/AppIcon';
 import { normalizeDeadline, toggleSelection } from './editEntryUtils';
 import EditEntryFields from './EditEntryFields';
+import AudioRecorder from '../AudioRecorder/AudioRecorder';
 import { styles } from './EditEntryModal.styles';
 
 export interface EditEntryFormProps {
@@ -50,6 +51,11 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
   const [customPeopleOptions, setCustomPeopleOptions] = useState<string[]>([]);
   const [customTriggerOptions, setCustomTriggerOptions] = useState<string[]>([]);
 
+  const [audios, setAudios] = useState<AudioData[]>(entry.audios || []);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+
   const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
   const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
 
@@ -63,6 +69,10 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
       setCustomDeadlineText(isCustom ? entry.deadline : '');
       setSelectedPeople(entry.people || []);
       setSelectedTriggers(entry.triggers || []);
+      setAudios(entry.audios || []);
+      setCurrentPlayingId(null);
+      setIsPlaying(false);
+      setPlaybackPosition(0);
       loadCustomOptionsData();
     }
   }, [visible, entry]);
@@ -72,6 +82,19 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
     setCustomPeopleOptions(options.people);
     setCustomTriggerOptions(options.triggers);
   };
+
+  const handlePlayAudio = useCallback((audio: AudioData) => {
+    setCurrentPlayingId(audio.id);
+    setIsPlaying(true);
+  }, []);
+
+  const handlePauseAudio = useCallback(() => {
+    setIsPlaying(false);
+  }, []);
+
+  const handlePlaybackPositionChange = useCallback((position: number) => {
+    setPlaybackPosition(position);
+  }, []);
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -90,6 +113,7 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
       deadline: finalDeadline,
       people: selectedPeople.length ? selectedPeople : ['其他'],
       triggers: selectedTriggers,
+      audios,
     });
 
     triggerHaptic('success');
@@ -170,6 +194,20 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
           ]);
         }}
       />
+
+      <View style={styles.audioSection}>
+        <Text style={styles.audioSectionTitle}>语音附件</Text>
+        <AudioRecorder
+          audios={audios}
+          onAudiosChange={setAudios}
+          currentPlayingId={currentPlayingId}
+          isPlaying={isPlaying}
+          playbackPosition={playbackPosition}
+          onPlaybackPositionChange={handlePlaybackPositionChange}
+          onPlayAudio={handlePlayAudio}
+          onPauseAudio={handlePauseAudio}
+        />
+      </View>
       </ScrollView>
 
       <View style={[styles.submitContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>

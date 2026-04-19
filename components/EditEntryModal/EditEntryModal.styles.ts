@@ -162,6 +162,18 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
     opacity: 0.6,
   },
+  audioSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray[50],
+  },
+  audioSectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: 12,
+  },
   submitContainer: {
     paddingHorizontal: 24,
     paddingTop: 16,
