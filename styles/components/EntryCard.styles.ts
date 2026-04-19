@@ -78,6 +78,18 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.tertiary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
+    burnedAudioContainer: {
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      paddingTop: DESIGN_TOKENS.spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: COLORS.gray[100],
+    },
+    burnedAudioLabel: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: COLORS.text.tertiary,
+      fontWeight: '600',
+      marginBottom: DESIGN_TOKENS.spacing.xs,
+    },
     burnActionButton: {},
     burnActionIcon: {
       backgroundColor: '#FEF3F2',

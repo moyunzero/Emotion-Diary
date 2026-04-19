@@ -415,6 +415,43 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       触发：{entry.triggers.map((t) => `#${t}`).join(" ")}
                     </Text>
                   </View>
+                  {entry.audios && entry.audios.length > 0 && (
+                    <View style={styles.burnedAudioContainer}>
+                      <Text style={styles.burnedAudioLabel}>语音：</Text>
+                      {entry.audios.map((audio) => (
+                        <TouchableOpacity
+                          key={audio.id}
+                          style={[
+                            styles.audioPlayItem,
+                            playingAudioId === audio.id && styles.audioPlayItemActive
+                          ]}
+                          onPress={() => handlePlayAudio(audio)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
+                        >
+                          {playingAudioId === audio.id ? (
+                            <Pause size={16} color="#6C63FF" />
+                          ) : (
+                            <Play size={16} color="#9CA3AF" />
+                          )}
+                          <Text
+                            style={[
+                              styles.audioPlayName,
+                              playingAudioId === audio.id && styles.audioPlayNameActive
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
+                          </Text>
+                          {playingAudioId === audio.id && (
+                            <Text style={styles.audioPlayDuration}>
+                              {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                 </View>
               )}
               <Text style={styles.burnedHint}>
