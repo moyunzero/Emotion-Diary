@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Audio } from "expo-av";
 import {
   Play,
   Pause,
@@ -21,7 +20,6 @@ import {
   Edit3,
   Check,
   X,
-  Mic,
 } from "lucide-react-native";
 import { AudioData } from "../../types";
 
