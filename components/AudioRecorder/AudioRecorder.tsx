@@ -109,6 +109,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 playerRef.current.pause();
                 playerRef.current.remove();
                 playerRef.current = null;
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             await setAudioModeAsync({
@@ -116,6 +117,8 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 playsInSilentMode: true,
                 interruptionMode: "duckOthers",
             });
+
+            await new Promise(resolve => setTimeout(resolve, 50));
 
             await recorder.prepareToRecordAsync();
             recorder.record();
@@ -153,6 +156,8 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 playsInSilentMode: true,
                 interruptionMode: "mixWithOthers",
             });
+
+            await new Promise(resolve => setTimeout(resolve, 150));
 
             if (!uri) {
                 throw new Error("No URI for recording");
