@@ -16,7 +16,7 @@ import {
 } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { copyAsync, deleteAsync, getInfoAsync, cacheDirectory } from "expo-file-system/legacy";
-import * as Crypto from "expo-crypto";
+import { md5 } from "js-md5";
 import { AudioData } from "../../types";
 import { RecordingState } from "../../store/modules/audio";
 import RecordButton from "./RecordButton";
@@ -181,11 +181,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             const fileInfo = await getInfoAsync(destUri);
             const fileSize = fileInfo.exists ? (fileInfo.size || 0) : 0;
 
-            const fileHash = await Crypto.digestStringAsync(
-                Crypto.CryptoDigestAlgorithm.MD5,
-                destUri,
-                { encoding: Crypto.CryptoEncoding.HEX }
-            );
+            const fileHash = md5(destUri);
 
             await deleteAsync(sourceUri).catch(() => {});
             tempRecordingUriRef.current = null;
