@@ -514,12 +514,7 @@ export const useAppStore = create<AppStore>()((...args) => {
             if (!localEntry) {
               mergedEntriesMap.set(cloudEntry.id, cloudEntry);
             } else {
-              const localTimestamp = localEntry.timestamp || 0;
-              const cloudTimestamp = cloudEntry.timestamp || 0;
-
-              if (cloudTimestamp > localTimestamp) {
-                mergedEntriesMap.set(cloudEntry.id, cloudEntry);
-              }
+              mergedEntriesMap.set(cloudEntry.id, cloudEntry);
             }
           }
 
