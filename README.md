@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![心晴MO Logo](./assets/images/app-icon.png)
+<img src="./assets/images/app-icon.png" width="150" alt="心晴MO Logo" />
 
 **一款治愈系情绪记录与管理应用**
 
