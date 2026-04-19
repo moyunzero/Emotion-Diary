@@ -71,9 +71,10 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
     Math.max(200, windowWidth - 72),
   );
   const chartH = 100;
-  const barPad = 4;
+  const MARGIN_H = 12;
+  const BAR_GAP = 12;
   const n = Math.max(1, monthlySeries.length);
-  const barW = (chartW - barPad * (n + 1)) / n;
+  const barW = (chartW - 2 * MARGIN_H - (n - 1) * BAR_GAP) / n;
   const hasMonthlyData = monthlySeries.some((pt) => pt.rate !== null);
 
   return (
@@ -112,12 +113,12 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
             {monthlySeries.map((pt, i) => {
               const h =
                 pt.rate === null ? 0 : Math.max(2, pt.rate * (chartH - 24));
-              const x = barPad + i * (barW + barPad);
+              const barX = MARGIN_H + i * (barW + BAR_GAP);
               const y = chartH - h - 8;
               return h > 0 ? (
                 <Rect
                   key={`${pt.year}-${pt.monthIndex0}`}
-                  x={x}
+                  x={barX}
                   y={y}
                   width={barW}
                   height={h}
@@ -131,13 +132,14 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
             })}
           </Svg>
         </View>
-        <View style={[styles.monthRow, { paddingHorizontal: barPad }]}>
+        <View style={styles.monthRow}>
           {monthlySeries.map((pt, i) => {
-            const x = barPad + i * (barW + barPad);
+            const barX = MARGIN_H + i * (barW + BAR_GAP);
+            const cellMarginLeft = i === 0 ? barX : BAR_GAP / 2;
             return (
               <View
                 key={`label-${pt.year}-${pt.monthIndex0}`}
-                style={[styles.monthCell, { width: barW, marginRight: i < n - 1 ? barPad : 0 }]}
+                style={[styles.monthCell, { width: barW, marginLeft: cellMarginLeft }]}
               >
                 <Text style={styles.monthLabel} numberOfLines={1}>
                   {pt.monthIndex0 + 1}月
