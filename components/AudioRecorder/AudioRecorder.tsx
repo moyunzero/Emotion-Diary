@@ -191,36 +191,54 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   }, []);
 
   const handlePlayAudio = useCallback(async (audio: AudioData) => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
+    const tryPlay = async (uri: string | undefined): Promise<boolean> => {
+      if (!uri) return false;
 
-      const uri = audio.localUri || audio.remoteUrl;
-      if (!uri) {
-        throw new Error("No audio URI");
-      }
+      try {
+        if (soundRef.current) {
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
 
-      const { sound } = await Audio.Sound.createAsync(
-        { uri },
-        { shouldPlay: true },
-        (status) => {
-          if (status.isLoaded) {
-            onPlaybackPositionChange(status.positionMillis / 1000);
-            if (status.didJustFinish) {
-              onPauseAudio();
-              onPlaybackPositionChange(0);
+        const { sound } = await Audio.Sound.createAsync(
+          { uri },
+          { shouldPlay: true },
+          (status) => {
+            if (status.isLoaded) {
+              onPlaybackPositionChange(status.positionMillis / 1000);
+              if (status.didJustFinish) {
+                onPauseAudio();
+                onPlaybackPositionChange(0);
+              }
             }
           }
-        }
-      );
+        );
 
-      soundRef.current = sound;
-      onPlayAudio(audio);
-    } catch (error) {
-      console.error("Failed to play audio:", error);
+        soundRef.current = sound;
+        return true;
+      } catch (error) {
+        console.error("Failed to play audio:", error);
+        return false;
+      }
+    };
+
+    // 优先尝试本地文件
+    const localPlayed = await tryPlay(audio.localUri);
+
+    if (!localPlayed && audio.remoteUrl) {
+      // 本地播放失败，降级到在线播放
+      console.log("Local playback failed, trying remote URL");
+      const remotePlayed = await tryPlay(audio.remoteUrl);
+
+      if (!remotePlayed) {
+        Alert.alert("播放失败", "无法播放录音，请重试");
+      }
+    } else if (!localPlayed && !audio.remoteUrl) {
       Alert.alert("播放失败", "无法播放录音，请重试");
+    }
+
+    if (localPlayed) {
+      onPlayAudio(audio);
     }
   }, [onPlayAudio, onPauseAudio, onPlaybackPositionChange]);
 

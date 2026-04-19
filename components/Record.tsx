@@ -129,6 +129,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
           isCustomDeadline,
           selectedPeople,
           selectedTriggers,
+          audios,
         };
         await saveDraft(draft);
       } catch (error) {
@@ -154,6 +155,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
     deadline,
     customDeadlineText,
     isCustomDeadline,
+    audios,
   ]);
 
   // 加载草稿和自定义选项
@@ -172,6 +174,9 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
           setCustomDeadlineText(draft.customDeadlineText);
           setSelectedPeople(draft.selectedPeople);
           setSelectedTriggers(draft.selectedTriggers);
+          if (draft.audios && draft.audios.length > 0) {
+            setAudios(draft.audios);
+          }
         }
       } finally {
         setIsInitializing(false);
