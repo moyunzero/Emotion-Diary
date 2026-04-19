@@ -3,7 +3,7 @@
  * 管理录音状态机、权限、录制和播放
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Linking, StyleSheet, View, Text } from "react-native";
 import {
     useAudioRecorder,
@@ -48,6 +48,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     const [recordingDuration, setRecordingDuration] = useState(0);
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [recordedUri, setRecordedUri] = useState<string | null>(null);
+    const playerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
 
     const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
     const recorderState = useAudioRecorderState(recorder, 100);
@@ -61,6 +62,16 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             setRecordingState('idle');
         }
     }, [audios.length, recordingState]);
+
+    useEffect(() => {
+        return () => {
+            if (playerRef.current) {
+                playerRef.current.pause();
+                playerRef.current.seekTo(0);
+                playerRef.current = null;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (recorderState.durationMillis && recorderState.isRecording) {
@@ -187,16 +198,30 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 return;
             }
 
+            if (currentPlayingId === audio.id && isPlaying) {
+                return;
+            }
+
+            if (playerRef.current) {
+                playerRef.current.pause();
+                playerRef.current.seekTo(0);
+                playerRef.current = null;
+            }
+
             const player = createAudioPlayer(uri);
+            playerRef.current = player;
+
             player.play();
 
             const statusListener = (status: AudioStatus) => {
                 if (status.currentTime !== undefined) {
-                    onPlaybackPositionChange(status.currentTime);
+                    const clampedPosition = Math.min(status.currentTime, audio.duration);
+                    onPlaybackPositionChange(clampedPosition);
                 }
                 if (status.didJustFinish) {
                     onPauseAudio();
                     onPlaybackPositionChange(0);
+                    playerRef.current = null;
                 }
             };
 
@@ -206,8 +231,9 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         } catch (error) {
             console.error("Failed to play audio:", error);
             Alert.alert("播放失败", "无法播放录音，请重试");
+            playerRef.current = null;
         }
-    }, [onPlayAudio, onPauseAudio, onPlaybackPositionChange]);
+    }, [currentPlayingId, isPlaying, onPlayAudio, onPauseAudio, onPlaybackPositionChange]);
 
     const handlePauseAudio = useCallback(async () => {
         onPauseAudio();

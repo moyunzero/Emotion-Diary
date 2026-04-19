@@ -58,7 +58,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
   })}`;
 
   const currentPosition = isPlaying ? playbackPosition : 0;
-  const progress = audio.duration > 0 ? currentPosition / audio.duration : 0;
+  const progress = audio.duration > 0 ? Math.min(Math.max(currentPosition / audio.duration, 0), 1) : 0;
 
   const handlePlayPause = () => {
     if (isPlaying) {
