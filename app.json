@@ -32,7 +32,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png"
       },
       "package": "com.moyunzero.emotiondiary",
-      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
@@ -61,9 +64,12 @@
         {
           "photosPermission": "心晴MO仅在你保存情绪回顾图时访问相册以完成写入。",
           "savePhotosPermission": "心晴MO需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。",
-          "granularPermissions": ["photo"]
+          "granularPermissions": [
+            "photo"
+          ]
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,
