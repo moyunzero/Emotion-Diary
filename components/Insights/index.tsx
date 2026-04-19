@@ -135,7 +135,8 @@ const Insights: React.FC = () => {
 
 const styles = StyleSheet.create({
   contentWrapper: {
-    width: '100%', // 在小屏设备上全宽
+    width: '100%',
+    marginHorizontal: 'auto', // 大屏下配合 maxWidth 实现水平居中
   },
   reviewCtaWrap: {
     width: '100%',
