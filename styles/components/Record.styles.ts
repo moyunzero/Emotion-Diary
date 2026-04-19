@@ -32,6 +32,12 @@ export function createRecordStyles(width: number, height: number) {
     content: {
       padding: m.padding.horizontal,
     },
+    audioSection: {
+      marginTop: DESIGN_TOKENS.spacing.lg,
+      paddingTop: DESIGN_TOKENS.spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: COLORS.gray[100],
+    },
     submitContainer: {
       position: "absolute",
       left: 0,

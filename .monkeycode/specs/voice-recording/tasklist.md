@@ -83,23 +83,23 @@
 
 #### 3.1 集成到记录页
 
-- [ ] 3.1.1 在 `components/Record.tsx` 中集成 AudioRecorder
+- [x] 3.1.1 在 `components/Record.tsx` 中集成 AudioRecorder
   - 添加附件区域
   - 录音后显示语音列表
   - 保存 Entry 时包含 audios 数据
 
-- [ ] 3.1.2 扩展保存逻辑支持音频
+- [x] 3.1.2 扩展保存逻辑支持音频
 
 #### 3.2 集成到 EntryCard
 
-- [ ] 3.2.1 扩展 `components/EntryCard.tsx`
+- [x] 3.2.1 扩展 `components/EntryCard.tsx`
   - 显示音频数量图标
   - 点击展开播放控件
   - 播放时显示进度和暂停
 
 #### 3.3 集成到 Dashboard
 
-- [ ] 3.3.1 在 Dashboard 中支持显示音频图标
+- [x] 3.3.1 在 Dashboard 中支持显示音频图标
 
 ---
 

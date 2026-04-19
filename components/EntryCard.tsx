@@ -1,5 +1,5 @@
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import { CheckCircle, Edit, Flame, Trash2 } from "lucide-react-native";
+import { CheckCircle, Edit, Flame, Mic, Trash2 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -425,6 +425,14 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       <Text style={styles.triggerText}>#{t}</Text>
                     </View>
                   ))}
+                  {entry.audios && entry.audios.length > 0 && (
+                    <View style={styles.audioTag}>
+                      <Mic size={12} color="#6C63FF" />
+                      <Text style={styles.audioTagText}>
+                        {entry.audios.length}条语音
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
             </View>

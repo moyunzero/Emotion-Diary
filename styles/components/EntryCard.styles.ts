@@ -159,6 +159,20 @@ export function createEntryCardStyles(width: number, height: number) {
       color: '#F472B6',
       fontWeight: '600',
     },
+    audioTag: {
+      backgroundColor: '#EEF2FF',
+      paddingHorizontal: 10,
+      paddingVertical: DESIGN_TOKENS.spacing.xs,
+      borderRadius: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    audioTagText: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: '#6C63FF',
+      fontWeight: '600',
+    },
     actionsContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',
