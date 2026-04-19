@@ -9,7 +9,7 @@ import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native"
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
 
-export interface ProfileUserCardProps {
+interface ProfileUserCardProps {
   /** 用户头像 URL */
   avatarUri?: string | null;
   /** 用户昵称 */

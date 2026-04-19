@@ -7,7 +7,7 @@ import React, { useMemo } from "react";
 import { Text, View, useWindowDimensions } from "react-native";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 
-export interface ProfileStatCardProps {
+interface ProfileStatCardProps {
   /** 主数字 */
   value: number | string;
   /** 标签文字 */

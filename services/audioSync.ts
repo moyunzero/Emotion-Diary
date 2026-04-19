@@ -27,7 +27,7 @@ export const uploadAudio = async (
   const filePath = `${userId}/${audioData.id}.m4a`;
 
   try {
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(AUDIO_BUCKET)
       .upload(filePath, audioData.localUri, {
         contentType: "audio/m4a",
@@ -110,7 +110,7 @@ export const downloadAudio = async (
   const filePath = `${userId}/${audioData.id}.m4a`;
 
   try {
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(AUDIO_BUCKET)
       .download(filePath);
 
