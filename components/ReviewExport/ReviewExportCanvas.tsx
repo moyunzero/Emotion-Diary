@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
+import { MessageCircle } from 'lucide-react-native';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodLevel } from '../../types';
 import type { ReviewExportDerivedState } from '../../utils/reviewExportDerived';
@@ -130,17 +131,20 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
             })}
           </Svg>
         </View>
-        <View style={styles.monthRow}>
-          {monthlySeries.map((pt) => (
-            <View
-              key={`label-${pt.year}-${pt.monthIndex0}`}
-              style={styles.monthCell}
-            >
-              <Text style={styles.monthLabel} numberOfLines={1}>
-                {pt.monthIndex0 + 1}月
-              </Text>
-            </View>
-          ))}
+        <View style={[styles.monthRow, { paddingHorizontal: barPad }]}>
+          {monthlySeries.map((pt, i) => {
+            const x = barPad + i * (barW + barPad);
+            return (
+              <View
+                key={`label-${pt.year}-${pt.monthIndex0}`}
+                style={[styles.monthCell, { width: barW, marginRight: i < n - 1 ? barPad : 0 }]}
+              >
+                <Text style={styles.monthLabel} numberOfLines={1}>
+                  {pt.monthIndex0 + 1}月
+                </Text>
+              </View>
+            );
+          })}
         </View>
       </View>
 
@@ -182,7 +186,9 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       )}
 
       <View style={styles.placeholderAi}>
-        <Text style={styles.aiEmoji}>💬</Text>
+        <View style={styles.aiIconWrap}>
+          <MessageCircle size={20} color={INSIGHTS_COLORS.textSecondary} />
+        </View>
         {aiStatus === 'loading' && (
           <Text style={styles.aiLoading}>正在写一句话…</Text>
         )}
@@ -284,10 +290,8 @@ const styles = StyleSheet.create({
   },
   monthRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginTop: GAP.sm,
-    paddingHorizontal: 2,
   },
   monthCell: {
     flex: 1,
@@ -347,8 +351,7 @@ const styles = StyleSheet.create({
     backgroundColor: INSIGHTS_COLORS.primary + '18',
     borderRadius: 12,
   },
-  aiEmoji: {
-    fontSize: 18,
+  aiIconWrap: {
     marginBottom: GAP.xs,
   },
   aiText: {
