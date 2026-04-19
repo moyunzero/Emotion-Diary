@@ -36,26 +36,26 @@
 
 #### 2.1 RecordButton 组件
 
-- [ ] 2.1.1 创建 `components/AudioRecorder/RecordButton.tsx`
+- [x] 2.1.1 创建 `components/AudioRecorder/RecordButton.tsx`
   - 按住/滑动/释放手势检测
   - 300ms 误触保护
   - 向上滑动取消检测（>30px）
   - 震动反馈
 
-- [ ] 2.1.2 实现不同状态下的 UI 显示
+- [x] 2.1.2 实现不同状态下的 UI 显示
   - idle: "按住说话"
   - recording: "松开结束"
   - canceling: "松开取消"
 
 #### 2.2 WaveformView 组件
 
-- [ ] 2.2.1 创建 `components/AudioRecorder/WaveformView.tsx`
+- [x] 2.2.1 创建 `components/AudioRecorder/WaveformView.tsx`
   - 实时音量可视化
   - 性能降级方案（低端设备用 simple-bars）
 
 #### 2.3 AudioPreview 组件
 
-- [ ] 2.3.1 创建 `components/AudioRecorder/AudioPreview.tsx`
+- [x] 2.3.1 创建 `components/AudioRecorder/AudioPreview.tsx`
   - 播放/暂停控制
   - 时长显示
   - 删除按钮
@@ -63,19 +63,19 @@
 
 #### 2.4 AudioList 组件
 
-- [ ] 2.4.1 创建 `components/AudioRecorder/AudioList.tsx`
+- [x] 2.4.1 创建 `components/AudioRecorder/AudioList.tsx`
   - 语音条目列表
   - 播放状态管理
   - 同时只播一个音频
 
 #### 2.5 AudioRecorder 主组件
 
-- [ ] 2.5.1 创建 `components/AudioRecorder/AudioRecorder.tsx`
+- [x] 2.5.1 创建 `components/AudioRecorder/AudioRecorder.tsx`
   - 录音状态机管理
   - 权限请求处理
   - expo-av 录音集成
 
-- [ ] 2.5.2 创建 `components/AudioRecorder/index.ts` 导出
+- [x] 2.5.2 创建 `components/AudioRecorder/index.ts` 导出
 
 ---
 
