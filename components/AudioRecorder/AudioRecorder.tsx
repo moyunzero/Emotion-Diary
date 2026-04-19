@@ -67,7 +67,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         return () => {
             if (playerRef.current) {
                 playerRef.current.pause();
-                playerRef.current.seekTo(0);
+                playerRef.current.remove();
                 playerRef.current = null;
             }
         };
@@ -204,7 +204,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
             if (playerRef.current) {
                 playerRef.current.pause();
-                playerRef.current.seekTo(0);
+                playerRef.current.remove();
                 playerRef.current = null;
             }
 
