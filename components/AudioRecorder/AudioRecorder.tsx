@@ -15,6 +15,8 @@ import {
     AudioStatus,
 } from "expo-audio";
 import * as Haptics from "expo-haptics";
+import { copyAsync } from "expo-file-system/legacy";
+import { cacheDirectory } from "expo-file-system/legacy";
 import { AudioData } from "../../types";
 import { RecordingState } from "../../store/modules/audio";
 import RecordButton from "./RecordButton";
@@ -103,9 +105,16 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         }
 
         try {
+            if (playerRef.current) {
+                playerRef.current.pause();
+                playerRef.current.remove();
+                playerRef.current = null;
+            }
+
             await setAudioModeAsync({
                 allowsRecording: true,
                 playsInSilentMode: true,
+                interruptionMode: "duckOthers",
             });
 
             await recorder.prepareToRecordAsync();
@@ -142,15 +151,20 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             await setAudioModeAsync({
                 allowsRecording: false,
                 playsInSilentMode: true,
+                interruptionMode: "mixWithOthers",
             });
 
             if (!uri) {
                 throw new Error("No URI for recording");
             }
 
+            const uniqueFileName = `recording_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`;
+            const destUri = `${cacheDirectory || ''}${uniqueFileName}`;
+            await copyAsync({ from: uri, to: destUri });
+
             const newAudio: AudioData = {
                 id: Date.now().toString(),
-                localUri: uri,
+                localUri: destUri,
                 duration: duration,
                 fileSize: 0,
                 fileHash: "",
