@@ -67,8 +67,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
 
   const handlePressIn = useCallback(() => {
     if (disabled) return;
-    if (recordingState !== 'idle') return;
-    handleStartRecording();
+    if (recordingState === 'idle' || recordingState === 'preview') {
+      handleStartRecording();
+    }
   }, [disabled, recordingState, handleStartRecording]);
 
   const handlePressOut = useCallback(() => {

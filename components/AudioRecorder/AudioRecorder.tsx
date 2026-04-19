@@ -57,6 +57,12 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     }, []);
 
     useEffect(() => {
+        if (audios.length > 0 && recordingState === 'preview') {
+            setRecordingState('idle');
+        }
+    }, [audios.length, recordingState]);
+
+    useEffect(() => {
         if (recorderState.durationMillis && recorderState.isRecording) {
             setRecordingDuration(recorderState.durationMillis / 1000);
         }
