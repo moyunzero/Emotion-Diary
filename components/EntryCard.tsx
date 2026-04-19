@@ -1,6 +1,7 @@
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import { CheckCircle, Edit, Flame, Mic, Trash2 } from "lucide-react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createAudioPlayer, AudioStatus } from "expo-audio";
+import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,7 +19,7 @@ import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
-import { Deadline, MoodEntry, MoodLevel, Status } from "../types";
+import { AudioData, Deadline, MoodEntry, MoodLevel, Status } from "../types";
 import { formatDateChinese } from "@/shared/formatting";
 import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
@@ -132,6 +133,75 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isBurning, setIsBurning] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
+
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const [playbackPosition, setPlaybackPosition] = useState<number>(0);
+  const audioPlayerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
+
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handlePlayAudio = useCallback(async (audio: AudioData) => {
+    try {
+      if (playingAudioId === audio.id) {
+        if (audioPlayerRef.current) {
+          audioPlayerRef.current.pause();
+          audioPlayerRef.current.remove();
+          audioPlayerRef.current = null;
+        }
+        setPlayingAudioId(null);
+        return;
+      }
+
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current.remove();
+        audioPlayerRef.current = null;
+      }
+
+      const uri = audio.localUri || audio.remoteUrl;
+      if (!uri) {
+        Alert.alert("播放失败", "录音文件已丢失");
+        return;
+      }
+
+      const player = createAudioPlayer(uri);
+      audioPlayerRef.current = player;
+
+      const statusListener = (status: AudioStatus) => {
+        if (status.currentTime !== undefined) {
+          const clampedPosition = Math.min(status.currentTime, audio.duration);
+          setPlaybackPosition(clampedPosition);
+        }
+        if (status.didJustFinish) {
+          setPlayingAudioId(null);
+          setPlaybackPosition(0);
+          audioPlayerRef.current = null;
+        }
+      };
+
+      player.addListener("playbackStatusUpdate" as any, statusListener);
+      player.play();
+
+      setPlayingAudioId(audio.id);
+    } catch (error) {
+      console.error("Failed to play audio:", error);
+      Alert.alert("播放失败", "无法播放录音，请重试");
+    }
+  }, [playingAudioId]);
+
+  useEffect(() => {
+    return () => {
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current.remove();
+        audioPlayerRef.current = null;
+      }
+    };
+  }, []);
 
   const handleResolve = () => {
     triggerHaptic("success");
@@ -434,6 +504,45 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                     </View>
                   )}
                 </View>
+
+                {/* Audio Playback Section - Only in expanded state */}
+                {isExpanded && entry.audios && entry.audios.length > 0 && (
+                  <View style={styles.audioPlaySection}>
+                    <Text style={styles.audioPlaySectionTitle}>语音</Text>
+                    {entry.audios.map((audio) => (
+                      <TouchableOpacity
+                        key={audio.id}
+                        style={[
+                          styles.audioPlayItem,
+                          playingAudioId === audio.id && styles.audioPlayItemActive
+                        ]}
+                        onPress={() => handlePlayAudio(audio)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
+                      >
+                        {playingAudioId === audio.id ? (
+                          <Pause size={16} color="#6C63FF" />
+                        ) : (
+                          <Play size={16} color="#9CA3AF" />
+                        )}
+                        <Text
+                          style={[
+                            styles.audioPlayName,
+                            playingAudioId === audio.id && styles.audioPlayNameActive
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
+                        </Text>
+                        {playingAudioId === audio.id && (
+                          <Text style={styles.audioPlayDuration}>
+                            {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
             </View>
           </TouchableOpacity>
