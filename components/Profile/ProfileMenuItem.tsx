@@ -3,6 +3,7 @@
  * 图标 + 文字 + 可选右侧箭头 / 副文案
  */
 
+import { ChevronRight } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { COLORS } from "../../constants/colors";
@@ -70,7 +71,7 @@ export function ProfileMenuItem({
         )}
       </View>
       {showChevron && !disabled && (
-        <AppIcon name="ChevronRight" size={20} color={COLORS.gray[300]} />
+        <AppIcon name={ChevronRight} size={20} color={COLORS.gray[300]} />
       )}
     </TouchableOpacity>
   );
