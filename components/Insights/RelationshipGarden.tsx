@@ -1,10 +1,10 @@
-import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MoodEntry, Status } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
+import AppIcon from '../icons/AppIcon';
 
 interface RelationshipGardenProps {
   entries: MoodEntry[];
@@ -12,6 +12,13 @@ interface RelationshipGardenProps {
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
+  
+  // 响应式计算花盆尺寸
+  const potSize = useMemo(() => {
+    const base = 48;
+    return layout.maxContentWidth > 600 ? 56 : base;
+  }, [layout.maxContentWidth]);
+  
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -29,8 +36,8 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         header: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
-          marginBottom: 4,
+          gap: spacing.sm,
+          marginBottom: spacing.xs,
         },
         title: {
           fontSize: fontSize.cardTitle,
@@ -41,7 +48,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           fontSize: fontSize.small,
           color: INSIGHTS_COLORS.textSecondary,
           marginBottom: spacing.component,
-          marginLeft: 28,
+          marginLeft: spacing.cardGap + spacing.sm,
         },
         potsContainer: {
           flexDirection: 'row',
@@ -55,25 +62,25 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           minWidth: 80,
         },
         pot: {
-          width: 56,
-          height: 56,
-          borderRadius: 28,
+          width: potSize,
+          height: potSize,
+          borderRadius: potSize / 2,
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 6,
+          marginBottom: spacing.sm - 2,
         },
         personName: {
           fontSize: fontSize.body,
           fontWeight: 'bold',
           color: INSIGHTS_COLORS.text,
-          marginBottom: 3,
+          marginBottom: spacing.xs - 1,
           textAlign: 'center',
         },
         statusBadge: {
-          paddingHorizontal: 8,
-          paddingVertical: 2,
-          borderRadius: 10,
-          marginBottom: 3,
+          paddingHorizontal: spacing.sm,
+          paddingVertical: spacing.xs,
+          borderRadius: borderRadius.large,
+          marginBottom: spacing.xs - 1,
         },
         statusText: {
           fontSize: fontSize.small,
@@ -85,20 +92,20 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         },
         emptyContainer: {
           alignItems: 'center',
-          paddingVertical: 24,
+          paddingVertical: spacing.cardGap,
         },
         emptyText: {
           fontSize: fontSize.body,
           color: INSIGHTS_COLORS.textSecondary,
-          marginTop: 12,
+          marginTop: spacing.sm + 4,
         },
         emptySubtext: {
           fontSize: fontSize.small,
           color: '#9CA3AF',
-          marginTop: 4,
+          marginTop: spacing.xs,
         },
       }),
-    [padding, fontSize, spacing, borderRadius, layout]
+    [padding, fontSize, spacing, borderRadius, layout, potSize]
   );
 
   // 计算每个人的关系健康度
@@ -132,11 +139,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+          <AppIcon name="Droplets" size={20} color={INSIGHTS_COLORS.accent} />
           <Text style={styles.title}>关系花园</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color="#D1D5DB" />
+          <AppIcon name="Sprout" size={40} color="#D1D5DB" />
           <Text style={styles.emptyText}>还没有种下关系的种子</Text>
           <Text style={styles.emptySubtext}>记录情绪时添加相关的人吧</Text>
         </View>
@@ -147,7 +154,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Droplets" size={20} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>关系花园</Text>
       </View>
       <Text style={styles.subtitle}>这些关系需要你的关注</Text>
@@ -164,11 +171,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               {/* 花盆图标 */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
                 {potStatus.status === 'blooming' ? (
-                  <Flower2 size={24} color={potStatus.color} />
+                  <AppIcon name="Flower2" size={24} color={potStatus.color} />
                 ) : potStatus.status === 'growing' ? (
-                  <Leaf size={24} color={potStatus.color} />
+                  <AppIcon name="Leaf" size={24} color={potStatus.color} />
                 ) : (
-                  <Droplets size={24} color={potStatus.color} />
+                  <AppIcon name="Droplets" size={24} color={potStatus.color} />
                 )}
               </View>
               {/* 人名 */}

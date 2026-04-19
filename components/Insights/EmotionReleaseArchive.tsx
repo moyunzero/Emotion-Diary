@@ -1,10 +1,11 @@
-import { Flame, NotebookPen, Wind } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Flame } from "lucide-react-native";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
 import { formatDateChinese } from "@/shared/formatting";
 import { INSIGHTS_COLORS } from "./constants";
+import AppIcon from "../icons/AppIcon";
 
 interface EmotionReleaseArchiveProps {
   entries: MoodEntry[];
@@ -43,14 +44,14 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         ]}
       >
         <View style={styles.header}>
-          <Flame size={20} color="#EA580C" />
+          <AppIcon name="Flame" size={20} color="#EA580C" />
           <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
         </View>
         <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
           心晴MO 独有：焚烧后会保留温和的复盘线索
         </Text>
         <View style={styles.emptyCard}>
-          <Wind size={28} color="#9CA3AF" />
+          <AppIcon name="Wind" size={28} color="#9CA3AF" />
           <Text
             style={[
               styles.emptyText,
@@ -84,7 +85,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       ]}
     >
       <View style={styles.header}>
-        <Flame size={20} color="#EA580C" />
+        <AppIcon name={Flame} size={20} color="#EA580C" />
         <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
       </View>
       <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
@@ -123,7 +124,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           “{latest.content}”
         </Text>
         <View style={styles.questionRow}>
-          <NotebookPen size={14} color="#16A34A" />
+          <AppIcon name="NotebookPen" size={14} color="#16A34A" />
           <Text
             style={[
               styles.questionText,

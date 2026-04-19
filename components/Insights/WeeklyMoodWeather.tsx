@@ -1,4 +1,3 @@
-import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
@@ -6,6 +5,7 @@ import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getMoodFlowerStatus, getMoodWeatherIcon, getWeekDates, getWeekdayName, isToday } from './utils';
+import AppIcon from '../icons/AppIcon';
 
 interface WeeklyMoodWeatherProps {
   entries: MoodEntry[];
@@ -30,7 +30,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
         header: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
+          gap: spacing.sm,
           marginBottom: spacing.component,
         },
         title: {
@@ -45,9 +45,9 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
         dayCard: {
           flex: 1,
           alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 2,
-          borderRadius: 12,
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.xs,
+          borderRadius: borderRadius.card,
         },
         todayCard: {
           backgroundColor: '#FFF1F2',
@@ -56,26 +56,26 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           fontSize: fontSize.small,
           fontWeight: '500',
           color: INSIGHTS_COLORS.textSecondary,
-          marginBottom: 8,
-          height: 16,
+          marginBottom: spacing.sm,
+          height: spacing.sm + spacing.xs + 2,
         },
         todayText: {
           color: INSIGHTS_COLORS.accent,
           fontWeight: 'bold',
         },
         iconContainer: {
-          height: 32,
-          width: 32,
+          height: spacing.cardGap + spacing.sm + spacing.xs,
+          width: spacing.cardGap + spacing.sm + spacing.xs,
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 8,
+          marginBottom: spacing.sm,
         },
         status: {
           fontSize: fontSize.small,
           color: INSIGHTS_COLORS.textSecondary,
           textAlign: 'center',
-          height: 28,
-          lineHeight: 14,
+          height: spacing.cardGap,
+          lineHeight: spacing.cardGap - 2,
         },
       }),
     [padding, fontSize, spacing, borderRadius]
@@ -108,7 +108,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Sun size={20} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Sun" size={20} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>本周情绪天气</Text>
       </View>
       <View style={styles.weekContainer}>

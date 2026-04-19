@@ -1,8 +1,8 @@
-import { Flower2 } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
+import AppIcon from '../icons/AppIcon';
 
 interface GardenHeaderProps {
   totalEntries: number;
@@ -49,7 +49,7 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
-        <Flower2 size={28} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Flower2" size={28} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>我的心灵花园</Text>
       </View>
       <Text style={styles.subtitle}>{getGardenStatus()}</Text>

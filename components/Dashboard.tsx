@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Filter, PenLine } from "lucide-react-native";
 import React, {
   useCallback,
   useEffect,
@@ -21,6 +20,8 @@ import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
 import { AppScreenShell } from "./AppScreenShell";
 import WeatherStation from "./WeatherStation";
+import AppIcon from "./icons/AppIcon";
+import { Filter, PenLine } from "lucide-react-native";
 
 // Pure helper functions moved to module level
 /**
@@ -297,7 +298,8 @@ const Dashboard: React.FC = () => {
           accessibilityHint="点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆"
           accessibilityState={{ expanded: isFilterOpen }}
         >
-          <Filter
+          <AppIcon
+            name={Filter}
             size={18}
             color={isFilterOpen ? colors.submit : colors.text.secondary}
           />
@@ -337,7 +339,7 @@ const Dashboard: React.FC = () => {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <View style={styles.emptyIconContainer}>
-              <PenLine size={48} color="#D1D5DB" />
+              <AppIcon name={PenLine} size={48} color="#D1D5DB" />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
               {emptyStateContent.title}

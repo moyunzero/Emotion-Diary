@@ -3,11 +3,11 @@
  * 头像、昵称、邮箱、今日心情标签
  */
 
-import { Camera } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
+import AppIcon from "../icons/AppIcon";
 
 export interface ProfileUserCardProps {
   /** 用户头像 URL */
@@ -55,7 +55,7 @@ export function ProfileUserCard({
         />
         {isLoggedIn && (
           <View style={profileStyles.editBadge}>
-            <Camera size={14} color="#FFF" />
+            <AppIcon name="Camera" size={14} color="#FFF" />
           </View>
         )}
       </TouchableOpacity>

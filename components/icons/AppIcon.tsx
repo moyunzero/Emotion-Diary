@@ -2,6 +2,16 @@ import { AlertCircle, LucideIcon } from 'lucide-react-native';
 import React, { memo } from 'react';
 import { getIconByEmoji } from '../../utils/iconMapping';
 
+export const ICON_SIZES = {
+  operation: 20,
+  header: 24,
+  tag: 16,
+  card: 20,
+  section: 18,
+} as const;
+
+export type IconSizeName = keyof typeof ICON_SIZES;
+
 export interface AppIconProps {
   /**
    * Icon name from lucide-react-native or emoji character

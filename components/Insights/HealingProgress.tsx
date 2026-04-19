@@ -1,10 +1,10 @@
-import { Flower2, Heart, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 import { getGrowthStage } from './utils';
+import AppIcon from '../icons/AppIcon';
 
 interface HealingProgressProps {
   totalCount: number;
@@ -12,7 +12,13 @@ interface HealingProgressProps {
 }
 
 const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, resolvedCount }) => {
-  const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
+  
+  // 响应式计算环形进度条尺寸
+  const progressSize = useMemo(() => {
+    return layout.maxContentWidth > 600 ? 140 : 120;
+  }, [layout.maxContentWidth]);
+  
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -30,7 +36,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         header: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
+          gap: spacing.sm,
           marginBottom: spacing.component,
         },
         title: {
@@ -45,8 +51,8 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         },
         progressContainer: {
           position: 'relative',
-          width: 120,
-          height: 120,
+          width: progressSize,
+          height: progressSize,
           alignItems: 'center',
           justifyContent: 'center',
         },
@@ -55,20 +61,20 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
           alignItems: 'center',
         },
         stageLabel: {
-          fontSize: 12,
+          fontSize: fontSize.small,
           color: INSIGHTS_COLORS.secondary,
           fontWeight: 'bold',
-          marginTop: 4,
+          marginTop: spacing.xs,
         },
         stats: {
           flex: 1,
-          marginLeft: 20,
-          gap: 16,
+          marginLeft: spacing.cardGap,
+          gap: spacing.cardGap,
         },
         statItem: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
+          gap: spacing.sm,
         },
         statNumber: {
           fontSize: fontSize.title,
@@ -83,9 +89,9 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 6,
-          marginTop: 16,
-          paddingTop: 16,
+          gap: spacing.sm - 2,
+          marginTop: spacing.cardGap,
+          paddingTop: spacing.cardGap,
           borderTopWidth: 1,
           borderTopColor: '#F3F4F6',
         },
@@ -95,7 +101,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
           fontStyle: 'italic',
         },
       }),
-    [padding, fontSize, spacing, borderRadius]
+    [padding, fontSize, spacing, borderRadius, progressSize]
   );
   const rate = totalCount > 0 ? resolvedCount / totalCount : 0;
   const pendingCount = totalCount - resolvedCount;
@@ -103,8 +109,8 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
   const GrowthIcon = growthStage.icon;
   
   // 环形进度条参数
-  const size = 120;
-  const strokeWidth = 10;
+  const size = progressSize;
+  const strokeWidth = spacing.sm + spacing.xs;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = circumference * (1 - rate);
@@ -112,7 +118,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Heart size={20} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Heart" size={20} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>治愈进度</Text>
       </View>
       
@@ -154,12 +160,12 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         {/* 统计信息 */}
         <View style={styles.stats}>
           <View style={styles.statItem}>
-            <Flower2 size={18} color={INSIGHTS_COLORS.secondary} />
+            <AppIcon name="Flower2" size={18} color={INSIGHTS_COLORS.secondary} />
             <Text style={styles.statNumber}>{resolvedCount}</Text>
             <Text style={styles.statLabel}>朵情绪小花绽放</Text>
           </View>
           <View style={styles.statItem}>
-            <Sprout size={18} color={INSIGHTS_COLORS.textSecondary} />
+            <AppIcon name="Sprout" size={18} color={INSIGHTS_COLORS.textSecondary} />
             <Text style={styles.statNumber}>{pendingCount}</Text>
             <Text style={styles.statLabel}>颗种子等待发芽</Text>
           </View>
@@ -168,7 +174,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
 
       {/* 鼓励文案 */}
       <View style={styles.encouragement}>
-        <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Sparkles" size={14} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.encouragementText}>
           每一次面对情绪，都是在浇灌自己的心灵
         </Text>

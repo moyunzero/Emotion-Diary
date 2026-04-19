@@ -27,6 +27,7 @@ import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
 import { EditEntryModal } from "@/components/entries";
+import AppIcon from "./icons/AppIcon";
 
 export interface EntryCardProps {
   entry: MoodEntry;
@@ -430,9 +431,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                           accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
                         >
                           {playingAudioId === audio.id ? (
-                            <Pause size={16} color="#6C63FF" />
+                            <AppIcon name={Pause} size={16} color="#6C63FF" />
                           ) : (
-                            <Play size={16} color="#9CA3AF" />
+                            <AppIcon name={Play} size={16} color="#9CA3AF" />
                           )}
                           <Text
                             style={[
@@ -534,7 +535,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   ))}
                   {entry.audios && entry.audios.length > 0 && (
                     <View style={styles.audioTag}>
-                      <Mic size={12} color="#6C63FF" />
+                      <AppIcon name={Mic} size={16} color="#6C63FF" />
                       <Text style={styles.audioTagText}>
                         {entry.audios.length}条语音
                       </Text>
@@ -595,7 +596,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint="点击编辑记录的内容、标签或期限"
               >
                 <View style={styles.actionIcon}>
-                  <Edit size={20} color="#3B82F6" />
+                  <AppIcon name={Edit} size={20} color="#3B82F6" />
                 </View>
                 <Text style={styles.actionText}>编辑</Text>
               </TouchableOpacity>
@@ -608,7 +609,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint="点击标记这条情绪记录为已解决，表示已经与相关的人沟通或自己消化"
               >
                 <View style={styles.actionIcon}>
-                  <CheckCircle size={20} color="#10B981" />
+                  <AppIcon name={CheckCircle} size={20} color="#10B981" />
                 </View>
                 <Text style={styles.actionText}>和解打卡</Text>
               </TouchableOpacity>
@@ -631,7 +632,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 ) : (
                   <>
                     <View style={[styles.actionIcon, styles.burnActionIcon]}>
-                      <Flame size={22} color="#FF4500" />
+                      <AppIcon name={Flame} size={20} color="#FF4500" />
                     </View>
                     <Text style={[styles.actionText, styles.burnActionText]}>
                       气话焚烧
@@ -648,7 +649,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint="点击删除这条记录，删除后将无法恢复"
               >
                 <View style={styles.actionIcon}>
-                  <Trash2 size={18} color="#9CA3AF" />
+                  <AppIcon name={Trash2} size={20} color="#9CA3AF" />
                 </View>
                 <Text style={[styles.actionText, styles.deleteActionText]}>
                   删除

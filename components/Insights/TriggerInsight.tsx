@@ -1,11 +1,12 @@
-import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { formatMonthDay } from '../../shared/formatting';
 import { MoodEntry, MoodLevel } from '../../types';
 import { INSIGHTS_COLORS, TRIGGER_ADVICE } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
+import AppIcon from '../icons/AppIcon';
 
 interface TriggerInsightProps {
   entries: MoodEntry[];
@@ -200,11 +201,11 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Leaf size={20} color={INSIGHTS_COLORS.accent} />
+          <AppIcon name={Leaf} size={20} color={INSIGHTS_COLORS.accent} />
           <Text style={styles.title}>情绪触发洞察</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color="#D1D5DB" />
+          <AppIcon name={Sprout} size={40} color="#D1D5DB" />
           <Text style={styles.emptyText}>
             {remaining > 0 
               ? `再记录 ${remaining} 条情绪即可查看洞察` 
@@ -234,7 +235,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Leaf size={20} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name={Leaf} size={20} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>情绪触发洞察</Text>
       </View>
       <Text style={styles.subtitle}>了解什么容易影响你的情绪</Text>
@@ -250,7 +251,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
               <Text style={styles.triggerCount}>{trigger.count}次</Text>
             </View>
             <View style={styles.adviceContainer}>
-              <Sparkles size={14} color={INSIGHTS_COLORS.secondary} />
+              <AppIcon name={Sparkles} size={14} color={INSIGHTS_COLORS.secondary} />
               <Text style={styles.adviceText}>
                 {TRIGGER_ADVICE[trigger.name] || TRIGGER_ADVICE['其他']}
               </Text>

@@ -1,8 +1,8 @@
-import { Flower2, Leaf } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
+import AppIcon from '../icons/AppIcon';
 
 interface GardenFooterProps {
   thisMonthCount: number;
@@ -76,9 +76,9 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.iconRow}>
-        <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
-        <Leaf size={16} color={INSIGHTS_COLORS.secondary} />
-        <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
+        <AppIcon name="Flower2" size={18} color={INSIGHTS_COLORS.primary} />
+        <AppIcon name="Leaf" size={16} color={INSIGHTS_COLORS.secondary} />
+        <AppIcon name="Flower2" size={18} color={INSIGHTS_COLORS.primary} />
       </View>
       <Text style={styles.mainText}>{getMessage()}</Text>
       <Text style={styles.subText}>{getSubMessage()}</Text>

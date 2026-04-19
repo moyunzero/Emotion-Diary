@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
+import { DESIGN_TOKENS } from '../constants/colors';
 import { createResponsiveMetrics } from '../shared/responsive';
 
 export type ResponsiveStyleValues = {
@@ -23,6 +24,13 @@ export type ResponsiveStyleValues = {
   spacing: {
     cardGap: number;
     component: number;
+    xs: number;
+    sm: number;
+    md: number;
+    lg: number;
+    xl: number;
+    xxl: number;
+    xxxl: number;
   };
   borderRadius: {
     card: number;
@@ -56,10 +64,17 @@ export const useResponsiveStyles = () => {
         body: metrics.fontSize.body,
         small: metrics.fontSize.small,
       },
-      // 间距
+      // 间距（响应式值 + 设计令牌常量）
       spacing: {
         cardGap: metrics.spacing.cardGap,
         component: metrics.spacing.component,
+        xs: DESIGN_TOKENS.spacing.xs,
+        sm: DESIGN_TOKENS.spacing.sm,
+        md: DESIGN_TOKENS.spacing.md,
+        lg: DESIGN_TOKENS.spacing.lg,
+        xl: DESIGN_TOKENS.spacing.xl,
+        xxl: DESIGN_TOKENS.spacing.xxl,
+        xxxl: DESIGN_TOKENS.spacing.xxxl,
       },
       // 圆角
       borderRadius: {

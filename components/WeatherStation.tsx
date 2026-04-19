@@ -2,39 +2,223 @@ import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
+import { useResponsiveStyles } from '../hooks/useResponsiveStyles';
+import AppIcon from './icons/AppIcon';
 
 const WeatherStationComponent: React.FC = () => {
   const weather = useAppStore((state) => state.weather);
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
   const generateForecast = useAppStore((state) => state.generateForecast);
+  const { spacing, borderRadius, layout } = useResponsiveStyles();
   
   const [isForecastExpanded, setIsForecastExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // 响应式图标尺寸计算
+  const iconSize = useMemo(() => {
+    return layout.maxContentWidth > 600 ? 52 : 48;
+  }, [layout.maxContentWidth]);
+
+  // 动态样式生成
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      backgroundColor: '#FEF3C7',
+      borderRadius: borderRadius.card,
+      padding: spacing.cardGap,
+      marginHorizontal: spacing.cardGap,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.cardGap,
+    },
+    title: {
+      fontSize: spacing.cardGap + 2, // 20-22
+      fontWeight: 'bold',
+      color: '#92400E',
+    },
+    score: {
+      fontSize: spacing.cardGap + 4, // 20-24
+      fontWeight: 'bold',
+      color: '#92400E',
+    },
+    iconContainer: {
+      alignItems: 'center',
+      marginVertical: spacing.component,
+    },
+    description: {
+      fontSize: spacing.cardGap - 4, // 12-16
+      fontWeight: '500',
+      textAlign: 'center',
+      marginBottom: spacing.cardGap,
+      lineHeight: spacing.cardGap + 2,
+    },
+    details: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingTop: spacing.cardGap,
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    detailItem: {
+      alignItems: 'center',
+    },
+    detailLabel: {
+      fontSize: spacing.sm + 4, // 8-12
+      color: '#6B7280',
+      marginBottom: spacing.xs,
+    },
+    detailValue: {
+      fontSize: spacing.cardGap - 4, // 12-16
+      fontWeight: 'bold',
+      color: '#92400E',
+    },
+    forecastContainer: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: borderRadius.large,
+      padding: spacing.md,
+      marginHorizontal: spacing.cardGap,
+      marginTop: spacing.sm + 4, // 8-12
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    forecastHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    forecastHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    forecastTitle: {
+      fontSize: spacing.cardGap - 4, // 12-16
+      fontWeight: 'bold',
+      color: '#1F2937',
+    },
+    warningBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: '#EF4444',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 10,
+    },
+    warningBadgeText: {
+      fontSize: spacing.sm - 1, // 7-11
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+    },
+    generateForecastText: {
+      fontSize: spacing.sm + 2, // 10-14
+      color: '#FDA4AF',
+      fontWeight: '500',
+    },
+    forecastContent: {
+      marginTop: spacing.cardGap,
+    },
+    forecastSummary: {
+      fontSize: spacing.sm + 2, // 10-14
+      lineHeight: spacing.cardGap,
+      color: '#374151',
+      marginBottom: spacing.cardGap,
+    },
+    warningsContainer: {
+      marginBottom: spacing.cardGap,
+      gap: spacing.sm,
+    },
+    warningItem: {
+      padding: spacing.sm + 4, // 8-12
+      backgroundColor: '#FEF2F2',
+      borderRadius: spacing.sm,
+      borderLeftWidth: 3,
+    },
+    warningDate: {
+      fontSize: spacing.sm - 2, // 6-10
+      fontWeight: '600',
+      color: '#991B1B',
+      marginBottom: spacing.xs,
+    },
+    warningMessage: {
+      fontSize: spacing.sm, // 8-12
+      color: '#374151',
+      lineHeight: spacing.cardGap - 4,
+    },
+    predictionsContainer: {
+      marginTop: spacing.sm,
+    },
+    predictionsTitle: {
+      fontSize: spacing.sm + 2, // 10-14
+      fontWeight: '600',
+      color: '#1F2937',
+      marginBottom: spacing.sm + 4, // 8-12
+    },
+    predictionsList: {
+      flexDirection: 'row',
+      gap: spacing.sm + 4, // 8-12
+    },
+    predictionItem: {
+      alignItems: 'center',
+      minWidth: spacing.cardGap * 3 + spacing.sm, // 52-60
+    },
+    predictionDate: {
+      fontSize: spacing.sm - 3, // 5-9
+      color: '#6B7280',
+      marginBottom: spacing.sm,
+    },
+    predictionIndicator: {
+      width: spacing.cardGap + spacing.sm + spacing.xs + 14, // 34-42
+      height: spacing.cardGap + spacing.sm + spacing.xs + 14,
+      borderRadius: (spacing.cardGap + spacing.sm + spacing.xs + 14) / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.sm - 2,
+    },
+    predictionLevel: {
+      fontSize: spacing.cardGap - 4, // 12-16
+      fontWeight: 'bold',
+    },
+    predictionRisk: {
+      fontSize: spacing.sm - 4, // 4-8
+      fontWeight: '500',
+    },
+  }), [spacing, borderRadius, layout]);
+
   // 天气配置对象，统一管理图标、背景色和文字颜色（使用 useMemo 缓存）
   const weatherConfig = useMemo(() => ({
     sunny: {
-      icon: <Sun size={48} color="#F59E0B" />,
+      icon: <Sun size={iconSize} color="#F59E0B" />,
       bgColor: '#FEF3C7',
       textColor: '#92400E',
     },
     cloudy: {
-      icon: <Cloud size={48} color="#6B7280" />,
+      icon: <Cloud size={iconSize} color="#6B7280" />,
       bgColor: '#F3F4F6',
       textColor: '#374151',
     },
     rainy: {
-      icon: <CloudRain size={48} color="#3B82F6" />,
+      icon: <CloudRain size={iconSize} color="#3B82F6" />,
       bgColor: '#DBEAFE',
       textColor: '#1E40AF',
     },
     stormy: {
-      icon: <CloudSnow size={48} color="#EF4444" />,
+      icon: <CloudSnow size={iconSize} color="#EF4444" />,
       bgColor: '#FEE2E2',
       textColor: '#991B1B',
     },
-  }), []);
+  }), [iconSize]);
 
   const currentWeather = useMemo(
     () => weatherConfig[weather.condition] || weatherConfig.sunny,
@@ -148,11 +332,11 @@ const WeatherStationComponent: React.FC = () => {
           disabled={isGenerating}
         >
           <View style={styles.forecastHeaderLeft}>
-            <TrendingUp size={20} color="#FDA4AF" />
+            <AppIcon name={TrendingUp} size={20} color="#FDA4AF" />
             <Text style={styles.forecastTitle}>情绪预报</Text>
             {emotionForecast && emotionForecast.warnings.length > 0 && (
               <View style={styles.warningBadge}>
-                <AlertTriangle size={12} color="#FFFFFF" />
+                <AppIcon name={AlertTriangle} size={12} color="#FFFFFF" />
                 <Text style={styles.warningBadgeText}>
                   {emotionForecast.warnings.filter(w => w.severity === 'high').length}
                 </Text>
@@ -163,9 +347,9 @@ const WeatherStationComponent: React.FC = () => {
             <ActivityIndicator size="small" color="#FDA4AF" />
           ) : emotionForecast ? (
             isForecastExpanded ? (
-              <ChevronUp size={20} color="#6B7280" />
+              <AppIcon name={ChevronUp} size={20} color="#6B7280" />
             ) : (
-              <ChevronDown size={20} color="#6B7280" />
+              <AppIcon name={ChevronDown} size={20} color="#6B7280" />
             )
           ) : (
             <Text style={styles.generateForecastText}>生成预测</Text>
@@ -241,181 +425,6 @@ const WeatherStationComponent: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FEF3C7',
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#92400E',
-  },
-  score: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#92400E',
-  },
-  iconContainer: {
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  description: {
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 22,
-  },
-  details: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  detailItem: {
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  detailValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#92400E',
-  },
-  forecastContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 16,
-    marginTop: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  forecastHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  forecastHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  forecastTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  warningBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  warningBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  generateForecastText: {
-    fontSize: 14,
-    color: '#FDA4AF',
-    fontWeight: '500',
-  },
-  forecastContent: {
-    marginTop: 16,
-  },
-  forecastSummary: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#374151',
-    marginBottom: 16,
-  },
-  warningsContainer: {
-    marginBottom: 16,
-    gap: 8,
-  },
-  warningItem: {
-    padding: 12,
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    borderLeftWidth: 3,
-  },
-  warningDate: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#991B1B',
-    marginBottom: 4,
-  },
-  warningMessage: {
-    fontSize: 13,
-    color: '#374151',
-    lineHeight: 18,
-  },
-  predictionsContainer: {
-    marginTop: 8,
-  },
-  predictionsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 12,
-  },
-  predictionsList: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  predictionItem: {
-    alignItems: 'center',
-    minWidth: 70,
-  },
-  predictionDate: {
-    fontSize: 11,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  predictionIndicator: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  predictionLevel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  predictionRisk: {
-    fontSize: 10,
-    fontWeight: '500',
-  },
-});
 
 /**
  * Memoized WeatherStation component

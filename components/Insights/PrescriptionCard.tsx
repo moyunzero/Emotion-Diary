@@ -1,10 +1,11 @@
-import { Sparkles } from 'lucide-react-native';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Sparkles } from 'lucide-react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
 import { INSIGHTS_COLORS } from './constants';
+import AppIcon from '../icons/AppIcon';
 
 interface PrescriptionCardProps {
   trigger: string;
@@ -185,7 +186,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         style={styles.generateButton}
         onPress={handleGenerate}
       >
-        <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+        <AppIcon name="Sparkles" size={14} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.generateButtonText}>获取AI建议</Text>
       </TouchableOpacity>
     );
@@ -210,7 +211,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           style={styles.retryButton}
           onPress={handleGenerate}
         >
-          <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+          <AppIcon name="Sparkles" size={14} color={INSIGHTS_COLORS.accent} />
           <Text style={styles.retryButtonText}>重试</Text>
         </TouchableOpacity>
       </View>
@@ -226,7 +227,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         onPress={() => setIsExpanded(!isExpanded)}
       >
         <View style={styles.headerLeft}>
-          <Sparkles size={16} color={INSIGHTS_COLORS.accent} />
+          <AppIcon name={Sparkles} size={16} color={INSIGHTS_COLORS.accent} />
           <Text style={styles.headerText}>AI个性化建议</Text>
         </View>
         <Text style={styles.expandText}>

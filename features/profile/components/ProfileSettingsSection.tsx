@@ -2,15 +2,6 @@
  * 设置与数据区：同步入口、恢复、注销、菜单项与登录/注册/编辑资料 Modal
  */
 
-import {
-  CheckCircle,
-  CloudDownload,
-  CloudUpload,
-  LogOut,
-  User as UserIcon,
-  UserX,
-  X,
-} from "lucide-react-native";
 import { Image } from "expo-image";
 import {
   ActivityIndicator,
@@ -39,6 +30,7 @@ import {
   isSvgAvatarDataUri,
 } from "@/utils/avatarPresets";
 import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
+import AppIcon from "@/components/icons/AppIcon";
 
 const AVATARS = AVATAR_PRESETS;
 
@@ -210,14 +202,14 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 />
               )}
               {syncStatus === "success" && (
-                <CheckCircle
-                  size={16}
-                  color="#10B981"
-                  style={{ marginRight: 8 }}
-                />
+                <View style={{ marginRight: 8 }}>
+                  <AppIcon name="CheckCircle" size={16} color="#10B981" />
+                </View>
               )}
               {syncStatus === "error" && (
-                <X size={16} color="#EF4444" style={{ marginRight: 8 }} />
+                <View style={{ marginRight: 8 }}>
+                  <AppIcon name="X" size={16} color="#EF4444" />
+                </View>
               )}
               <Text style={profileStyles.syncStatusText}>
                 {syncProgress ||
@@ -230,7 +222,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
 
       <View style={profileStyles.menuGroup}>
         <ProfileMenuItem
-          icon={<CloudUpload size={20} color="#EF4444" />}
+          icon={<AppIcon name="CloudUpload" size={20} color="#EF4444" />}
           iconBgColor="#FEF2F2"
           title="备份心事"
           subtext={syncStatus === "syncing" ? "正在备份..." : undefined}
@@ -240,7 +232,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
-          icon={<CloudDownload size={20} color="#3B82F6" />}
+          icon={<AppIcon name="CloudDownload" size={20} color="#3B82F6" />}
           iconBgColor="#EFF6FF"
           title="找回回忆"
           subtext={syncStatus === "syncing" ? "正在同步..." : undefined}
@@ -255,7 +247,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           <ProfileSectionHeader title="其他" />
           <View style={profileStyles.menuGroup}>
             <ProfileMenuItem
-              icon={<LogOut size={20} color="#EF4444" />}
+              icon={<AppIcon name="LogOut" size={20} color="#EF4444" />}
               iconBgColor="#FEF2F2"
               title="退出登录"
               showChevron={false}
@@ -264,7 +256,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             />
             <View style={profileStyles.menuDivider} />
             <ProfileMenuItem
-              icon={<UserX size={20} color="#EF4444" />}
+              icon={<AppIcon name="UserX" size={20} color="#EF4444" />}
               iconBgColor="#FEF2F2"
               title="注销账号"
               subtext="永久删除云端账号及数据，本地记录保留"
@@ -329,7 +321,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   setRegisterConfirmPasswordError("");
                 }}
               >
-                <X size={24} color="#9CA3AF" />
+                <AppIcon name="X" size={24} color="#9CA3AF" />
               </TouchableOpacity>
 
               <ScrollView
@@ -345,7 +337,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               >
                 <View style={ms.modalHeader}>
                   <View style={ms.loginIconBox}>
-                    <UserIcon size={32} color="#EF4444" />
+                    <AppIcon name="User" size={32} color="#EF4444" />
                   </View>
                   <Text style={ms.modalTitle}>
                     {isRegisterMode ? "创建账号" : "开启云端守护"}
@@ -688,7 +680,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   style={ms.closeButton}
                   onPress={onCloseEditProfileModal}
                 >
-                  <X size={24} color="#9CA3AF" />
+                  <AppIcon name="X" size={24} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 <Text style={ms.modalTitle}>修改资料</Text>

@@ -1,8 +1,8 @@
-import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
+import AppIcon from '../icons/AppIcon';
 
 const EmptyGardenComponent: React.FC = () => {
   const { fontSize, borderRadius } = useResponsiveStyles();
@@ -88,9 +88,11 @@ const EmptyGardenComponent: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Flower2 size={64} color={INSIGHTS_COLORS.primary} style={{ opacity: 0.3 }} />
+        <View style={{ opacity: 0.3 }}>
+          <AppIcon name="Flower2" size={64} color={INSIGHTS_COLORS.primary} />
+        </View>
         <View style={styles.sparkleContainer}>
-          <Sparkles size={24} color={INSIGHTS_COLORS.secondary} />
+          <AppIcon name="Sparkles" size={24} color={INSIGHTS_COLORS.secondary} />
         </View>
       </View>
       
@@ -100,7 +102,7 @@ const EmptyGardenComponent: React.FC = () => {
       <View style={styles.tipContainer}>
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Sprout size={20} color={INSIGHTS_COLORS.secondary} />
+            <AppIcon name="Sprout" size={20} color={INSIGHTS_COLORS.secondary} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>记录情绪</Text>
@@ -110,7 +112,7 @@ const EmptyGardenComponent: React.FC = () => {
         
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Heart size={20} color={INSIGHTS_COLORS.accent} />
+            <AppIcon name="Heart" size={20} color={INSIGHTS_COLORS.accent} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>和解打卡</Text>
@@ -120,7 +122,7 @@ const EmptyGardenComponent: React.FC = () => {
         
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Leaf size={20} color={INSIGHTS_COLORS.growingColor} />
+            <AppIcon name="Leaf" size={20} color={INSIGHTS_COLORS.growingColor} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>见证成长</Text>
