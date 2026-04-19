@@ -251,6 +251,7 @@ cleanup.sh
 # ==============================================
 # Kiro IDE
 .kiro/
+.kilo/
 
 # Documentation folder
 docs/

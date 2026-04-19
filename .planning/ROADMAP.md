@@ -448,7 +448,12 @@ Plans:
 2. AudioRecorder 等组件的重复导出问题已解决。  
 3. lint 警告数显著减少。
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 21-01-PLAN.md — AudioRecorder unused/duplicate exports cleanup (CLEAN-01, CLEAN-02)
+- [ ] 21-02-PLAN.md — Unused type exports and variables (CLEAN-01, CLEAN-03)
+- [ ] 21-03-PLAN.md — React hooks deps and remaining lint warnings (CLEAN-03)
 
 ### Phase 22: 测试修复 (v1.5)
 
