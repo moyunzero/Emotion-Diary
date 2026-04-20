@@ -2,7 +2,6 @@ import { MoodEntry, MoodLevel } from '../types';
 import { formatDateChinese } from '@/shared/formatting';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
-import { useAppStore } from '../store/useAppStore';
 
 /**
  * AI服务工具类
@@ -497,12 +496,15 @@ export function getDefaultReviewExportClosingLine(
 /**
  * 回顾导出图底部一句：Groq 生成，失败或无 Key 时返回兜底，不抛错。
  * 可选 D-11：可按 preset+周期+entries 指纹做 24h 内存缓存，与播客共用 cache Map。
+ * @param summary 统计摘要
+ * @param userId 用户 ID（用于缓存 key 区分）
+ * @param userName 用户昵称（用于 prompt 个性化）
  */
 export async function generateReviewExportClosingLine(
   summary: ReviewExportClosingSummary,
+  userId: string = 'anonymous',
+  userName: string = '朋友',
 ): Promise<string> {
-  const user = useAppStore.getState().user;
-  const userId = user?.id || 'anonymous';
   const cacheKey = `rx_closing_${userId}_${JSON.stringify({
     preset: summary.presetLabel,
     start: summary.periodStartMs,
@@ -517,8 +519,6 @@ export async function generateReviewExportClosingLine(
   })}`;
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
-
-  const userName = user?.name || '朋友';
 
   if (!isApiKeyValid()) {
     const fallback = getDefaultReviewExportClosingLine(summary);
@@ -573,18 +573,20 @@ export async function generateReviewExportClosingLine(
 
 /**
  * 生成情绪播客文案
+ * @param entries 情绪记录列表
+ * @param period 周期（week/month）
+ * @param userId 用户 ID（用于缓存 key 区分）
+ * @param userName 用户昵称（用于 prompt 个性化）
  */
 export const generateEmotionPodcast = async (
   entries: MoodEntry[],
-  period: 'week' | 'month' = 'week'
+  period: 'week' | 'month' = 'week',
+  userId: string = 'anonymous',
+  userName: string = '朋友',
 ): Promise<string | null> => {
-  const user = useAppStore.getState().user;
-  const userId = user?.id || 'anonymous';
   const cacheKey = `rx_podcast_${userId}_${period}_${entries.length}_${entries[0]?.timestamp || 0}`;
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
-
-  const userName = user?.name || '朋友';
 
   try {
     if (!isApiKeyValid()) {
@@ -684,20 +686,27 @@ const getDefaultPodcast = (entries: MoodEntry[], period: 'week' | 'month'): stri
 
 /**
  * 生成情绪处方
+ * @param trigger 触发因素
+ * @param moodLevel 情绪等级
+ * @param entries 情绪记录列表
+ * @param userId 用户 ID（用于缓存 key 区分）
+ * @param userName 用户昵称（用于 prompt 个性化）
+ * @param firstEntryDate 第一条记录的时间戳（用于计算陪伴天数）
  */
 export const generateEmotionPrescription = async (
   trigger: string,
   moodLevel: MoodLevel,
-  entries: MoodEntry[]
+  entries: MoodEntry[],
+  userId: string = 'anonymous',
+  userName: string = '朋友',
+  firstEntryDate?: number,
 ): Promise<EmotionPrescription> => {
-  const user = useAppStore.getState().user;
-  const cacheKey = `rx_${user?.id || 'anonymous'}_${trigger}_${moodLevel}_${entries.length}`;
+  const cacheKey = `rx_${userId}_${trigger}_${moodLevel}_${entries.length}`;
   const cached = getCached<EmotionPrescription>(cacheKey);
   if (cached) return cached;
 
-  const userName = user?.name || '朋友';
-  const companionDays = user?.firstEntryDate
-    ? Math.floor((Date.now() - user.firstEntryDate) / (1000 * 60 * 60 * 24))
+  const companionDays = firstEntryDate
+    ? Math.floor((Date.now() - firstEntryDate) / (1000 * 60 * 60 * 24))
     : 0;
   const recentTriggers = entries
     .slice(-10)

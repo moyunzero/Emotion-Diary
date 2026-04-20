@@ -46,9 +46,11 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
    */
   generatePodcast: async (period: 'week' | 'month' = 'week'): Promise<void> => {
     try {
-      const { entries } = get();
+      const { entries, user } = get();
 
-      const content = await generateEmotionPodcast(entries, period);
+      const userId = user?.id || 'anonymous';
+      const userName = user?.name || '朋友';
+      const content = await generateEmotionPodcast(entries, period, userId, userName);
 
       if (content) {
         set({
