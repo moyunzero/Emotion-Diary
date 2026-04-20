@@ -46,19 +46,29 @@ export const createUserSlice: StateCreator<
     initializeFirstEntryDate: async () => {
       const { user, entries } = get();
 
+      console.log("[DEBUG initializeFirstEntryDate] 开始初始化陪伴日期");
+      console.log("[DEBUG initializeFirstEntryDate] user:", user?.id, "firstEntryDate:", user?.firstEntryDate);
+      console.log("[DEBUG initializeFirstEntryDate] entries.length:", entries.length);
+      if (entries.length > 0) {
+        console.log("[DEBUG initializeFirstEntryDate] entries timestamps:", entries.map((e) => ({ id: e.id, timestamp: e.timestamp })));
+      }
+
       // 收集所有可能的 firstEntryDate 来源
       let candidates: number[] = [];
 
       // 1. 添加云端的 firstEntryDate
       if (user?.firstEntryDate) {
+        console.log("[DEBUG initializeFirstEntryDate] 添加云端 firstEntryDate:", user.firstEntryDate);
         candidates.push(user.firstEntryDate);
       }
 
       // 2. 添加游客本地的 firstEntryDate
       try {
         const guestDate = await AsyncStorage.getItem("guest_first_entry_date");
+        console.log("[DEBUG initializeFirstEntryDate] guest_first_entry_date 从 AsyncStorage 读取值:", guestDate);
         if (guestDate) {
           const guestTimestamp = parseInt(guestDate, 10);
+          console.log("[DEBUG initializeFirstEntryDate] guestTimestamp 解析结果:", guestTimestamp);
           if (guestTimestamp > 0) {
             candidates.push(guestTimestamp);
           }
@@ -70,41 +80,55 @@ export const createUserSlice: StateCreator<
       // 3. 添加 entries 中最早的记录时间戳（只添加有效的正数时间戳）
       if (entries.length > 0) {
         const validTimestamps = entries.map((e) => e.timestamp).filter((t) => t > 0);
+        console.log("[DEBUG initializeFirstEntryDate] validTimestamps:", validTimestamps);
         if (validTimestamps.length > 0) {
           const oldestEntryTimestamp = Math.min(...validTimestamps);
+          console.log("[DEBUG initializeFirstEntryDate] oldestEntryTimestamp:", oldestEntryTimestamp);
           candidates.push(oldestEntryTimestamp);
         }
       }
 
+      console.log("[DEBUG initializeFirstEntryDate] candidates 数组:", candidates);
+
       // 如果没有有效的候选值，无需初始化
       if (candidates.length === 0) {
+        console.log("[DEBUG initializeFirstEntryDate] candidates 为空，进入新用户初始化逻辑");
         // 新用户没有任何记录：将 firstEntryDate 设置为当前时间（用户第一次进入 app 的时间）
         if (user && !user.firstEntryDate) {
           const now = Date.now();
+          console.log("[DEBUG initializeFirstEntryDate] 设置 firstEntryDate 为当前时间:", now);
           const updatedUser = { ...user, firstEntryDate: now };
           set({ user: updatedUser });
           await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
           if (user.email) {
             await get()._syncFirstEntryDateToCloud();
           }
+        } else if (!user) {
+          console.log("[DEBUG initializeFirstEntryDate] user 为空，跳过初始化");
+        } else if (user.firstEntryDate) {
+          console.log("[DEBUG initializeFirstEntryDate] user.firstEntryDate 已存在:", user.firstEntryDate, "跳过初始化");
         }
         return;
       }
 
       // 取所有候选值中的最小值（最早的日期），确保是有效的正数时间戳
       let finalTimestamp = Math.min(...candidates);
+      console.log("[DEBUG initializeFirstEntryDate] finalTimestamp (最小值):", finalTimestamp);
       if (finalTimestamp <= 0) {
         finalTimestamp = Date.now();
+        console.log("[DEBUG initializeFirstEntryDate] finalTimestamp 无效，使用 Date.now():", finalTimestamp);
       }
 
       // 只有当 user 存在时才更新
       if (user) {
         // 检查是否需要更新
         const shouldUpdate = !user.firstEntryDate || finalTimestamp < user.firstEntryDate;
+        console.log("[DEBUG initializeFirstEntryDate] shouldUpdate:", shouldUpdate, "user.firstEntryDate:", user.firstEntryDate, "finalTimestamp:", finalTimestamp);
 
         if (shouldUpdate) {
           const updatedUser = { ...user, firstEntryDate: finalTimestamp };
           set({ user: updatedUser });
+          console.log("[DEBUG initializeFirstEntryDate] 更新 user.firstEntryDate 为:", finalTimestamp);
 
           // 保存到本地存储
           await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
@@ -572,7 +596,9 @@ export const createUserSlice: StateCreator<
 
           // 确保 entries 加载完成后再初始化 firstEntryDate
           // 避免竞态条件：initializeFirstEntryDate 需要读取 entries 来确定最早的记录时间
+          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之前, user:", get().user?.firstEntryDate);
           await get().initializeFirstEntryDate();
+          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之后, user:", get().user?.firstEntryDate);
 
           return true;
         }
