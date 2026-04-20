@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { CloudRain, Sun } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
@@ -100,7 +101,7 @@ export function ProfileScreen() {
       }
     };
     loadLastSyncTime();
-  }, [state.setLastSyncTime]);
+  }, [state]);
 
   useEffect(() => {
     const showEvent =
@@ -117,7 +118,7 @@ export function ProfileScreen() {
       showSub.remove();
       hideSub.remove();
     };
-  }, [state.setIsKeyboardVisible]);
+  }, [state]);
 
   useEffect(() => {
     if (state.isLoginModalOpen && !state.isRegisterMode) {
@@ -165,10 +166,14 @@ export function ProfileScreen() {
           handle={
             user ? user.email || `@user_${user.id.slice(0, 8)}` : null
           }
-          moodText={
-            user
-              ? `今日心情: ${weather.score > 20 ? "🌧️" : "☀️"}`
-              : undefined
+          moodIcon={
+            user ? (
+              weather.score > 20 ? (
+                <CloudRain size={16} color="#6B7280" />
+              ) : (
+                <Sun size={16} color="#F59E0B" />
+              )
+            ) : undefined
           }
           isLoggedIn={!!user}
           onPress={

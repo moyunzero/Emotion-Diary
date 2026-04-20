@@ -55,6 +55,7 @@ export const ReviewExportScreen: React.FC = () => {
     [responsive],
   );
   const entries = useAppStore((s) => s.entries);
+  const user = useAppStore((s) => s.user);
   const userFirstEntryDate = useAppStore((s) => s.user?.firstEntryDate);
   const firstEntryDate = useMemo(
     () => getEffectiveFirstEntryDateForCompanion(userFirstEntryDate, entries),
@@ -98,12 +99,12 @@ export const ReviewExportScreen: React.FC = () => {
     setClosingLine(defaultLine);
     setAiStatus('loading');
 
-    void generateReviewExportClosingLine(summary).then((text) => {
+    void generateReviewExportClosingLine(summary, user?.id, user?.name).then((text) => {
       if (id !== closingRequestIdRef.current) return;
       setClosingLine(text);
       setAiStatus('ready');
     });
-  }, [summary]);
+  }, [summary, user?.id, user?.name]);
 
   const captureReviewPngUri = useCallback(async (): Promise<string> => {
     // 等待交互动画结束再截图，避免半帧布局；截图区域为 captureRootRef 包裹的画布。

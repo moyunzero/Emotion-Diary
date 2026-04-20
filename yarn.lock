@@ -4275,10 +4275,10 @@ expo-asset@~12.0.12:
     "@expo/image-utils" "^0.8.8"
     expo-constants "~18.0.12"
 
-expo-av@~16.0.8:
-  version "16.0.8"
-  resolved "https://registry.npmjs.org/expo-av/-/expo-av-16.0.8.tgz"
-  integrity sha512-cmVPftGR/ca7XBgs7R6ky36lF3OC0/MM/lpgX/yXqfv0jASTsh7AYX9JxHCwFmF+Z6JEB1vne9FDx4GiLcGreQ==
+expo-audio@~1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/expo-audio/-/expo-audio-1.1.1.tgz#7b9763118e321c5dfbf2771cd4a5b6790ce4fc8d"
+  integrity sha512-CPCpJ+0AEHdzWROc0f00Zh6e+irLSl2ALos/LPvxEeIcJw1APfBa4DuHPkL4CQCWsVe7EnUjFpdwpqsEUWcP0g==
 
 expo-constants@~18.0.12:
   version "18.0.12"
@@ -4294,11 +4294,6 @@ expo-device@~8.0.10:
   integrity sha512-jd5BxjaF7382JkDMaC+P04aXXknB2UhWaVx5WiQKA05ugm/8GH5uaz9P9ckWdMKZGQVVEOC8MHaUADoT26KmFA==
   dependencies:
     ua-parser-js "^0.7.33"
-
-expo-eas-client@~1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/expo-eas-client/-/expo-eas-client-1.0.8.tgz#f1fa7cbc6b6000046119466c6ded8a77e5a4b1f8"
-  integrity sha512-5or11NJhSeDoHHI6zyvQDW2cz/yFyE+1Cz8NTs5NK8JzC7J0JrkUgptWtxyfB6Xs/21YRNifd3qgbBN3hfKVgA==
 
 expo-file-system@~19.0.21:
   version "19.0.21"
@@ -4321,13 +4316,6 @@ expo-image@~3.0.11:
   version "3.0.11"
   resolved "https://registry.npmjs.org/expo-image/-/expo-image-3.0.11.tgz"
   integrity sha512-4TudfUCLgYgENv+f48omnU8tjS2S0Pd9EaON5/s1ZUBRwZ7K8acEr4NfvLPSaeXvxW24iLAiyQ7sV7BXQH3RoA==
-
-expo-insights@~0.10.8:
-  version "0.10.8"
-  resolved "https://registry.yarnpkg.com/expo-insights/-/expo-insights-0.10.8.tgz#962a6a97b5430eacb239b6cd98ee9c94eab70d60"
-  integrity sha512-5X96+4KGbYFYjxW/cxK9Q7zTYgLYXoVNNmnk18qiLiSZYKcb4pEnaDSKk97RCxTdzWo9ZBbvM4u8nyCwWeHsmw==
-  dependencies:
-    expo-eas-client "~1.0.8"
 
 expo-keep-awake@~15.0.8:
   version "15.0.8"
@@ -5971,6 +5959,11 @@ jimp-compact@0.16.1:
   version "0.16.1"
   resolved "https://registry.npmjs.org/jimp-compact/-/jimp-compact-0.16.1.tgz"
   integrity sha512-dZ6Ra7u1G8c4Letq/B5EzAxj4tLFHL+cGtdpR+PVm4yzPDj+lCk+AbivWt1eOM+ikzkowtyV7qSqX6qr3t71Ww==
+
+js-md5@^0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/js-md5/-/js-md5-0.8.3.tgz#921bab7efa95bfc9d62b87ee08a57f8fe4305b69"
+  integrity sha512-qR0HB5uP6wCuRMrWPTrkMaev7MJZwJuuw4fnwAzRgP4J4/F8RwtodOKpGp4XpqsLBFzzgqIO42efFAyz2Et6KQ==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"

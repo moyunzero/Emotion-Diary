@@ -99,7 +99,7 @@ describe('FirstEntryDate Property Tests', () => {
       );
     });
 
-    it('should not initialize if firstEntryDate already exists', async () => {
+    it('should keep the earliest firstEntryDate from all sources', async () => {
       const arbUser = fc.record({
         id: fc.uuid(),
         name: fc.string({ minLength: 2, maxLength: 20 }),
@@ -125,7 +125,6 @@ describe('FirstEntryDate Property Tests', () => {
       await fc.assert(
         fc.asyncProperty(arbUser, arbEntries, async (user, entries) => {
           const store = useAppStore.getState();
-          const originalFirstEntryDate = user.firstEntryDate;
           
           // 设置用户和记录
           store._setUser(user as User);
@@ -134,9 +133,12 @@ describe('FirstEntryDate Property Tests', () => {
           // 初始化 firstEntryDate
           await store.initializeFirstEntryDate();
           
-          // 验证 - 应该保持不变
+          // 验证 - 应该取 user.firstEntryDate 和 entries 中最早的最小值
           const updatedUser = useAppStore.getState().user;
-          expect(updatedUser?.firstEntryDate).toBe(originalFirstEntryDate);
+          const earliestFromEntries = Math.min(...entries.map(e => e.timestamp));
+          const expectedTimestamp = Math.min(user.firstEntryDate!, earliestFromEntries);
+          
+          expect(updatedUser?.firstEntryDate).toBe(expectedTimestamp);
         }),
         { numRuns: 50 }
       );

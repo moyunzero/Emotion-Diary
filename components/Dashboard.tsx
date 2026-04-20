@@ -304,7 +304,7 @@ const Dashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
     </>
-  ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress]);
+   ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress, styles]);
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>

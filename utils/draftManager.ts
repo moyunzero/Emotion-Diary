@@ -1,4 +1,5 @@
 import { StorageManager } from './storage';
+import { AudioData } from '../types';
 
 const DRAFT_KEY = 'draft_entry';
 
@@ -13,6 +14,7 @@ export interface DraftEntry {
   isCustomDeadline: boolean;
   selectedPeople: string[];
   selectedTriggers: string[];
+  audios?: AudioData[];
 }
 
 /**

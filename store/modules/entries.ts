@@ -152,11 +152,18 @@ export const createEntriesSlice: StateCreator<
     get()._calculateWeather();
   },
 
-  /**
-   * 删除条目（真正删除，不保留任何痕迹）
-   */
+/**
+ * 删除条目（真正删除，不保留任何痕迹）
+ * 注意：关联的音频文件需要应用层（如 expo-file-system）进行清理
+ */
   deleteEntry: async (id): Promise<void> => {
     const { entries } = get();
+    const entryToDelete = entries.find((e) => e.id === id);
+    
+    if (entryToDelete?.audios?.length) {
+      console.log(`删除条目 ${id}，包含 ${entryToDelete.audios.length} 个音频文件`);
+    }
+    
     const updatedEntries = entries.filter((e) => e.id !== id);
     set({ entries: updatedEntries });
 

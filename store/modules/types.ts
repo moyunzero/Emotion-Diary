@@ -4,12 +4,14 @@
  */
 
 import {
+    AudioData,
     EmotionForecast,
     EmotionPodcast,
     MoodEntry,
     User,
     WeatherState,
 } from "../../types";
+import { RecordingState } from "./audio";
 
 /**
  * 条目管理模块接口
@@ -89,11 +91,43 @@ export interface AIModule {
 }
 
 /**
+ * 音频模块接口
+ * 负责录音状态、播放状态管理
+ */
+export interface AudioModule {
+  // 播放状态
+  currentAudioId: string | null;
+  isPlaying: boolean;
+  playbackPosition: number;
+  duration: number;
+
+  // 录音状态
+  recordingState: RecordingState;
+  recordingDuration: number;
+  currentRecordingUri: string | null;
+
+  // 播放控制
+  playAudio: (audioId: string, uri: string) => void;
+  pauseAudio: () => void;
+  stopAudio: () => void;
+  seekTo: (position: number) => void;
+  setPlaybackPosition: (position: number) => void;
+
+  // 录音控制
+  setRecordingState: (state: RecordingState) => void;
+  setRecordingDuration: (duration: number) => void;
+  setCurrentRecordingUri: (uri: string | null) => void;
+  startRecording: () => Promise<void>;
+  stopRecording: () => Promise<AudioData | null>;
+  cancelRecording: () => void;
+}
+
+/**
  * 完整的应用状态接口
  * 组合所有模块的状态和方法
  */
 export interface AppState
-  extends EntriesModule, UserModule, SyncModule, WeatherModule, AIModule {}
+  extends EntriesModule, UserModule, SyncModule, WeatherModule, AIModule, AudioModule {}
 
 /**
  * 向后兼容的别名

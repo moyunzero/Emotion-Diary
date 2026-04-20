@@ -16,7 +16,7 @@ import { TriggerInsight } from './TriggerInsight';
 import { WeeklyMoodWeather } from './WeeklyMoodWeather';
 import { INSIGHTS_COLORS } from './constants';
 
-const Insights: React.FC = () => {
+const InsightsComponent: React.FC = () => {
   const router = useRouter();
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
@@ -135,7 +135,8 @@ const Insights: React.FC = () => {
 
 const styles = StyleSheet.create({
   contentWrapper: {
-    width: '100%', // 在小屏设备上全宽
+    width: '100%',
+    marginHorizontal: 'auto', // 大屏下配合 maxWidth 实现水平居中
   },
   reviewCtaWrap: {
     width: '100%',
@@ -164,4 +165,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Insights;
+export default React.memo(InsightsComponent);

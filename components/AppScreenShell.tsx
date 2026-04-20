@@ -11,7 +11,7 @@ import {
   type StackScreenHeaderProps,
 } from './StackScreenHeader';
 
-export type AppScreenShellProps = {
+type AppScreenShellProps = {
   children: React.ReactNode;
   edges?: Edge[];
   scrollable?: boolean;

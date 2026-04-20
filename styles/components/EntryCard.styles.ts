@@ -78,6 +78,18 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.tertiary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
+    burnedAudioContainer: {
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      paddingTop: DESIGN_TOKENS.spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: COLORS.gray[100],
+    },
+    burnedAudioLabel: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: COLORS.text.tertiary,
+      fontWeight: '600',
+      marginBottom: DESIGN_TOKENS.spacing.xs,
+    },
     burnActionButton: {},
     burnActionIcon: {
       backgroundColor: '#FEF3F2',
@@ -158,6 +170,58 @@ export function createEntryCardStyles(width: number, height: number) {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       color: '#F472B6',
       fontWeight: '600',
+    },
+    audioTag: {
+      backgroundColor: '#EEF2FF',
+      paddingHorizontal: 10,
+      paddingVertical: DESIGN_TOKENS.spacing.xs,
+      borderRadius: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    audioTagText: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: '#6C63FF',
+      fontWeight: '600',
+    },
+    audioPlaySection: {
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      paddingTop: DESIGN_TOKENS.spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: COLORS.gray[100],
+    },
+    audioPlaySectionTitle: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      fontWeight: '600',
+      color: COLORS.text.tertiary,
+      marginBottom: DESIGN_TOKENS.spacing.xs,
+    },
+    audioPlayItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: DESIGN_TOKENS.spacing.sm,
+      paddingHorizontal: DESIGN_TOKENS.spacing.xs,
+      borderRadius: DESIGN_TOKENS.borderRadius.xs,
+      marginBottom: 4,
+    },
+    audioPlayItemActive: {
+      backgroundColor: '#F5F3FF',
+    },
+    audioPlayName: {
+      flex: 1,
+      marginLeft: DESIGN_TOKENS.spacing.xs,
+      fontSize: 13,
+      color: COLORS.text.secondary,
+    },
+    audioPlayNameActive: {
+      color: '#6C63FF',
+      fontWeight: '500',
+    },
+    audioPlayDuration: {
+      fontSize: 11,
+      color: '#6C63FF',
+      marginLeft: DESIGN_TOKENS.spacing.xs,
     },
     actionsContainer: {
       flexDirection: 'row',

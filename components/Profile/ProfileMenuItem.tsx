@@ -9,7 +9,7 @@ import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native"
 import { COLORS } from "../../constants/colors";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 
-export interface ProfileMenuItemProps {
+interface ProfileMenuItemProps {
   /** 左侧图标组件（已传入 size/color） */
   icon: React.ReactNode;
   /** 图标背景色，如 '#FEF2F2' */

@@ -9,15 +9,15 @@ import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native"
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
 
-export interface ProfileUserCardProps {
+interface ProfileUserCardProps {
   /** 用户头像 URL */
   avatarUri?: string | null;
   /** 用户昵称 */
   name?: string | null;
   /** 用户邮箱或 ID 展示 */
   handle?: string | null;
-  /** 今日心情文案，如 "今日心情: ☀️" */
-  moodText?: string;
+  /** 今日心情图标组件 */
+  moodIcon?: React.ReactNode;
   /** 是否已登录，未登录时显示「点击登录」 */
   isLoggedIn: boolean;
   /** 点击头像/登录区域 */
@@ -30,7 +30,7 @@ export function ProfileUserCard({
   avatarUri,
   name,
   handle,
-  moodText,
+  moodIcon,
   isLoggedIn,
   onPress,
 }: ProfileUserCardProps) {
@@ -69,9 +69,9 @@ export function ProfileUserCard({
             <Text style={profileStyles.userHandle} numberOfLines={1}>
               {handle ?? ""}
             </Text>
-            {moodText != null && (
+            {moodIcon != null && (
               <View style={profileStyles.moodBadge}>
-                <Text style={profileStyles.moodText}>{moodText}</Text>
+                {moodIcon}
               </View>
             )}
           </>

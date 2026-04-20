@@ -9,7 +9,7 @@ export type ProfileHeaderSectionProps = {
   avatarUri?: string;
   name?: string;
   handle: string | null;
-  moodText?: string;
+  moodIcon?: React.ReactNode;
   isLoggedIn: boolean;
   onPress: () => void;
 };
@@ -19,7 +19,7 @@ export function ProfileHeaderSection({
   avatarUri,
   name,
   handle,
-  moodText,
+  moodIcon,
   isLoggedIn,
   onPress,
 }: ProfileHeaderSectionProps) {
@@ -30,7 +30,7 @@ export function ProfileHeaderSection({
         avatarUri={avatarUri}
         name={name}
         handle={handle}
-        moodText={moodText}
+        moodIcon={moodIcon}
         isLoggedIn={isLoggedIn}
         onPress={onPress}
       />

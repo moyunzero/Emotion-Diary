@@ -10,13 +10,14 @@ import {
     View,
     useWindowDimensions
 } from "react-native";
+import { AudioRecorder } from "./AudioRecorder";
 import { PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../constants";
 import { COLORS } from "../constants/colors";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createRecordStyles } from "../styles/components/Record.styles";
 import { createSharedStyles } from "../styles/sharedStyles";
-import { Deadline, MoodLevel } from "../types";
+import { AudioData, Deadline, MoodLevel } from "../types";
 import {
     addCustomPerson,
     addCustomTrigger,
@@ -75,6 +76,12 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
   const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
   const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
 
+  // Audio State
+  const [audios, setAudios] = useState<AudioData[]>([]);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+
   // 草稿保存防抖定时器
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -88,6 +95,10 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
     setCustomDeadlineText("");
     setSelectedPeople([]);
     setSelectedTriggers([]);
+    setAudios([]);
+    setCurrentPlayingId(null);
+    setIsPlaying(false);
+    setPlaybackPosition(0);
   };
 
   // 当表单内容变化时自动保存草稿（优化：减少依赖项，避免频繁保存）
@@ -118,6 +129,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
           isCustomDeadline,
           selectedPeople,
           selectedTriggers,
+          audios,
         };
         await saveDraft(draft);
       } catch (error) {
@@ -143,6 +155,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
     deadline,
     customDeadlineText,
     isCustomDeadline,
+    audios,
   ]);
 
   // 加载草稿和自定义选项
@@ -161,6 +174,9 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
           setCustomDeadlineText(draft.customDeadlineText);
           setSelectedPeople(draft.selectedPeople);
           setSelectedTriggers(draft.selectedTriggers);
+          if (draft.audios && draft.audios.length > 0) {
+            setAudios(draft.audios);
+          }
         }
       } finally {
         setIsInitializing(false);
@@ -177,8 +193,8 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
   };
 
   const handleSubmit = async () => {
-    if (!content.trim()) {
-      Alert.alert("提示", "写点什么吧，哪怕只是一句话");
+    if (!content.trim() && audios.length === 0) {
+      Alert.alert("提示", "写点什么吧，哪怕只是一句话或一段语音");
       triggerHaptic("warning");
       return;
     }
@@ -196,6 +212,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
       deadline: finalDeadline,
       people: selectedPeople.length ? selectedPeople : ["其他"],
       triggers: selectedTriggers,
+      audios: audios.length > 0 ? audios : undefined,
     });
 
     // 清除草稿
@@ -268,7 +285,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
     );
   }
 
-  const isSubmitDisabled = !content.trim();
+  const isSubmitDisabled = !content.trim() && audios.length === 0;
 
   return (
     <AppScreenShell
@@ -317,6 +334,25 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
               onDeleteCustomTrigger={handleDeleteCustomTrigger}
               onSubmit={handleSubmit}
             />
+            
+            {/* 语音附件区域 */}
+            <View style={styles.audioSection}>
+              <AudioRecorder
+                audios={audios}
+                onAudiosChange={setAudios}
+                currentPlayingId={currentPlayingId}
+                isPlaying={isPlaying}
+                playbackPosition={playbackPosition}
+                onPlaybackPositionChange={setPlaybackPosition}
+                onPlayAudio={(audio) => {
+                  setCurrentPlayingId(audio.id);
+                  setIsPlaying(true);
+                }}
+                onPauseAudio={() => {
+                  setIsPlaying(false);
+                }}
+              />
+            </View>
           </View>
         </ScrollView>
         {/* 悬浮操作栏：与 TabBar 贴合，无间距 */}

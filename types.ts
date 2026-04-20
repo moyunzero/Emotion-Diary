@@ -22,6 +22,26 @@ export enum Status {
 }
 
 /**
+ * 同步状态
+ */
+export type SyncStatus = 'pending' | 'synced' | 'failed';
+
+/**
+ * 音频数据结构
+ */
+export interface AudioData {
+  id: string;
+  localUri: string;
+  remoteUrl?: string;
+  duration: number; // 时长（秒）
+  fileSize: number; // 文件大小（字节）
+  fileHash: string; // MD5哈希，用于去重和完整性校验
+  name?: string; // 用户自定义名称
+  createdAt: number;
+  syncStatus: SyncStatus;
+}
+
+/**
  * 编辑历史记录
  */
 export interface EditHistory {
@@ -39,12 +59,15 @@ export interface MoodEntry {
   moodLevel: MoodLevel;
   content: string;
   deadline: string; // Changed to string to support custom values
-  people: string[]; // e.g., "Boyfriend", "Mom"
-  triggers: string[]; // e.g., "Late", "Chore"
+  people: string[]; // e.g. "Boyfriend", "Mom"
+  triggers: string[]; // e.g. "Late", "Chore"
   status: Status;
   resolvedAt?: number;
   burnedAt?: number; // 焚烧时间戳
   editHistory?: EditHistory[]; // 编辑历史记录
+  audios?: AudioData[]; // 语音附件
+  intensity?: 1 | 2 | 3 | 4 | 5; // 情绪强度
+  syncStatus?: SyncStatus; // 同步状态
 }
 
 export interface User {
@@ -53,6 +76,17 @@ export interface User {
   email?: string;
   avatar?: string;
   firstEntryDate?: number; // 第一条记录的时间戳（毫秒）
+}
+
+/**
+ * Profile 缓存数据结构
+ */
+export interface CachedProfile {
+  userId: string;
+  name: string;
+  avatar?: string;
+  email?: string;
+  cachedAt: number; // 缓存时间戳（毫秒）
 }
 
 export interface WeatherState {

@@ -13,6 +13,7 @@ import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { createAIModule } from "./modules/ai";
+import { createAudioSlice } from "./modules/audio";
 import {
   clearEntriesSaveDebounce,
   createEntriesSlice,
@@ -21,6 +22,7 @@ import { getStorageKey, saveToStorage } from "./modules/storage";
 import { AppStore } from "./modules/types";
 import { createUserSlice } from "./modules/user";
 import { createWeatherModule } from "./modules/weather";
+import { uploadPendingAudios } from "../services/audioSync";
 
 // 同步操作互斥锁，防止竞态条件
 let isSyncingRef = false;
@@ -180,6 +182,7 @@ export const useAppStore = create<AppStore>()((...args) => {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
     ...createAIModule(set, get),
+    ...createAudioSlice(set, get, store),
 
     ...createUserSlice(set, get, store),
 
@@ -242,6 +245,7 @@ export const useAppStore = create<AppStore>()((...args) => {
             resolvedat: entry.resolvedAt || null,
             burnedat: entry.burnedAt || null,
             user_id: currentUserId,
+            audios: entry.audios || [],
           };
         });
 
@@ -334,6 +338,7 @@ export const useAppStore = create<AppStore>()((...args) => {
                         status: entry.status,
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
+                        audios: entry.audios || [],
                       })
                       .eq("id", entry.id)
                       .eq("user_id", currentUserId);
@@ -373,6 +378,41 @@ export const useAppStore = create<AppStore>()((...args) => {
 
         // 同步 firstEntryDate 到云端
         await get()._syncFirstEntryDateToCloud();
+
+        // 同步音频文件到云端
+        try {
+          const allAudios = entries
+            .flatMap((e) => e.audios || [])
+            .filter((a) => a.syncStatus === "pending");
+          
+          if (allAudios.length > 0) {
+            const uploadResult = await uploadPendingAudios(allAudios, currentUserId);
+            if (__DEV__) {
+              console.log(`音频同步完成: 成功 ${uploadResult.success}, 失败 ${uploadResult.failed}`);
+            }
+            
+            if (uploadResult.results.size > 0) {
+              const updatedEntries = entries.map((entry) => {
+                if (!entry.audios?.length) return entry;
+                
+                const updatedAudios = entry.audios.map((audio) => {
+                  const remoteUrl = uploadResult.results.get(audio.id);
+                  if (remoteUrl) {
+                    return { ...audio, remoteUrl, syncStatus: "synced" as const };
+                  }
+                  return audio;
+                });
+                
+                return { ...entry, audios: updatedAudios };
+              });
+              
+              set({ entries: updatedEntries });
+              get()._saveEntries();
+            }
+          }
+        } catch (audioError) {
+          console.error("音频同步失败:", audioError);
+        }
 
         set({ syncStatus: "idle" });
         return true;
@@ -474,12 +514,7 @@ export const useAppStore = create<AppStore>()((...args) => {
             if (!localEntry) {
               mergedEntriesMap.set(cloudEntry.id, cloudEntry);
             } else {
-              const localTimestamp = localEntry.timestamp || 0;
-              const cloudTimestamp = cloudEntry.timestamp || 0;
-
-              if (cloudTimestamp > localTimestamp) {
-                mergedEntriesMap.set(cloudEntry.id, cloudEntry);
-              }
+              mergedEntriesMap.set(cloudEntry.id, cloudEntry);
             }
           }
 

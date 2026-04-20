@@ -27,5 +27,5 @@ export const useDynamicStyles = <T extends Record<string, any>>(
   styleFactory: (theme: ReturnType<typeof useThemeStyles>) => T
 ): T => {
   const themeStyles = useThemeStyles();
-  return useMemo(() => styleFactory(themeStyles), [themeStyles]);
+  return useMemo(() => styleFactory(themeStyles), [styleFactory, themeStyles]);
 };

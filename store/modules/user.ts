@@ -11,11 +11,14 @@ import { User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
 import {
   checkGuestData,
+  clearCachedProfile,
+  getCachedProfile,
   getStorageKey,
   migrateGuestDataToUser,
   migrateUserDataToGuest,
   removeFromStorage,
   saveToStorage,
+  setCachedProfile,
 } from "./storage";
 import { AppStore, UserModule } from "./types";
 
@@ -34,90 +37,68 @@ export const createUserSlice: StateCreator<
 
     /**
      * 初始化firstEntryDate
-     * 如果user.firstEntryDate不存在但有记录，则从记录中计算并设置
-     * 应在用户登录后或应用启动时调用
+     * 取以下三个来源的最小值：
+     * 1. user.firstEntryDate (云端值)
+     * 2. guest_first_entry_date (游客本地)
+     * 3. entries 中最早的记录
+     * 确保陪伴日期不丢失、一致
      */
     initializeFirstEntryDate: async () => {
       const { user, entries } = get();
 
-      // 如果已有firstEntryDate，检查是否需要与游客数据合并
+      // 收集所有可能的 firstEntryDate 来源
+      let candidates: number[] = [];
+
+      // 1. 添加云端的 firstEntryDate
       if (user?.firstEntryDate) {
-        // 检查游客存储中是否有更早的 firstEntryDate
-        try {
-          const guestDate = await AsyncStorage.getItem(
-            "guest_first_entry_date",
-          );
-          if (guestDate) {
-            const guestTimestamp = parseInt(guestDate, 10);
-            if (guestTimestamp < user.firstEntryDate) {
-              // 游客数据更早，更新用户的 firstEntryDate
-              const updatedUser = { ...user, firstEntryDate: guestTimestamp };
-              set({ user: updatedUser });
-              await AsyncStorage.setItem(
-                "user_session",
-                JSON.stringify(updatedUser),
-              );
-
-              if (user.email) {
-                await get()._syncFirstEntryDateToCloud();
-              }
-
-              // console.log(
-              //   `合并游客 firstEntryDate: ${guestTimestamp} (早于用户数据)`,
-              // );
-            }
-            // 清除游客的 firstEntryDate（已合并到用户数据）
-            await AsyncStorage.removeItem("guest_first_entry_date");
-          }
-        } catch (error) {
-          console.error("合并游客 firstEntryDate 失败:", error);
-        }
-        return;
+        candidates.push(user.firstEntryDate);
       }
 
-      // 如果没有记录，无需初始化
-      if (entries.length === 0) return;
-
-      // 从记录中找到最早的时间戳
-      const oldestTimestamp = Math.min(...entries.map((e) => e.timestamp));
-
-      // 检查游客存储中是否有 firstEntryDate
-      let finalTimestamp = oldestTimestamp;
+      // 2. 添加游客本地的 firstEntryDate
       try {
         const guestDate = await AsyncStorage.getItem("guest_first_entry_date");
         if (guestDate) {
           const guestTimestamp = parseInt(guestDate, 10);
-          // 选择更早的时间戳
-          finalTimestamp = Math.min(oldestTimestamp, guestTimestamp);
-          // console.log(
-          //   `合并游客 firstEntryDate: ${guestTimestamp}, 记录最早: ${oldestTimestamp}, 最终: ${finalTimestamp}`,
-          // );
+          if (guestTimestamp > 0) {
+            candidates.push(guestTimestamp);
+          }
         }
       } catch (error) {
         console.error("读取游客 firstEntryDate 失败:", error);
       }
 
-      // 更新user对象
+      // 3. 添加 entries 中最早的记录时间戳
+      if (entries.length > 0) {
+        const oldestEntryTimestamp = Math.min(...entries.map((e) => e.timestamp));
+        candidates.push(oldestEntryTimestamp);
+      }
+
+      // 如果没有有效的候选值，无需初始化
+      if (candidates.length === 0) return;
+
+      // 取所有候选值中的最小值（最早的日期）
+      const finalTimestamp = Math.min(...candidates);
+
+      // 只有当 user 存在时才更新
       if (user) {
-        const updatedUser = { ...user, firstEntryDate: finalTimestamp };
-        set({ user: updatedUser });
+        // 检查是否需要更新
+        const shouldUpdate = !user.firstEntryDate || finalTimestamp < user.firstEntryDate;
 
-        // 保存到本地存储
-        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        if (shouldUpdate) {
+          const updatedUser = { ...user, firstEntryDate: finalTimestamp };
+          set({ user: updatedUser });
 
-        // 如果已登录，同步到云端
-        if (user.email) {
-          await get()._syncFirstEntryDateToCloud();
+          // 保存到本地存储
+          await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+
+          // 如果已登录，同步到云端
+          if (user.email) {
+            await get()._syncFirstEntryDateToCloud();
+          }
         }
 
         // 清除游客的 firstEntryDate（已合并到用户数据）
         await AsyncStorage.removeItem("guest_first_entry_date");
-      } else {
-        // 游客用户，保存到本地存储
-        await AsyncStorage.setItem(
-          "guest_first_entry_date",
-          finalTimestamp.toString(),
-        );
       }
     },
 
@@ -294,7 +275,43 @@ export const createUserSlice: StateCreator<
               ),
           };
 
-          // 尝试获取 profile 信息
+          // 优先从缓存读取 profile
+          const cachedProfile = await getCachedProfile(session.user.id);
+          if (cachedProfile) {
+            userData = {
+              ...userData,
+              name: cachedProfile.name || userData.name,
+              avatar: cachedProfile.avatar || userData.avatar,
+            };
+            set({ user: userData });
+            await AsyncStorage.setItem("user_session", JSON.stringify(userData));
+            get()._loadEntries();
+            
+            // 后台静默更新缓存
+            (async () => {
+              try {
+                const { data: profile, error: profileError } = await supabase
+                  .from("profiles")
+                  .select("*")
+                  .eq("id", session.user.id)
+                  .single();
+
+                if (!profileError && profile) {
+                  await setCachedProfile(session.user.id, {
+                    userId: session.user.id,
+                    name: profile.name || userData.name,
+                    avatar: profile.avatar || userData.avatar,
+                    email: userData.email,
+                  });
+                }
+              } catch {
+                // 静默失败，不影响主流程
+              }
+            })();
+            return;
+          }
+
+          // 缓存未命中，从云端获取
           try {
             const { data: profile, error: profileError } = await supabase
               .from("profiles")
@@ -308,6 +325,13 @@ export const createUserSlice: StateCreator<
                 name: profile.name || userData.name,
                 avatar: profile.avatar || userData.avatar,
               };
+              // 更新缓存
+              await setCachedProfile(session.user.id, {
+                userId: session.user.id,
+                name: profile.name || userData.name,
+                avatar: profile.avatar || userData.avatar,
+                email: userData.email,
+              });
             } else if (profileError && profileError.code === "PGRST116") {
               // 创建 profile
               const newProfile = {
@@ -319,6 +343,13 @@ export const createUserSlice: StateCreator<
               };
 
               await supabase.from("profiles").insert(newProfile);
+              // 更新缓存
+              await setCachedProfile(session.user.id, {
+                userId: session.user.id,
+                name: userData.name,
+                avatar: userData.avatar,
+                email: userData.email,
+              });
             }
           } catch (err) {
             console.error("Profile operation exception:", err);
@@ -429,34 +460,69 @@ export const createUserSlice: StateCreator<
               ),
           };
 
-          // 尝试获取 profile
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", data.user.id)
-              .single();
-
-            if (!profileError && profile) {
-              userData = {
-                ...userData,
-                name: profile.name || userData.name,
-                avatar: profile.avatar || userData.avatar,
-              };
-            } else if (profileError && profileError.code === "PGRST116") {
-              const newProfile = {
-                id: data.user.id,
-                name: userData.name,
-                email: userData.email,
-                avatar: userData.avatar,
-                updated_at: new Date().toISOString(),
-              };
-
-              await supabase.from("profiles").insert(newProfile);
-            }
-          } catch (err) {
-            console.error("Profile operation exception:", err);
+          // 优先从缓存读取 profile
+          const cachedProfile = await getCachedProfile(data.user.id);
+          
+          if (cachedProfile) {
+            userData = {
+              ...userData,
+              name: cachedProfile.name || userData.name,
+              avatar: cachedProfile.avatar || userData.avatar,
+            };
           }
+
+          // 后台静默更新 profile（无论缓存是否命中）
+          (async () => {
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", data.user.id)
+                .single();
+
+              if (!profileError && profile) {
+                // 分别检查 avatar 和 name 是否需要更新
+                const hasNewAvatar = !!profile.avatar;
+                const hasNewName = !!profile.name;
+                
+                // 无论是否从缓存加载，只要云端有新数据就更新
+                if (hasNewAvatar || hasNewName) {
+                  userData = {
+                    ...userData,
+                    name: hasNewName ? profile.name : userData.name,
+                    avatar: hasNewAvatar ? profile.avatar : userData.avatar,
+                  };
+                  set({ user: userData });
+                  await AsyncStorage.setItem("user_session", JSON.stringify(userData));
+                }
+                
+                // 更新缓存（使用 profile 中的值，如果没有则用 userData 中的）
+                await setCachedProfile(data.user.id, {
+                  userId: data.user.id,
+                  name: profile.name || userData.name,
+                  avatar: profile.avatar || userData.avatar,
+                  email: userData.email,
+                });
+              } else if (profileError && profileError.code === "PGRST116") {
+                const newProfile = {
+                  id: data.user.id,
+                  name: userData.name,
+                  email: userData.email,
+                  avatar: userData.avatar,
+                  updated_at: new Date().toISOString(),
+                };
+                await supabase.from("profiles").insert(newProfile);
+                await setCachedProfile(data.user.id, {
+                  userId: data.user.id,
+                  name: userData.name,
+                  avatar: userData.avatar,
+                  email: userData.email,
+                });
+              }
+            } catch {
+              // 静默失败，不影响主流程
+            }
+          })();
 
           // 检查用户切换
           const { user: currentUser } = get();
@@ -472,19 +538,27 @@ export const createUserSlice: StateCreator<
 
           // 检查游客数据迁移
           const guestData = await checkGuestData();
+          let loadEntriesPromise: Promise<void>;
+          
           if (guestData.length > 0) {
             if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
             const migrationResult = await migrateGuestDataToUser(userData.id);
             if (migrationResult.success && migrationResult.data) {
               set({ entries: migrationResult.data });
               get()._calculateWeather();
+              loadEntriesPromise = Promise.resolve();
+            } else {
+              loadEntriesPromise = get()._loadEntries();
             }
           } else {
-            await get()._loadEntries();
+            loadEntriesPromise = get()._loadEntries();
           }
 
-          // 初始化 firstEntryDate（如果需要）
-          await get().initializeFirstEntryDate();
+          // 并行执行 _loadEntries 和 initializeFirstEntryDate
+          await Promise.all([
+            loadEntriesPromise,
+            get().initializeFirstEntryDate(),
+          ]);
 
           return true;
         }
@@ -532,6 +606,9 @@ export const createUserSlice: StateCreator<
         if (error) {
           console.error("Logout error:", error);
         }
+
+        // 清除 profile 缓存
+        await clearCachedProfile(user.id);
 
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
@@ -608,6 +685,7 @@ export const createUserSlice: StateCreator<
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
+        await clearCachedProfile(user.id);
 
         // 6. 恢复游客数据
         if (migrationResult.success && migrationResult.data) {
@@ -630,13 +708,14 @@ export const createUserSlice: StateCreator<
       if (!user) return;
 
       try {
+        // 先尝试更新，如果 profile 不存在则插入
         const { error } = await supabase
           .from("profiles")
-          .update({
+          .upsert({
+            id: user.id,
             ...updates,
             updated_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
+          });
 
         if (error) {
           console.error("Error updating user profile:", error);
@@ -646,6 +725,27 @@ export const createUserSlice: StateCreator<
         const updatedUser = { ...user, ...updates };
         set({ user: updatedUser });
         await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        
+        // 同步更新 profile 缓存
+        if (updates.name !== undefined || updates.avatar !== undefined) {
+          const cachedProfile = await getCachedProfile(user.id);
+          if (cachedProfile) {
+            await setCachedProfile(user.id, {
+              userId: user.id,
+              name: updates.name ?? cachedProfile.name,
+              avatar: updates.avatar ?? cachedProfile.avatar,
+              email: user.email ?? cachedProfile.email,
+            });
+          } else {
+            // 缓存不存在时，创建新缓存
+            await setCachedProfile(user.id, {
+              userId: user.id,
+              name: updates.name ?? user.name,
+              avatar: updates.avatar ?? user.avatar,
+              email: user.email,
+            });
+          }
+        }
       } catch (error) {
         console.error("Error updating user:", error);
         throw error;
