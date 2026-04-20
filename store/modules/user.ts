@@ -538,7 +538,6 @@ export const createUserSlice: StateCreator<
 
           // 检查游客数据迁移
           const guestData = await checkGuestData();
-          let loadEntriesPromise: Promise<void>;
           
           if (guestData.length > 0) {
             if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
@@ -546,19 +545,16 @@ export const createUserSlice: StateCreator<
             if (migrationResult.success && migrationResult.data) {
               set({ entries: migrationResult.data });
               get()._calculateWeather();
-              loadEntriesPromise = Promise.resolve();
             } else {
-              loadEntriesPromise = get()._loadEntries();
+              await get()._loadEntries();
             }
           } else {
-            loadEntriesPromise = get()._loadEntries();
+            await get()._loadEntries();
           }
 
-          // 并行执行 _loadEntries 和 initializeFirstEntryDate
-          await Promise.all([
-            loadEntriesPromise,
-            get().initializeFirstEntryDate(),
-          ]);
+          // 确保 entries 加载完成后再初始化 firstEntryDate
+          // 避免竞态条件：initializeFirstEntryDate 需要读取 entries 来确定最早的记录时间
+          await get().initializeFirstEntryDate();
 
           return true;
         }
