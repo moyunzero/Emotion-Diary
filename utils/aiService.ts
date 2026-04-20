@@ -2,6 +2,7 @@ import { MoodEntry, MoodLevel } from '../types';
 import { formatDateChinese } from '@/shared/formatting';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
+import { useAppStore } from '../store/useAppStore';
 
 /**
  * AI服务工具类
@@ -500,7 +501,9 @@ export function getDefaultReviewExportClosingLine(
 export async function generateReviewExportClosingLine(
   summary: ReviewExportClosingSummary,
 ): Promise<string> {
-  const cacheKey = `review_export_closing_${JSON.stringify({
+  const user = useAppStore.getState().user;
+  const userId = user?.id || 'anonymous';
+  const cacheKey = `rx_closing_${userId}_${JSON.stringify({
     preset: summary.presetLabel,
     start: summary.periodStartMs,
     end: summary.periodEndMs,
@@ -515,6 +518,8 @@ export async function generateReviewExportClosingLine(
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
+  const userName = user?.name || '朋友';
+
   if (!isApiKeyValid()) {
     const fallback = getDefaultReviewExportClosingLine(summary);
     setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
@@ -522,7 +527,7 @@ export async function generateReviewExportClosingLine(
   }
 
   const systemPrompt =
-    '你是用户温暖的情绪陪伴好友，用中文像朋友聊天一样书写。禁止客服腔、禁止医疗诊断承诺。结合用户分享的具体情绪和触发事件，用花园/天气的比喻共情，适度肯定用户的努力。给出简短但有洞察的一句话总结。只输出一段正文，不要标题、不要列表、不要 markdown。';
+    `你叫小晴，是${userName}温暖的情绪陪伴好友，用中文像朋友聊天一样书写。禁止客服腔、禁止医疗诊断承诺。结合${userName}分享的具体情绪和触发事件，用花园/天气的比喻共情，适度肯定${userName}的努力。给出简短但有洞察的一句话总结。只输出一段正文，不要标题、不要列表、不要 markdown。`;
 
   const rateLine =
     summary.resolutionRatePct === null
@@ -573,9 +578,13 @@ export const generateEmotionPodcast = async (
   entries: MoodEntry[],
   period: 'week' | 'month' = 'week'
 ): Promise<string | null> => {
-  const cacheKey = `podcast_${period}_${entries.length}_${entries[0]?.timestamp || 0}`;
+  const user = useAppStore.getState().user;
+  const userId = user?.id || 'anonymous';
+  const cacheKey = `rx_podcast_${userId}_${period}_${entries.length}_${entries[0]?.timestamp || 0}`;
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
+
+  const userName = user?.name || '朋友';
 
   try {
     if (!isApiKeyValid()) {
@@ -605,9 +614,9 @@ export const generateEmotionPodcast = async (
     const topTrigger = Object.entries(topTriggers)
       .sort(([, a], [, b]) => b - a)[0]?.[0] || '生活';
 
-    const systemPrompt = '你是用户温暖的情绪陪伴好友，擅长用天气和花园的比喻共情。结合具体的情绪记录数据，用温柔治愈的语气像朋友聊天一样回顾。适度发现用户的成长和进步，用中文回复。';
-    
-    const userPrompt = `根据以下用户最近${period === 'week' ? '一周' : '一个月'}的情绪记录，生成一段200字左右的温柔回顾：
+    const systemPrompt = `你叫小晴，是${userName}温暖的情绪陪伴好友，擅长用天气和花园的比喻共情。结合${userName}具体的情绪记录数据，用温柔治愈的语气像朋友聊天一样回顾。适度发现${userName}的成长和进步，用中文回复。`;
+
+    const userPrompt = `根据${userName}最近${period === 'week' ? '一周' : '一个月'}的情绪记录，生成一段200字左右的温柔回顾：
 
 统计信息：
 - 共记录${totalCount}次情绪
@@ -681,18 +690,37 @@ export const generateEmotionPrescription = async (
   moodLevel: MoodLevel,
   entries: MoodEntry[]
 ): Promise<EmotionPrescription> => {
-  const cacheKey = `prescription_${trigger}_${moodLevel}_${entries.length}`;
+  const user = useAppStore.getState().user;
+  const cacheKey = `rx_${user?.id || 'anonymous'}_${trigger}_${moodLevel}_${entries.length}`;
   const cached = getCached<EmotionPrescription>(cacheKey);
   if (cached) return cached;
+
+  const userName = user?.name || '朋友';
+  const companionDays = user?.firstEntryDate
+    ? Math.floor((Date.now() - user.firstEntryDate) / (1000 * 60 * 60 * 24))
+    : 0;
+  const recentTriggers = entries
+    .slice(-10)
+    .flatMap(e => e.triggers || [])
+    .reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {} as Record<string, number>);
+  const topRecurringTriggers = Object.entries(recentTriggers)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([t]) => t);
 
   try {
     if (!isApiKeyValid()) {
       return getDefaultPrescription(trigger, moodLevel);
     }
 
-    const systemPrompt = '你是用户温暖的情绪陪伴好友，擅长用朋友的角度给出具体实用、可立刻行动的建议。结合触发事件和情绪强度，用中文给出有帮助的回复。';
+    const systemPrompt = `你叫小晴，是${userName}温暖的情绪陪伴好友。擅长用朋友的角度给出具体实用、可立刻行动的建议。结合触发事件、情绪强度和用户习惯，用中文给出真正有帮助的回复。`;
 
-    const userPrompt = `用户因为"${trigger}"（情绪强度${moodLevel}/5级）需要帮助。请给出3条朋友般温暖且具体可执行的建议：
+    const userPrompt = `${userName}因为"${trigger}"（情绪强度${moodLevel}/5级）需要帮助。
+
+${companionDays > 0 ? `已陪伴${userName} ${companionDays} 天，了解ta的情况。` : ''}
+${topRecurringTriggers.length > 0 ? `最近常见的触发因素：${topRecurringTriggers.join('、')}。` : ''}
+
+请给出3条朋友般温暖且具体可执行的建议：
 
 1. 紧急建议（立即执行，不超过30字）
 2. 短期建议（今天内执行，不超过30字）
@@ -701,7 +729,7 @@ export const generateEmotionPrescription = async (
 格式要求：
 - 每条建议独立一行
 - 格式：1. [建议内容]
-- 语气温暖实用`;
+- 语气温暖实用，像朋友聊天`;
 
     try {
       const response = await withRetry(async () => {
