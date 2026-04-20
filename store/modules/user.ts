@@ -284,6 +284,7 @@ export const createUserSlice: StateCreator<
               avatar: cachedProfile.avatar || userData.avatar,
             };
             set({ user: userData });
+            await AsyncStorage.setItem("user_session", JSON.stringify(userData));
             get()._loadEntries();
             
             // 后台静默更新缓存
@@ -461,7 +462,6 @@ export const createUserSlice: StateCreator<
 
           // 优先从缓存读取 profile
           const cachedProfile = await getCachedProfile(data.user.id);
-          let profileLoadedFromCache = false;
           
           if (cachedProfile) {
             userData = {
@@ -469,7 +469,6 @@ export const createUserSlice: StateCreator<
               name: cachedProfile.name || userData.name,
               avatar: cachedProfile.avatar || userData.avatar,
             };
-            profileLoadedFromCache = true;
           }
 
           // 后台静默更新 profile（无论缓存是否命中）
@@ -486,8 +485,8 @@ export const createUserSlice: StateCreator<
                 const hasNewAvatar = !!profile.avatar;
                 const hasNewName = !!profile.name;
                 
-                // 如果 profile 中有 avatar 或 name，更新 userData
-                if (profileLoadedFromCache && (hasNewAvatar || hasNewName)) {
+                // 无论是否从缓存加载，只要云端有新数据就更新
+                if (hasNewAvatar || hasNewName) {
                   userData = {
                     ...userData,
                     name: hasNewName ? profile.name : userData.name,
@@ -709,13 +708,14 @@ export const createUserSlice: StateCreator<
       if (!user) return;
 
       try {
+        // 先尝试更新，如果 profile 不存在则插入
         const { error } = await supabase
           .from("profiles")
-          .update({
+          .upsert({
+            id: user.id,
             ...updates,
             updated_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
+          });
 
         if (error) {
           console.error("Error updating user profile:", error);
@@ -725,6 +725,7 @@ export const createUserSlice: StateCreator<
         const updatedUser = { ...user, ...updates };
         set({ user: updatedUser });
         await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        
         // 同步更新 profile 缓存
         if (updates.name !== undefined || updates.avatar !== undefined) {
           const cachedProfile = await getCachedProfile(user.id);
