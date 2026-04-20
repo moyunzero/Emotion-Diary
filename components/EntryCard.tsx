@@ -137,6 +137,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const [playbackPosition, setPlaybackPosition] = useState<number>(0);
   const audioPlayerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
+  const statusListenerRef = useRef<((status: AudioStatus) => void) | null>(null);
 
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -150,6 +151,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         if (audioPlayerRef.current) {
           audioPlayerRef.current.pause();
           audioPlayerRef.current.remove();
+          if (statusListenerRef.current) {
+            audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
+            statusListenerRef.current = null;
+          }
           audioPlayerRef.current = null;
         }
         setPlayingAudioId(null);
@@ -158,6 +163,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
       if (audioPlayerRef.current) {
         audioPlayerRef.current.pause();
+        if (statusListenerRef.current) {
+          audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
+          statusListenerRef.current = null;
+        }
         audioPlayerRef.current.remove();
         audioPlayerRef.current = null;
       }
@@ -171,17 +180,20 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
       const player = createAudioPlayer(uri);
       audioPlayerRef.current = player;
 
+      const audioDuration = audio.duration;
       const statusListener = (status: AudioStatus) => {
         if (status.currentTime !== undefined) {
-          const clampedPosition = Math.min(status.currentTime, audio.duration);
+          const clampedPosition = Math.min(status.currentTime, audioDuration);
           setPlaybackPosition(clampedPosition);
         }
         if (status.didJustFinish) {
           setPlayingAudioId(null);
           setPlaybackPosition(0);
           audioPlayerRef.current = null;
+          statusListenerRef.current = null;
         }
       };
+      statusListenerRef.current = statusListener;
 
       player.addListener("playbackStatusUpdate" as any, statusListener);
       player.play();
@@ -197,6 +209,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return () => {
       if (audioPlayerRef.current) {
         audioPlayerRef.current.pause();
+        if (statusListenerRef.current) {
+          audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
+          statusListenerRef.current = null;
+        }
         audioPlayerRef.current.remove();
         audioPlayerRef.current = null;
       }

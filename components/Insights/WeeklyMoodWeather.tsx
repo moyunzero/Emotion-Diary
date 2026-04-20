@@ -80,7 +80,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
       }),
     [padding, fontSize, spacing, borderRadius]
   );
-  const weekDates = getWeekDates();
+  const weekDates = useMemo(() => getWeekDates(), []);
 
   // 计算每天的最高情绪等级
   const dailyMoods = useMemo(() => {
