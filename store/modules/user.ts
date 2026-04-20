@@ -299,7 +299,7 @@ export const createUserSlice: StateCreator<
                   await setCachedProfile(session.user.id, {
                     userId: session.user.id,
                     name: profile.name || userData.name,
-                    avatar: profile.avatar,
+                    avatar: profile.avatar || userData.avatar,
                     email: userData.email,
                   });
                 }
@@ -328,7 +328,7 @@ export const createUserSlice: StateCreator<
               await setCachedProfile(session.user.id, {
                 userId: session.user.id,
                 name: profile.name || userData.name,
-                avatar: profile.avatar,
+                avatar: profile.avatar || userData.avatar,
                 email: userData.email,
               });
             } else if (profileError && profileError.code === "PGRST116") {
@@ -482,25 +482,26 @@ export const createUserSlice: StateCreator<
                 .single();
 
               if (!profileError && profile) {
-                // 更新 userData（如果之前用的缓存）
-                const updatedName = profile.name || userData.name;
-                const updatedAvatar = profile.avatar || userData.avatar;
+                // 分别检查 avatar 和 name 是否需要更新
+                const hasNewAvatar = !!profile.avatar;
+                const hasNewName = !!profile.name;
                 
-                if (profileLoadedFromCache && (profile.name || profile.avatar)) {
+                // 如果 profile 中有 avatar 或 name，更新 userData
+                if (profileLoadedFromCache && (hasNewAvatar || hasNewName)) {
                   userData = {
                     ...userData,
-                    name: updatedName,
-                    avatar: updatedAvatar,
+                    name: hasNewName ? profile.name : userData.name,
+                    avatar: hasNewAvatar ? profile.avatar : userData.avatar,
                   };
                   set({ user: userData });
                   await AsyncStorage.setItem("user_session", JSON.stringify(userData));
                 }
                 
-                // 更新缓存
+                // 更新缓存（使用 profile 中的值，如果没有则用 userData 中的）
                 await setCachedProfile(data.user.id, {
                   userId: data.user.id,
-                  name: updatedName,
-                  avatar: updatedAvatar,
+                  name: profile.name || userData.name,
+                  avatar: profile.avatar || userData.avatar,
                   email: userData.email,
                 });
               } else if (profileError && profileError.code === "PGRST116") {
@@ -724,15 +725,23 @@ export const createUserSlice: StateCreator<
         const updatedUser = { ...user, ...updates };
         set({ user: updatedUser });
         await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
-        
         // 同步更新 profile 缓存
         if (updates.name !== undefined || updates.avatar !== undefined) {
           const cachedProfile = await getCachedProfile(user.id);
           if (cachedProfile) {
             await setCachedProfile(user.id, {
-              ...cachedProfile,
+              userId: user.id,
               name: updates.name ?? cachedProfile.name,
               avatar: updates.avatar ?? cachedProfile.avatar,
+              email: user.email ?? cachedProfile.email,
+            });
+          } else {
+            // 缓存不存在时，创建新缓存
+            await setCachedProfile(user.id, {
+              userId: user.id,
+              name: updates.name ?? user.name,
+              avatar: updates.avatar ?? user.avatar,
+              email: user.email,
             });
           }
         }
