@@ -10,18 +10,7 @@ import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
  */
 
 // 从环境变量读取 Groq API Key（运行时读取，便于测试和热更新）
-const getGroqApiKey = (): string => {
-  const key = process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
-  if (key) {
-    const masked = key.length > 10 
-      ? `${key.slice(0, 6)}...${key.slice(-4)}` 
-      : '***';
-    console.log(`[Groq API] API Key loaded: ${masked}, length: ${key.length}`);
-  } else {
-    console.warn('[Groq API] API Key is empty or not set');
-  }
-  return key;
-};
+const getGroqApiKey = (): string => process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
 
 // Groq API 配置
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -139,9 +128,7 @@ const classifyError = (error: Error | unknown): AIErrorType => {
  */
 const isApiKeyValid = (): boolean => {
   const apiKey = getGroqApiKey();
-  const isValid = apiKey.length > 0 && (apiKey.startsWith('gsk_') || apiKey.length > 20);
-  console.log(`[Groq API] isApiKeyValid: ${isValid}, startsWith 'gsk_': ${apiKey.startsWith('gsk_')}, length: ${apiKey.length}`);
-  return isValid;
+  return apiKey.length > 0 && (apiKey.startsWith('gsk_') || apiKey.length > 20);
 };
 
 /**
@@ -172,22 +159,12 @@ const callGroqAPI = async (
   userPrompt: string,
   maxTokens: number = 300
 ): Promise<string> => {
-  const apiKey = getGroqApiKey();
-  console.log('[Groq API] Request:', {
-    url: GROQ_API_URL,
-    model: GROQ_MODEL,
-    maxTokens,
-    systemPromptLength: systemPrompt.length,
-    userPromptLength: userPrompt.length,
-    hasApiKey: !!apiKey,
-  });
-
   try {
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${getGroqApiKey()}`,
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
@@ -200,40 +177,32 @@ const callGroqAPI = async (
       }),
     });
 
-    console.log('[Groq API] Response status:', response.status, response.statusText);
-
     if (!response.ok) {
       let errorData: GroqErrorResponse = {};
       try {
         errorData = await response.json();
-        console.error('[Groq API] Error response:', JSON.stringify(errorData));
       } catch (parseError) {
-        console.warn('[Groq API] Failed to parse error response:', parseError);
+        console.warn('Failed to parse error response:', parseError);
       }
       const errorMessage = errorData?.error?.message || `HTTP ${response.status}`;
-      console.error('[Groq API] Request failed:', errorMessage);
       throw new Error(errorMessage);
     }
 
     let data: GroqResponse;
     try {
       data = await response.json();
-      console.log('[Groq API] Response data keys:', Object.keys(data));
     } catch (parseError) {
-      console.error('[Groq API] Failed to parse API response:', parseError);
+      console.error('Failed to parse API response:', parseError);
       throw new Error('API 返回了无效的响应格式');
     }
 
     const content = data.choices?.[0]?.message?.content;
     if (!content || typeof content !== 'string') {
-      console.error('[Groq API] Invalid content:', content);
       throw new Error('API 返回了无效的内容格式');
     }
 
-    console.log('[Groq API] Success, content length:', content.length);
     return content;
   } catch (error) {
-    console.error('[Groq API] Exception:', error);
     throw error;
   }
 };
