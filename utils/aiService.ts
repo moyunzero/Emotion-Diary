@@ -522,7 +522,7 @@ export async function generateReviewExportClosingLine(
   }
 
   const systemPrompt =
-    '你是温柔的情绪陪伴者，像朋友或树洞一样用中文书写。禁止使用客服腔、禁止医疗诊断或治疗承诺。只输出一段正文，不要标题、不要列表、不要 markdown、不要英文前缀。';
+    '你是用户温暖的情绪陪伴好友，用中文像朋友聊天一样书写。禁止客服腔、禁止医疗诊断承诺。结合用户分享的具体情绪和触发事件，用花园/天气的比喻共情，适度肯定用户的努力。给出简短但有洞察的一句话总结。只输出一段正文，不要标题、不要列表、不要 markdown。';
 
   const rateLine =
     summary.resolutionRatePct === null
@@ -605,7 +605,7 @@ export const generateEmotionPodcast = async (
     const topTrigger = Object.entries(topTriggers)
       .sort(([, a], [, b]) => b - a)[0]?.[0] || '生活';
 
-    const systemPrompt = '你是一个温暖的情绪陪伴助手，擅长用天气和花园的比喻来描述情绪。请用温柔、治愈的语气回复，像朋友一样亲切。用中文回复。';
+    const systemPrompt = '你是用户温暖的情绪陪伴好友，擅长用天气和花园的比喻共情。结合具体的情绪记录数据，用温柔治愈的语气像朋友聊天一样回顾。适度发现用户的成长和进步，用中文回复。';
     
     const userPrompt = `根据以下用户最近${period === 'week' ? '一周' : '一个月'}的情绪记录，生成一段200字左右的温柔回顾：
 
@@ -690,9 +690,9 @@ export const generateEmotionPrescription = async (
       return getDefaultPrescription(trigger, moodLevel);
     }
 
-    const systemPrompt = '你是一个专业的情绪管理顾问，擅长给出具体、实用、温暖的建议。请严格按照要求的格式用中文回复。';
-    
-    const userPrompt = `用户因为"${trigger}"触发了${moodLevel}级情绪（1-5级，5级最强）。请给出3条具体可执行的建议：
+    const systemPrompt = '你是用户温暖的情绪陪伴好友，擅长用朋友的角度给出具体实用、可立刻行动的建议。结合触发事件和情绪强度，用中文给出有帮助的回复。';
+
+    const userPrompt = `用户因为"${trigger}"（情绪强度${moodLevel}/5级）需要帮助。请给出3条朋友般温暖且具体可执行的建议：
 
 1. 紧急建议（立即执行，不超过30字）
 2. 短期建议（今天内执行，不超过30字）
