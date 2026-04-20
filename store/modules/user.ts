@@ -67,10 +67,13 @@ export const createUserSlice: StateCreator<
         console.error("读取游客 firstEntryDate 失败:", error);
       }
 
-      // 3. 添加 entries 中最早的记录时间戳
+      // 3. 添加 entries 中最早的记录时间戳（只添加有效的正数时间戳）
       if (entries.length > 0) {
-        const oldestEntryTimestamp = Math.min(...entries.map((e) => e.timestamp));
-        candidates.push(oldestEntryTimestamp);
+        const validTimestamps = entries.map((e) => e.timestamp).filter((t) => t > 0);
+        if (validTimestamps.length > 0) {
+          const oldestEntryTimestamp = Math.min(...validTimestamps);
+          candidates.push(oldestEntryTimestamp);
+        }
       }
 
       // 如果没有有效的候选值，无需初始化
@@ -88,8 +91,11 @@ export const createUserSlice: StateCreator<
         return;
       }
 
-      // 取所有候选值中的最小值（最早的日期）
-      const finalTimestamp = Math.min(...candidates);
+      // 取所有候选值中的最小值（最早的日期），确保是有效的正数时间戳
+      let finalTimestamp = Math.min(...candidates);
+      if (finalTimestamp <= 0) {
+        finalTimestamp = Date.now();
+      }
 
       // 只有当 user 存在时才更新
       if (user) {
