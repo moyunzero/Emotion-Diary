@@ -570,6 +570,11 @@ export const createUserSlice: StateCreator<
           const { user: currentUser } = get();
           const isUserSwitching = currentUser && currentUser.id !== userData.id;
 
+          // 保留现有的 firstEntryDate（如果有）
+          if (currentUser?.firstEntryDate && !userData.firstEntryDate) {
+            userData = { ...userData, firstEntryDate: currentUser.firstEntryDate };
+          }
+
           if (isUserSwitching) {
             if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
             set({ entries: [] });
