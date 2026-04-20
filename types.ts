@@ -78,6 +78,17 @@ export interface User {
   firstEntryDate?: number; // 第一条记录的时间戳（毫秒）
 }
 
+/**
+ * Profile 缓存数据结构
+ */
+export interface CachedProfile {
+  userId: string;
+  name: string;
+  avatar?: string;
+  email?: string;
+  cachedAt: number; // 缓存时间戳（毫秒）
+}
+
 export interface WeatherState {
   score: number; // 0 - 100+
   condition: 'sunny' | 'cloudy' | 'rainy' | 'stormy';

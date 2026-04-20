@@ -4,7 +4,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry } from '../../types';
+import { CachedProfile, MoodEntry } from '../../types';
 
 // 存储键常量
 const LEGACY_STORAGE_KEY = 'mood_entries';
@@ -256,5 +256,80 @@ export const migrateUserDataToGuest = async (
       data: null,
       message: '合并失败',
     };
+  }
+};
+
+// Profile 缓存常量
+const PROFILE_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 小时（毫秒）
+
+/**
+ * 获取 Profile 缓存键
+ */
+const getProfileCacheKey = (userId: string): string => {
+  return `profile_cache_${userId}`;
+};
+
+/**
+ * 获取缓存的 Profile
+ * @param userId 用户 ID
+ * @returns 缓存的 Profile 或 null（如果不存在或已过期）
+ */
+export const getCachedProfile = async (
+  userId: string
+): Promise<CachedProfile | null> => {
+  try {
+    const cacheKey = getProfileCacheKey(userId);
+    const cachedData = await AsyncStorage.getItem(cacheKey);
+    
+    if (!cachedData) return null;
+    
+    const cached: CachedProfile = JSON.parse(cachedData);
+    const now = Date.now();
+    
+    // 检查缓存是否过期
+    if (now - cached.cachedAt > PROFILE_CACHE_TTL) {
+      // 缓存已过期，删除
+      await AsyncStorage.removeItem(cacheKey);
+      return null;
+    }
+    
+    return cached;
+  } catch (error) {
+    console.error('读取 Profile 缓存失败:', error);
+    return null;
+  }
+};
+
+/**
+ * 设置 Profile 缓存
+ * @param userId 用户 ID
+ * @param profile Profile 数据（不含 cachedAt）
+ */
+export const setCachedProfile = async (
+  userId: string,
+  profile: Omit<CachedProfile, 'cachedAt'>
+): Promise<void> => {
+  try {
+    const cacheKey = getProfileCacheKey(userId);
+    const cached: CachedProfile = {
+      ...profile,
+      cachedAt: Date.now(),
+    };
+    await AsyncStorage.setItem(cacheKey, JSON.stringify(cached));
+  } catch (error) {
+    console.error('设置 Profile 缓存失败:', error);
+  }
+};
+
+/**
+ * 清除 Profile 缓存
+ * @param userId 用户 ID
+ */
+export const clearCachedProfile = async (userId: string): Promise<void> => {
+  try {
+    const cacheKey = getProfileCacheKey(userId);
+    await AsyncStorage.removeItem(cacheKey);
+  } catch (error) {
+    console.error('清除 Profile 缓存失败:', error);
   }
 };

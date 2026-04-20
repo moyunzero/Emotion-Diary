@@ -11,11 +11,14 @@ import { User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
 import {
   checkGuestData,
+  clearCachedProfile,
+  getCachedProfile,
   getStorageKey,
   migrateGuestDataToUser,
   migrateUserDataToGuest,
   removeFromStorage,
   saveToStorage,
+  setCachedProfile,
 } from "./storage";
 import { AppStore, UserModule } from "./types";
 
@@ -272,7 +275,42 @@ export const createUserSlice: StateCreator<
               ),
           };
 
-          // 尝试获取 profile 信息
+          // 优先从缓存读取 profile
+          const cachedProfile = await getCachedProfile(session.user.id);
+          if (cachedProfile) {
+            userData = {
+              ...userData,
+              name: cachedProfile.name || userData.name,
+              avatar: cachedProfile.avatar || userData.avatar,
+            };
+            set({ user: userData });
+            get()._loadEntries();
+            
+            // 后台静默更新缓存
+            (async () => {
+              try {
+                const { data: profile, error: profileError } = await supabase
+                  .from("profiles")
+                  .select("*")
+                  .eq("id", session.user.id)
+                  .single();
+
+                if (!profileError && profile) {
+                  await setCachedProfile(session.user.id, {
+                    userId: session.user.id,
+                    name: profile.name || userData.name,
+                    avatar: profile.avatar,
+                    email: userData.email,
+                  });
+                }
+              } catch {
+                // 静默失败，不影响主流程
+              }
+            })();
+            return;
+          }
+
+          // 缓存未命中，从云端获取
           try {
             const { data: profile, error: profileError } = await supabase
               .from("profiles")
@@ -286,6 +324,13 @@ export const createUserSlice: StateCreator<
                 name: profile.name || userData.name,
                 avatar: profile.avatar || userData.avatar,
               };
+              // 更新缓存
+              await setCachedProfile(session.user.id, {
+                userId: session.user.id,
+                name: profile.name || userData.name,
+                avatar: profile.avatar,
+                email: userData.email,
+              });
             } else if (profileError && profileError.code === "PGRST116") {
               // 创建 profile
               const newProfile = {
@@ -297,6 +342,13 @@ export const createUserSlice: StateCreator<
               };
 
               await supabase.from("profiles").insert(newProfile);
+              // 更新缓存
+              await setCachedProfile(session.user.id, {
+                userId: session.user.id,
+                name: userData.name,
+                avatar: userData.avatar,
+                email: userData.email,
+              });
             }
           } catch (err) {
             console.error("Profile operation exception:", err);
@@ -407,34 +459,70 @@ export const createUserSlice: StateCreator<
               ),
           };
 
-          // 尝试获取 profile
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", data.user.id)
-              .single();
-
-            if (!profileError && profile) {
-              userData = {
-                ...userData,
-                name: profile.name || userData.name,
-                avatar: profile.avatar || userData.avatar,
-              };
-            } else if (profileError && profileError.code === "PGRST116") {
-              const newProfile = {
-                id: data.user.id,
-                name: userData.name,
-                email: userData.email,
-                avatar: userData.avatar,
-                updated_at: new Date().toISOString(),
-              };
-
-              await supabase.from("profiles").insert(newProfile);
-            }
-          } catch (err) {
-            console.error("Profile operation exception:", err);
+          // 优先从缓存读取 profile
+          const cachedProfile = await getCachedProfile(data.user.id);
+          let profileLoadedFromCache = false;
+          
+          if (cachedProfile) {
+            userData = {
+              ...userData,
+              name: cachedProfile.name || userData.name,
+              avatar: cachedProfile.avatar || userData.avatar,
+            };
+            profileLoadedFromCache = true;
           }
+
+          // 后台静默更新 profile（无论缓存是否命中）
+          (async () => {
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", data.user.id)
+                .single();
+
+              if (!profileError && profile) {
+                // 更新 userData（如果之前用的缓存）
+                const updatedName = profile.name || userData.name;
+                const updatedAvatar = profile.avatar || userData.avatar;
+                
+                if (profileLoadedFromCache && (profile.name || profile.avatar)) {
+                  userData = {
+                    ...userData,
+                    name: updatedName,
+                    avatar: updatedAvatar,
+                  };
+                  set({ user: userData });
+                  await AsyncStorage.setItem("user_session", JSON.stringify(userData));
+                }
+                
+                // 更新缓存
+                await setCachedProfile(data.user.id, {
+                  userId: data.user.id,
+                  name: updatedName,
+                  avatar: updatedAvatar,
+                  email: userData.email,
+                });
+              } else if (profileError && profileError.code === "PGRST116") {
+                const newProfile = {
+                  id: data.user.id,
+                  name: userData.name,
+                  email: userData.email,
+                  avatar: userData.avatar,
+                  updated_at: new Date().toISOString(),
+                };
+                await supabase.from("profiles").insert(newProfile);
+                await setCachedProfile(data.user.id, {
+                  userId: data.user.id,
+                  name: userData.name,
+                  avatar: userData.avatar,
+                  email: userData.email,
+                });
+              }
+            } catch {
+              // 静默失败，不影响主流程
+            }
+          })();
 
           // 检查用户切换
           const { user: currentUser } = get();
@@ -450,19 +538,27 @@ export const createUserSlice: StateCreator<
 
           // 检查游客数据迁移
           const guestData = await checkGuestData();
+          let loadEntriesPromise: Promise<void>;
+          
           if (guestData.length > 0) {
             if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
             const migrationResult = await migrateGuestDataToUser(userData.id);
             if (migrationResult.success && migrationResult.data) {
               set({ entries: migrationResult.data });
               get()._calculateWeather();
+              loadEntriesPromise = Promise.resolve();
+            } else {
+              loadEntriesPromise = get()._loadEntries();
             }
           } else {
-            await get()._loadEntries();
+            loadEntriesPromise = get()._loadEntries();
           }
 
-          // 初始化 firstEntryDate（如果需要）
-          await get().initializeFirstEntryDate();
+          // 并行执行 _loadEntries 和 initializeFirstEntryDate
+          await Promise.all([
+            loadEntriesPromise,
+            get().initializeFirstEntryDate(),
+          ]);
 
           return true;
         }
@@ -510,6 +606,9 @@ export const createUserSlice: StateCreator<
         if (error) {
           console.error("Logout error:", error);
         }
+
+        // 清除 profile 缓存
+        await clearCachedProfile(user.id);
 
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
@@ -586,6 +685,7 @@ export const createUserSlice: StateCreator<
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
+        await clearCachedProfile(user.id);
 
         // 6. 恢复游客数据
         if (migrationResult.success && migrationResult.data) {
@@ -624,6 +724,18 @@ export const createUserSlice: StateCreator<
         const updatedUser = { ...user, ...updates };
         set({ user: updatedUser });
         await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        
+        // 同步更新 profile 缓存
+        if (updates.name !== undefined || updates.avatar !== undefined) {
+          const cachedProfile = await getCachedProfile(user.id);
+          if (cachedProfile) {
+            await setCachedProfile(user.id, {
+              ...cachedProfile,
+              name: updates.name ?? cachedProfile.name,
+              avatar: updates.avatar ?? cachedProfile.avatar,
+            });
+          }
+        }
       } catch (error) {
         console.error("Error updating user:", error);
         throw error;
