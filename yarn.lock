@@ -4295,6 +4295,11 @@ expo-device@~8.0.10:
   dependencies:
     ua-parser-js "^0.7.33"
 
+expo-file-system@~18.1.6:
+  version "18.1.11"
+  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-18.1.11.tgz#a563c715c4bb5c18729d6d104e8c6cdfbd383e69"
+  integrity sha512-HJw/m0nVOKeqeRjPjGdvm+zBi5/NxcdPf8M8P3G2JFvH5Z8vBWqVDic2O58jnT1OFEy0XXzoH9UqFu7cHg9DTQ==
+
 expo-file-system@~19.0.21:
   version "19.0.21"
   resolved "https://registry.npmjs.org/expo-file-system/-/expo-file-system-19.0.21.tgz"

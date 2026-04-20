@@ -2,7 +2,7 @@
   "expo": {
     "name": "心晴MO",
     "slug": "emotion-diary",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
@@ -35,7 +35,9 @@
       "package": "com.moyunzero.emotiondiary",
       "permissions": [
         "INTERNET",
-        "ACCESS_NETWORK_STATE"
+        "ACCESS_NETWORK_STATE",
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS"
       ],
       "softwareKeyboardLayoutMode": "resize"
     },

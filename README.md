@@ -164,8 +164,6 @@ yarn verify:governance   # 治理规则（与 CI push 到 master 一致）
 - **中文描述**：[app-description-zh.md](./app-store-submission/metadata/app-description-zh.md)
 - **英文描述**：[app-description-en.md](./app-store-submission/metadata/app-description-en.md)
 - **截图指南**：[screenshot-guide.md](./app-store-submission/metadata/screenshot-guide.md)
-- **4.3(a) 回复模板**：[review-response-4.3a.md](./app-store-submission/review-response-4.3a.md)
-- **2.3.8 / 2.1(a) 审核回复**：[review-response-2.3.8-2.1a.md](./app-store-submission/review-response-2.3.8-2.1a.md)
 - **Supabase 登录排查**：[supabase-login-checklist.md](./app-store-submission/supabase-login-checklist.md)
 - **提交前检查清单**：[preflight-checklist.md](./app-store-submission/preflight-checklist.md)
 - **隐私政策**：[PRIVACY.md](./PRIVACY.md)
@@ -423,6 +421,7 @@ eas build --platform ios --profile production
 - ✅ 治愈进度环形图
 - ✅ 关系花盆可视化
 - ✅ 情绪触发洞察与园艺建议
+- ✅ 语音录制功能（支持录制、播放语音日记）
 
 ### v1.0.0
 

@@ -65,8 +65,6 @@ yarn test:ci
 
 - [app-description-zh.md](./app-store-submission/metadata/app-description-zh.md) · [app-description-en.md](./app-store-submission/metadata/app-description-en.md)
 - [screenshot-guide.md](./app-store-submission/metadata/screenshot-guide.md)
-- [review-response-4.3a.md](./app-store-submission/review-response-4.3a.md)
-- [review-response-2.3.8-2.1a.md](./app-store-submission/review-response-2.3.8-2.1a.md)
 - [supabase-login-checklist.md](./app-store-submission/supabase-login-checklist.md)
 - [preflight-checklist.md](./app-store-submission/preflight-checklist.md)
 - [PRIVACY.md](./PRIVACY.md)
@@ -331,6 +329,7 @@ eas build --platform ios --profile production
 - ✅ Healing progress circular chart
 - ✅ Relationship pots visualization
 - ✅ Trigger insights with gardening advice
+- ✅ Voice recording feature (record and play back voice diary entries)
 
 ### v1.0.0
 
