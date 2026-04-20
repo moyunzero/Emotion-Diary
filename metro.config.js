@@ -4,6 +4,7 @@
  * @see https://docs.expo.dev/guides/minify/
  */
 const { getDefaultConfig } = require("expo/metro-config");
+const { getDefaultConfig: getDefaultExpoConfig } = require("@expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
@@ -19,5 +20,7 @@ config.transformer.minifierConfig = {
     safari: true,
   },
 };
+
+
 
 module.exports = config;

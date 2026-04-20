@@ -12,6 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.moyunzero.emotiondiary",
       "minimumOsVersion": "15.1",
+      "bundleAssets": [],
       "splash": {
         "image": "./assets/images/app-icon.png",
         "resizeMode": "contain",
