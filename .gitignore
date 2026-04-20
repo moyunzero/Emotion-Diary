@@ -255,8 +255,9 @@ cleanup.sh
 
 # Documentation folder
 docs/
-# But keep project docs versioned
-!.monkeycode/docs/
+
+# MonkeyCode internal files
+.monkeycode/
 
 # OpenSpec
 openspec/
