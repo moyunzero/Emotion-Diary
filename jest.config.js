@@ -2,7 +2,7 @@ module.exports = {
   preset: "react-native",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   transformIgnorePatterns: [
-    "node_modules/(?!(react-native|@react-native|expo|@expo|@unimodules|@react-navigation|@supabase|lucide-react-native|react-native-reanimated|react-native-gesture-handler|react-native-screens|react-native-safe-area-context|react-native-svg|react-native-view-shot|@shopify/react-native-skia|react-native-url-polyfill)/)",
+    "node_modules/(?!(react-native|@react-native|expo|@expo|@unimodules|@react-navigation|@supabase|lucide-react-native|react-native-reanimated|react-native-gesture-handler|react-native-screens|react-native-safe-area-context|react-native-svg|react-native-view-shot|@shopify/react-native-skia|react-native-url-polyfill|expo-modules-core|expo-haptics|expo-audio|expo-file-system)/)",
   ],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   testMatch: [

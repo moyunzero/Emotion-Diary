@@ -131,3 +131,87 @@ jest.mock("react-native-safe-area-context", () => ({
   SafeAreaView: ({ children }) => children,
   useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
 }));
+
+// Mock expo-audio
+jest.mock("expo-audio", () => ({
+  PermissionStatus: {
+    GRANTED: "granted",
+    DENIED: "denied",
+    UNDETERMINED: "undetermined",
+  },
+  AudioStatus: {
+    isLoaded: true,
+    isPlaying: false,
+    isBuffering: false,
+    duration: 0,
+    currentTime: 0,
+  },
+  createAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    stop: jest.fn(),
+    seek: jest.fn(),
+    dispose: jest.fn(),
+    addListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+  })),
+  useAudioPlayer: jest.fn(),
+  useAudioPlayerStatus: jest.fn(),
+  requestRecordingPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+  getRecordingPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+}));
+
+// Mock expo-haptics
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn(),
+  ImpactFeedbackStyle: {
+    Light: "light",
+    Medium: "medium",
+    Heavy: "heavy",
+  },
+  notificationAsync: jest.fn(),
+  NotificationFeedbackType: {
+    success: "success",
+    warning: "warning",
+    error: "error",
+  },
+}));
+
+// Mock expo-modules-core (required by expo-haptics and expo-audio)
+jest.mock("expo-modules-core", () => ({
+  EventEmitter: jest.fn().mockImplementation(() => ({
+    addListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+  })),
+  NativeModulesProxy: {},
+  requireNativeModule: jest.fn(),
+  requireOptionalNativeModule: jest.fn(),
+}));
+
+// Mock expo-file-system
+jest.mock("expo-file-system", () => ({
+  cacheDirectory: "/mock-cache/",
+  documentDirectory: "/mock-documents/",
+  copyAsync: jest.fn(),
+  deleteAsync: jest.fn(),
+  getInfoAsync: jest.fn().mockResolvedValue({ exists: false }),
+  readAsStringAsync: jest.fn(),
+  writeAsStringAsync: jest.fn(),
+  makeDirectoryAsync: jest.fn(),
+  downloadAsync: jest.fn(),
+  createDownloadResumable: jest.fn(),
+}));
+
+// Mock expo-file-system/legacy
+jest.mock("expo-file-system/legacy", () => ({
+  cacheDirectory: "/mock-cache/",
+  documentDirectory: "/mock-documents/",
+  copyAsync: jest.fn(),
+  deleteAsync: jest.fn(),
+  getInfoAsync: jest.fn().mockResolvedValue({ exists: false }),
+  readAsStringAsync: jest.fn(),
+  writeAsStringAsync: jest.fn(),
+  makeDirectoryAsync: jest.fn(),
+  downloadAsync: jest.fn(),
+  createDownloadResumable: jest.fn(),
+}));
