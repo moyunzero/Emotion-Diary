@@ -325,6 +325,11 @@ export const createUserSlice: StateCreator<
               name: cachedProfile.name || userData.name,
               avatar: cachedProfile.avatar || userData.avatar,
             };
+            // 保留现有的 firstEntryDate
+            const currentUser = get().user;
+            if (currentUser?.firstEntryDate) {
+              userData.firstEntryDate = currentUser.firstEntryDate;
+            }
             set({ user: userData });
             await AsyncStorage.setItem("user_session", JSON.stringify(userData));
             get()._loadEntries();
@@ -395,6 +400,12 @@ export const createUserSlice: StateCreator<
             }
           } catch (err) {
             console.error("Profile operation exception:", err);
+          }
+
+          // 保留现有的 firstEntryDate
+          const currentUser = get().user;
+          if (currentUser?.firstEntryDate) {
+            userData.firstEntryDate = currentUser.firstEntryDate;
           }
 
           set({ user: userData });
