@@ -34,90 +34,68 @@ export const createUserSlice: StateCreator<
 
     /**
      * 初始化firstEntryDate
-     * 如果user.firstEntryDate不存在但有记录，则从记录中计算并设置
-     * 应在用户登录后或应用启动时调用
+     * 取以下三个来源的最小值：
+     * 1. user.firstEntryDate (云端值)
+     * 2. guest_first_entry_date (游客本地)
+     * 3. entries 中最早的记录
+     * 确保陪伴日期不丢失、一致
      */
     initializeFirstEntryDate: async () => {
       const { user, entries } = get();
 
-      // 如果已有firstEntryDate，检查是否需要与游客数据合并
+      // 收集所有可能的 firstEntryDate 来源
+      let candidates: number[] = [];
+
+      // 1. 添加云端的 firstEntryDate
       if (user?.firstEntryDate) {
-        // 检查游客存储中是否有更早的 firstEntryDate
-        try {
-          const guestDate = await AsyncStorage.getItem(
-            "guest_first_entry_date",
-          );
-          if (guestDate) {
-            const guestTimestamp = parseInt(guestDate, 10);
-            if (guestTimestamp < user.firstEntryDate) {
-              // 游客数据更早，更新用户的 firstEntryDate
-              const updatedUser = { ...user, firstEntryDate: guestTimestamp };
-              set({ user: updatedUser });
-              await AsyncStorage.setItem(
-                "user_session",
-                JSON.stringify(updatedUser),
-              );
-
-              if (user.email) {
-                await get()._syncFirstEntryDateToCloud();
-              }
-
-              // console.log(
-              //   `合并游客 firstEntryDate: ${guestTimestamp} (早于用户数据)`,
-              // );
-            }
-            // 清除游客的 firstEntryDate（已合并到用户数据）
-            await AsyncStorage.removeItem("guest_first_entry_date");
-          }
-        } catch (error) {
-          console.error("合并游客 firstEntryDate 失败:", error);
-        }
-        return;
+        candidates.push(user.firstEntryDate);
       }
 
-      // 如果没有记录，无需初始化
-      if (entries.length === 0) return;
-
-      // 从记录中找到最早的时间戳
-      const oldestTimestamp = Math.min(...entries.map((e) => e.timestamp));
-
-      // 检查游客存储中是否有 firstEntryDate
-      let finalTimestamp = oldestTimestamp;
+      // 2. 添加游客本地的 firstEntryDate
       try {
         const guestDate = await AsyncStorage.getItem("guest_first_entry_date");
         if (guestDate) {
           const guestTimestamp = parseInt(guestDate, 10);
-          // 选择更早的时间戳
-          finalTimestamp = Math.min(oldestTimestamp, guestTimestamp);
-          // console.log(
-          //   `合并游客 firstEntryDate: ${guestTimestamp}, 记录最早: ${oldestTimestamp}, 最终: ${finalTimestamp}`,
-          // );
+          if (guestTimestamp > 0) {
+            candidates.push(guestTimestamp);
+          }
         }
       } catch (error) {
         console.error("读取游客 firstEntryDate 失败:", error);
       }
 
-      // 更新user对象
+      // 3. 添加 entries 中最早的记录时间戳
+      if (entries.length > 0) {
+        const oldestEntryTimestamp = Math.min(...entries.map((e) => e.timestamp));
+        candidates.push(oldestEntryTimestamp);
+      }
+
+      // 如果没有有效的候选值，无需初始化
+      if (candidates.length === 0) return;
+
+      // 取所有候选值中的最小值（最早的日期）
+      const finalTimestamp = Math.min(...candidates);
+
+      // 只有当 user 存在时才更新
       if (user) {
-        const updatedUser = { ...user, firstEntryDate: finalTimestamp };
-        set({ user: updatedUser });
+        // 检查是否需要更新
+        const shouldUpdate = !user.firstEntryDate || finalTimestamp < user.firstEntryDate;
 
-        // 保存到本地存储
-        await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        if (shouldUpdate) {
+          const updatedUser = { ...user, firstEntryDate: finalTimestamp };
+          set({ user: updatedUser });
 
-        // 如果已登录，同步到云端
-        if (user.email) {
-          await get()._syncFirstEntryDateToCloud();
+          // 保存到本地存储
+          await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+
+          // 如果已登录，同步到云端
+          if (user.email) {
+            await get()._syncFirstEntryDateToCloud();
+          }
         }
 
         // 清除游客的 firstEntryDate（已合并到用户数据）
         await AsyncStorage.removeItem("guest_first_entry_date");
-      } else {
-        // 游客用户，保存到本地存储
-        await AsyncStorage.setItem(
-          "guest_first_entry_date",
-          finalTimestamp.toString(),
-        );
       }
     },
 
