@@ -7,10 +7,16 @@ const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
-// 生产构建时移除 console，减小体积并避免泄露调试信息
 config.transformer.minifierConfig = {
   compress: {
     drop_console: true,
+    passes: 2,
+    pure_getters: true,
+    unsafe_math: true,
+    unsafe_proto: true,
+  },
+  mangle: {
+    safari: true,
   },
 };
 

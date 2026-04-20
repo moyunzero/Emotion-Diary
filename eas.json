@@ -25,7 +25,8 @@
         "gradleCommand": ":app:bundleRelease"
       },
       "ios": {
-        "distribution": "store"
+        "distribution": "store",
+        "simulator": false
       },
       "env": {
         "NODE_ENV": "production"
