@@ -74,7 +74,19 @@ export const createUserSlice: StateCreator<
       }
 
       // 如果没有有效的候选值，无需初始化
-      if (candidates.length === 0) return;
+      if (candidates.length === 0) {
+        // 新用户没有任何记录：将 firstEntryDate 设置为当前时间（用户第一次进入 app 的时间）
+        if (user && !user.firstEntryDate) {
+          const now = Date.now();
+          const updatedUser = { ...user, firstEntryDate: now };
+          set({ user: updatedUser });
+          await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+          if (user.email) {
+            await get()._syncFirstEntryDateToCloud();
+          }
+        }
+        return;
+      }
 
       // 取所有候选值中的最小值（最早的日期）
       const finalTimestamp = Math.min(...candidates);
