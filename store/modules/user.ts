@@ -601,9 +601,17 @@ export const createUserSlice: StateCreator<
 
           // 确保 entries 加载完成后再初始化 firstEntryDate
           // 避免竞态条件：initializeFirstEntryDate 需要读取 entries 来确定最早的记录时间
-          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之前, user:", get().user?.firstEntryDate);
+          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之前, user:", get().user);
           await get().initializeFirstEntryDate();
-          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之后, user:", get().user?.firstEntryDate);
+          console.log("[DEBUG login] 调用 initializeFirstEntryDate 之后, user:", get().user);
+
+          // 再次确保 firstEntryDate 被保存到 AsyncStorage
+          const finalUser = get().user;
+          if (finalUser?.firstEntryDate) {
+            console.log("[DEBUG login] 准备保存 firstEntryDate 到 AsyncStorage:", finalUser.firstEntryDate);
+            await AsyncStorage.setItem("user_session", JSON.stringify(finalUser));
+            console.log("[DEBUG login] firstEntryDate 已保存");
+          }
 
           return true;
         }
