@@ -645,6 +645,11 @@ export const initializeStore = (): (() => void) => {
                 return;
               }
 
+              // 保留现有的 firstEntryDate
+              if (currentUser?.firstEntryDate) {
+                userData.firstEntryDate = currentUser.firstEntryDate;
+              }
+
               useAppStore.getState()._setUser(userData);
 
               try {

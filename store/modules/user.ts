@@ -44,61 +44,28 @@ export const createUserSlice: StateCreator<
      * 确保陪伴日期不丢失、一致
      */
     initializeFirstEntryDate: async () => {
-      const { user, entries } = get();
+      // 此函数已废弃，firstEntryDate 的读取逻辑已移至 useCompanionFirstEntryDate hook
+      // 保留此函数仅为向后兼容
+      const { user } = get();
+      if (!user) return;
 
-      // 收集所有可能的 firstEntryDate 来源
-      let candidates: number[] = [];
-
-      // 1. 添加云端的 firstEntryDate
-      if (user?.firstEntryDate) {
-        candidates.push(user.firstEntryDate);
-      }
-
-      // 2. 添加游客本地的 firstEntryDate
+      // 确保 firstEntryDate 存储到新 key
+      const storageKey = `@first_entry_date_${user.id}`;
       try {
-        const guestDate = await AsyncStorage.getItem("guest_first_entry_date");
-        if (guestDate) {
-          const guestTimestamp = parseInt(guestDate, 10);
-          if (guestTimestamp > 0) {
-            candidates.push(guestTimestamp);
-          }
+        const existing = await AsyncStorage.getItem(storageKey);
+        if (existing) return; // 已存在，无需处理
+
+        // 如果 user 有 firstEntryDate，保存到新 key
+        if (user.firstEntryDate) {
+          await AsyncStorage.setItem(storageKey, user.firstEntryDate.toString());
+          return;
         }
+
+        // 如果没有，设置为当前时间
+        const now = Date.now();
+        await AsyncStorage.setItem(storageKey, now.toString());
       } catch (error) {
-        console.error("读取游客 firstEntryDate 失败:", error);
-      }
-
-      // 3. 添加 entries 中最早的记录时间戳
-      if (entries.length > 0) {
-        const oldestEntryTimestamp = Math.min(...entries.map((e) => e.timestamp));
-        candidates.push(oldestEntryTimestamp);
-      }
-
-      // 如果没有有效的候选值，无需初始化
-      if (candidates.length === 0) return;
-
-      // 取所有候选值中的最小值（最早的日期）
-      const finalTimestamp = Math.min(...candidates);
-
-      // 只有当 user 存在时才更新
-      if (user) {
-        // 检查是否需要更新
-        const shouldUpdate = !user.firstEntryDate || finalTimestamp < user.firstEntryDate;
-
-        if (shouldUpdate) {
-          const updatedUser = { ...user, firstEntryDate: finalTimestamp };
-          set({ user: updatedUser });
-
-          // 保存到本地存储
-          await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
-
-          // 如果已登录，同步到云端
-          if (user.email) {
-            await get()._syncFirstEntryDateToCloud();
-          }
-        }
-
-        // 清除游客的 firstEntryDate（已合并到用户数据）
-        await AsyncStorage.removeItem("guest_first_entry_date");
+        console.error("initializeFirstEntryDate 失败:", error);
       }
     },
 
@@ -283,6 +250,11 @@ export const createUserSlice: StateCreator<
               name: cachedProfile.name || userData.name,
               avatar: cachedProfile.avatar || userData.avatar,
             };
+            // 保留现有的 firstEntryDate
+            const currentUser = get().user;
+            if (currentUser?.firstEntryDate) {
+              userData.firstEntryDate = currentUser.firstEntryDate;
+            }
             set({ user: userData });
             await AsyncStorage.setItem("user_session", JSON.stringify(userData));
             get()._loadEntries();
@@ -353,6 +325,12 @@ export const createUserSlice: StateCreator<
             }
           } catch (err) {
             console.error("Profile operation exception:", err);
+          }
+
+          // 保留现有的 firstEntryDate
+          const currentUser = get().user;
+          if (currentUser?.firstEntryDate) {
+            userData.firstEntryDate = currentUser.firstEntryDate;
           }
 
           set({ user: userData });
@@ -528,6 +506,11 @@ export const createUserSlice: StateCreator<
           const { user: currentUser } = get();
           const isUserSwitching = currentUser && currentUser.id !== userData.id;
 
+          // 保留现有的 firstEntryDate（如果有）
+          if (currentUser?.firstEntryDate && !userData.firstEntryDate) {
+            userData = { ...userData, firstEntryDate: currentUser.firstEntryDate };
+          }
+
           if (isUserSwitching) {
             if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
             set({ entries: [] });
@@ -538,7 +521,6 @@ export const createUserSlice: StateCreator<
 
           // 检查游客数据迁移
           const guestData = await checkGuestData();
-          let loadEntriesPromise: Promise<void>;
           
           if (guestData.length > 0) {
             if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
@@ -546,19 +528,15 @@ export const createUserSlice: StateCreator<
             if (migrationResult.success && migrationResult.data) {
               set({ entries: migrationResult.data });
               get()._calculateWeather();
-              loadEntriesPromise = Promise.resolve();
             } else {
-              loadEntriesPromise = get()._loadEntries();
+              await get()._loadEntries();
             }
           } else {
-            loadEntriesPromise = get()._loadEntries();
+            await get()._loadEntries();
           }
 
-          // 并行执行 _loadEntries 和 initializeFirstEntryDate
-          await Promise.all([
-            loadEntriesPromise,
-            get().initializeFirstEntryDate(),
-          ]);
+          // 初始化 firstEntryDate（新逻辑由 hook 处理，此处仅确保存储到新 key）
+          await get().initializeFirstEntryDate();
 
           return true;
         }
