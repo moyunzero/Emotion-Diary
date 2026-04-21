@@ -12,19 +12,20 @@ import {
   ActivityIndicator,
   Alert,
   InteractionManager,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { formatDateChinese } from '../../shared/formatting';
-import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
+import { captureRef } from 'react-native-view-shot';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
+import { formatDateChinese } from '../../shared/formatting';
+import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
 import { useAppStore } from '../../store/useAppStore';
 import {
   generateReviewExportClosingLine,
@@ -136,7 +137,17 @@ export const ReviewExportScreen: React.FC = () => {
     const uri = await captureReviewPngUri();
     const perm = await MediaLibrary.requestPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('需要相册权限', '请在系统设置中允许心晴MO将回顾图保存到相册。');
+      Alert.alert(
+        '需要相册权限',
+        '请在系统设置中允许心晴MO将回顾图保存到相册。',
+        [
+          { text: '取消', style: 'cancel' },
+          {
+            text: '去设置',
+            onPress: () => void Linking.openSettings(),
+          },
+        ],
+      );
       return;
     }
     await MediaLibrary.saveToLibraryAsync(uri);
@@ -174,17 +185,10 @@ export const ReviewExportScreen: React.FC = () => {
       '隐私提示',
       '回顾图含你的情绪与记录信息；保存后可在系统相册中查看，请注意设备共用与他人翻看风险。',
       [
-        { text: '取消', style: 'cancel' },
         {
-          text: '不再提示并保存',
+          text: '继续',
           onPress: () => {
             void go(true);
-          },
-        },
-        {
-          text: '继续保存',
-          onPress: () => {
-            void go(false);
           },
         },
       ],
