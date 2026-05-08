@@ -3,25 +3,25 @@
  * 管理录音状态机、权限、录制和播放
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Linking, StyleSheet, View, Text } from "react-native";
 import {
-    useAudioRecorder,
-    createAudioPlayer,
-    useAudioRecorderState,
     AudioModule,
+    AudioStatus,
+    createAudioPlayer,
     RecordingPresets,
     setAudioModeAsync,
-    AudioStatus,
+    useAudioRecorder,
+    useAudioRecorderState,
 } from "expo-audio";
+import { cacheDirectory, copyAsync, deleteAsync, getInfoAsync } from "expo-file-system";
 import * as Haptics from "expo-haptics";
-import { copyAsync, deleteAsync, getInfoAsync, cacheDirectory } from "expo-file-system/legacy";
 import { md5 } from "js-md5";
-import { AudioData } from "../../types";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Linking, StyleSheet, Text, View } from "react-native";
 import { RecordingState } from "../../store/modules/audio";
+import { AudioData } from "../../types";
+import { AudioList } from "./AudioList";
 import { RecordButton } from "./RecordButton";
 import { WaveformView } from "./WaveformView";
-import { AudioList } from "./AudioList";
 
 interface AudioRecorderProps {
     audios: AudioData[];

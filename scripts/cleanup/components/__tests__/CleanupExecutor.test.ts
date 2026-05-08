@@ -75,7 +75,7 @@ describe('CleanupExecutor', () => {
       ];
 
       // Mock git commands to avoid actual git operations
-      mockedExecSync.mockImplementation(() => Buffer.from(''));
+      mockedExecSync.mockReturnValue(Buffer.from(''));
 
       const result = await executor.archiveFiles(files, true, false);
 
@@ -128,7 +128,7 @@ describe('CleanupExecutor', () => {
       ];
 
       // Mock git commands
-      mockedExecSync.mockImplementation(() => Buffer.from(''));
+      mockedExecSync.mockReturnValue(Buffer.from(''));
 
       const result = await executor.archiveFiles(files, false, false);
 
@@ -196,7 +196,7 @@ describe('CleanupExecutor', () => {
       await fs.promises.writeFile(testFilePath, 'Test content');
 
       // Mock successful git rm
-      mockedExecSync.mockImplementation(() => Buffer.from(''));
+      mockedExecSync.mockReturnValue(Buffer.from(''));
 
       const result = await executor.removeFiles([testFile], 'Remove backup files', false);
 
@@ -626,7 +626,7 @@ export function oldFunction() {
       await fs.promises.utimes(oldFile, oldDate, oldDate);
 
       // Mock successful git rm
-      mockedExecSync.mockImplementation(() => Buffer.from(''));
+      mockedExecSync.mockReturnValue(Buffer.from(''));
 
       const result = await executor.cleanupOldArchives(180, [], false);
 
