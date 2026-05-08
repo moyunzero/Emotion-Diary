@@ -7,12 +7,12 @@
 import { CleanupCLI, CLIOptions, DryRunReport, RiskAssessment } from '../CleanupCLI';
 
 // Mock inquirer before importing
+const mockPrompt = jest.fn();
 jest.mock('inquirer', () => ({
   __esModule: true,
   default: {
-    prompt: jest.fn(),
+    prompt: mockPrompt,
   },
-  prompt: jest.fn(),
 }));
 
 describe('CleanupCLI', () => {
@@ -25,6 +25,7 @@ describe('CleanupCLI', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
+    mockPrompt.mockReset();
     
     cli = new CleanupCLI();
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
@@ -328,14 +329,13 @@ describe('CleanupCLI', () => {
 
   describe('promptForConfirmation', () => {
     it('should prompt for confirmation', async () => {
-      // Mock inquirer.prompt directly
-      const inquirer = require('inquirer');
-      inquirer.prompt = jest.fn().mockResolvedValue({ confirmed: true });
+      // Mock inquirer.prompt
+      mockPrompt.mockResolvedValue({ confirmed: true });
 
       const confirmed = await cli.promptForConfirmation();
 
       expect(confirmed).toBe(true);
-      expect(inquirer.prompt).toHaveBeenCalledWith([
+      expect(mockPrompt).toHaveBeenCalledWith([
         {
           type: 'confirm',
           name: 'confirmed',
@@ -346,9 +346,8 @@ describe('CleanupCLI', () => {
     });
 
     it('should return false when user cancels', async () => {
-      // Mock inquirer.prompt directly
-      const inquirer = require('inquirer');
-      inquirer.prompt = jest.fn().mockResolvedValue({ confirmed: false });
+      // Mock inquirer.prompt
+      mockPrompt.mockResolvedValue({ confirmed: false });
 
       const confirmed = await cli.promptForConfirmation();
 
@@ -406,13 +405,12 @@ describe('CleanupCLI', () => {
         execute: jest.fn().mockResolvedValue(undefined),
       };
 
-      // Mock inquirer.prompt directly
-      const inquirer = require('inquirer');
-      inquirer.prompt = jest.fn().mockResolvedValue({ confirmed: true });
+      // Mock inquirer.prompt
+      mockPrompt.mockResolvedValue({ confirmed: true });
 
       await cli.run(options, mockOrchestrator);
 
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalled();
       expect(mockOrchestrator.execute).toHaveBeenCalled();
     });
 
@@ -437,9 +435,8 @@ describe('CleanupCLI', () => {
         execute: jest.fn().mockResolvedValue(undefined),
       };
 
-      // Mock inquirer.prompt directly
-      const inquirer = require('inquirer');
-      inquirer.prompt = jest.fn().mockResolvedValue({ confirmed: false });
+      // Mock inquirer.prompt
+      mockPrompt.mockResolvedValue({ confirmed: false });
 
       try {
         await cli.run(options, mockOrchestrator);
@@ -448,7 +445,7 @@ describe('CleanupCLI', () => {
         expect(error.message).toBe('process.exit called');
       }
 
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalled();
       expect(mockOrchestrator.execute).not.toHaveBeenCalled();
       expect(processExitSpy).toHaveBeenCalledWith(0);
     });

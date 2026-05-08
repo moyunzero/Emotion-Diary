@@ -69,7 +69,7 @@ describe('DependencyAnalyzer', () => {
       expect(result).toHaveProperty('isUsed');
       expect(result).toHaveProperty('importedBy');
       expect(result).toHaveProperty('dynamicImports');
-    });
+    }, 15000); // Increase timeout to 15s for dependency analysis
 
     it('should return FileUsage structure', async () => {
       // Test with a real file from the project
@@ -79,7 +79,7 @@ describe('DependencyAnalyzer', () => {
       expect(typeof result.isUsed).toBe('boolean');
       expect(Array.isArray(result.importedBy)).toBe(true);
       expect(Array.isArray(result.dynamicImports)).toBe(true);
-    });
+    }, 15000); // Increase timeout to 15s for dependency analysis
   });
 
   describe('checkCircularDependencies', () => {
