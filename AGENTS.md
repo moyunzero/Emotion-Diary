@@ -15,13 +15,12 @@ yarn web             # Web预览
 ```bash
 yarn lint            # ESLint
 yarn typecheck       # TypeScript
-yarn test:ci         # Jest（覆盖率门槛80%）
 yarn verify:governance  # 治理规则校验
 ```
 
 **CI流程（PR和push到master）**：
 ```
-typecheck -> lint -> test:ci
+typecheck -> lint
 ```
 **额外（仅push到master）**：
 ```
@@ -80,7 +79,6 @@ interface MoodEntry {
 ## 重要约束
 
 - TypeScript严格模式
-- 覆盖率门槛80%
 - 离线优先+云端同步
 - 使用Groq API做AI功能
 - 使用Supabase做云端存储

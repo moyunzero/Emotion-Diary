@@ -100,7 +100,7 @@ function main() {
   } else {
     log('\n✅ 所有配置验证通过！', 'green');
     log('\n下一步:', 'blue');
-    log('  1. 运行测试: yarn test:release', 'blue');
+    log('  1. 运行测试: yarn typecheck && yarn lint', 'blue');
     log('  2. 运行预览构建: eas build --profile preview --platform ios', 'blue');
     log('  3. 查看发布检查清单: docs/release-checklist.md', 'blue');
     process.exit(0);

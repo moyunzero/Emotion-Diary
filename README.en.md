@@ -46,12 +46,11 @@ Copy `.env.example` to `.env` and fill values as needed (do not commit real secr
 ```bash
 yarn typecheck
 yarn lint
-yarn test:ci
 ```
 
 ### CI summary
 
-- **Pull requests:** runs `yarn lint`, `yarn typecheck`, and `yarn test:ci`.
+- **Pull requests:** runs `yarn lint` and `yarn typecheck`.
 - **Push to `master`:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
 
 ### Community & docs
@@ -177,7 +176,7 @@ Emotion-Diary/
 │   └── modules/
 ├── hooks/ lib/ utils/ services/ shared/
 ├── styles/ types/ constants/    # Plus root types.ts, constants.ts
-├── assets/ __tests__/ scripts/ openspec/ docs/
+├── assets/ scripts/ openspec/ docs/
 ├── .planning/                   # Planning & phases; codebase/ notes (stack, router, etc.)
 ├── app-store-submission/
 ├── src/                         # Experimental / placeholder subdomains (mostly empty)
@@ -194,35 +193,6 @@ Emotion-Diary/
 | `components/` `features/` | Typical split: reusable UI vs feature screens/logic. |
 
 See [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md) for SDK/build config audit.
-
-## 🧹 Post-Launch Cleanup Tool
-
-Xinqing MO provides a safe, automated cleanup tool for removing redundant code and unused files after successful App Store launch, improving project maintainability.
-
-### Quick Start
-
-```bash
-# Run analysis (default Dry-Run mode, no modifications)
-yarn cleanup:run
-
-# After reviewing the report, execute actual cleanup
-yarn cleanup:run --force
-```
-
-### Core Features
-
-- 🔍 **Default Dry-Run Mode** - Analyze first, no actual modifications
-- 🛡️ **Git Safety Mechanism** - Automatically creates backup tags and branches
-- ✅ **CI Auto-Verification** - Runs full CI checks after each phase
-- 🔄 **Auto Rollback** - Automatically triggers rollback on CI failure
-- ⚠️ **Whitelist Protection** - Core business logic is never deleted
-
-### Documentation
-
-For complete usage guide, configuration options, and troubleshooting:
-📖 [Post-Launch Cleanup Tool Usage Guide](./docs/cleanup-tool-usage.md)
-
----
 
 ## 🔧 Development Setup
 
