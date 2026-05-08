@@ -130,17 +130,6 @@ export interface AppState
   extends EntriesModule, UserModule, SyncModule, WeatherModule, AIModule, AudioModule {}
 
 /**
- * 向后兼容的别名
- * @deprecated 使用 AppState 代替
- */
-/**
- * @deprecated Since v2.1.0 - Use alternative instead
- * Migration guide: Please migrate to the recommended alternative
- */
-
-export type AppStore = AppState;
-
-/**
  * 类型安全的模块创建器签名
  * 使用 Zustand 的 StateCreator 类型来确保 set 和 get 函数的类型安全
  *

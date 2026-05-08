@@ -3,26 +3,26 @@
  * 对外仍通过单一 `useAppStore` 暴露，便于组件订阅；持久化与云端同步在模块内协同。
  */
 
+import { ensureMilliseconds } from "@/shared/formatting";
 import "react-native-url-polyfill/auto";
 import { create } from "zustand";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { MoodEntry, User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
-import { ensureMilliseconds } from "@/shared/formatting";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
+import { uploadPendingAudios } from "../services/audioSync";
 import { createAIModule } from "./modules/ai";
 import { createAudioSlice } from "./modules/audio";
 import {
-  clearEntriesSaveDebounce,
-  createEntriesSlice,
+    clearEntriesSaveDebounce,
+    createEntriesSlice,
 } from "./modules/entries";
 import { getStorageKey, saveToStorage } from "./modules/storage";
-import { AppStore } from "./modules/types";
+import { AppState } from "./modules/types";
 import { createUserSlice } from "./modules/user";
 import { createWeatherModule } from "./modules/weather";
-import { uploadPendingAudios } from "../services/audioSync";
 
 // 同步操作互斥锁，防止竞态条件
 let isSyncingRef = false;
@@ -172,9 +172,9 @@ const initializeDatabase = async (): Promise<void> => {
 };
 
 /**
- * 创建 Zustand Store（Slices Pattern：create<AppStore>()((...a) => ({ ...slice(...a), ... }))）
+ * 创建 Zustand Store（Slices Pattern：create<AppState>()((...a) => ({ ...slice(...a), ... }))）
  */
-export const useAppStore = create<AppStore>()((...args) => {
+export const useAppStore = create<AppState>()((...args) => {
   const set = args[0];
   const get = args[1];
   const store = args[2];

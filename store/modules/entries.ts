@@ -13,7 +13,7 @@ import {
   migrateFromLegacyStorage,
   saveToStorage,
 } from './storage';
-import { AppStore, EntriesModule } from './types';
+import { AppState, EntriesModule } from './types';
 
 /** 防抖保存定时器（500ms），全应用单例 */
 let saveEntriesTimeoutRef: ReturnType<typeof setTimeout> | null = null;
@@ -29,11 +29,11 @@ export const clearEntriesSaveDebounce = (): void => {
 };
 
 /**
- * 创建 entries slice（StateCreator 交叉类型，get 可访问 AppStore 其余字段）
+ * 创建 entries slice（StateCreator 交叉类型，get 可访问 AppState 其余字段）
  */
 // addEntry 等路径会在内存更新后走 _saveEntries；云端同步由根 store 的 sync 方法单独触发。
 export const createEntriesSlice: StateCreator<
-  AppStore,
+  AppState,
   [],
   [],
   EntriesModule
@@ -224,11 +224,3 @@ export const createEntriesSlice: StateCreator<
     }, 500);
   },
 });
-
-/** @deprecated 使用 createEntriesSlice */
-/**
- * @deprecated Since v2.1.0 - Use alternative instead
- * Migration guide: Please migrate to the recommended alternative
- */
-
-export const createEntriesModule = createEntriesSlice;

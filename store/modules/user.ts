@@ -20,11 +20,11 @@ import {
   saveToStorage,
   setCachedProfile,
 } from "./storage";
-import { AppStore, UserModule } from "./types";
+import { AppState, UserModule } from "./types";
 
 // 登录态与游客态切换时会改存储键并可能迁移条目，须与 storage.getStorageKey 约定保持一致。
 export const createUserSlice: StateCreator<
-  AppStore,
+  AppState,
   [],
   [],
   UserModule

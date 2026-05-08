@@ -6,11 +6,11 @@
 import * as fc from 'fast-check';
 import {
     calculateDays,
-    formatStartDate,
     getDaysToNextMilestone,
     getMilestone,
     getNextMilestone,
 } from '../../services/companionDaysService';
+import { formatDateChinese } from '../../shared/formatting/date';
 import { MILESTONES } from '../../types/companionDays';
 
 describe('CompanionDaysService Property Tests', () => {
@@ -65,10 +65,10 @@ describe('CompanionDaysService Property Tests', () => {
   });
 
   /**
-   * Property 10: formatStartDate正确格式化日期
+   * Property 10: formatDateChinese正确格式化日期
    * 验证: 需求 5.2
    */
-  describe('Property 10: formatStartDate correctly formats dates', () => {
+  describe('Property 10: formatDateChinese correctly formats dates', () => {
     it('should format date as "YYYY年M月D日"', () => {
       // 生成随机时间戳（2020-2025年）
       const arbTimestamp = fc.integer({
@@ -78,7 +78,7 @@ describe('CompanionDaysService Property Tests', () => {
 
       fc.assert(
         fc.property(arbTimestamp, (timestamp) => {
-          const formatted = formatStartDate(timestamp);
+          const formatted = formatDateChinese(timestamp);
           const date = new Date(timestamp);
           const year = date.getFullYear();
           const month = date.getMonth() + 1;
@@ -101,7 +101,7 @@ describe('CompanionDaysService Property Tests', () => {
       ];
 
       edgeDates.forEach(timestamp => {
-        const formatted = formatStartDate(timestamp);
+        const formatted = formatDateChinese(timestamp);
         const date = new Date(timestamp);
         const year = date.getFullYear();
         const month = date.getMonth() + 1;

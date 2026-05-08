@@ -13,7 +13,6 @@ import { create } from "zustand";
 import {
     AIModule,
     AppState,
-    AppStore,
     EntriesModule,
     ModuleCreator,
     WeatherModule,
@@ -49,12 +48,6 @@ describe("Store Type Definitions", () => {
       };
 
       expect(mockState).toBeDefined();
-    });
-
-    it("should have AppStore as backward compatible alias", () => {
-      // Verify AppStore is assignable to AppState
-      const testTypeCompatibility = (state: AppStore): AppState => state;
-      expect(testTypeCompatibility).toBeDefined();
     });
   });
 
@@ -335,80 +328,6 @@ describe("Store Type Definitions", () => {
       };
 
       expect(mockMethods).toBeDefined();
-    });
-  });
-
-  describe("Backward Compatibility", () => {
-    it("should support AppStore type alias", () => {
-      // Verify AppStore can be used interchangeably with AppState
-      const testWithAppStore = (store: AppStore): void => {
-        expect(store).toBeDefined();
-      };
-
-      const testWithAppState = (store: AppState): void => {
-        expect(store).toBeDefined();
-      };
-
-      const mockState: AppState = {
-        entries: [],
-        user: null,
-        weather: { score: 0, condition: "sunny", description: "Test" },
-        emotionForecast: null,
-        emotionPodcast: null,
-        syncStatus: "idle",
-        addEntry: async () => {},
-        updateEntry: () => {},
-        resolveEntry: () => {},
-        burnEntry: () => {},
-        deleteEntry: async () => {},
-        _setEntries: () => {},
-        _loadEntries: async () => {},
-        _saveEntries: () => {},
-        register: async () => false,
-        login: async () => false,
-        logout: async () => {},
-        deleteAccount: async () => {},
-        updateUser: async () => {},
-        _setUser: () => {},
-        _loadUser: async () => {},
-        initializeFirstEntryDate: async () => {},
-        updateFirstEntryDate: async () => {},
-        clearFirstEntryDate: async () => {},
-        _syncFirstEntryDateToCloud: async () => {},
-        _syncFirstEntryDateFromCloud: async () => {},
-        syncToCloud: async () => false,
-        syncFromCloud: async () => false,
-        recoverFromCloud: async () => false,
-        _setWeather: () => {},
-        _calculateWeather: () => {},
-        generateForecast: async () => {},
-        generatePodcast: async () => {},
-        clearForecast: () => {},
-        clearPodcast: () => {},
-        // Audio module
-        currentAudioId: null,
-        isPlaying: false,
-        playbackPosition: 0,
-        duration: 0,
-        recordingState: 'idle',
-        recordingDuration: 0,
-        currentRecordingUri: null,
-        playAudio: () => {},
-        pauseAudio: () => {},
-        stopAudio: () => {},
-        seekTo: () => {},
-        setPlaybackPosition: () => {},
-        setRecordingState: () => {},
-        setRecordingDuration: () => {},
-        setCurrentRecordingUri: () => {},
-        startRecording: async () => {},
-        stopRecording: async () => null,
-        cancelRecording: () => {},
-      };
-
-      // Both should accept the same state
-      testWithAppStore(mockState);
-      testWithAppState(mockState);
     });
   });
 });

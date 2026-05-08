@@ -5,7 +5,7 @@
 
 import { StateCreator } from 'zustand';
 import { AudioData, MoodEntry, SyncStatus } from '../../types';
-import { AppStore } from './types';
+import { AppState } from './types';
 
 /**
  * 录音状态
@@ -77,7 +77,7 @@ export function computeEntrySyncStatus(entry: MoodEntry): SyncStatus {
  * 创建音频状态模块
  */
 export const createAudioSlice: StateCreator<
-  AppStore,
+  AppState,
   [],
   [],
   AudioState & AudioActions
@@ -181,13 +181,13 @@ export const createAudioSlice: StateCreator<
 /**
  * 获取正在播放的音频ID
  */
-export const getCurrentPlayingAudioId = (state: AppStore): string | null => {
+export const getCurrentPlayingAudioId = (state: AppState): string | null => {
   return state.currentAudioId;
 };
 
 /**
  * 检查是否有音频正在播放
  */
-export const isAudioPlaying = (state: AppStore): boolean => {
+export const isAudioPlaying = (state: AppState): boolean => {
   return state.isPlaying && state.currentAudioId !== null;
 };

@@ -3,13 +3,13 @@
  */
 
 import {
-    calculateDays,
-    checkMilestoneAchieved,
-    formatStartDate,
-    getDaysToNextMilestone,
-    getMilestone,
-    getNextMilestone,
+  calculateDays,
+  checkMilestoneAchieved,
+  getDaysToNextMilestone,
+  getMilestone,
+  getNextMilestone,
 } from '../../../services/companionDaysService';
+import { formatDateChinese } from '../../../shared/formatting/date';
 import { MILESTONES } from '../../../types/companionDays';
 
 describe('CompanionDaysService', () => {
@@ -121,29 +121,29 @@ describe('CompanionDaysService', () => {
     });
   });
 
-  describe('formatStartDate', () => {
+  describe('formatDateChinese', () => {
     it('should format date correctly', () => {
       const date = new Date('2024-01-15').getTime();
-      expect(formatStartDate(date)).toBe('2024年1月15日');
+      expect(formatDateChinese(date)).toBe('2024年1月15日');
     });
 
     it('should handle single digit months and days', () => {
       const date = new Date('2024-03-05').getTime();
-      expect(formatStartDate(date)).toBe('2024年3月5日');
+      expect(formatDateChinese(date)).toBe('2024年3月5日');
     });
 
     it('should handle double digit months and days', () => {
       const date = new Date('2024-12-31').getTime();
-      expect(formatStartDate(date)).toBe('2024年12月31日');
+      expect(formatDateChinese(date)).toBe('2024年12月31日');
     });
 
     it('should handle leap year dates', () => {
       const date = new Date('2024-02-29').getTime();
-      expect(formatStartDate(date)).toBe('2024年2月29日');
+      expect(formatDateChinese(date)).toBe('2024年2月29日');
     });
 
     it('should return fallback for invalid timestamp input', () => {
-      expect(formatStartDate(Number.NaN)).toBe('日期未知');
+      expect(formatDateChinese(Number.NaN)).toBe('日期未知');
     });
   });
 

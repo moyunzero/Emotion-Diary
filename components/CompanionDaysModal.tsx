@@ -3,13 +3,13 @@
  * 显示陪伴天数、开始日期、当前里程碑和下一个里程碑
  */
 
+import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
+import { formatDateChinese } from '@/shared/formatting/date';
 import { PartyPopper, X } from 'lucide-react-native';
 import React from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import {
     calculateDays,
-    formatStartDate,
     getDaysToNextMilestone,
     getMilestone,
     getNextMilestone,
@@ -56,7 +56,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             
             {firstEntryDate != null && firstEntryDate > 0 && (
               <Text style={styles.startDate}>
-                开始于 {formatStartDate(firstEntryDate)}
+                开始于 {formatDateChinese(firstEntryDate)}
               </Text>
             )}
             
