@@ -14,6 +14,11 @@ import * as ts from 'typescript';
  * - Build artifacts
  * - Deprecated code with @deprecated annotations
  */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
 
 export interface DocumentationFile {
   path: string;
@@ -229,6 +234,11 @@ export class FileScanner {
    * 
    * **Validates: Requirements 5.1, 5.2**
    */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
   async findDeprecatedCode(): Promise<DeprecatedItem[]> {
     const deprecatedItems: DeprecatedItem[] = [];
 
@@ -263,6 +273,11 @@ export class FileScanner {
    * @param fullPath - Absolute path to the file
    * @param relativePath - Relative path for reporting
    */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
   private async parseDeprecatedAnnotations(
     fullPath: string,
     relativePath: string
@@ -352,6 +367,11 @@ export class FileScanner {
   /**
    * Extract the full @deprecated annotation text from JSDoc comment
    */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
   private extractDeprecatedAnnotation(node: ts.Node, sourceCode: string): string {
     const jsDocComments = ts.getJSDocCommentsAndTags(node);
     

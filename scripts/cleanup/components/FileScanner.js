@@ -193,6 +193,11 @@ class FileScanner {
      *
      * **Validates: Requirements 5.1, 5.2**
      */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
     async findDeprecatedCode() {
         const deprecatedItems = [];
         // Find all TypeScript/JavaScript files
@@ -223,6 +228,11 @@ class FileScanner {
      * @param fullPath - Absolute path to the file
      * @param relativePath - Relative path for reporting
      */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
     async parseDeprecatedAnnotations(fullPath, relativePath) {
         const items = [];
         try {
@@ -293,6 +303,11 @@ class FileScanner {
     /**
      * Extract the full @deprecated annotation text from JSDoc comment
      */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
     extractDeprecatedAnnotation(node, sourceCode) {
         const jsDocComments = ts.getJSDocCommentsAndTags(node);
         for (const comment of jsDocComments) {

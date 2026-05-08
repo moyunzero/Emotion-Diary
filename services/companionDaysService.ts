@@ -98,6 +98,11 @@ export function getDaysToNextMilestone(days: number): number {
  * @param timestamp 时间戳（毫秒）
  * @returns 格式化的日期字符串，如"2024年1月15日"
  */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
 export function formatStartDate(timestamp: number): string {
   return formatDateChinese(timestamp);
 }

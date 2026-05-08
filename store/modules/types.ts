@@ -133,6 +133,11 @@ export interface AppState
  * 向后兼容的别名
  * @deprecated 使用 AppState 代替
  */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
 export type AppStore = AppState;
 
 /**

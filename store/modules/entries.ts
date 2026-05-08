@@ -226,4 +226,9 @@ export const createEntriesSlice: StateCreator<
 });
 
 /** @deprecated 使用 createEntriesSlice */
+/**
+ * @deprecated Since v2.1.0 - Use alternative instead
+ * Migration guide: Please migrate to the recommended alternative
+ */
+
 export const createEntriesModule = createEntriesSlice;
