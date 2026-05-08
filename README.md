@@ -285,6 +285,35 @@ OpenSpec 是一个规范驱动开发（Spec-driven Development，SDD）工具，
 
 详细说明请参考 [OpenSpec 使用指南](./openspec/README.md) 和 [开发工作流文档](./openspec/development-workflow.md)。
 
+## 🧹 Post-Launch Cleanup Tool
+
+心晴MO 提供了一个安全的、自动化的清理工具，用于在应用成功上架后移除冗余代码和未使用的文件，提升项目可维护性。
+
+### 快速开始
+
+```bash
+# 运行分析（默认Dry-Run模式，不会修改任何文件）
+yarn cleanup:run
+
+# 查看分析报告后，执行实际清理
+yarn cleanup:run --force
+```
+
+### 核心特性
+
+- 🔍 **默认Dry-Run模式** - 先分析，不做实际修改
+- 🛡️ **Git安全机制** - 自动创建备份tag和分支
+- ✅ **CI自动验证** - 每个阶段后运行完整CI检查
+- 🔄 **自动回滚** - CI失败时自动触发回滚
+- ⚠️ **白名单保护** - 核心业务逻辑永不删除
+
+### 详细文档
+
+完整的使用指南、配置选项和故障排除，请查看：
+📖 [Post-Launch Cleanup Tool 使用指南](./docs/cleanup-tool-usage.md)
+
+---
+
 ## 🔧 开发配置
 
 ### 开发环境设置

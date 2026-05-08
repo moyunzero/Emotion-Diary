@@ -203,15 +203,16 @@ jest.mock("expo-file-system", () => ({
 }));
 
 // Mock expo-file-system/legacy
-jest.mock("expo-file-system/legacy", () => ({
-  cacheDirectory: "/mock-cache/",
-  documentDirectory: "/mock-documents/",
-  copyAsync: jest.fn(),
-  deleteAsync: jest.fn(),
-  getInfoAsync: jest.fn().mockResolvedValue({ exists: false }),
-  readAsStringAsync: jest.fn(),
-  writeAsStringAsync: jest.fn(),
-  makeDirectoryAsync: jest.fn(),
-  downloadAsync: jest.fn(),
-  createDownloadResumable: jest.fn(),
-}));
+// Note: Commented out because expo-file-system/legacy doesn't exist in current version
+// jest.mock("expo-file-system/legacy", () => ({
+//   cacheDirectory: "/mock-cache/",
+//   documentDirectory: "/mock-documents/",
+//   copyAsync: jest.fn(),
+//   deleteAsync: jest.fn(),
+//   getInfoAsync: jest.fn().mockResolvedValue({ exists: false }),
+//   readAsStringAsync: jest.fn(),
+//   writeAsStringAsync: jest.fn(),
+//   makeDirectoryAsync: jest.fn(),
+//   downloadAsync: jest.fn(),
+//   createDownloadResumable: jest.fn(),
+// }));

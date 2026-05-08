@@ -195,6 +195,35 @@ Emotion-Diary/
 
 See [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md) for SDK/build config audit.
 
+## 🧹 Post-Launch Cleanup Tool
+
+Xinqing MO provides a safe, automated cleanup tool for removing redundant code and unused files after successful App Store launch, improving project maintainability.
+
+### Quick Start
+
+```bash
+# Run analysis (default Dry-Run mode, no modifications)
+yarn cleanup:run
+
+# After reviewing the report, execute actual cleanup
+yarn cleanup:run --force
+```
+
+### Core Features
+
+- 🔍 **Default Dry-Run Mode** - Analyze first, no actual modifications
+- 🛡️ **Git Safety Mechanism** - Automatically creates backup tags and branches
+- ✅ **CI Auto-Verification** - Runs full CI checks after each phase
+- 🔄 **Auto Rollback** - Automatically triggers rollback on CI failure
+- ⚠️ **Whitelist Protection** - Core business logic is never deleted
+
+### Documentation
+
+For complete usage guide, configuration options, and troubleshooting:
+📖 [Post-Launch Cleanup Tool Usage Guide](./docs/cleanup-tool-usage.md)
+
+---
+
 ## 🔧 Development Setup
 
 ### Environment Setup
