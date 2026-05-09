@@ -1,3 +1,4 @@
+import { formatDateChinese } from "@/shared/formatting";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -10,16 +11,16 @@ import React, {
   useState,
 } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/shallow";
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
 import { calculateResponsiveDimension } from "../styles/constants";
 import { MoodEntry, Status } from "../types";
-import { formatDateChinese } from "@/shared/formatting";
+import { AppScreenShell } from "./AppScreenShell";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
-import { AppScreenShell } from "./AppScreenShell";
 import WeatherStation from "./WeatherStation";
 
 // Pure helper functions moved to module level
@@ -94,7 +95,7 @@ const calculateDropdownPosition = (
   dropdownHeight: number = 200
 ): { top: number; right: number } => {
   const rightPosition = windowWidth - filterButtonLayout.x - filterButtonLayout.width;
-  const topPosition = filterButtonLayout.y + filterButtonLayout.height + 8;
+  const topPosition = filterButtonLayout.y + filterButtonLayout.height;
 
   // Boundary detection: ensure menu doesn't exceed screen bounds
   const adjustedRight = Math.max(
@@ -103,7 +104,7 @@ const calculateDropdownPosition = (
   );
   const adjustedTop =
     topPosition + dropdownHeight > windowHeight
-      ? filterButtonLayout.y - dropdownHeight - 8 // Show above if not enough space below
+      ? filterButtonLayout.y - dropdownHeight // Show above if not enough space below
       : topPosition;
 
   return { top: adjustedTop, right: adjustedRight };
@@ -112,6 +113,7 @@ const calculateDropdownPosition = (
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(
     () => createDashboardStyles(windowWidth, windowHeight),
     [windowWidth, windowHeight]
@@ -119,8 +121,8 @@ const Dashboard: React.FC = () => {
 
   // Calculate responsive dimensions based on screen width
   const dropdownWidth = useMemo(() => calculateResponsiveDimension(windowWidth, 0.35), [windowWidth]); // 35% of screen width
-  const dropdownHeight = useMemo(() => 200, []); // Fixed height for dropdown
-  
+  const dropdownHeight = 200; // Fixed height for dropdown
+
   // 优化：使用单个 selector 减少多次渲染，使用 useShallow 避免无限循环
   const { entries, weather, user } = useAppStore(
     useShallow((state) => ({
@@ -172,32 +174,24 @@ const Dashboard: React.FC = () => {
     [],
   );
 
+  // 测量筛选按钮位置，转换为容器内坐标
+  const measureFilterButton = useCallback((callback?: () => void) => {
+    filterButtonRef.current?.measure(
+      (_x: number, _y: number, width: number, height: number, pageX: number, pageY: number) => {
+        setFilterButtonLayout({ x: pageX, y: pageY - insets.top, width, height });
+        callback?.();
+      },
+    );
+  }, [insets.top]);
+
   // 处理筛选按钮点击，测量按钮位置
   const handleFilterButtonPress = useCallback(() => {
     if (filterButtonRef.current) {
-      filterButtonRef.current.measure(
-        (
-          x: number,
-          y: number,
-          width: number,
-          height: number,
-          pageX: number,
-          pageY: number,
-        ) => {
-          // pageX, pageY 是相对于屏幕的绝对位置
-          setFilterButtonLayout({
-            x: pageX,
-            y: pageY,
-            width,
-            height,
-          });
-          setIsFilterOpen(!isFilterOpen);
-        },
-      );
+      measureFilterButton(() => setIsFilterOpen((prev) => !prev));
     } else {
-      setIsFilterOpen(!isFilterOpen);
+      setIsFilterOpen((prev) => !prev);
     }
-  }, [isFilterOpen]);
+  }, [measureFilterButton]);
 
   const filteredEntries = useMemo(() => {
     if (filter === "all") {
@@ -266,26 +260,8 @@ const Dashboard: React.FC = () => {
           ref={filterButtonRef}
           onPress={handleFilterButtonPress}
           onLayout={() => {
-            // 当布局变化时重新测量（例如列表滚动时）
-            if (filterButtonRef.current && isFilterOpen) {
-              filterButtonRef.current.measure(
-                (
-                  x: number,
-                  y: number,
-                  width: number,
-                  height: number,
-                  pageX: number,
-                  pageY: number,
-                ) => {
-                  setFilterButtonLayout({
-                    x: pageX,
-                    y: pageY,
-                    width,
-                    height,
-                  });
-                },
-              );
-            }
+            // 当布局变化时重新测量，始终保持位置最新
+            measureFilterButton();
           }}
           style={[
             styles.filterButton,
@@ -304,7 +280,7 @@ const Dashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
     </>
-   ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress, styles]);
+   ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress, measureFilterButton, styles]);
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
@@ -334,6 +310,8 @@ const Dashboard: React.FC = () => {
         renderItem={renderEntry}
         keyExtractor={keyExtractor}
         ListHeaderComponent={renderListHeader}
+        onScroll={() => { if (isFilterOpen) setIsFilterOpen(false); }}
+        scrollEventThrottle={16}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <View style={styles.emptyIconContainer}>

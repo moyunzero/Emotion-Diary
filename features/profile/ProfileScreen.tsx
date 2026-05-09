@@ -1,19 +1,19 @@
+import { AppScreenShell } from "@/components/AppScreenShell";
+import CompanionDaysModal from "@/components/CompanionDaysModal";
+import { Toast } from "@/components/Toast";
+import { useAppStore } from "@/store/useAppStore";
+import { createProfileStyles } from "@/styles/components/Profile.styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { CloudRain, Sun } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
 import {
-  ActivityIndicator,
-  Keyboard,
-  Platform,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    Keyboard,
+    Platform,
+    View,
+    useWindowDimensions,
 } from "react-native";
-import CompanionDaysModal from "@/components/CompanionDaysModal";
-import { AppScreenShell } from "@/components/AppScreenShell";
-import { Toast } from "@/components/Toast";
-import { useAppStore } from "@/store/useAppStore";
-import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { ProfileHeaderSection } from "./components/ProfileHeaderSection";
 import { ProfileSettingsSection } from "./components/ProfileSettingsSection";
 import { ProfileStatsSection } from "./components/ProfileStatsSection";
@@ -94,7 +94,7 @@ export function ProfileScreen() {
       try {
         const time = await AsyncStorage.getItem("last_sync_time");
         if (time) {
-          state.setLastSyncTime(parseInt(time, 10));
+          state.setLastSyncTime(Number.parseInt(time, 10));
         }
       } catch {
         // ignore

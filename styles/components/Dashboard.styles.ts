@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { createResponsiveMetrics } from '../../shared/responsive';
 import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { createResponsiveMetrics } from '../../shared/responsive';
 
 export function createDashboardStyles(width: number, height: number) {
   const m = createResponsiveMetrics(width, height);

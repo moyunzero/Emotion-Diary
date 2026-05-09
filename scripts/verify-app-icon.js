@@ -47,10 +47,10 @@ function getImageInfo(filePath) {
     
     for (const line of lines) {
       if (line.includes('pixelWidth:')) {
-        info.width = parseInt(line.split(':')[1].trim());
+        info.width = Number.parseInt(line.split(':')[1].trim());
       }
       if (line.includes('pixelHeight:')) {
-        info.height = parseInt(line.split(':')[1].trim());
+        info.height = Number.parseInt(line.split(':')[1].trim());
       }
       if (line.includes('format:')) {
         info.format = line.split(':')[1].trim();

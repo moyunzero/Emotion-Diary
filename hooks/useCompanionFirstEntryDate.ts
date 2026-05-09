@@ -7,9 +7,9 @@
  * - 登录用户：@first_entry_date_{userId}（每个用户独立存储）
  */
 
+import { useAppStore } from "@/store/useAppStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { useAppStore } from "@/store/useAppStore";
 
 const FIRST_ENTRY_DATE_KEY_PREFIX = "@first_entry_date_";
 
@@ -33,7 +33,7 @@ export function useCompanionFirstEntryDate(): number | null {
       try {
         const stored = await AsyncStorage.getItem(storageKey);
         if (stored) {
-          const timestamp = parseInt(stored, 10);
+          const timestamp = Number.parseInt(stored, 10);
           if (timestamp > 0) {
             setFirstEntryDate(timestamp);
             return;

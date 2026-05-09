@@ -1,5 +1,5 @@
-import { MoodEntry, MoodLevel } from '../types';
 import { formatDateChinese } from '@/shared/formatting';
+import { MoodEntry, MoodLevel } from '../types';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
 
@@ -337,7 +337,7 @@ export const analyzeEmotionCycle = async (
     const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     const patterns = Object.entries(dayOfWeekCounts)
       .map(([day, freq]) => ({
-        dayOfWeek: weekdays[parseInt(day)],
+        dayOfWeek: weekdays[Number.parseInt(day)],
         frequency: freq,
       }))
       .sort((a, b) => b.frequency - a.frequency)

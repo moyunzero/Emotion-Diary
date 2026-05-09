@@ -10,15 +10,15 @@ import { supabase } from "../../lib/supabase";
 import { User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
 import {
-  checkGuestData,
-  clearCachedProfile,
-  getCachedProfile,
-  getStorageKey,
-  migrateGuestDataToUser,
-  migrateUserDataToGuest,
-  removeFromStorage,
-  saveToStorage,
-  setCachedProfile,
+    checkGuestData,
+    clearCachedProfile,
+    getCachedProfile,
+    getStorageKey,
+    migrateGuestDataToUser,
+    migrateUserDataToGuest,
+    removeFromStorage,
+    saveToStorage,
+    setCachedProfile,
 } from "./storage";
 import { AppState, UserModule } from "./types";
 
@@ -95,7 +95,7 @@ export const createUserSlice: StateCreator<
         const existingDate = await AsyncStorage.getItem(
           "guest_first_entry_date",
         );
-        if (!existingDate || timestamp < parseInt(existingDate)) {
+        if (!existingDate || timestamp < Number.parseInt(existingDate)) {
           await AsyncStorage.setItem(
             "guest_first_entry_date",
             timestamp.toString(),

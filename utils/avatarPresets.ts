@@ -109,8 +109,12 @@ export const AVATAR_PRESETS = [preset0, preset1, preset2, preset3, preset4, pres
 
 function hashString(s: string): number {
   let h = 0;
-  for (let i = 0; i < s.length; i += 1) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  // 使用 for...of 遍历完整的 Unicode 码点
+  for (const char of s) {
+    const codePoint = char.codePointAt(0);
+    if (codePoint !== undefined) {
+      h = Math.trunc(Math.imul(31, h) + codePoint);
+    }
   }
   return Math.abs(h);
 }
