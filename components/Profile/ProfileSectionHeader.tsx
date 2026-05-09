@@ -8,7 +8,7 @@ import { Text, useWindowDimensions } from "react-native";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 interface ProfileSectionHeaderProps {
-  title: string;
+  readonly title: string;
 }
 
 export function ProfileSectionHeader({ title }: ProfileSectionHeaderProps) {

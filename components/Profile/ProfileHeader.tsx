@@ -1,14 +1,14 @@
 /**
- * 个人资料页头部：返回（与 Phase 15 StackScreenHeader 一致）
+ * 个人资料页头部：返回
  */
 
-import React, { useMemo } from "react";
-import { useWindowDimensions } from "react-native";
 import { StackScreenHeader } from "@/components/StackScreenHeader";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
+import React, { useMemo } from "react";
+import { useWindowDimensions } from "react-native";
 
 interface ProfileHeaderProps {
-  onBack: () => void;
+  readonly onBack: () => void;
 }
 
 export function ProfileHeader({ onBack }: ProfileHeaderProps) {

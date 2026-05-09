@@ -65,7 +65,7 @@ const EditEntryFields: React.FC<EditEntryFieldsProps> = ({
           {Object.values(MoodLevel)
             .filter((v) => typeof v === 'number')
             .map((level) => {
-              const config = MOOD_CONFIG[level as MoodLevel];
+              const config = MOOD_CONFIG[level];
               const isSelected = moodLevel === level;
               return (
                 <TouchableOpacity

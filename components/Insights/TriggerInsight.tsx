@@ -1,9 +1,9 @@
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { formatMonthDay } from '../../shared/formatting';
-import { MoodEntry, MoodLevel } from '../../types';
+import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS, TRIGGER_ADVICE } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
 
@@ -257,7 +257,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
             </View>
             <PrescriptionCard
               trigger={trigger.name}
-              moodLevel={Math.min(5, Math.max(1, Math.round(trigger.avgMoodLevel))) as MoodLevel}
+              moodLevel={Math.min(5, Math.max(1, Math.round(trigger.avgMoodLevel)))}
               entries={entries}
             />
           </View>

@@ -24,15 +24,15 @@ import { RecordButton } from "./RecordButton";
 import { WaveformView } from "./WaveformView";
 
 interface AudioRecorderProps {
-    audios: AudioData[];
-    onAudiosChange: (audios: AudioData[]) => void;
-    currentPlayingId: string | null;
-    isPlaying: boolean;
-    playbackPosition: number;
-    onPlaybackPositionChange: (position: number) => void;
-    onPlayAudio: (audio: AudioData) => void;
-    onPauseAudio: () => void;
-    disabled?: boolean;
+    readonly audios: AudioData[];
+    readonly onAudiosChange: (audios: AudioData[]) => void;
+    readonly currentPlayingId: string | null;
+    readonly isPlaying: boolean;
+    readonly playbackPosition: number;
+    readonly onPlaybackPositionChange: (position: number) => void;
+    readonly onPlayAudio: (audio: AudioData) => void;
+    readonly onPauseAudio: () => void;
+    readonly disabled?: boolean;
 }
 
 export const AudioRecorder: React.FC<AudioRecorderProps> = ({

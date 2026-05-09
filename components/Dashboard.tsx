@@ -23,11 +23,14 @@ import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
 import WeatherStation from "./WeatherStation";
 
+// Type alias for dashboard filter
+type DashboardFilterType = "all" | "active" | "resolved" | "burned";
+
 // Pure helper functions moved to module level
 /**
  * Get the display label for a filter type
  */
-const getFilterLabel = (filter: "all" | "active" | "resolved" | "burned"): string => {
+const getFilterLabel = (filter: DashboardFilterType): string => {
   switch (filter) {
     case "active":
       return "未处理";
@@ -50,7 +53,7 @@ const getWeatherAdvice = (condition: string): string => {
 /**
  * Get empty state content based on filter type
  */
-const getEmptyStateContent = (filter: "all" | "active" | "resolved" | "burned"): {
+const getEmptyStateContent = (filter: DashboardFilterType): {
   title: string;
   desc: string;
   showButton: boolean;
@@ -132,9 +135,7 @@ const Dashboard: React.FC = () => {
     }))
   );
   const { colors } = useThemeStyles();
-  const [filter, setFilter] = useState<
-    "all" | "active" | "resolved" | "burned"
-  >("active");
+  const [filter, setFilter] = useState<DashboardFilterType>("active");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterButtonLayout, setFilterButtonLayout] = useState<{
     x: number;
@@ -153,7 +154,7 @@ const Dashboard: React.FC = () => {
           savedFilter &&
           ["all", "active", "resolved", "burned"].includes(savedFilter)
         ) {
-          setFilter(savedFilter as "all" | "active" | "resolved" | "burned");
+          setFilter(savedFilter as DashboardFilterType);
         }
       } catch (error) {
         console.error("加载过滤偏好失败:", error);
@@ -164,7 +165,7 @@ const Dashboard: React.FC = () => {
 
   // 保存过滤偏好
   const handleFilterChange = useCallback(
-    (newFilter: "all" | "active" | "resolved" | "burned") => {
+    (newFilter: DashboardFilterType) => {
       setFilter(newFilter);
       setIsFilterOpen(false);
       AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {

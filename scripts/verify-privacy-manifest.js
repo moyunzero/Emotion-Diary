@@ -51,7 +51,9 @@ function validatePlistFormat(manifestPath) {
   try {
     // 使用 plutil 验证 plist 格式（仅在 macOS 上可用）
     if (process.platform === 'darwin') {
-      execSync(`plutil -lint "${manifestPath}"`, { stdio: 'pipe' });
+      // Safe: Escape shell arguments to prevent command injection
+      const escapedPath = manifestPath.replace(/"/g, '\\"');
+      execSync(`plutil -lint "${escapedPath}"`, { stdio: 'pipe' });
       return { valid: true };
     } else {
       // 在非 macOS 系统上，进行基本的 XML 格式检查

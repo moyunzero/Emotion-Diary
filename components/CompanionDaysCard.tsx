@@ -3,13 +3,13 @@
  * 显示用户的陪伴天数，包含数字增长动画
  */
 
+import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import { calculateDays } from '../services/companionDaysService';
 
 interface CompanionDaysCardProps {
-  onPress: () => void;
+  readonly onPress: () => void;
 }
 
 export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {

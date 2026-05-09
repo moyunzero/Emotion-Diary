@@ -3,7 +3,7 @@
  * 承载 useAppStore updateEntry、useHapticFeedback、所有 useState、useEffect、handleSubmit、自定义标签 load/add/remove
  */
 import { Sparkles } from 'lucide-react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Keyboard, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../../constants';
@@ -17,11 +17,11 @@ import {
   removeCustomPerson,
   removeCustomTrigger,
 } from '../../utils/customTagsManager';
-import AppIcon from '../icons/AppIcon';
-import { normalizeDeadline, toggleSelection } from './editEntryUtils';
-import EditEntryFields from './EditEntryFields';
 import { AudioRecorder } from '../AudioRecorder/AudioRecorder';
+import AppIcon from '../icons/AppIcon';
+import EditEntryFields from './EditEntryFields';
 import { styles } from './EditEntryModal.styles';
+import { normalizeCustomDeadline, normalizePresetDeadline, toggleSelection } from './editEntryUtils';
 
 export interface EditEntryFormProps {
   entry: MoodEntry;
@@ -56,8 +56,9 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackPosition, setPlaybackPosition] = useState(0);
 
-  const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
-  const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
+  // 使用 useMemo 优化数组依赖
+  const allPeople = useMemo(() => [...PEOPLE_OPTIONS, ...customPeopleOptions], [customPeopleOptions]);
+  const allTriggers = useMemo(() => [...TRIGGER_OPTIONS, ...customTriggerOptions], [customTriggerOptions]);
 
   useEffect(() => {
     if (visible && entry) {
@@ -96,6 +97,60 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
     setPlaybackPosition(position);
   }, []);
 
+  // 辅助函数：删除自定义人物标签
+  const deleteCustomPerson = useCallback(async (value: string) => {
+    const newOpts = await removeCustomPerson(customPeopleOptions, value);
+    setCustomPeopleOptions(newOpts);
+    setSelectedPeople((prev) => prev.filter((p) => p !== value));
+  }, [customPeopleOptions]);
+
+  // 辅助函数：删除自定义触发器标签
+  const deleteCustomTrigger = useCallback(async (value: string) => {
+    const newOpts = await removeCustomTrigger(customTriggerOptions, value);
+    setCustomTriggerOptions(newOpts);
+    setSelectedTriggers((prev) => prev.filter((t) => t !== value));
+  }, [customTriggerOptions]);
+
+  // 辅助函数：处理删除标签确认
+  const handleDeleteTagConfirmed = useCallback(async (type: 'people' | 'trigger', value: string) => {
+    if (type === 'people') {
+      await deleteCustomPerson(value);
+    } else {
+      await deleteCustomTrigger(value);
+    }
+  }, [deleteCustomPerson, deleteCustomTrigger]);
+
+  // 辅助函数：添加自定义标签
+  const handleAddCustomTag = useCallback(async (type: 'people' | 'trigger', value: string) => {
+    if (!value.trim()) return;
+    
+    if (type === 'people') {
+      if (!allPeople.includes(value)) {
+        const newOpts = await addCustomPerson(customPeopleOptions, value);
+        setCustomPeopleOptions(newOpts);
+      }
+      setSelectedPeople((prev) => [...prev, value]);
+    } else {
+      if (!allTriggers.includes(value)) {
+        const newOpts = await addCustomTrigger(customTriggerOptions, value);
+        setCustomTriggerOptions(newOpts);
+      }
+      setSelectedTriggers((prev) => [...prev, value]);
+    }
+  }, [allPeople, allTriggers, customPeopleOptions, customTriggerOptions]);
+
+  // 辅助函数：显示删除确认对话框
+  const handleDeleteCustomTag = useCallback((type: 'people' | 'trigger', value: string) => {
+    Alert.alert('确认删除', `确定要删除标签 "${value}" 吗？`, [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => handleDeleteTagConfirmed(type, value),
+      },
+    ]);
+  }, [handleDeleteTagConfirmed]);
+
   const handleSubmit = async () => {
     if (!content.trim()) {
       Alert.alert('提示', '写点什么吧，哪怕只是一句话');
@@ -105,7 +160,10 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
 
     Keyboard.dismiss();
 
-    const finalDeadline = normalizeDeadline(isCustomDeadline, customDeadlineText, deadline);
+    // 根据类型选择对应的归一化函数
+    const finalDeadline = isCustomDeadline 
+      ? normalizeCustomDeadline(customDeadlineText)
+      : normalizePresetDeadline(deadline);
 
     updateEntry(entry.id, {
       moodLevel,
@@ -157,42 +215,8 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
         allTriggers={allTriggers}
         customPeopleOptions={customPeopleOptions}
         customTriggerOptions={customTriggerOptions}
-        onAddCustomTag={async (type, value) => {
-          if (!value.trim()) return;
-          if (type === 'people') {
-            if (!allPeople.includes(value)) {
-              const newOpts = await addCustomPerson(customPeopleOptions, value);
-              setCustomPeopleOptions(newOpts);
-            }
-            setSelectedPeople((prev) => [...prev, value]);
-          } else {
-            if (!allTriggers.includes(value)) {
-              const newOpts = await addCustomTrigger(customTriggerOptions, value);
-              setCustomTriggerOptions(newOpts);
-            }
-            setSelectedTriggers((prev) => [...prev, value]);
-          }
-        }}
-        onDeleteCustomTag={async (type, value) => {
-          Alert.alert('确认删除', `确定要删除标签 "${value}" 吗？`, [
-            { text: '取消', style: 'cancel' },
-            {
-              text: '删除',
-              style: 'destructive',
-              onPress: async () => {
-                if (type === 'people') {
-                  const newOpts = await removeCustomPerson(customPeopleOptions, value);
-                  setCustomPeopleOptions(newOpts);
-                  setSelectedPeople((prev) => prev.filter((p) => p !== value));
-                } else {
-                  const newOpts = await removeCustomTrigger(customTriggerOptions, value);
-                  setCustomTriggerOptions(newOpts);
-                  setSelectedTriggers((prev) => prev.filter((t) => t !== value));
-                }
-              },
-            },
-          ]);
-        }}
+        onAddCustomTag={handleAddCustomTag}
+        onDeleteCustomTag={handleDeleteCustomTag}
       />
 
       <View style={styles.audioSection}>

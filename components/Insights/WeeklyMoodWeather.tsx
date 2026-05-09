@@ -1,14 +1,14 @@
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getMoodFlowerStatus, getMoodWeatherIcon, getWeekDates, getWeekdayName, isToday } from './utils';
 
 interface WeeklyMoodWeatherProps {
-  entries: MoodEntry[];
+  readonly entries: MoodEntry[];
 }
 
 const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries }) => {
@@ -117,7 +117,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           const today = isToday(date);
           return (
             <View
-              key={index}
+              key={date.getTime()}
               style={[
                 styles.dayCard,
                 today && styles.todayCard,

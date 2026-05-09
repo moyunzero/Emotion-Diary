@@ -101,11 +101,11 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
         <Text style={styles.trendCaption}>
           柱高代表当月已和解占比，月份从左到右由旧到新
         </Text>
-        {!hasMonthlyData ? (
+        {hasMonthlyData ? null : (
           <Text style={styles.trendEmptyHint}>
             最近 6 个月暂无记录，先从一条小情绪开始。
           </Text>
-        ) : null}
+        )}
         <View style={[styles.svgWrap, { width: chartW }]}>
           <View style={styles.trendChartRow}>
             {monthlySeries.map((pt) => {

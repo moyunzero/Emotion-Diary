@@ -5,33 +5,33 @@
 import { ChevronLeft, X } from 'lucide-react-native';
 import React from 'react';
 import {
-  Pressable,
-  StyleProp,
-  Text,
-  View,
-  ViewStyle,
+    Pressable,
+    StyleProp,
+    Text,
+    View,
+    ViewStyle,
 } from 'react-native';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 export type StackScreenHeaderProps = {
-  onBack?: () => void;
+  readonly onBack?: () => void;
   /** 左侧图标：默认返回箭头；Modal 等场景用 close */
-  leading?: 'back' | 'close';
-  title?: string;
+  readonly leading?: 'back' | 'close';
+  readonly title?: string;
   /** 自定义中间区域（与 title 二选一优先展示此项，如「图标 + 标题」） */
-  headerCenter?: React.ReactNode;
+  readonly headerCenter?: React.ReactNode;
   /** 右侧自定义节点（左侧返回时用于平衡布局） */
-  headerRight?: React.ReactNode;
-  backAccessibilityLabel?: string;
-  backAccessibilityHint?: string;
-  titleAccessibilityLabel?: string;
+  readonly headerRight?: React.ReactNode;
+  readonly backAccessibilityLabel?: string;
+  readonly backAccessibilityHint?: string;
+  readonly titleAccessibilityLabel?: string;
   /** 覆盖默认标题色（如洞察/回顾图主题） */
-  titleColor?: string;
-  titleFontSize?: number;
-  titleFontFamily?: string;
+  readonly titleColor?: string;
+  readonly titleFontSize?: number;
+  readonly titleFontFamily?: string;
   /** 右侧槽最小宽度，默认取 screenHeader.sideSlotWidth */
-  sideSlotWidth?: number;
-  style?: StyleProp<ViewStyle>;
+  readonly sideSlotWidth?: number;
+  readonly style?: StyleProp<ViewStyle>;
 };
 
 export function StackScreenHeader({

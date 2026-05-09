@@ -32,11 +32,10 @@ export const isToday = (date: Date) => {
 };
 
 // 获取情绪等级对应的天气图标
-export const getMoodWeatherIcon = (level: number | null, size: number = 24): React.ReactElement => {
+export const getMoodWeatherIcon = (level: MoodLevel | null, size: number = 24): React.ReactElement => {
   if (level === null) return <Sprout size={size} color="#D1D5DB" />;
   
-  const moodLevel = level as MoodLevel;
-  const config = MOOD_CONFIG[moodLevel];
+  const config = MOOD_CONFIG[level];
   
   if (config) {
     return getMoodIcon(config.iconName, config.iconColor, size);

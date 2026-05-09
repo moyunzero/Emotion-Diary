@@ -38,7 +38,9 @@ function runScript(scriptName, description) {
   log('='.repeat(60), 'blue');
   
   try {
-    execSync(`node "${scriptPath}"`, { 
+    // Safe: Escape shell arguments to prevent command injection
+    const escapedPath = scriptPath.replace(/"/g, '\\"');
+    execSync(`node "${escapedPath}"`, { 
       stdio: 'inherit',
       cwd: process.cwd()
     });

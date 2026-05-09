@@ -1,5 +1,7 @@
+import { EditEntryModal } from "@/components/entries";
+import { formatDateChinese } from "@/shared/formatting";
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import { createAudioPlayer, AudioStatus } from "expo-audio";
+import { AudioStatus, createAudioPlayer } from "expo-audio";
 import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -20,13 +22,11 @@ import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
 import { AudioData, Deadline, MoodEntry, MoodLevel, Status } from "../types";
-import { formatDateChinese } from "@/shared/formatting";
-import { areOrderedStringArraysEqual, areAudioDataArraysEqual } from "../utils/arrayEquality";
+import { areAudioDataArraysEqual, areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
-import { EditEntryModal } from "@/components/entries";
 
 export interface EntryCardProps {
   entry: MoodEntry;
@@ -543,8 +543,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   <View style={styles.deadlineTag}>
                     <Text style={styles.deadlineText}>{deadlineLabel}</Text>
                   </View>
-                  {entry.triggers?.map((t, index) => (
-                    <View key={index} style={styles.triggerTag}>
+                  {entry.triggers?.map((t) => (
+                    <View key={t} style={styles.triggerTag}>
                       <Text style={styles.triggerText}>#{t}</Text>
                     </View>
                   ))}

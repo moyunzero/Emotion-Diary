@@ -11,17 +11,17 @@ import Avatar from "../Avatar";
 
 interface ProfileUserCardProps {
   /** 用户头像 URL */
-  avatarUri?: string | null;
+  readonly avatarUri?: string | null;
   /** 用户昵称 */
-  name?: string | null;
+  readonly name?: string | null;
   /** 用户邮箱或 ID 展示 */
-  handle?: string | null;
+  readonly handle?: string | null;
   /** 今日心情图标组件 */
-  moodIcon?: React.ReactNode;
+  readonly moodIcon?: React.ReactNode;
   /** 是否已登录，未登录时显示「点击登录」 */
-  isLoggedIn: boolean;
+  readonly isLoggedIn: boolean;
   /** 点击头像/登录区域 */
-  onPress: () => void;
+  readonly onPress: () => void;
 }
 
 const AVATAR_SIZE = 88;

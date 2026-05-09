@@ -16,10 +16,36 @@ const MIN_BAR_HEIGHT = 4;
 type WaveformType = "realtime-wave" | "simple-bars";
 
 interface WaveformViewProps {
-  isActive: boolean;
-  waveformType?: WaveformType;
-  color?: string;
+  readonly isActive: boolean;
+  readonly waveformType?: WaveformType;
+  readonly color?: string;
 }
+
+// 生成稳定的柱子ID（只生成一次）
+const BAR_IDS = Array.from({ length: BAR_COUNT }, (_, i) => `bar-${i}`);
+
+// 辅助函数：生成随机高度
+const getRandomHeight = () => 
+  Math.random() * (MAX_BAR_HEIGHT - MIN_BAR_HEIGHT) + MIN_BAR_HEIGHT;
+
+// 辅助函数：简单模式更新（所有柱子同高度）
+const updateSimpleBars = (prevBars: number[]): number[] => {
+  const randomHeight = getRandomHeight();
+  return prevBars.map(() => randomHeight);
+};
+
+// 辅助函数：波形模式更新（平滑过渡）
+const updateRealtimeWave = (prevBars: number[]): number[] => {
+  const newBars = [...prevBars];
+  
+  for (let i = 0; i < BAR_COUNT; i++) {
+    const randomTarget = getRandomHeight();
+    newBars[i] = newBars[i] + (randomTarget - newBars[i]) * 0.5;
+    newBars[i] = Math.max(MIN_BAR_HEIGHT, Math.min(MAX_BAR_HEIGHT, newBars[i]));
+  }
+  
+  return newBars;
+};
 
 export const WaveformView: React.FC<WaveformViewProps> = ({
   isActive,
@@ -42,32 +68,11 @@ export const WaveformView: React.FC<WaveformViewProps> = ({
     }
 
     const updateBars = () => {
-      setBars((prevBars) => {
-        const newBars = [...prevBars];
-        
-        if (waveformType === "simple-bars") {
-          const randomHeight =
-            Math.random() * (MAX_BAR_HEIGHT - MIN_BAR_HEIGHT) + MIN_BAR_HEIGHT;
-          return newBars.map(() => randomHeight);
-        } else {
-          for (let i = 0; i < BAR_COUNT; i++) {
-            const randomTarget =
-              Math.random() * (MAX_BAR_HEIGHT - MIN_BAR_HEIGHT) + MIN_BAR_HEIGHT;
-            
-            newBars[i] = newBars[i] + (randomTarget - newBars[i]) * 0.5;
-            newBars[i] = Math.max(MIN_BAR_HEIGHT, Math.min(MAX_BAR_HEIGHT, newBars[i]));
-          }
-        }
-        
-        return newBars;
-      });
+      setBars(waveformType === "simple-bars" ? updateSimpleBars : updateRealtimeWave);
     };
 
-    if (waveformType === "simple-bars") {
-      intervalRef.current = setInterval(updateBars, 200);
-    } else {
-      intervalRef.current = setInterval(updateBars, 80);
-    }
+    const intervalMs = waveformType === "simple-bars" ? 200 : 80;
+    intervalRef.current = setInterval(updateBars, intervalMs);
 
     return () => {
       if (intervalRef.current) {
@@ -82,7 +87,7 @@ export const WaveformView: React.FC<WaveformViewProps> = ({
       <View style={styles.barsContainer}>
         {bars.map((height, index) => (
           <View
-            key={index}
+            key={BAR_IDS[index]}
             style={[
               styles.bar,
               {

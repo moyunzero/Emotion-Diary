@@ -180,9 +180,9 @@ const WeatherStationComponent: React.FC = () => {
             {/* 预警信息 */}
             {emotionForecast.warnings.length > 0 && (
               <View style={styles.warningsContainer}>
-                {emotionForecast.warnings.slice(0, 3).map((warning, index) => (
+                {emotionForecast.warnings.slice(0, 3).map((warning) => (
                   <View
-                    key={index}
+                    key={warning.date}
                     style={[
                       styles.warningItem,
                       { borderLeftColor: getRiskColor(warning.severity) },
@@ -200,8 +200,8 @@ const WeatherStationComponent: React.FC = () => {
               <Text style={styles.predictionsTitle}>未来7天趋势</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.predictionsList}>
-                  {emotionForecast.predictions.map((prediction, index) => (
-                    <View key={index} style={styles.predictionItem}>
+                  {emotionForecast.predictions.map((prediction) => (
+                    <View key={prediction.date} style={styles.predictionItem}>
                       <Text style={styles.predictionDate}>{formatDate(prediction.date)}</Text>
                       <View
                         style={[

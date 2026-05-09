@@ -13,12 +13,29 @@ export const toggleSelection = <T,>(list: T[], item: T): T[] => {
 };
 
 /**
- * 归一化 deadline：自定义时取文案或「未定」
+ * 归一化自定义截止日期文本（空文本返回「未定」）
+ */
+export const normalizeCustomDeadline = (customText: string): string => {
+  return customText.trim() || '未定';
+};
+
+/**
+ * 归一化预设截止日期（直接返回）
+ */
+export const normalizePresetDeadline = (presetKey: string): string => {
+  return presetKey;
+};
+
+/**
+ * 根据类型归一化截止日期
+ * @deprecated 建议直接使用 normalizeCustomDeadline 或 normalizePresetDeadline
  */
 export const normalizeDeadline = (
   isCustomDeadline: boolean,
   customDeadlineText: string,
   presetDeadline: string
 ): string => {
-  return isCustomDeadline ? (customDeadlineText.trim() || '未定') : presetDeadline;
+  return isCustomDeadline 
+    ? normalizeCustomDeadline(customDeadlineText) 
+    : normalizePresetDeadline(presetDeadline);
 };

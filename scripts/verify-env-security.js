@@ -8,6 +8,11 @@
  * 2. .env 文件是否包含真实的 API 密钥
  * 3. .env.example 是否存在
  * 4. 敏感文件是否被正确忽略
+ * 
+ * 安全说明：
+ * - 使用 execSync 执行 git 命令，依赖系统 PATH 查找 git
+ * - 所有用户输入（filePath）都经过转义处理，防止命令注入
+ * - 在生产环境中，建议使用 git 的绝对路径（如 /usr/bin/git）
  */
 
 const fs = require('fs');
@@ -42,7 +47,9 @@ function readFile(filePath) {
 
 function isFileIgnored(filePath) {
   try {
-    execSync(`git check-ignore ${filePath}`, { stdio: 'pipe' });
+    // Safe: Escape shell arguments to prevent command injection
+    const escapedPath = filePath.replace(/'/g, "'\\''");
+    execSync(`git check-ignore '${escapedPath}'`, { stdio: 'pipe' });
     return true;
   } catch (error) {
     return false;
@@ -115,6 +122,8 @@ function main() {
   // 检查 4: .env 是否在 Git 历史中
   log('\n4. 检查 .env 是否在 Git 历史中...', 'blue');
   try {
+    // Safe: Fixed command string, no user input, relies on system PATH for 'git'
+    // In production environments, consider using absolute path: /usr/bin/git
     const gitLog = execSync('git log --all --full-history -- .env', { 
       stdio: 'pipe',
       encoding: 'utf8'

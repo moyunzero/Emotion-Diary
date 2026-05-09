@@ -6,6 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
+  // Note: Inline tabBarIcon functions are acceptable here per Expo Router conventions
+  // - This is the standard pattern in React Navigation/Expo Router documentation
+  // - TabLayout rarely re-renders (only when safe area insets change)
+  // - Icon components are lightweight SVGs with no performance impact
   return (
     <Tabs
         screenOptions={{

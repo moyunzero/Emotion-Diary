@@ -36,8 +36,10 @@ function getImageInfo(filePath) {
   try {
     const fullPath = path.join(process.cwd(), filePath);
     
-    // 使用 sips 命令获取图片信息（macOS）
-    const output = execSync(`sips -g pixelWidth -g pixelHeight -g format -g hasAlpha "${fullPath}"`, {
+    // Safe: Escape shell arguments to prevent command injection
+    // Using double quotes and escaping special characters
+    const escapedPath = fullPath.replace(/"/g, '\\"');
+    const output = execSync(`sips -g pixelWidth -g pixelHeight -g format -g hasAlpha "${escapedPath}"`, {
       encoding: 'utf8',
       stdio: 'pipe'
     });

@@ -11,20 +11,20 @@ import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 interface ProfileMenuItemProps {
   /** 左侧图标组件（已传入 size/color） */
-  icon: React.ReactNode;
+  readonly icon: React.ReactNode;
   /** 图标背景色，如 '#FEF2F2' */
-  iconBgColor?: string;
+  readonly iconBgColor?: string;
   /** 主文案 */
-  title: string;
+  readonly title: string;
   /** 副文案（如「正在备份...」） */
-  subtext?: string;
+  readonly subtext?: string;
   /** 是否显示右侧箭头 */
-  showChevron?: boolean;
+  readonly showChevron?: boolean;
   /** 是否使用危险色（红色） */
-  danger?: boolean;
+  readonly danger?: boolean;
   /** 是否禁用（置灰、不可点） */
-  disabled?: boolean;
-  onPress: () => void;
+  readonly disabled?: boolean;
+  readonly onPress: () => void;
 }
 
 export function ProfileMenuItem({

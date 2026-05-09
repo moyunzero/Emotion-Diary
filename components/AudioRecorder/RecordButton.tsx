@@ -3,6 +3,8 @@
  * 支持按住说话、滑动取消、误触保护
  */
 
+import * as Haptics from "expo-haptics";
+import { Mic, MicOff, StopCircle } from "lucide-react-native";
 import React, { useCallback, useRef } from "react";
 import {
   Animated,
@@ -11,18 +13,16 @@ import {
   Text,
   View,
 } from "react-native";
-import * as Haptics from "expo-haptics";
-import { Mic, MicOff, StopCircle } from "lucide-react-native";
 import { RecordingState } from "../../store/modules/audio";
 
 const PRESS_DURATION_THRESHOLD_MS = 300;
 
 interface RecordButtonProps {
-  recordingState: RecordingState;
-  onRecordingStart: () => void;
-  onRecordingStop: () => void;
-  onRecordingCancel: () => void;
-  disabled?: boolean;
+  readonly recordingState: RecordingState;
+  readonly onRecordingStart: () => void;
+  readonly onRecordingStop: () => void;
+  readonly onRecordingCancel: () => void;
+  readonly disabled?: boolean;
 }
 
 export const RecordButton: React.FC<RecordButtonProps> = ({
@@ -85,14 +85,6 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     }
 
     switch (recordingState) {
-      case 'idle':
-        return (
-          <View style={styles.buttonContent}>
-            <Mic size={24} color="#fff" />
-            <Text style={styles.buttonText}>按住说话</Text>
-          </View>
-        );
-
       case 'recording':
         return (
           <View style={styles.buttonContent}>
@@ -125,7 +117,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
           </View>
         );
 
+      case 'idle':
       default:
+        // idle状态和未知状态都显示初始UI
         return (
           <View style={styles.buttonContent}>
             <Mic size={24} color="#fff" />

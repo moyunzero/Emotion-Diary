@@ -100,11 +100,16 @@ export const ReviewExportScreen: React.FC = () => {
     setClosingLine(defaultLine);
     setAiStatus('loading');
 
-    void generateReviewExportClosingLine(summary, user?.id, user?.name).then((text) => {
-      if (id !== closingRequestIdRef.current) return;
-      setClosingLine(text);
-      setAiStatus('ready');
-    });
+    generateReviewExportClosingLine(summary, user?.id, user?.name)
+      .then((text) => {
+        if (id !== closingRequestIdRef.current) return;
+        setClosingLine(text);
+        setAiStatus('ready');
+      })
+      .catch((error) => {
+        console.error('生成结束语失败:', error);
+        setAiStatus('fallback');
+      });
   }, [summary, user?.id, user?.name]);
 
   const captureReviewPngUri = useCallback(async (): Promise<string> => {
@@ -144,7 +149,11 @@ export const ReviewExportScreen: React.FC = () => {
           { text: '取消', style: 'cancel' },
           {
             text: '去设置',
-            onPress: () => void Linking.openSettings(),
+            onPress: () => {
+              Linking.openSettings().catch((error) => {
+                console.error('打开设置失败:', error);
+              });
+            },
           },
         ],
       );
@@ -188,7 +197,9 @@ export const ReviewExportScreen: React.FC = () => {
         {
           text: '继续',
           onPress: () => {
-            void go(true);
+            go(true).catch((error) => {
+              console.error('保存失败:', error);
+            });
           },
         },
       ],
@@ -229,7 +240,11 @@ export const ReviewExportScreen: React.FC = () => {
               },
               isBusy && styles.saveBtnDisabled,
             ]}
-            onPress={() => void onPressSave()}
+            onPress={() => {
+              onPressSave().catch((error) => {
+                console.error('保存失败:', error);
+              });
+            }}
             disabled={isBusy}
           >
             {isBusy ? (

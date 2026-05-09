@@ -18,8 +18,8 @@ import AppIcon from './icons/AppIcon';
 import MilestoneIcon from './icons/MilestoneIcon';
 
 interface CompanionDaysModalProps {
-  visible: boolean;
-  onClose: () => void;
+  readonly visible: boolean;
+  readonly onClose: () => void;
 }
 
 export default function CompanionDaysModal({ visible, onClose }: CompanionDaysModalProps) {

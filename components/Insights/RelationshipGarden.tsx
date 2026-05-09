@@ -1,14 +1,26 @@
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { MoodEntry, Status } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
 
 interface RelationshipGardenProps {
-  entries: MoodEntry[];
+  readonly entries: MoodEntry[];
 }
+
+// 辅助函数：根据状态渲染对应的图标
+const renderPotIcon = (status: string, color: string) => {
+  switch (status) {
+    case 'blooming':
+      return <Flower2 size={24} color={color} />;
+    case 'growing':
+      return <Leaf size={24} color={color} />;
+    default:
+      return <Droplets size={24} color={color} />;
+  }
+};
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
@@ -163,13 +175,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             <View key={person.name} style={styles.potItem}>
               {/* 花盆图标 */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
-                {potStatus.status === 'blooming' ? (
-                  <Flower2 size={24} color={potStatus.color} />
-                ) : potStatus.status === 'growing' ? (
-                  <Leaf size={24} color={potStatus.color} />
-                ) : (
-                  <Droplets size={24} color={potStatus.color} />
-                )}
+                {renderPotIcon(potStatus.status, potStatus.color)}
               </View>
               {/* 人名 */}
               <Text style={styles.personName} numberOfLines={1}>

@@ -9,11 +9,11 @@ import { createProfileStyles } from "../../styles/components/Profile.styles";
 
 interface ProfileStatCardProps {
   /** 主数字 */
-  value: number | string;
+  readonly value: number | string;
   /** 标签文字 */
-  label: string;
+  readonly label: string;
   /** 是否使用强调色（如心情指数用红色） */
-  accent?: boolean;
+  readonly accent?: boolean;
 }
 
 export function ProfileStatCard({
