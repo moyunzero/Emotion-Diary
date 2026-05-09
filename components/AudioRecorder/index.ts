@@ -2,4 +2,4 @@
  * AudioRecorder 模块导出
  */
 
-export { AudioRecorder } from "./AudioRecorder";
+export { AudioRecorder, AudioRecorderHandle } from "./AudioRecorder";

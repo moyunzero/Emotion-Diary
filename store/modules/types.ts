@@ -11,7 +11,16 @@ import {
     User,
     WeatherState,
 } from "../../types";
-import { RecordingState } from "./audio";
+
+/**
+ * 录音状态
+ */
+export type RecordingState =
+  | 'idle'        // 空闲，显示"按住说话"
+  | 'recording'   // 正在录音，显示"松开结束" + 波形
+  | 'canceling'   // 向上滑动取消，显示"松开取消"
+  | 'processing'  // 录音结束，正在处理文件
+  | 'preview';    // 显示预览和播放/删除按钮
 
 /**
  * 条目管理模块接口

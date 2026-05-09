@@ -19,7 +19,7 @@ const STAGES = [
     id: "knip",
     title: "Stage 1/3: knip (unused exports/dependencies)",
     command: "npx",
-    args: ["knip"],
+    args: ["knip", "--no-config-hints"],
   },
   {
     id: "dependency-cruiser",

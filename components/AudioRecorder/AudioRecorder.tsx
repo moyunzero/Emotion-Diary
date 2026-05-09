@@ -15,9 +15,9 @@ import {
 import { cacheDirectory, copyAsync, deleteAsync, getInfoAsync } from "expo-file-system";
 import * as Haptics from "expo-haptics";
 import { md5 } from "js-md5";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Alert, Linking, StyleSheet, Text, View } from "react-native";
-import { RecordingState } from "../../store/modules/audio";
+import { RecordingState } from "../../store/modules/types";
 import { AudioData } from "../../types";
 import { AudioList } from "./AudioList";
 import { RecordButton } from "./RecordButton";
@@ -35,7 +35,11 @@ interface AudioRecorderProps {
     readonly disabled?: boolean;
 }
 
-export const AudioRecorder: React.FC<AudioRecorderProps> = ({
+export interface AudioRecorderHandle {
+    stopPlayback: () => void;
+}
+
+export const AudioRecorder = React.forwardRef<AudioRecorderHandle, AudioRecorderProps>(({
     audios,
     onAudiosChange,
     currentPlayingId,
@@ -45,13 +49,23 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     onPlayAudio,
     onPauseAudio,
     disabled = false,
-}) => {
+}, ref) => {
     const [recordingState, setRecordingState] = useState<RecordingState>("idle");
     const [recordingDuration, setRecordingDuration] = useState(0);
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [recordedUri, setRecordedUri] = useState<string | null>(null);
     const playerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
     const tempRecordingUriRef = useRef<string | null>(null);
+
+    useImperativeHandle(ref, () => ({
+        stopPlayback: () => {
+            if (playerRef.current) {
+                playerRef.current.pause();
+                playerRef.current = null;
+                onPauseAudio();
+            }
+        },
+    }));
 
     const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
     const recorderState = useAudioRecorderState(recorder, 100);
@@ -281,13 +295,21 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     }, [currentPlayingId, isPlaying, onPlayAudio, onPauseAudio, onPlaybackPositionChange]);
 
     const handlePauseAudio = useCallback(async () => {
+        if (playerRef.current) {
+            playerRef.current.pause();
+        }
         onPauseAudio();
     }, [onPauseAudio]);
 
     const handleDeleteAudio = useCallback((audioId: string) => {
+        if (audioId === currentPlayingId && playerRef.current) {
+            playerRef.current.pause();
+            playerRef.current = null;
+            onPauseAudio();
+        }
         const updatedAudios = audios.filter((a) => a.id !== audioId);
         onAudiosChange(updatedAudios);
-    }, [audios, onAudiosChange]);
+    }, [audios, currentPlayingId, onAudiosChange, onPauseAudio]);
 
     const handleRenameAudio = useCallback((audioId: string, newName: string) => {
         const updatedAudios = audios.map((a) =>
@@ -341,7 +363,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             />
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -364,5 +386,7 @@ const styles = StyleSheet.create({
         fontVariant: ["tabular-nums"],
     },
 });
+
+AudioRecorder.displayName = 'AudioRecorder';
 
 export default AudioRecorder;

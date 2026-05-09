@@ -5,17 +5,7 @@
 
 import { StateCreator } from 'zustand';
 import { AudioData, MoodEntry, SyncStatus } from '../../types';
-import { AppState } from './types';
-
-/**
- * 录音状态
- */
-export type RecordingState =
-  | 'idle'        // 空闲，显示"按住说话"
-  | 'recording'   // 正在录音，显示"松开结束" + 波形
-  | 'canceling'   // 向上滑动取消，显示"松开取消"
-  | 'processing'  // 录音结束，正在处理文件
-  | 'preview';    // 显示预览和播放/删除按钮
+import { AppState, RecordingState } from './types';
 
 /**
  * 音频播放状态

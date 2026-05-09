@@ -9,11 +9,13 @@ jobs:
   pr-gate:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
       - run: yarn typecheck
@@ -22,11 +24,13 @@ jobs:
   governance:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
       - run: yarn typecheck

@@ -3,7 +3,7 @@
  * 承载 useAppStore updateEntry、useHapticFeedback、所有 useState、useEffect、handleSubmit、自定义标签 load/add/remove
  */
 import { Sparkles } from 'lucide-react-native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Keyboard, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DEADLINE_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from '../../constants';
@@ -17,7 +17,7 @@ import {
   removeCustomPerson,
   removeCustomTrigger,
 } from '../../utils/customTagsManager';
-import { AudioRecorder } from '../AudioRecorder/AudioRecorder';
+import { AudioRecorder, AudioRecorderHandle } from '../AudioRecorder/AudioRecorder';
 import AppIcon from '../icons/AppIcon';
 import EditEntryFields from './EditEntryFields';
 import { styles } from './EditEntryModal.styles';
@@ -39,6 +39,7 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
   const updateEntry = useAppStore((state) => state.updateEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const insets = useSafeAreaInsets();
+  const audioRecorderRef = useRef<AudioRecorderHandle>(null);
 
   const [moodLevel, setMoodLevel] = useState<MoodLevel>(entry.moodLevel);
   const [content, setContent] = useState(entry.content);
@@ -159,6 +160,7 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
     }
 
     Keyboard.dismiss();
+    audioRecorderRef.current?.stopPlayback();
 
     // 根据类型选择对应的归一化函数
     const finalDeadline = isCustomDeadline 
@@ -222,6 +224,7 @@ const EditEntryForm: React.FC<EditEntryFormProps> = ({
       <View style={styles.audioSection}>
         <Text style={styles.audioSectionTitle}>语音附件</Text>
         <AudioRecorder
+          ref={audioRecorderRef}
           audios={audios}
           onAudiosChange={setAudios}
           currentPlayingId={currentPlayingId}

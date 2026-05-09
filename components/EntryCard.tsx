@@ -5,16 +5,16 @@ import { AudioStatus, createAudioPlayer } from "expo-audio";
 import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  LayoutAnimation,
-  Platform,
-  Text,
-  TouchableOpacity,
-  UIManager,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    LayoutAnimation,
+    Platform,
+    Text,
+    TouchableOpacity,
+    UIManager,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
@@ -386,6 +386,16 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleEdit = () => {
     triggerHaptic("light");
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause();
+      if (statusListenerRef.current) {
+        audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
+        statusListenerRef.current = null;
+      }
+      audioPlayerRef.current.remove();
+      audioPlayerRef.current = null;
+    }
+    setPlayingAudioId(null);
     setIsEditModalVisible(true);
   };
 

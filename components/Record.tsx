@@ -1,16 +1,15 @@
 import { Sparkles } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Keyboard,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-    useWindowDimensions
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions
 } from "react-native";
-import { AudioRecorder } from "./AudioRecorder";
 import { PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../constants";
 import { COLORS } from "../constants/colors";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -19,19 +18,20 @@ import { createRecordStyles } from "../styles/components/Record.styles";
 import { createSharedStyles } from "../styles/sharedStyles";
 import { AudioData, Deadline, MoodLevel } from "../types";
 import {
-    addCustomPerson,
-    addCustomTrigger,
-    loadCustomOptions,
-    removeCustomPerson,
-    removeCustomTrigger,
+  addCustomPerson,
+  addCustomTrigger,
+  loadCustomOptions,
+  removeCustomPerson,
+  removeCustomTrigger,
 } from "../utils/customTagsManager";
 import {
-    clearDraft,
-    loadDraft,
-    saveDraft,
-    type DraftEntry,
+  clearDraft,
+  loadDraft,
+  saveDraft,
+  type DraftEntry,
 } from "../utils/draftManager";
 import { AppScreenShell } from "./AppScreenShell";
+import { AudioRecorder, AudioRecorderHandle } from "./AudioRecorder";
 import AppIcon from "./icons/AppIcon";
 import MoodForm from "./MoodForm";
 
@@ -52,6 +52,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
   const addEntry = useAppStore((state) => state.addEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const scrollViewRef = useRef<ScrollView>(null);
+  const audioRecorderRef = useRef<AudioRecorderHandle>(null);
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.ANNOYED);
@@ -201,6 +202,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
 
     // 关闭键盘
     Keyboard.dismiss();
+    audioRecorderRef.current?.stopPlayback();
 
     const finalDeadline = isCustomDeadline
       ? customDeadlineText.trim() || "未定"
@@ -338,6 +340,7 @@ const Record: React.FC<{ onClose: () => void; onSuccess?: () => void }> = ({
             {/* 语音附件区域 */}
             <View style={styles.audioSection}>
               <AudioRecorder
+                ref={audioRecorderRef}
                 audios={audios}
                 onAudiosChange={setAudios}
                 currentPlayingId={currentPlayingId}

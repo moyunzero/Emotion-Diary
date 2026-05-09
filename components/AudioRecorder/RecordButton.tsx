@@ -7,13 +7,13 @@ import * as Haptics from "expo-haptics";
 import { Mic, MicOff, StopCircle } from "lucide-react-native";
 import React, { useCallback, useRef } from "react";
 import {
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Animated,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
-import { RecordingState } from "../../store/modules/audio";
+import { RecordingState } from "../../store/modules/types";
 
 const PRESS_DURATION_THRESHOLD_MS = 300;
 

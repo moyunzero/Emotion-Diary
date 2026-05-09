@@ -31,7 +31,14 @@
     "shared/index.ts",
     "supabase/functions/**",
     "components/MilestoneBadge.tsx",
-    "components/types.ts"
+    "components/types.ts",
+    "components/AppImage.tsx",
+    "components/ErrorBoundary.tsx",
+    "components/icons/MessageIcon.tsx",
+    "utils/accessibility.ts",
+    "utils/audioStorage.ts",
+    "utils/performance.ts",
+    "utils/retry.ts"
   ],
   "ignoreDependencies": [
     "dependency-cruiser",
@@ -45,7 +52,16 @@
     "expo-symbols",
     "zod",
     "@testing-library/jest-native",
-    "ts-jest"
+    "ts-jest",
+    "@types/inquirer",
+    "commander",
+    "depcheck",
+    "glob",
+    "inquirer",
+    "madge",
+    "source-map-explorer",
+    "ts-node",
+    "@expo/metro-config"
   ],
   "ignoreBinaries": ["eas"],
   "ignoreUnresolved": ["@jest/globals", "expo-updates"],
@@ -56,13 +72,17 @@
     "store/**": ["exports", "types"],
     "styles/**": ["exports", "types"],
     "utils/**": ["exports", "types"],
-    "types.ts": ["exports", "types"],
+    "types.ts": ["exports", "types", "enumMembers"],
     "types/**": ["exports", "types"],
     "components/EditEntryModal/**": ["types"],
-    "components/EntryCard.tsx": ["types"],
-    "components/icons/**": ["types"],
+    "components/EntryCard.tsx": ["types", "exports"],
+    "components/icons/**": ["types", "exports"],
     "components/ReviewExport/**": ["types"],
     "components/ScreenContainer.tsx": ["exports", "duplicates"],
-    "store/modules/entries.ts": ["duplicates"]
+    "components/AudioRecorder/AudioRecorder.tsx": ["exports", "duplicates"],
+    "store/modules/entries.ts": ["duplicates"],
+    "services/audioSync.ts": ["exports"],
+    "services/companionDaysService.ts": ["exports"],
+    "components/EditEntryModal/editEntryUtils.ts": ["exports"]
   }
 }
