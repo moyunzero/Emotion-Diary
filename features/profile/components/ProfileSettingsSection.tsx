@@ -287,7 +287,15 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         }}
         statusBarTranslucent
       >
-        <View style={ms.modalOverlay}>
+        <View
+          style={[
+            ms.modalOverlay,
+            {
+              paddingTop: Math.max(insets.top, 12),
+              paddingBottom: Math.max(insets.bottom, 12),
+            },
+          ]}
+        >
           <TouchableWithoutFeedback
             onPress={Keyboard.dismiss}
             accessible={false}
@@ -298,17 +306,18 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             style={ms.keyboardAvoidingView}
-            keyboardVerticalOffset={0}
+            keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
           >
             <View
               style={[
                 ms.modalContent,
                 {
-                  marginTop: insets.top + 20,
-                  marginBottom: Math.max(insets.bottom, 20),
                   maxHeight: Math.min(
                     height * 0.75,
-                    height - insets.top - Math.max(insets.bottom, 20) - 40,
+                    height -
+                      Math.max(insets.top, 12) -
+                      Math.max(insets.bottom, 12) -
+                      48,
                   ),
                 },
               ]}

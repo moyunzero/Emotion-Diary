@@ -35,7 +35,7 @@ export interface EntryCardProps {
 
 /**
  * MoodForm Component Props
- * Form component for creating and editing emotion diary entries
+ * 受控表单；由 EntryEditor 在创建与编辑两种模式下复用。
  */
 export interface MoodFormProps {
   // Controlled component values

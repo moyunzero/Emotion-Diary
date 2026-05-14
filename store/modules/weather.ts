@@ -3,6 +3,7 @@
  * 负责计算和管理情绪天气状态
  */
 
+import { isSoftDeleted } from '../../shared/entries/visibility';
 import { Status, WeatherState } from '../../types';
 import { ModuleCreator, WeatherModule } from './types';
 
@@ -40,8 +41,10 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
   _calculateWeather: (): void => {
     const { entries } = get();
     
-    // 只计算活跃状态的条目
-    const activeEntries = entries.filter((e) => e.status === Status.ACTIVE);
+    // 只计算活跃且未软删的条目
+    const activeEntries = entries.filter(
+      (e) => e.status === Status.ACTIVE && !isSoftDeleted(e),
+    );
     
     // 计算情绪分数：情绪等级 * 2
     const score = activeEntries.reduce(

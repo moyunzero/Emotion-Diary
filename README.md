@@ -58,7 +58,7 @@ yarn lint
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 - [openspec/README.md](./openspec/README.md)
-- [.planning/codebase/STACK.md](./.planning/codebase/STACK.md)
+- [openspec/engineering-system.md](./openspec/engineering-system.md)
 
 ## 🌟 核心功能
 
@@ -106,7 +106,7 @@ yarn lint
 ### ☁️ 数据同步
 
 - **离线优先**：本地存储保护用户隐私
-- **云端备份**：可选 Supabase 云端同步，数据安全无忧
+- **云端备份**：可选 Supabase 云端同步；删除默认为**软删除**（仍可同步与按云端合并恢复），非即时物理抹除
 - **智能数据迁移**：支持访客数据与登录用户数据无缝切换
 
 ## 🎨 设计亮点
@@ -225,8 +225,9 @@ Emotion-Diary/
 ├── constants/                   # 拆分的常量（如 colors）
 ├── assets/                      # 图片与静态资源
 ├── scripts/                     # 校验与治理脚本（verify-*）
-├── openspec/ docs/              # 规范与补充文档
-├── .planning/                   # 工程规划、阶段记录；codebase/ 下为栈与路由等说明文档
+├── openspec/                    # OpenSpec 领域规范 + SSD 任务（changes/、templates/）
+├── docs/                        # 本地补充文档（默认 gitignore）
+├── .planning/                   # 本地规划（gitignore，不入库）；规范见 openspec/
 ├── app-store-submission/        # 商店提审文案与清单
 ├── src/                         # 预留/实验性子域目录（多数为空；少量如 core-state）
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
@@ -242,7 +243,7 @@ Emotion-Diary/
 | `components/` `features/` | 常见 RN 分层：**展示组件**与**功能切片**分离。 |
 | `store/` `hooks/` `services/` | 状态、副作用与领域服务分离，便于测试与边界（见 ESLint `boundaries`）。 |
 
-更完整的 **SDK 与构建配置核对** 见 [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md)。
+更完整的 **SDK、Native 模块与 CI 命令锚点** 见 [openspec/engineering-system.md](./openspec/engineering-system.md) §6。
 
 **说明：** `src/` 下部分子文件夹为占位结构，与主业务并置；新功能优先落在 `app/`、`components/`、`features/` 以免重复入口。
 
@@ -258,14 +259,19 @@ OpenSpec 是一个规范驱动开发（Spec-driven Development，SDD）工具，
 
 所有规范文档位于 `openspec/` 目录下：
 
-- **[README.md](./openspec/README.md)** - OpenSpec 使用指南
+- **[README.md](./openspec/README.md)** - OpenSpec 使用指南（含 SSD 流程与 `changes/` 任务目录说明）
+- **[工程 · 系统与集成](./openspec/engineering-system.md)** - 架构、目录树、技术栈、外部集成、同步要点
+- **[工程 · 质量与体验](./openspec/engineering-quality.md)** - 代码约定、技术债与风险、UI 壳层、测试与 CI
+- **[开发工作流](./openspec/development-workflow.md)** - 提案→审查→实施→归档；任务级规范见 `openspec/changes/`
+- **任务与模板**：`openspec/changes/<编号>-<名称>/`（SPEC / PLAN / VERIFICATION）、`openspec/templates/`
 - **[项目概览规范](./openspec/project-overview.md)** - 项目目标、技术栈、架构概览
 - **[数据模型规范](./openspec/data-models.md)** - 数据结构定义和业务规则
 - **[状态管理规范](./openspec/state-management.md)** - Zustand Store 接口和方法
 - **[UI组件规范](./openspec/ui-components.md)** - 组件功能和交互逻辑
 - **[服务层规范](./openspec/services.md)** - AI 服务和 Supabase 服务
 - **[工具函数规范](./openspec/utils.md)** - 工具函数 API 和使用说明
-- **[开发工作流文档](./openspec/development-workflow.md)** - 开发流程和最佳实践
+
+（工程 vs 领域「禁止双写」说明见上两篇 `engineering-*.md` 文首。）
 
 ### 开发工作流程
 

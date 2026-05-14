@@ -17,6 +17,12 @@ interface AudioListProps {
   onPause: () => void;
   onDelete: (audioId: string) => void;
   onRename: (audioId: string, newName: string) => void;
+  /** 列表标题，默认「语音列表」；`headerVariant="minimal"` 时不展示 */
+  headerTitle?: string;
+  /** 列表在录音区上方时收紧上边距 */
+  listPlacement?: "after-recording" | "before-recording";
+  /** minimal：仅右侧条数，避免与外层区块标题重复一层语义 */
+  headerVariant?: "default" | "minimal";
 }
 
 export const AudioList: React.FC<AudioListProps> = ({
@@ -28,6 +34,9 @@ export const AudioList: React.FC<AudioListProps> = ({
   onPause,
   onDelete,
   onRename,
+  headerTitle = "语音列表",
+  listPlacement = "after-recording",
+  headerVariant = "default",
 }) => {
   if (!audios || audios.length === 0) {
     return null;
@@ -45,15 +54,32 @@ export const AudioList: React.FC<AudioListProps> = ({
     />
   );
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>语音列表</Text>
-      <Text style={styles.headerCount}>{audios.length} 条</Text>
-    </View>
-  );
+  const renderHeader = () => {
+    if (headerVariant === "minimal") {
+      return (
+        <View
+          style={styles.headerMinimal}
+          accessibilityLabel={`${audios.length} 条语音`}
+        >
+          <Text style={styles.headerCountOnly}>{audios.length} 条</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{headerTitle}</Text>
+        <Text style={styles.headerCount}>{audios.length} 条</Text>
+      </View>
+    );
+  };
+
+  const containerStyle = [
+    styles.container,
+    listPlacement === "before-recording" && styles.containerBeforeRecording,
+  ];
 
   return (
-    <View style={styles.container}>
+    <View style={containerStyle}>
       <FlatList
         data={audios}
         renderItem={renderItem}
@@ -70,6 +96,10 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 12,
   },
+  containerBeforeRecording: {
+    marginTop: 0,
+    marginBottom: 10,
+  },
   listContent: {
     gap: 8,
   },
@@ -77,6 +107,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  headerMinimal: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginBottom: 8,
   },
   headerTitle: {
@@ -87,5 +122,10 @@ const styles = StyleSheet.create({
   headerCount: {
     fontSize: 12,
     color: "#666",
+  },
+  headerCountOnly: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    fontVariant: ["tabular-nums"],
   },
   });

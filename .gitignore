@@ -48,7 +48,7 @@ pnpm-debug.log*
 lerna-debug.log*
 .pnpm-store/
 
-# AI / Planning / Internal Docs (keep local, do not publish to GitHub)
+# AI / Planning — 本地规划目录，不上传 GitHub（工程正文见 openspec/engineering-system.md、openspec/engineering-quality.md）
 .planning/
 app-store-submission/
 agent-transcripts/
@@ -261,7 +261,7 @@ docs/
 .monkeycode/
 
 # OpenSpec
-openspec/
+# openspec/
 
 # Misc
 app-example/

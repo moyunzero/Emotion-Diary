@@ -13,6 +13,13 @@ import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { uploadPendingAudios } from "../services/audioSync";
+import { initAudioCoordinator } from "../shared/audio/coordinator";
+import { initRecordingCoordinator } from "../shared/audio/recordingCoordinator";
+import { applyRemoteUrlsToEntries } from "../shared/audio/sync";
+import {
+  collectTombstoneEntryIds,
+  filterOutTombstonedEntries,
+} from "../shared/sync/tombstone";
 import { createAIModule } from "./modules/ai";
 import { createAudioSlice } from "./modules/audio";
 import {
@@ -21,8 +28,12 @@ import {
 } from "./modules/entries";
 import { getStorageKey, saveToStorage } from "./modules/storage";
 import { AppState } from "./modules/types";
-import { createUserSlice } from "./modules/user";
+import { createUserSlice, hydrateEntriesAfterGuestMigration } from "./modules/user";
 import { createWeatherModule } from "./modules/weather";
+
+/** 全局音频协调器与 Zustand 的 one-shot 接线（避免 coordinator ↔ store 循环依赖） */
+let audioCoordinatorInitialized = false;
+let recordingCoordinatorInitialized = false;
 
 // 同步操作互斥锁，防止竞态条件
 let isSyncingRef = false;
@@ -178,6 +189,24 @@ export const useAppStore = create<AppState>()((...args) => {
   const set = args[0];
   const get = args[1];
   const store = args[2];
+
+  if (!audioCoordinatorInitialized) {
+    audioCoordinatorInitialized = true;
+    initAudioCoordinator((patch) => {
+      set(patch as Partial<AppState>);
+    });
+  }
+
+  if (!recordingCoordinatorInitialized) {
+    recordingCoordinatorInitialized = true;
+    initRecordingCoordinator(
+      (patch) => {
+        set(patch as Partial<AppState>);
+      },
+      () => get().recordingState,
+    );
+  }
+
   return {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
@@ -226,30 +255,51 @@ export const useAppStore = create<AppState>()((...args) => {
 
         const currentUserId = session.user.id;
 
-        // 准备同步数据
-        const entriesToSync = entries.map((entry) => {
-          const peopleArray = Array.isArray(entry.people) ? entry.people : [];
-          const triggersArray = Array.isArray(entry.triggers)
-            ? entry.triggers
-            : [];
+        // B-3：仅根据 entry_tombstones 显式删云，禁止「云端有、本地无」差集删除（H3 完整版）。
+        const { data: tombstoneRows, error: tombstoneFetchError } =
+          await supabase
+            .from("entry_tombstones")
+            .select("entry_id")
+            .eq("user_id", currentUserId);
 
-          return {
-            id: entry.id,
-            timestamp: entry.timestamp,
-            moodlevel: entry.moodLevel || 1,
-            content: entry.content || "",
-            deadline: entry.deadline || "later",
-            people: peopleArray,
-            triggers: triggersArray,
-            status: entry.status || "active",
-            resolvedat: entry.resolvedAt || null,
-            burnedat: entry.burnedAt || null,
-            user_id: currentUserId,
-            audios: entry.audios || [],
-          };
-        });
+        if (tombstoneFetchError) {
+          console.warn("获取 entry_tombstones 失败:", tombstoneFetchError);
+        }
 
-        // 获取云端数据
+        const tombstoneIdsArr = collectTombstoneEntryIds(tombstoneRows);
+        const tombstoneIdSet = new Set(tombstoneIdsArr);
+
+        // 准备同步数据（墓碑命中的 id 不得再 upsert，否则会复活已 purge 的云端行）
+        const entriesToSync = filterOutTombstonedEntries(
+          entries.map((entry) => {
+            const peopleArray = Array.isArray(entry.people) ? entry.people : [];
+            const triggersArray = Array.isArray(entry.triggers)
+              ? entry.triggers
+              : [];
+
+            return {
+              id: entry.id,
+              timestamp: entry.timestamp,
+              moodlevel: entry.moodLevel || 1,
+              content: entry.content || "",
+              deadline: entry.deadline || "later",
+              people: peopleArray,
+              triggers: triggersArray,
+              status: entry.status || "active",
+              resolvedat: entry.resolvedAt || null,
+              burnedat: entry.burnedAt || null,
+              deletedat:
+                typeof entry.deletedAt === "number" && entry.deletedAt > 0
+                  ? entry.deletedAt
+                  : null,
+              user_id: currentUserId,
+              audios: entry.audios || [],
+            };
+          }),
+          tombstoneIdSet,
+        );
+
+        // 获取云端数据（upsert 回退路径需要已知云端 id 集合）
         const { data: existingCloudData, error: fetchError } = await supabase
           .from("entries")
           .select("id, user_id")
@@ -259,27 +309,19 @@ export const useAppStore = create<AppState>()((...args) => {
           console.warn("获取云端数据失败:", fetchError);
         }
 
-        // 删除云端多余数据
-        const localIds = new Set(entriesToSync.map((e) => e.id));
-        const idsToDelete: string[] = [];
-
-        if (existingCloudData) {
-          existingCloudData.forEach((cloudEntry) => {
-            if (
-              !localIds.has(cloudEntry.id) &&
-              cloudEntry.user_id === currentUserId
-            ) {
-              idsToDelete.push(cloudEntry.id);
-            }
-          });
-        }
-
-        if (idsToDelete.length > 0) {
-          await supabase
+        if (tombstoneIdsArr.length > 0) {
+          const { error: purgeError } = await supabase
             .from("entries")
             .delete()
-            .in("id", idsToDelete)
+            .in("id", tombstoneIdsArr)
             .eq("user_id", currentUserId);
+
+          if (purgeError) {
+            console.warn(
+              "[syncToCloud] 按墓碑删除云端 entries 失败:",
+              purgeError,
+            );
+          }
         }
 
         // 同步数据
@@ -338,6 +380,7 @@ export const useAppStore = create<AppState>()((...args) => {
                         status: entry.status,
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
+                        deletedat: entry.deletedat,
                         audios: entry.audios || [],
                       })
                       .eq("id", entry.id)
@@ -392,22 +435,32 @@ export const useAppStore = create<AppState>()((...args) => {
             }
             
             if (uploadResult.results.size > 0) {
-              const updatedEntries = entries.map((entry) => {
-                if (!entry.audios?.length) return entry;
-                
-                const updatedAudios = entry.audios.map((audio) => {
-                  const remoteUrl = uploadResult.results.get(audio.id);
-                  if (remoteUrl) {
-                    return { ...audio, remoteUrl, syncStatus: "synced" as const };
-                  }
-                  return audio;
-                });
-                
-                return { ...entry, audios: updatedAudios };
-              });
-              
+              // 决策与回归逻辑见 shared/audio/sync.ts：把 audioId → remoteUrl 映射应用到 entries，
+              // 同时拿到需要回写云端的 payload 列表（H7 回归点）。
+              const { updatedEntries, writeback } = applyRemoteUrlsToEntries(
+                entries,
+                uploadResult.results,
+              );
+
               set({ entries: updatedEntries });
               get()._saveEntries();
+
+              // 关键：把含 remoteUrl 的 audios 回写到云端 entries 表，
+              // 否则其他设备 recoverFromCloud 拿到的 audios.remoteUrl 永远是 null，无法播放。
+              for (const payload of writeback) {
+                const { error: writebackError } = await supabase
+                  .from("entries")
+                  .update({ audios: payload.audios })
+                  .eq("id", payload.id)
+                  .eq("user_id", currentUserId);
+
+                if (writebackError) {
+                  console.warn(
+                    `回写 entry ${payload.id} 的 audios 元数据失败:`,
+                    writebackError
+                  );
+                }
+              }
             }
           }
         } catch (audioError) {
@@ -466,6 +519,18 @@ export const useAppStore = create<AppState>()((...args) => {
 
         const currentUserId = session.user.id;
 
+        const { data: tombstoneRows, error: tombstoneFetchError } =
+          await supabase
+            .from("entry_tombstones")
+            .select("entry_id")
+            .eq("user_id", currentUserId);
+
+        if (tombstoneFetchError) {
+          console.warn("获取 entry_tombstones 失败:", tombstoneFetchError);
+        }
+
+        const tombstoneIdSet = new Set(collectTombstoneEntryIds(tombstoneRows));
+
         const { data, error } = await supabase
           .from("entries")
           .select("*")
@@ -477,65 +542,79 @@ export const useAppStore = create<AppState>()((...args) => {
           throw new Error(errorMsg);
         }
 
-        if (data && data.length > 0) {
-          const transformedCloudData = data
-            .filter((cloudEntry) => {
-              const entryUserId = cloudEntry.user_id || cloudEntry.userId;
-              return entryUserId === currentUserId;
-            })
-            .map((cloudEntry) => {
-              return {
-                ...cloudEntry,
-                moodLevel: cloudEntry.moodlevel || cloudEntry.moodLevel || 1,
-                status: cloudEntry.status || "active",
-                resolvedAt: cloudEntry.resolvedat
-                  ? ensureMilliseconds(cloudEntry.resolvedat)
-                  : cloudEntry.resolvedAt,
-                burnedAt: cloudEntry.burnedat
-                  ? ensureMilliseconds(cloudEntry.burnedat)
-                  : cloudEntry.burnedAt,
-                timestamp: ensureMilliseconds(cloudEntry.timestamp),
-              };
-            });
-
-          // 合并数据
-          const localEntriesMap = new Map(
-            entries.map((entry) => [entry.id, entry]),
-          );
-          const mergedEntriesMap = new Map<string, MoodEntry>();
-
-          entries.forEach((entry) => {
-            mergedEntriesMap.set(entry.id, entry);
-          });
-
-          for (const cloudEntry of transformedCloudData) {
-            const localEntry = localEntriesMap.get(cloudEntry.id);
-
-            if (!localEntry) {
-              mergedEntriesMap.set(cloudEntry.id, cloudEntry);
-            } else {
-              mergedEntriesMap.set(cloudEntry.id, cloudEntry);
-            }
+        if (!data || data.length === 0) {
+          const pruned = filterOutTombstonedEntries(entries, tombstoneIdSet);
+          if (pruned.length !== entries.length) {
+            set({ entries: pruned });
+            const storageKey = getStorageKey(currentUserId);
+            await saveToStorage(storageKey, pruned);
+            get()._calculateWeather();
           }
 
-          const uniqueMergedEntries = Array.from(mergedEntriesMap.values());
-          uniqueMergedEntries.sort((a, b) => b.timestamp - a.timestamp);
-
-          set({ entries: uniqueMergedEntries });
-
-          const storageKey = getStorageKey(currentUserId);
-          await saveToStorage(storageKey, uniqueMergedEntries);
-
-          get()._calculateWeather();
-
-          if (__DEV__) console.log("成功从云端同步数据");
-
-          // 从云端同步 firstEntryDate
           await get()._syncFirstEntryDateFromCloud();
 
           set({ syncStatus: "idle" });
           return true;
         }
+
+        const transformedCloudData = data
+          .filter((cloudEntry) => {
+            const entryUserId = cloudEntry.user_id || cloudEntry.userId;
+            return entryUserId === currentUserId;
+          })
+          .map((cloudEntry) => {
+            const rawDeleted =
+              cloudEntry.deletedat ?? cloudEntry.deletedAt ?? null;
+            const deletedAtMs =
+              rawDeleted != null && typeof rawDeleted === "number"
+                ? ensureMilliseconds(rawDeleted)
+                : null;
+            return {
+              ...cloudEntry,
+              moodLevel: cloudEntry.moodlevel || cloudEntry.moodLevel || 1,
+              status: cloudEntry.status || "active",
+              resolvedAt: cloudEntry.resolvedat
+                ? ensureMilliseconds(cloudEntry.resolvedat)
+                : cloudEntry.resolvedAt,
+              burnedAt: cloudEntry.burnedat
+                ? ensureMilliseconds(cloudEntry.burnedat)
+                : cloudEntry.burnedAt,
+              timestamp: ensureMilliseconds(cloudEntry.timestamp),
+              deletedAt: deletedAtMs,
+            };
+          })
+          .filter((cloudEntry) => !tombstoneIdSet.has(cloudEntry.id));
+
+        const localForMerge = filterOutTombstonedEntries(
+          entries,
+          tombstoneIdSet,
+        );
+
+        // 合并数据：先保留本地独有 id，再以云端行覆盖同 id（找回回忆 = 以云端备份为准）
+        const mergedEntriesMap = new Map<string, MoodEntry>();
+
+        localForMerge.forEach((entry) => {
+          mergedEntriesMap.set(entry.id, entry);
+        });
+
+        for (const cloudEntry of transformedCloudData) {
+          mergedEntriesMap.set(cloudEntry.id, cloudEntry);
+        }
+
+        const uniqueMergedEntries = Array.from(mergedEntriesMap.values());
+        uniqueMergedEntries.sort((a, b) => b.timestamp - a.timestamp);
+
+        set({ entries: uniqueMergedEntries });
+
+        const storageKey = getStorageKey(currentUserId);
+        await saveToStorage(storageKey, uniqueMergedEntries);
+
+        get()._calculateWeather();
+
+        if (__DEV__) console.log("成功从云端同步数据");
+
+        // 从云端同步 firstEntryDate
+        await get()._syncFirstEntryDateFromCloud();
 
         set({ syncStatus: "idle" });
         return true;
@@ -653,7 +732,11 @@ export const initializeStore = (): (() => void) => {
               useAppStore.getState()._setUser(userData);
 
               try {
-                useAppStore.getState()._loadEntries();
+                await hydrateEntriesAfterGuestMigration(
+                  () => useAppStore.getState(),
+                  (partial) => useAppStore.setState(partial),
+                  session.user.id,
+                );
               } catch (error) {
                 console.error("加载本地数据失败:", error);
               }

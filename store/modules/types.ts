@@ -17,6 +17,7 @@ import {
  */
 export type RecordingState =
   | 'idle'        // 空闲，显示"按住说话"
+  | 'preparing'   // 权限/会话/arm 序列中
   | 'recording'   // 正在录音，显示"松开结束" + 波形
   | 'canceling'   // 向上滑动取消，显示"松开取消"
   | 'processing'  // 录音结束，正在处理文件
@@ -104,8 +105,12 @@ export interface AIModule {
  * 负责录音状态、播放状态管理
  */
 export interface AudioModule {
-  // 播放状态
+  // 播放状态（由 shared/audio/coordinator 驱动，与原生播放器单一实例对齐）
   currentAudioId: string | null;
+  /** 条目卡片播放时对应 entry.id；草稿试听为 null */
+  playbackEntryId: string | null;
+  /** draft = 记一笔/编辑内试听；entry = 看板卡片 */
+  playbackScope: "draft" | "entry" | null;
   isPlaying: boolean;
   playbackPosition: number;
   duration: number;
@@ -115,8 +120,7 @@ export interface AudioModule {
   recordingDuration: number;
   currentRecordingUri: string | null;
 
-  // 播放控制
-  playAudio: (audioId: string, uri: string) => void;
+  // 播放控制（播放入口：`shared/audio/coordinator`，经 `pauseAudio` / `stopAudio` 与 store 同步）
   pauseAudio: () => void;
   stopAudio: () => void;
   seekTo: (position: number) => void;

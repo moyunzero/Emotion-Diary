@@ -7,7 +7,7 @@ import { StyleSheet } from "react-native";
 export const profileScreenModalStyles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
   },
@@ -33,9 +33,11 @@ export const profileScreenModalStyles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   keyboardAvoidingView: {
+    flex: 1,
     width: "100%",
     maxWidth: 340,
     alignItems: "center",
+    justifyContent: "center",
   },
   modalContent: {
     width: "100%",

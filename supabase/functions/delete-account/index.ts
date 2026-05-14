@@ -1,5 +1,5 @@
 // Supabase Edge Function: 注销账号（
-// 删除 entries、profiles，并调用 auth.admin.deleteUser 删除 Auth 用户
+// 删除 entry_tombstones、entries、profiles，并调用 auth.admin.deleteUser 删除 Auth 用户
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -43,13 +43,16 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
-    // 1. 删除 entries（先删子表）
+    // 1. 删除 entry_tombstones（与 entries 并列，均挂在 user_id 上）
+    await supabaseAdmin.from("entry_tombstones").delete().eq("user_id", userId);
+
+    // 2. 删除 entries
     await supabaseAdmin.from("entries").delete().eq("user_id", userId);
 
-    // 2. 删除 profiles
+    // 3. 删除 profiles
     await supabaseAdmin.from("profiles").delete().eq("id", userId);
 
-    // 3. 删除 Auth 用户（真删除，无法恢复）
+    // 4. 删除 Auth 用户（真删除，无法恢复）
     const { error: deleteError } =
       await supabaseAdmin.auth.admin.deleteUser(userId);
 

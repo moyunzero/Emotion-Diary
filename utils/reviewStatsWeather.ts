@@ -2,6 +2,7 @@
  * 回顾导出：按「自然日 max mood」映射四类气象站档位，按出现天数统计 Top3。
  */
 
+import { isSoftDeleted } from '@/shared/entries/visibility';
 import { MoodEntry, MoodLevel } from '../types';
 import { filterEntriesInRange } from './reviewStats';
 
@@ -58,7 +59,10 @@ export function countWeatherBucketDaysByMaxMood(
 
     if (ds <= de) {
       const dayEntries = entries.filter(
-        (e) => e.timestamp >= ds && e.timestamp <= de,
+        (e) =>
+          !isSoftDeleted(e) &&
+          e.timestamp >= ds &&
+          e.timestamp <= de,
       );
       if (dayEntries.length > 0) {
         const maxLevel = Math.max(

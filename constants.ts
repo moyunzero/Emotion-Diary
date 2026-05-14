@@ -85,3 +85,6 @@ export const TRIGGER_OPTIONS = [
   '隐私',
   '其他',
 ];
+
+// 单条记录最多保留的编辑历史数量，防止 entry 对象无限增长占用 AsyncStorage
+export const MAX_EDIT_HISTORY = 10;

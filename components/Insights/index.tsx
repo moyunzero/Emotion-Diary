@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { AppScreenShell } from '../AppScreenShell';
 import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
@@ -21,9 +22,14 @@ const InsightsComponent: React.FC = () => {
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
 
+  const visibleEntries = useMemo(
+    () => excludeSoftDeletedEntries(entries),
+    [entries],
+  );
+
   // 计算统计数据（优化：合并多次遍历为单次遍历）
   const stats = useMemo(() => {
-    if (entries.length === 0) {
+    if (visibleEntries.length === 0) {
       return { total: 0, resolved: 0, thisMonthCount: 0, lastMonthCount: 0 };
     }
     
@@ -39,7 +45,7 @@ const InsightsComponent: React.FC = () => {
     let thisMonthCount = 0;
     let lastMonthCount = 0;
 
-    entries.forEach(e => {
+    visibleEntries.forEach(e => {
       if (e.status === Status.RESOLVED) {
         resolvedCount++;
       }
@@ -51,19 +57,19 @@ const InsightsComponent: React.FC = () => {
     });
 
     return {
-      total: entries.length,
+      total: visibleEntries.length,
       resolved: resolvedCount,
       thisMonthCount,
       lastMonthCount,
     };
-  }, [entries]);
+  }, [visibleEntries]);
 
   // 获取最大内容宽度和实际padding
   const maxWidth = responsive.layout.maxContentWidth;
   const horizontalPadding = responsive.padding.horizontal;
 
   // 如果没有任何条目，显示整体空状态
-  if (entries.length === 0) {
+  if (visibleEntries.length === 0) {
     return (
       <AppScreenShell edges={['top', 'left', 'right']} showHeader={false}>
         <EmptyGarden />
@@ -101,7 +107,7 @@ const InsightsComponent: React.FC = () => {
 
         <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
           {/* 本周情绪天气 */}
-          <WeeklyMoodWeather entries={entries} />
+          <WeeklyMoodWeather entries={visibleEntries} />
 
           {/* 治愈进度 */}
           <HealingProgress 
@@ -113,13 +119,13 @@ const InsightsComponent: React.FC = () => {
           <EmotionPodcast />
 
           {/* 情绪释放档案（心晴MO 特色闭环） */}
-          <EmotionReleaseArchive entries={entries} />
+          <EmotionReleaseArchive entries={visibleEntries} />
 
           {/* 关系花盆 */}
-          <RelationshipGarden entries={entries} />
+          <RelationshipGarden entries={visibleEntries} />
 
           {/* 情绪触发洞察 */}
-          <TriggerInsight entries={entries} />
+          <TriggerInsight entries={visibleEntries} />
 
           {/* 底部鼓励语 */}
           <GardenFooter 

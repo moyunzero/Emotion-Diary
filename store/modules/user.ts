@@ -7,20 +7,88 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
-import { User } from "../../types";
+import { isSoftDeleted } from "../../shared/entries/visibility";
+import type { MoodEntry, User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
+import { clearEntriesSaveDebounce } from "./entries";
 import {
     checkGuestData,
     clearCachedProfile,
     getCachedProfile,
     getStorageKey,
     migrateGuestDataToUser,
-    migrateUserDataToGuest,
     removeFromStorage,
+    replaceGuestStorageEntries,
     saveToStorage,
     setCachedProfile,
 } from "./storage";
 import { AppState, UserModule } from "./types";
+
+const FIRST_ENTRY_DATE_USER_STORAGE_PREFIX = "@first_entry_date_";
+
+/**
+ * 登出/注销时写入 `guest_first_entry_date`。
+ * 登录态下 `useCompanionFirstEntryDate` 优先读 `@first_entry_date_<userId>`（hook 根据首条记录写入），
+ * 该值未必已写回 `user.firstEntryDate`；若登出时只拷贝 `user.firstEntryDate`，游客键为空后会回退到
+ * 「未软删条目的最早时间」，旧记录若多为软删则只剩「今天」→ 陪伴天数变成 1。
+ * 此处合并 AsyncStorage 用户键、档案字段与**全部**本地条目（含软删）的最早时间戳，取最小值写入游客键。
+ */
+async function persistGuestFirstEntryDateBridge(
+  userId: string,
+  userFirstEntryDate: number | undefined,
+  entries: MoodEntry[],
+): Promise<void> {
+  const candidates: number[] = [];
+  try {
+    const stored = await AsyncStorage.getItem(
+      `${FIRST_ENTRY_DATE_USER_STORAGE_PREFIX}${userId}`,
+    );
+    if (stored) {
+      const n = Number.parseInt(stored, 10);
+      if (!Number.isNaN(n) && n > 0) candidates.push(n);
+    }
+  } catch {
+    // ignore
+  }
+  if (userFirstEntryDate != null && userFirstEntryDate > 0) {
+    candidates.push(userFirstEntryDate);
+  }
+  const entryTs = entries
+    .map((e) => e.timestamp)
+    .filter((t): t is number => typeof t === "number" && t > 0);
+  if (entryTs.length > 0) {
+    candidates.push(Math.min(...entryTs));
+  }
+  if (candidates.length === 0) return;
+  const best = Math.min(...candidates);
+  await AsyncStorage.setItem("guest_first_entry_date", best.toString());
+}
+
+/**
+ * 会话恢复或登录后：若存在游客键数据则并入用户键并载入内存，否则从用户键加载。
+ * 与 `login()` 内逻辑一致，供 `_loadUser`、`onAuthStateChange` 复用。
+ */
+export async function hydrateEntriesAfterGuestMigration(
+  get: () => AppState,
+  set: (partial: Partial<AppState>) => void,
+  userId: string,
+): Promise<void> {
+  const guestData = await checkGuestData();
+
+  if (guestData.length > 0) {
+    if (__DEV__) {
+      console.log(`发现 ${guestData.length} 条游客数据，正在迁移到用户 ${userId}…`);
+    }
+    const migrationResult = await migrateGuestDataToUser(userId);
+    if (migrationResult.success && migrationResult.data) {
+      set({ entries: migrationResult.data });
+      get()._calculateWeather();
+      return;
+    }
+  }
+
+  await get()._loadEntries();
+}
 
 // 登录态与游客态切换时会改存储键并可能迁移条目，须与 storage.getStorageKey 约定保持一致。
 export const createUserSlice: StateCreator<
@@ -36,16 +104,13 @@ export const createUserSlice: StateCreator<
     },
 
     /**
-     * 初始化firstEntryDate
-     * 取以下三个来源的最小值：
-     * 1. user.firstEntryDate (云端值)
-     * 2. guest_first_entry_date (游客本地)
-     * 3. entries 中最早的记录
-     * 确保陪伴日期不丢失、一致
+     * 把 user.firstEntryDate（云端字段）同步到 AsyncStorage 缓存键 `@first_entry_date_<userId>`，
+     * 让 useCompanionFirstEntryDate hook 在跨设备首次登录、entries 尚未拉回前也能展示正确的陪伴天数。
+     *
+     * 注意：hook 自身只读 AsyncStorage 与本地 entries，并不直接读 user.firstEntryDate，
+     * 因此这一桥接函数不可移除。语义见 hooks/useCompanionFirstEntryDate.ts 与 store/useAppStore.ts 启动流程。
      */
     initializeFirstEntryDate: async () => {
-      // 此函数已废弃，firstEntryDate 的读取逻辑已移至 useCompanionFirstEntryDate hook
-      // 保留此函数仅为向后兼容
       const { user } = get();
       if (!user) return;
 
@@ -111,8 +176,8 @@ export const createUserSlice: StateCreator<
     clearFirstEntryDate: async () => {
       const { user, entries } = get();
 
-      // 只有在没有记录时才清除
-      if (entries.length > 0) return;
+      // 仍有未软删记录时不应清除
+      if (entries.some((e) => !isSoftDeleted(e))) return;
 
       if (user) {
         const updatedUser = { ...user, firstEntryDate: undefined };
@@ -257,8 +322,8 @@ export const createUserSlice: StateCreator<
             }
             set({ user: userData });
             await AsyncStorage.setItem("user_session", JSON.stringify(userData));
-            get()._loadEntries();
-            
+            await hydrateEntriesAfterGuestMigration(get, set, session.user.id);
+
             // 后台静默更新缓存
             (async () => {
               try {
@@ -334,7 +399,8 @@ export const createUserSlice: StateCreator<
           }
 
           set({ user: userData });
-          get()._loadEntries();
+          await AsyncStorage.setItem("user_session", JSON.stringify(userData));
+          await hydrateEntriesAfterGuestMigration(get, set, session.user.id);
         } else {
           set({ user: null });
           await AsyncStorage.removeItem("user_session");
@@ -519,21 +585,7 @@ export const createUserSlice: StateCreator<
           set({ user: userData });
           await AsyncStorage.setItem("user_session", JSON.stringify(userData));
 
-          // 检查游客数据迁移
-          const guestData = await checkGuestData();
-          
-          if (guestData.length > 0) {
-            if (__DEV__) console.log(`发现 ${guestData.length} 条游客数据，正在迁移...`);
-            const migrationResult = await migrateGuestDataToUser(userData.id);
-            if (migrationResult.success && migrationResult.data) {
-              set({ entries: migrationResult.data });
-              get()._calculateWeather();
-            } else {
-              await get()._loadEntries();
-            }
-          } else {
-            await get()._loadEntries();
-          }
+          await hydrateEntriesAfterGuestMigration(get, set, userData.id);
 
           // 初始化 firstEntryDate（新逻辑由 hook 处理，此处仅确保存储到新 key）
           await get().initializeFirstEntryDate();
@@ -553,7 +605,7 @@ export const createUserSlice: StateCreator<
      */
     logout: async () => {
       try {
-        const { user, entries } = get();
+        const { user } = get();
 
         if (!user) {
           set({ user: null });
@@ -562,22 +614,17 @@ export const createUserSlice: StateCreator<
           return;
         }
 
-        // 保存当前数据
-        if (entries.length > 0) {
-          const userKey = getStorageKey(user.id);
-          await saveToStorage(userKey, entries);
-        }
+        clearEntriesSaveDebounce();
+        const snapshot = get().entries;
+        const userKey = getStorageKey(user.id);
+        await saveToStorage(userKey, snapshot);
+        await replaceGuestStorageEntries(snapshot);
 
-        // 保存 firstEntryDate 到游客存储（重要：确保退出后陪伴天数不丢失）
-        if (user.firstEntryDate) {
-          await AsyncStorage.setItem(
-            "guest_first_entry_date",
-            user.firstEntryDate.toString(),
-          );
-        }
-
-        // 合并到游客存储
-        const migrationResult = await migrateUserDataToGuest(user.id);
+        await persistGuestFirstEntryDateBridge(
+          user.id,
+          user.firstEntryDate,
+          snapshot,
+        );
 
         // 登出
         const { error } = await supabase.auth.signOut();
@@ -590,14 +637,6 @@ export const createUserSlice: StateCreator<
 
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
-
-        // 更新数据
-        if (migrationResult.success && migrationResult.data) {
-          set({ entries: migrationResult.data });
-          get()._calculateWeather();
-        } else {
-          await get()._loadEntries();
-        }
       } catch (error) {
         console.error("Logout error:", error);
         set({ user: null });
@@ -608,33 +647,28 @@ export const createUserSlice: StateCreator<
 
     /**
      * 注销账号（方案 C - 真删除）
-     * 删除云端 Auth 用户、profiles、entries，本地数据迁移到游客存储保留
+     * 删除云端 Auth 用户、profiles、entries；本地以当前快照写入游客存储后保留。
      */
     deleteAccount: async () => {
       try {
-        const { user, entries } = get();
+        const { user } = get();
         if (!user) {
           throw new Error("未登录");
         }
 
-        // 1. 保存当前数据到用户存储
-        if (entries.length > 0) {
-          const userKey = getStorageKey(user.id);
-          await saveToStorage(userKey, entries);
-        }
+        clearEntriesSaveDebounce();
+        const snapshot = get().entries;
+        const userKey = getStorageKey(user.id);
+        await saveToStorage(userKey, snapshot);
+        await replaceGuestStorageEntries(snapshot);
 
-        // 2. 保存 firstEntryDate 到游客存储（确保注销后陪伴天数不丢失）
-        if (user.firstEntryDate) {
-          await AsyncStorage.setItem(
-            "guest_first_entry_date",
-            user.firstEntryDate.toString(),
-          );
-        }
+        await persistGuestFirstEntryDateBridge(
+          user.id,
+          user.firstEntryDate,
+          snapshot,
+        );
 
-        // 3. 合并用户数据到游客存储
-        const migrationResult = await migrateUserDataToGuest(user.id);
-
-        // 4. 调用 Edge Function 删除云端账号
+        // 3. 调用 Edge Function 删除云端账号
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -658,20 +692,14 @@ export const createUserSlice: StateCreator<
           throw new Error(data.error);
         }
 
-        // 5. 本地登出、清除状态
+        // 4. 本地登出、清除状态
         await supabase.auth.signOut();
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
         await clearCachedProfile(user.id);
 
-        // 6. 恢复游客数据
-        if (migrationResult.success && migrationResult.data) {
-          set({ entries: migrationResult.data });
-          get()._calculateWeather();
-        } else {
-          await get()._loadEntries();
-        }
+        // 内存中的 entries 与游客键已在注销前对齐，无需再加载
       } catch (error) {
         console.error("Delete account error:", error);
         throw error;

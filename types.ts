@@ -68,6 +68,8 @@ export interface MoodEntry {
   audios?: AudioData[]; // 语音附件
   intensity?: 1 | 2 | 3 | 4 | 5; // 情绪强度
   syncStatus?: SyncStatus; // 同步状态
+  /** 软删除时间戳（毫秒）；未删除则为 undefined / null */
+  deletedAt?: number | null;
 }
 
 export interface User {

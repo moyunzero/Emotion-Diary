@@ -2,6 +2,7 @@
  * 闭区间时间范围内的情绪回顾统计（与 `components/Insights/index.tsx` 全量治愈进度不同）。
  */
 
+import { isSoftDeleted } from '@/shared/entries/visibility';
 import { MoodEntry, Status } from '../types';
 import { getCalendarMonthRange } from '@/shared/time-range';
 
@@ -25,7 +26,10 @@ export function filterEntriesInRange(
   endMs: number,
 ): MoodEntry[] {
   return entries.filter(
-    (e) => e.timestamp >= startMs && e.timestamp <= endMs,
+    (e) =>
+      !isSoftDeleted(e) &&
+      e.timestamp >= startMs &&
+      e.timestamp <= endMs,
   );
 }
 

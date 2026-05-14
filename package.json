@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "lint": "eslint app components features hooks lib services store utils types constants.ts constants types.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
     "typecheck": "tsc --noEmit",
+    "test": "jest",
     "build:optimized": "node ./scripts/build-optimized.js",
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",

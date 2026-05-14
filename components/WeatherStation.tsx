@@ -2,12 +2,18 @@ import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 const WeatherStationComponent: React.FC = () => {
   const weather = useAppStore((state) => state.weather);
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
   const generateForecast = useAppStore((state) => state.generateForecast);
+
+  const visibleEntries = useMemo(
+    () => excludeSoftDeletedEntries(entries),
+    [entries],
+  );
   
   const [isForecastExpanded, setIsForecastExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -45,7 +51,7 @@ const WeatherStationComponent: React.FC = () => {
    * 生成预测
    */
   const handleGenerateForecast = async () => {
-    if (entries.length < 3) {
+    if (visibleEntries.length < 3) {
       Alert.alert('提示', '需要至少3条情绪记录才能生成预测');
       return;
     }

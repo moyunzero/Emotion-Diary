@@ -3,3 +3,5 @@
  */
 
 export { AudioRecorder, AudioRecorderHandle } from "./AudioRecorder";
+export type { AudioClipBinding } from "./AudioRecorder";
+export { RecordingSessionHost } from "./RecordingSessionHost";
