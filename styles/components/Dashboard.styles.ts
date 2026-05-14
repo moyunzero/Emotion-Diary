@@ -66,7 +66,9 @@ export function createDashboardStyles(width: number, height: number) {
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: m.padding.horizontal,
-      marginBottom: DESIGN_TOKENS.spacing.lg,
+      paddingBottom: DESIGN_TOKENS.spacing.lg,
+      // 抽出 FlashList 后位于 header 与列表之间，需要不透明背景避免列表内容滚动到顶时透出
+      backgroundColor: COLORS.background.page,
       zIndex: 20,
     },
     listTitle: {

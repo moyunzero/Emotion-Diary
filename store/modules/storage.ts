@@ -220,43 +220,15 @@ export const migrateGuestDataToUser = async (
 };
 
 /**
- * 将用户数据合并到游客存储
+ * 用当前条目列表**完全覆盖**游客存储键（`mood_entries_guest`）。
+ *
+ * 用于登出/注销：游客态所见应与登出前内存一致，**不与**磁盘上可能陈旧的游客快照做合并，
+ * 避免出现「登录时删掉的记录退出后又出现」。
  */
-export const migrateUserDataToGuest = async (
-  userId: string
-): Promise<MigrationResult> => {
-  try {
-    const userKey = getStorageKey(userId);
-    const userData = await loadFromStorage(userKey);
-    
-    if (userData.length === 0) {
-      const guestData = await checkGuestData();
-      return {
-        success: true,
-        data: guestData,
-        message: '用户没有数据，保留游客数据',
-      };
-    }
-
-    const guestData = await checkGuestData();
-    const mergedData = mergeEntries(guestData, userData, 'keep-latest');
-
-    // 保存到游客存储
-    await saveToStorage(GUEST_STORAGE_KEY, mergedData);
-
-    return {
-      success: true,
-      data: mergedData,
-      message: `已合并 ${userData.length} 条用户数据到游客存储`,
-    };
-  } catch (error) {
-    console.error('合并用户数据到游客存储失败:', error);
-    return {
-      success: false,
-      data: null,
-      message: '合并失败',
-    };
-  }
+export const replaceGuestStorageEntries = async (
+  entries: MoodEntry[]
+): Promise<boolean> => {
+  return saveToStorage(GUEST_STORAGE_KEY, entries);
 };
 
 // Profile 缓存常量

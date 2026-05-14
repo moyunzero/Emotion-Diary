@@ -58,7 +58,7 @@ yarn lint
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 - [SECURITY.md](./SECURITY.md)
-- [openspec/README.md](./openspec/README.md) · [.planning/codebase/STACK.md](./.planning/codebase/STACK.md)
+- [openspec/README.md](./openspec/README.md) · [openspec/engineering-system.md](./openspec/engineering-system.md) · [openspec/engineering-quality.md](./openspec/engineering-quality.md)
 
 ## 📦 Release & App Store
 
@@ -108,7 +108,7 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 
 ### ☁️ Data Sync
 - **Offline-First**: Local storage protects user privacy
-- **Cloud Backup**: Optional Supabase cloud sync for data security
+- **Cloud Backup**: Optional Supabase sync; deleting an entry is a **soft delete** by default (data can remain syncable and recoverable via cloud merge), not immediate physical wipe
 - **Smart Data Migration**: Seamless switching between guest data and logged-in user data
 
 ## 🎨 Design Highlights
@@ -177,7 +177,7 @@ Emotion-Diary/
 ├── hooks/ lib/ utils/ services/ shared/
 ├── styles/ types/ constants/    # Plus root types.ts, constants.ts
 ├── assets/ scripts/ openspec/ docs/
-├── .planning/                   # Planning & phases; codebase/ notes (stack, router, etc.)
+├── .planning/                   # Local planning (gitignored); specs in openspec/
 ├── app-store-submission/
 ├── src/                         # Experimental / placeholder subdomains (mostly empty)
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
@@ -192,7 +192,7 @@ Emotion-Diary/
 | `android/` `ios/` | Standard **prebuild** output; keep shared logic in TS. |
 | `components/` `features/` | Typical split: reusable UI vs feature screens/logic. |
 
-See [.planning/codebase/EXPO-RN-AUDIT.md](./.planning/codebase/EXPO-RN-AUDIT.md) for SDK/build config audit.
+See [openspec/engineering-system.md](./openspec/engineering-system.md) §6 for SDK, native modules, and CI command anchors.
 
 ## 🔧 Development Setup
 

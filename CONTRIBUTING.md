@@ -59,11 +59,11 @@
 
 ## 路由与 app 目录（Expo Router）
 
-文件式路由、`(tabs)` 分组及与 `components` / `features` 的分工说明见：[.planning/codebase/EXPO-ROUTER.md](./.planning/codebase/EXPO-ROUTER.md)。
+文件式路由、`(tabs)` 分组及与 `components` / `features` 的分工说明见：[openspec/engineering-system.md](./openspec/engineering-system.md) §3–§5（路由与目录约定）。
 
 ## UI 与设计原则
 
-全产品界面气质、隐喻、反模式与抽检约定（非「通用 AI 应用」模版感）见：[.planning/phases/14-ui/14-UI-SPEC.md](./.planning/phases/14-ui/14-UI-SPEC.md)。
+全产品界面气质、隐喻、反模式与抽检约定（非「通用 AI 应用」模版感）见：[openspec/ui-components.md](./openspec/ui-components.md)；页面壳层与安全区另见 [openspec/engineering-quality.md](./openspec/engineering-quality.md) §3。
 
 ## 页面壳与滚动（Phase 15）
 
@@ -77,6 +77,8 @@
 
 ## 📝 代码规范
 
+- **Agent / AI 辅助开发**：与 [AGENTS.md](./AGENTS.md) 一致；执行时遵循 [`.cursor/rules/karpathy-guidelines.mdc`](./.cursor/rules/karpathy-guidelines.mdc)（先想清楚再写、少即是多、只改必要处、目标可验证）。
+- **变更收尾**：与 [AGENTS.md](./AGENTS.md) 中「Agent 协作（变更收尾）」及 `openspec/engineering-quality.md` §1「变更收尾」约定一致——替换或合并实现后及时删除无用代码、类型与未引用导出，提交前跑通 `yarn typecheck` / `yarn lint`。
 - **TypeScript**：本项目完全使用 TypeScript，请确保没有类型错误。
 - **ESLint**：提交前请确保通过 ESLint 检查。
 - **组件风格**：请参考 `components/` 目录下的现有组件结构。

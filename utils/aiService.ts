@@ -1,4 +1,5 @@
 import { formatDateChinese } from '@/shared/formatting';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { MoodEntry, MoodLevel } from '../types';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
@@ -297,12 +298,13 @@ export interface EmotionPrescription {
 export const analyzeEmotionCycle = async (
   entries: MoodEntry[]
 ): Promise<EmotionCycleAnalysis> => {
-  const cacheKey = `cycle_${entries.length}_${entries[0]?.timestamp || 0}`;
+  const data = excludeSoftDeletedEntries(entries);
+  const cacheKey = `cycle_${data.length}_${data[0]?.timestamp || 0}`;
   const cached = getCached<EmotionCycleAnalysis>(cacheKey);
   if (cached) return cached;
 
   try {
-    if (entries.length < 5) {
+    if (data.length < 5) {
       const defaultAnalysis: EmotionCycleAnalysis = {
         patterns: [],
         highRiskPeriods: [],
@@ -316,7 +318,7 @@ export const analyzeEmotionCycle = async (
     const timeOfDayCounts: Record<string, number> = {};
     const triggerCounts: Record<string, { count: number; totalLevel: number }> = {};
 
-    entries.forEach(entry => {
+    data.forEach(entry => {
       const date = new Date(entry.timestamp);
       const dayOfWeek = date.getDay();
       const hour = date.getHours();
@@ -349,10 +351,10 @@ export const analyzeEmotionCycle = async (
       }));
 
     const highRiskPeriods: EmotionCycleAnalysis['highRiskPeriods'] = patterns
-      .filter(p => p.frequency >= entries.length * 0.2)
+      .filter(p => p.frequency >= data.length * 0.2)
       .map(p => ({
         period: `${p.dayOfWeek}${p.timeOfDay}`,
-        riskLevel: (p.frequency >= entries.length * 0.3 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
+        riskLevel: (p.frequency >= data.length * 0.3 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
         description: `你在${p.dayOfWeek}${p.timeOfDay}情绪波动较大`,
       }));
 
@@ -391,17 +393,18 @@ export const predictEmotionTrend = async (
   entries: MoodEntry[],
   days: number = 7
 ): Promise<EmotionForecast> => {
+  const data = excludeSoftDeletedEntries(entries);
   // 修复：移除 Date.now()，使用基于数据的缓存键，避免每次调用都生成新缓存
   // 使用最近一条记录的时间戳作为缓存键的一部分，这样数据变化时缓存会失效
-  const latestTimestamp = entries.length > 0 ? entries[0].timestamp : 0;
-  const cacheKey = `forecast_${entries.length}_${days}_${Math.floor(latestTimestamp / (60 * 60 * 1000))}`; // 按小时缓存
+  const latestTimestamp = data.length > 0 ? data[0].timestamp : 0;
+  const cacheKey = `forecast_${data.length}_${days}_${Math.floor(latestTimestamp / (60 * 60 * 1000))}`; // 按小时缓存
   const cached = getCached<EmotionForecast>(cacheKey);
   if (cached) return cached;
 
   try {
-    const cycleAnalysis = await analyzeEmotionCycle(entries);
-    const avgMoodLevel = entries.length > 0
-      ? entries.reduce((sum, e) => sum + e.moodLevel, 0) / entries.length
+    const cycleAnalysis = await analyzeEmotionCycle(data);
+    const avgMoodLevel = data.length > 0
+      ? data.reduce((sum, e) => sum + e.moodLevel, 0) / data.length
       : 2.5;
 
     const predictions: EmotionForecast['predictions'] = [];
@@ -584,7 +587,8 @@ export const generateEmotionPodcast = async (
   userId: string = 'anonymous',
   userName: string = '朋友',
 ): Promise<string | null> => {
-  const cacheKey = `rx_podcast_${userId}_${period}_${entries.length}_${entries[0]?.timestamp || 0}`;
+  const data = excludeSoftDeletedEntries(entries);
+  const cacheKey = `rx_podcast_${userId}_${period}_${data.length}_${data[0]?.timestamp || 0}`;
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
@@ -595,7 +599,7 @@ export const generateEmotionPodcast = async (
 
     const now = Date.now();
     const periodMs = period === 'week' ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
-    const recentEntries = entries
+    const recentEntries = data
       .filter(e => now - e.timestamp < periodMs)
       .slice(-30);
 
@@ -663,9 +667,12 @@ export const generateEmotionPodcast = async (
  * 生成默认播客文案（降级策略）
  */
 const getDefaultPodcast = (entries: MoodEntry[], period: 'week' | 'month'): string => {
+  const data = excludeSoftDeletedEntries(entries);
   const now = Date.now();
   const periodMs = period === 'week' ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
-  const recentEntries = entries.filter(e => now - e.timestamp < periodMs);
+  const recentEntries = data.filter(
+    (e) => now - e.timestamp < periodMs,
+  );
   const totalCount = recentEntries.length;
   const resolvedCount = recentEntries.filter(e => e.status === 'resolved').length;
   const resolveRate = totalCount > 0 ? (resolvedCount / totalCount) * 100 : 0;
@@ -708,7 +715,7 @@ export const generateEmotionPrescription = async (
   const companionDays = firstEntryDate
     ? Math.floor((Date.now() - firstEntryDate) / (1000 * 60 * 60 * 24))
     : 0;
-  const recentTriggers = entries
+  const recentTriggers = excludeSoftDeletedEntries(entries)
     .slice(-10)
     .flatMap(e => e.triggers || [])
     .reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {} as Record<string, number>);

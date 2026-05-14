@@ -17,6 +17,7 @@ import {
   REVIEW_PRESET_LABEL,
   type ReviewExportPreset,
 } from '../shared/time-range';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 /** 与 AI 服务、画布数字同源的结构化摘要（无日记正文） */
 export interface ReviewExportClosingSummary {
@@ -80,23 +81,24 @@ export function computeReviewExportDerivedState(
   preset: ReviewExportPreset,
   now: Date,
 ): ReviewExportDerivedState {
+  const visible = excludeSoftDeletedEntries(entries);
   const { current, previous } = getReviewExportPeriods(now, preset);
   const compare = compareResolutionToPreviousPeriod(
-    entries,
+    visible,
     current.startMs,
     current.endMs,
     previous.startMs,
     previous.endMs,
   );
   const companionDays = calculateDaysAsOf(firstEntryDate, current.endMs);
-  const monthlySeries = getMonthlyResolutionRateSeries(entries, 6, now);
+  const monthlySeries = getMonthlyResolutionRateSeries(visible, 6, now);
   const topWeather = getTopThreeWeatherBucketsByDays(
-    entries,
+    visible,
     current.startMs,
     current.endMs,
   );
   const topTriggers = getTopTriggersWithAdvice(
-    entries,
+    visible,
     current.startMs,
     current.endMs,
   );

@@ -5,6 +5,7 @@
 
 import { MoodEntry } from '../types';
 import { Milestone, MILESTONES } from '../types/companionDays';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 /**
  * 回顾导出 / 陪伴展示用「第一条记录日」：
@@ -17,8 +18,9 @@ export function getEffectiveFirstEntryDateForCompanion(
   if (userFirstEntryDate != null && userFirstEntryDate > 0) {
     return userFirstEntryDate;
   }
-  if (entries.length === 0) return null;
-  return Math.min(...entries.map((e) => e.timestamp));
+  const visible = excludeSoftDeletedEntries(entries);
+  if (visible.length === 0) return null;
+  return Math.min(...visible.map((e) => e.timestamp));
 }
 
 /**

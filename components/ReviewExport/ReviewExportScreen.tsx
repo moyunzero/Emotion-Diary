@@ -4,6 +4,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
@@ -26,6 +27,7 @@ import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { formatDateChinese } from '../../shared/formatting';
 import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
+import { forceCancelRecording } from '../../shared/audio/recordingCoordinator';
 import { useAppStore } from '../../store/useAppStore';
 import {
   generateReviewExportClosingLine,
@@ -49,6 +51,16 @@ const PRESETS: { key: ReviewExportPreset; label: string }[] = [
 
 export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        useAppStore.getState().stopAudio();
+        void forceCancelRecording();
+      };
+    }, []),
+  );
+
   const insets = useSafeAreaInsets();
   const responsive = useResponsiveStyles();
   const responsiveLayout = useMemo(

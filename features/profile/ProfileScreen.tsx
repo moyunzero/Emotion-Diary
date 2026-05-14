@@ -1,12 +1,15 @@
 import { AppScreenShell } from "@/components/AppScreenShell";
 import CompanionDaysModal from "@/components/CompanionDaysModal";
 import { Toast } from "@/components/Toast";
+import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { useAppStore } from "@/store/useAppStore";
+import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { CloudRain, Sun } from "lucide-react-native";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
     ActivityIndicator,
     Keyboard,
@@ -32,6 +35,11 @@ export function ProfileScreen() {
   const entries = useAppStore((state) => state.entries);
   const weather = useAppStore((state) => state.weather);
 
+  const visibleEntryCount = useMemo(
+    () => excludeSoftDeletedEntries(entries).length,
+    [entries],
+  );
+
   const state = useProfileScreenState();
   const syncHandlers = useProfileSyncHandlers({
     isSyncingRef: state.isSyncingRef,
@@ -42,6 +50,15 @@ export function ProfileScreen() {
     setIsLoginModalOpen: state.setIsLoginModalOpen,
     setIsRegisterMode: state.setIsRegisterMode,
   });
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        useAppStore.getState().stopAudio();
+        void forceCancelRecording();
+      };
+    }, []),
+  );
+
   const authHandlers = useProfileAuthHandlers({
     isLoading: state.isLoading,
     isRegisterMode: state.isRegisterMode,
@@ -184,7 +201,7 @@ export function ProfileScreen() {
         />
 
         <ProfileStatsSection
-          entriesCount={entries.length}
+          entriesCount={visibleEntryCount}
           weatherScore={weather.score}
           onCompanionDaysPress={() => state.setIsCompanionDaysModalOpen(true)}
         />

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../constants/colors';
+import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -162,17 +162,22 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
     opacity: 0.6,
   },
+  /** 与 `content` 同宽：勿再写 paddingHorizontal，否则比上方 TagSelector 多缩进一层 */
   audioSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    marginTop: DESIGN_TOKENS.spacing.xxxl,
+    paddingTop: DESIGN_TOKENS.spacing.lg,
+    paddingBottom: DESIGN_TOKENS.spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray[50],
   },
+  /** 与 `TagSelector` 的 sectionTitle 同一层级（小写灰标签 + 大写 + 字间距） */
   audioSectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 12,
+    fontSize: DESIGN_TOKENS.fontSize.sm,
+    fontWeight: 'bold',
+    color: COLORS.text.tertiary,
+    marginBottom: DESIGN_TOKENS.spacing.lg,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   submitContainer: {
     paddingHorizontal: 24,

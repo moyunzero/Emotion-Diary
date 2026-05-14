@@ -10,6 +10,7 @@
 import { useAppStore } from "@/store/useAppStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 
 const FIRST_ENTRY_DATE_KEY_PREFIX = "@first_entry_date_";
 
@@ -44,8 +45,9 @@ export function useCompanionFirstEntryDate(): number | null {
       }
 
       // 2. 如果没有存储的值，但有 entries，使用最早的 entry 时间戳
-      if (entries.length > 0) {
-        const validTimestamps = entries.map((e) => e.timestamp).filter((t) => t > 0);
+      const visible = excludeSoftDeletedEntries(entries);
+      if (visible.length > 0) {
+        const validTimestamps = visible.map((e) => e.timestamp).filter((t) => t > 0);
         if (validTimestamps.length > 0) {
           const oldest = Math.min(...validTimestamps);
           setFirstEntryDate(oldest);

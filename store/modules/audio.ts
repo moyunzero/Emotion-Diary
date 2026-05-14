@@ -4,17 +4,25 @@
  */
 
 import { StateCreator } from 'zustand';
+import { audioCoordinator } from '../../shared/audio/coordinator';
+import {
+  commitRecordingIfActive,
+  forceCancelRecording,
+  recordingCoordinator,
+} from '../../shared/audio/recordingCoordinator';
 import { AudioData, MoodEntry, SyncStatus } from '../../types';
 import { AppState, RecordingState } from './types';
 
 /**
- * 音频播放状态
+ * 音频播放状态（与 coordinator 写入字段一致）
  */
 export interface AudioPlayerState {
-  currentAudioId: string | null;  // 当前播放的音频ID
+  currentAudioId: string | null;
+  playbackEntryId: string | null;
+  playbackScope: "draft" | "entry" | null;
   isPlaying: boolean;
-  playbackPosition: number;      // 当前播放位置（秒）
-  duration: number;              // 总时长
+  playbackPosition: number;
+  duration: number;
 }
 
 /**
@@ -31,8 +39,7 @@ export interface AudioState extends AudioPlayerState {
  * 音频操作接口
  */
 export interface AudioActions {
-  // 播放控制
-  playAudio: (audioId: string, uri: string) => void;
+  // 播放控制（实际播放入口见 `shared/audio/coordinator`）
   pauseAudio: () => void;
   stopAudio: () => void;
   seekTo: (position: number) => void;
@@ -71,9 +78,11 @@ export const createAudioSlice: StateCreator<
   [],
   [],
   AudioState & AudioActions
-> = (set, get, _store) => ({
+> = (set, _get, _store) => ({
   // 播放状态初始值
   currentAudioId: null,
+  playbackEntryId: null,
+  playbackScope: null,
   isPlaying: false,
   playbackPosition: 0,
   duration: 0,
@@ -84,23 +93,12 @@ export const createAudioSlice: StateCreator<
   currentRecordingUri: null,
 
   // 播放控制
-  playAudio: (audioId: string, _uri: string) => {
-    set({
-      currentAudioId: audioId,
-      isPlaying: true,
-    });
-  },
-
   pauseAudio: () => {
-    set({ isPlaying: false });
+    audioCoordinator.pause();
   },
 
   stopAudio: () => {
-    set({
-      currentAudioId: null,
-      isPlaying: false,
-      playbackPosition: 0,
-    });
+    audioCoordinator.stop();
   },
 
   seekTo: (position: number) => {
@@ -125,46 +123,15 @@ export const createAudioSlice: StateCreator<
   },
 
   startRecording: async () => {
-    set({
-      recordingState: 'recording',
-      recordingDuration: 0,
-      currentRecordingUri: null,
-    });
+    recordingCoordinator.pressIn();
   },
 
   stopRecording: async () => {
-    const { currentRecordingUri, recordingDuration } = get();
-
-    if (!currentRecordingUri) {
-      set({ recordingState: 'idle' });
-      return null;
-    }
-
-    const audioData: AudioData = {
-      id: Date.now().toString(),
-      localUri: currentRecordingUri,
-      duration: recordingDuration,
-      fileSize: 0, // 会在上传前计算
-      fileHash: '', // 会在上传前计算
-      createdAt: Date.now(),
-      syncStatus: 'pending',
-    };
-
-    set({
-      recordingState: 'preview',
-      currentRecordingUri: null,
-      recordingDuration: 0,
-    });
-
-    return audioData;
+    return commitRecordingIfActive();
   },
 
   cancelRecording: () => {
-    set({
-      recordingState: 'idle',
-      recordingDuration: 0,
-      currentRecordingUri: null,
-    });
+    void forceCancelRecording();
   },
 });
 

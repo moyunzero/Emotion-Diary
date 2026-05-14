@@ -47,7 +47,6 @@
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
     "@react-navigation/native",
-    "expo-av",
     "expo-status-bar",
     "expo-symbols",
     "zod",

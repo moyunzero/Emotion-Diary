@@ -1,392 +1,275 @@
 /**
- * 录音机主组件
- * 管理录音状态机、权限、录制和播放
+ * 录音机主组件：列表与试听 UI；录音状态与原生由全局 recordingCoordinator + Zustand 驱动。
  */
 
-import {
-    AudioModule,
-    AudioStatus,
-    createAudioPlayer,
-    RecordingPresets,
-    setAudioModeAsync,
-    useAudioRecorder,
-    useAudioRecorderState,
-} from "expo-audio";
-import { cacheDirectory, copyAsync, deleteAsync, getInfoAsync } from "expo-file-system";
-import * as Haptics from "expo-haptics";
-import { md5 } from "js-md5";
+import { useIsFocused } from "@react-navigation/native";
+import { AudioModule } from "expo-audio";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Alert, Linking, StyleSheet, Text, View } from "react-native";
-import { RecordingState } from "../../store/modules/types";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import { audioCoordinator } from "../../shared/audio/coordinator";
+import {
+  dismissRecordingPreview,
+  forceCancelRecording,
+  releaseRecordingClipHandler,
+  setRecordingClipHandler,
+} from "../../shared/audio/recordingCoordinator";
+import { useAppStore } from "../../store/useAppStore";
 import { AudioData } from "../../types";
 import { AudioList } from "./AudioList";
 import { RecordButton } from "./RecordButton";
 import { WaveformView } from "./WaveformView";
 
+/** 创建页强调录音；编辑弹窗优先已有语音、压缩录音区占位 */
+export type AudioRecorderLayoutPreset = "create" | "edit";
+
+/**
+ * 全局 clipHandler 注册策略（单例协调器只能绑定一个接收方）：
+ * - `tab-focus`：仅当前 Tab 获得导航焦点时注册（记一笔）；离开 Tab 时释放，避免被编辑层抢占后永久 null
+ * - `{ active: boolean }`：由父组件显式控制（编辑弹层仅在 visible 时注册）
+ */
+export type AudioClipBinding = "tab-focus" | { active: boolean };
+
 interface AudioRecorderProps {
-    readonly audios: AudioData[];
-    readonly onAudiosChange: (audios: AudioData[]) => void;
-    readonly currentPlayingId: string | null;
-    readonly isPlaying: boolean;
-    readonly playbackPosition: number;
-    readonly onPlaybackPositionChange: (position: number) => void;
-    readonly onPlayAudio: (audio: AudioData) => void;
-    readonly onPauseAudio: () => void;
-    readonly disabled?: boolean;
+  readonly audios: AudioData[];
+  readonly onAudiosChange: (audios: AudioData[]) => void;
+  readonly disabled?: boolean;
+  readonly layoutPreset?: AudioRecorderLayoutPreset;
+  readonly clipBinding?: AudioClipBinding;
 }
 
 export interface AudioRecorderHandle {
-    stopPlayback: () => void;
+  stopPlayback: () => void;
 }
 
-export const AudioRecorder = React.forwardRef<AudioRecorderHandle, AudioRecorderProps>(({
-    audios,
-    onAudiosChange,
-    currentPlayingId,
-    isPlaying,
-    playbackPosition,
-    onPlaybackPositionChange,
-    onPlayAudio,
-    onPauseAudio,
-    disabled = false,
-}, ref) => {
-    const [recordingState, setRecordingState] = useState<RecordingState>("idle");
-    const [recordingDuration, setRecordingDuration] = useState(0);
-    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-    const [recordedUri, setRecordedUri] = useState<string | null>(null);
-    const playerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
-    const tempRecordingUriRef = useRef<string | null>(null);
+export const AudioRecorder = React.forwardRef<
+  AudioRecorderHandle,
+  AudioRecorderProps
+>(({ audios, onAudiosChange, disabled = false, layoutPreset = "create", clipBinding = "tab-focus" }, ref) => {
+  const isNavFocused = useIsFocused();
+  const currentPlayingId = useAppStore((s) => s.currentAudioId);
+  const isPlaying = useAppStore((s) => s.isPlaying);
+  const playbackPosition = useAppStore((s) => s.playbackPosition);
+  const recordingState = useAppStore((s) => s.recordingState);
+  const recordingDuration = useAppStore((s) => s.recordingDuration);
 
-    useImperativeHandle(ref, () => ({
-        stopPlayback: () => {
-            if (playerRef.current) {
-                playerRef.current.pause();
-                playerRef.current = null;
-                onPauseAudio();
-            }
-        },
-    }));
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-    const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-    const recorderState = useAudioRecorderState(recorder, 100);
+  const audiosRef = useRef(audios);
+  const onAudiosChangeRef = useRef(onAudiosChange);
 
-    useEffect(() => {
-        checkPermissions();
-    }, []);
+  useImperativeHandle(ref, () => ({
+    stopPlayback: () => {
+      audioCoordinator.stop();
+    },
+  }));
 
-    useEffect(() => {
-        if (audios.length > 0 && recordingState === 'preview') {
-            setRecordingState('idle');
-        }
-    }, [audios.length, recordingState]);
+  useEffect(() => {
+    audiosRef.current = audios;
+    onAudiosChangeRef.current = onAudiosChange;
+  }, [audios, onAudiosChange]);
 
-    useEffect(() => {
-        return () => {
-            if (playerRef.current) {
-                playerRef.current.pause();
-                playerRef.current.remove();
-                playerRef.current = null;
-            }
-            if (tempRecordingUriRef.current) {
-                deleteAsync(tempRecordingUriRef.current).catch(() => {});
-                tempRecordingUriRef.current = null;
-            }
-        };
-    }, []);
+  const dispatchClip = useCallback((clip: AudioData) => {
+    onAudiosChangeRef.current([...audiosRef.current, clip]);
+  }, []);
 
-    useEffect(() => {
-        if (recorderState.durationMillis && recorderState.isRecording) {
-            setRecordingDuration(recorderState.durationMillis / 1000);
-        }
-    }, [recorderState.durationMillis, recorderState.isRecording]);
+  const clipChannelActive =
+    clipBinding === "tab-focus" ? isNavFocused : clipBinding.active;
 
-    const checkPermissions = async () => {
-        try {
-            const status = await AudioModule.requestRecordingPermissionsAsync();
-            setHasPermission(status.granted);
-        } catch (error) {
-            console.error("Error checking permissions:", error);
-            setHasPermission(false);
-        }
+  useEffect(() => {
+    if (!clipChannelActive) {
+      releaseRecordingClipHandler(dispatchClip);
+      return;
+    }
+    setRecordingClipHandler(dispatchClip);
+    return () => {
+      releaseRecordingClipHandler(dispatchClip);
     };
+  }, [clipChannelActive, dispatchClip]);
 
-    const handleRecordingStart = useCallback(async () => {
-        if (!hasPermission) {
-            Alert.alert(
-                "需要录音权限",
-                "请在设置中开启麦克风权限",
-                [
-                    { text: "取消", style: "cancel" },
-                    { text: "去设置", onPress: () => Linking.openSettings() },
-                ]
-            );
-            return;
+  useEffect(() => {
+    if (audios.length > 0 && recordingState === "preview") {
+      dismissRecordingPreview();
+    }
+  }, [audios.length, recordingState]);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const status = await AudioModule.requestRecordingPermissionsAsync();
+        setHasPermission(status.granted);
+      } catch (error) {
+        console.error("Error checking permissions:", error);
+        setHasPermission(false);
+      }
+    };
+    void run();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      audioCoordinator.stop();
+      void forceCancelRecording();
+    };
+  }, []);
+
+  const handlePlayAudio = useCallback(
+    async (audio: AudioData) => {
+      try {
+        if (currentPlayingId === audio.id && isPlaying) {
+          return;
         }
 
-        try {
-            if (playerRef.current) {
-                playerRef.current.pause();
-                playerRef.current.remove();
-                playerRef.current = null;
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-
-            if (tempRecordingUriRef.current) {
-                deleteAsync(tempRecordingUriRef.current).catch(() => {});
-                tempRecordingUriRef.current = null;
-            }
-
-            await setAudioModeAsync({
-                allowsRecording: true,
-                playsInSilentMode: true,
-                interruptionMode: "duckOthers",
-            });
-
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            await recorder.prepareToRecordAsync();
-            recorder.record();
-            tempRecordingUriRef.current = recorder.uri;
-
-            setRecordingState("recording");
-            setRecordingDuration(0);
-            setRecordedUri(null);
-
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        } catch (error) {
-            console.error("Failed to start recording:", error);
-            Alert.alert("录音失败", "无法开始录音，请重试");
-            setRecordingState("idle");
+        const result = await audioCoordinator.playDraftAudio(audio);
+        if (!result.ok) {
+          Alert.alert("播放失败", "无法播放录音，请重试");
         }
-    }, [hasPermission, recorder]);
+      } catch (error) {
+        console.error("Failed to play audio:", error);
+        Alert.alert("播放失败", "无法播放录音，请重试");
+      }
+    },
+    [currentPlayingId, isPlaying],
+  );
 
-    const handleRecordingStop = useCallback(async () => {
-        if (!recorderState.isRecording && !recordedUri) {
-            setRecordingState("idle");
-            return;
-        }
+  const handlePauseAudio = useCallback(() => {
+    audioCoordinator.pause();
+  }, []);
 
-        try {
-            setRecordingState("processing");
+  const handleDeleteAudio = useCallback(
+    (audioId: string) => {
+      if (audioId === currentPlayingId) {
+        audioCoordinator.stop();
+      }
+      const updatedAudios = audios.filter((a) => a.id !== audioId);
+      onAudiosChange(updatedAudios);
+    },
+    [audios, currentPlayingId, onAudiosChange],
+  );
 
-            const sourceUri = recorder.uri;
-            const duration = recorderState.durationMillis
-                ? recorderState.durationMillis / 1000
-                : recordingDuration;
+  const handleRenameAudio = useCallback(
+    (audioId: string, newName: string) => {
+      const updatedAudios = audios.map((a) =>
+        a.id === audioId ? { ...a, name: newName } : a,
+      );
+      onAudiosChange(updatedAudios);
+    },
+    [audios, onAudiosChange],
+  );
 
-            await recorder.stop();
+  const isEditLayout = layoutPreset === "edit";
+  const showWaveform =
+    !isEditLayout || recordingState === "recording";
+  const editListFirst = isEditLayout && audios.length > 0;
 
-            await setAudioModeAsync({
-                allowsRecording: false,
-                playsInSilentMode: true,
-                interruptionMode: "mixWithOthers",
-            });
+  const recordDisabled = disabled || hasPermission === false;
 
-            await new Promise(resolve => setTimeout(resolve, 150));
+  const recordingSection = (
+    <View
+      style={[
+        styles.recordingSection,
+        isEditLayout && styles.recordingSectionEdit,
+      ]}
+    >
+      {showWaveform ? (
+        <WaveformView
+          isActive={recordingState === "recording"}
+          color="#6C63FF"
+        />
+      ) : null}
 
-            if (!sourceUri) {
-                throw new Error("No URI for recording");
-            }
+      <View
+        style={[
+          styles.buttonContainer,
+          !showWaveform && styles.buttonContainerTightTop,
+        ]}
+      >
+        <RecordButton disabled={recordDisabled} compact={isEditLayout} />
+      </View>
 
-            const uniqueFileName = `recording_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`;
-            const destUri = `${cacheDirectory || ''}${uniqueFileName}`;
-            await copyAsync({ from: sourceUri, to: destUri });
-
-            const fileInfo = await getInfoAsync(destUri);
-            const fileSize = fileInfo.exists ? (fileInfo.size || 0) : 0;
-
-            const fileHash = md5(destUri);
-
-            await deleteAsync(sourceUri).catch(() => {});
-            tempRecordingUriRef.current = null;
-
-            const newAudio: AudioData = {
-                id: Date.now().toString(),
-                localUri: destUri,
-                duration: duration,
-                fileSize: fileSize,
-                fileHash: fileHash,
-                createdAt: Date.now(),
-                syncStatus: "pending",
-            };
-
-            setRecordingState("preview");
-            setRecordedUri(null);
-            onAudiosChange([...audios, newAudio]);
-
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        } catch (error) {
-            console.error("Failed to stop recording:", error);
-            Alert.alert("保存失败", "无法保存录音，请重试");
-            setRecordingState("idle");
-        }
-    }, [recorder, recorderState, recordedUri, recordingDuration, audios, onAudiosChange]);
-
-    const handleRecordingCancel = useCallback(async () => {
-        try {
-            const sourceUri = recorder.uri;
-
-            if (recorderState.isRecording) {
-                await recorder.stop();
-            }
-
-            await setAudioModeAsync({
-                allowsRecording: false,
-                playsInSilentMode: true,
-            });
-
-            if (sourceUri) {
-                await deleteAsync(sourceUri).catch(() => {});
-            }
-            tempRecordingUriRef.current = null;
-
-            setRecordingState("idle");
-            setRecordingDuration(0);
-            setRecordedUri(null);
-        } catch (error) {
-            console.error("Failed to cancel recording:", error);
-            setRecordingState("idle");
-        }
-    }, [recorder, recorderState]);
-
-    const handlePlayAudio = useCallback(async (audio: AudioData) => {
-        try {
-            const uri = audio.localUri || audio.remoteUrl;
-            if (!uri) {
-                Alert.alert("播放失败", "无法播放录音，请重试");
-                return;
-            }
-
-            if (currentPlayingId === audio.id && isPlaying) {
-                return;
-            }
-
-            if (playerRef.current) {
-                playerRef.current.pause();
-                playerRef.current.remove();
-                playerRef.current = null;
-            }
-
-            const player = createAudioPlayer(uri);
-            playerRef.current = player;
-
-            player.play();
-
-            const statusListener = (status: AudioStatus) => {
-                if (status.currentTime !== undefined) {
-                    const clampedPosition = Math.min(status.currentTime, audio.duration);
-                    onPlaybackPositionChange(clampedPosition);
-                }
-                if (status.didJustFinish) {
-                    onPauseAudio();
-                    onPlaybackPositionChange(0);
-                    playerRef.current = null;
-                }
-            };
-
-            player.addListener("playbackStatusUpdate" as any, statusListener);
-
-            onPlayAudio(audio);
-        } catch (error) {
-            console.error("Failed to play audio:", error);
-            Alert.alert("播放失败", "无法播放录音，请重试");
-            playerRef.current = null;
-        }
-    }, [currentPlayingId, isPlaying, onPlayAudio, onPauseAudio, onPlaybackPositionChange]);
-
-    const handlePauseAudio = useCallback(async () => {
-        if (playerRef.current) {
-            playerRef.current.pause();
-        }
-        onPauseAudio();
-    }, [onPauseAudio]);
-
-    const handleDeleteAudio = useCallback((audioId: string) => {
-        if (audioId === currentPlayingId && playerRef.current) {
-            playerRef.current.pause();
-            playerRef.current = null;
-            onPauseAudio();
-        }
-        const updatedAudios = audios.filter((a) => a.id !== audioId);
-        onAudiosChange(updatedAudios);
-    }, [audios, currentPlayingId, onAudiosChange, onPauseAudio]);
-
-    const handleRenameAudio = useCallback((audioId: string, newName: string) => {
-        const updatedAudios = audios.map((a) =>
-            a.id === audioId ? { ...a, name: newName } : a
-        );
-        onAudiosChange(updatedAudios);
-    }, [audios, onAudiosChange]);
-
-    return (
-        <View style={styles.container}>
-            <View style={styles.recordingSection}>
-                <WaveformView
-                    isActive={recordingState === "recording"}
-                    color="#6C63FF"
-                />
-
-                <View style={styles.buttonContainer}>
-                    <RecordButton
-                        recordingState={recordingState}
-                        onRecordingStart={handleRecordingStart}
-                        onRecordingStop={handleRecordingStop}
-                        onRecordingCancel={handleRecordingCancel}
-                        disabled={disabled}
-                    />
-                </View>
-
-                {recordingState === "recording" && (
-                    <View style={styles.durationContainer}>
-                        <Text style={styles.durationText}>
-                            {Math.floor(recordingDuration / 60)
-                                .toString()
-                                .padStart(2, "0")}
-                            :
-                            {Math.floor(recordingDuration % 60)
-                                .toString()
-                                .padStart(2, "0")}
-                        </Text>
-                    </View>
-                )}
-            </View>
-
-            <AudioList
-                audios={audios}
-                currentPlayingId={currentPlayingId}
-                isPlaying={isPlaying}
-                playbackPosition={playbackPosition}
-                onPlay={handlePlayAudio}
-                onPause={handlePauseAudio}
-                onDelete={handleDeleteAudio}
-                onRename={handleRenameAudio}
-            />
+      {recordingState === "recording" && (
+        <View style={styles.durationContainer}>
+          <Text style={styles.durationText}>
+            {Math.floor(recordingDuration / 60)
+              .toString()
+              .padStart(2, "0")}
+            :
+            {Math.floor(recordingDuration % 60)
+              .toString()
+              .padStart(2, "0")}
+          </Text>
         </View>
-    );
+      )}
+    </View>
+  );
+
+  const list = (
+    <AudioList
+      audios={audios}
+      currentPlayingId={currentPlayingId}
+      isPlaying={isPlaying}
+      playbackPosition={playbackPosition}
+      onPlay={handlePlayAudio}
+      onPause={handlePauseAudio}
+      onDelete={handleDeleteAudio}
+      onRename={handleRenameAudio}
+      headerTitle="语音列表"
+      headerVariant={isEditLayout ? "minimal" : "default"}
+      listPlacement={
+        editListFirst ? "before-recording" : "after-recording"
+      }
+    />
+  );
+
+  return (
+    <View
+      style={[styles.container, isEditLayout && styles.containerEdit]}
+    >
+      {editListFirst ? (
+        <>
+          {list}
+          {recordingSection}
+        </>
+      ) : (
+        <>
+          {recordingSection}
+          {list}
+        </>
+      )}
+    </View>
+  );
 });
 
 const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 16,
-    },
-    recordingSection: {
-        alignItems: "center",
-        paddingVertical: 20,
-    },
-    buttonContainer: {
-        marginTop: 16,
-    },
-    durationContainer: {
-        marginTop: 12,
-    },
-    durationText: {
-        fontSize: 24,
-        fontWeight: "600",
-        color: "#333",
-        fontVariant: ["tabular-nums"],
-    },
+  container: {
+    paddingHorizontal: 16,
+  },
+  containerEdit: {
+    paddingHorizontal: 0,
+  },
+  recordingSection: {
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  recordingSectionEdit: {
+    paddingVertical: 10,
+  },
+  buttonContainer: {
+    marginTop: 16,
+  },
+  buttonContainerTightTop: {
+    marginTop: 0,
+  },
+  durationContainer: {
+    marginTop: 12,
+  },
+  durationText: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#333",
+    fontVariant: ["tabular-nums"],
+  },
 });
 
-AudioRecorder.displayName = 'AudioRecorder';
+AudioRecorder.displayName = "AudioRecorder";
 
 export default AudioRecorder;

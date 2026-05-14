@@ -6,7 +6,16 @@
 // 防抖合并多次快速写入，减少 AsyncStorage 频繁 IO；与天气模块联动在落盘后重算。
 
 import { StateCreator } from 'zustand';
-import { EditHistory, MoodEntry, Status } from '../../types';
+import { MAX_EDIT_HISTORY } from '../../constants';
+import {
+  appendEditHistoryWithLimit,
+  buildEditHistorySnapshot,
+} from '../../shared/entries/editHistory';
+import {
+  excludeSoftDeletedEntries,
+  generateEntryId,
+} from '../../shared/entries/visibility';
+import { MoodEntry, Status } from '../../types';
 import {
   getStorageKey,
   loadFromStorage,
@@ -53,7 +62,7 @@ export const createEntriesSlice: StateCreator<
   addEntry: async (entryData): Promise<void> => {
     const newEntry: MoodEntry = {
       ...entryData,
-      id: Date.now().toString(),
+      id: generateEntryId(),
       timestamp: Date.now(),
       status: Status.ACTIVE,
     };
@@ -85,20 +94,13 @@ export const createEntriesSlice: StateCreator<
       return;
     }
 
-    // 创建编辑历史记录
-    const editHistory: EditHistory = {
-      editedAt: Date.now(),
-      previousContent: entry.content,
-      previousMoodLevel: entry.moodLevel,
-      previousDeadline: entry.deadline,
-      previousPeople: [...entry.people],
-      previousTriggers: [...entry.triggers],
-    };
-
-    // 限制编辑历史数量，防止内存泄漏
-    const MAX_EDIT_HISTORY = 10;
-    const currentHistory = entry.editHistory || [];
-    const newHistory = [...currentHistory, editHistory].slice(-MAX_EDIT_HISTORY);
+    // 快照构造与上限截断的纯逻辑见 shared/entries/editHistory.ts，便于单测覆盖。
+    const snapshot = buildEditHistorySnapshot(entry, Date.now());
+    const newHistory = appendEditHistoryWithLimit(
+      entry.editHistory,
+      snapshot,
+      MAX_EDIT_HISTORY,
+    );
 
     // 更新条目
     const updatedEntries = entries.map((e) =>
@@ -152,28 +154,24 @@ export const createEntriesSlice: StateCreator<
     get()._calculateWeather();
   },
 
-/**
- * 删除条目（真正删除，不保留任何痕迹）
- * 注意：关联的音频文件需要应用层（如 expo-file-system）进行清理
- */
+  /**
+   * 删除条目：软删除（设置 `deletedAt`），仍保留在 `entries` 中。
+   * 见 `openspec/changes/002-entry-backup-soft-delete/SPEC.md`。
+   */
   deleteEntry: async (id): Promise<void> => {
     const { entries } = get();
-    const entryToDelete = entries.find((e) => e.id === id);
-    
-    if (entryToDelete?.audios?.length) {
-      console.log(`删除条目 ${id}，包含 ${entryToDelete.audios.length} 个音频文件`);
-    }
-    
-    const updatedEntries = entries.filter((e) => e.id !== id);
+    const now = Date.now();
+    const updatedEntries = entries.map((e) =>
+      e.id === id ? { ...e, deletedAt: now } : e,
+    );
     set({ entries: updatedEntries });
 
-    // 如果删除后没有记录了，清除 firstEntryDate
     const store = get();
-    if (updatedEntries.length === 0 && store.clearFirstEntryDate) {
+    const stillVisible = excludeSoftDeletedEntries(updatedEntries);
+    if (stillVisible.length === 0 && store.clearFirstEntryDate) {
       await store.clearFirstEntryDate();
     }
 
-    // 保存到本地并重新计算天气
     get()._saveEntries();
     get()._calculateWeather();
   },

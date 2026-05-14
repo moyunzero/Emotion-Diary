@@ -4,7 +4,7 @@
  * - getStorageKey 键生成逻辑
  * - mergeEntries 合并策略
  * - loadFromStorage / saveToStorage（mock AsyncStorage）
- * - migrateFromLegacyStorage / migrateGuestDataToUser
+ * - migrateFromLegacyStorage / migrateGuestDataToUser / replaceGuestStorageEntries
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,6 +14,7 @@ import {
     mergeEntries,
     migrateFromLegacyStorage,
     migrateGuestDataToUser,
+    replaceGuestStorageEntries,
     removeFromStorage,
     saveToStorage,
 } from '../../../store/modules/storage';
@@ -244,5 +245,27 @@ describe('migrateGuestDataToUser', () => {
     const merged = result.data!;
     expect(merged).toHaveLength(1);
     expect(merged[0].content).toBe('user-version');
+  });
+});
+
+describe('replaceGuestStorageEntries', () => {
+  it('overwrites guest key with the provided list', async () => {
+    const stale = makeEntry({ id: 'stale-1' });
+    await AsyncStorage.setItem('mood_entries_guest', JSON.stringify([stale]));
+
+    const fresh = [makeEntry({ id: 'only', timestamp: 1 })];
+    const ok = await replaceGuestStorageEntries(fresh);
+    expect(ok).toBe(true);
+
+    const loaded = await loadFromStorage('mood_entries_guest');
+    expect(loaded).toHaveLength(1);
+    expect(loaded[0].id).toBe('only');
+  });
+
+  it('persists an empty guest list', async () => {
+    await AsyncStorage.setItem('mood_entries_guest', JSON.stringify([makeEntry({ id: 'x' })]));
+    await replaceGuestStorageEntries([]);
+    const loaded = await loadFromStorage('mood_entries_guest');
+    expect(loaded).toHaveLength(0);
   });
 });

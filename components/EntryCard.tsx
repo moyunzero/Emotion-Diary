@@ -1,7 +1,7 @@
 import { EditEntryModal } from "@/components/entries";
 import { formatDateChinese } from "@/shared/formatting";
+import { audioCoordinator } from "@/shared/audio/coordinator";
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import { AudioStatus, createAudioPlayer } from "expo-audio";
 import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -134,10 +134,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
 
-  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
-  const [playbackPosition, setPlaybackPosition] = useState<number>(0);
-  const audioPlayerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null);
-  const statusListenerRef = useRef<((status: AudioStatus) => void) | null>(null);
+  const currentAudioId = useAppStore((s) => s.currentAudioId);
+  const playbackEntryId = useAppStore((s) => s.playbackEntryId);
+  const isPlayingGlobal = useAppStore((s) => s.isPlaying);
+  const playbackPosition = useAppStore((s) => s.playbackPosition);
 
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -145,79 +145,31 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handlePlayAudio = useCallback(async (audio: AudioData) => {
-    try {
-      if (playingAudioId === audio.id) {
-        if (audioPlayerRef.current) {
-          audioPlayerRef.current.pause();
-          audioPlayerRef.current.remove();
-          if (statusListenerRef.current) {
-            audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
-            statusListenerRef.current = null;
-          }
-          audioPlayerRef.current = null;
+  const isAudioRowActive = (audio: AudioData) =>
+    playbackEntryId === entry.id && currentAudioId === audio.id;
+
+  const handlePlayAudio = useCallback(
+    async (audio: AudioData) => {
+      try {
+        const result = await audioCoordinator.playEntryAudio(entry.id, audio);
+        if (!result.ok && result.reason === "no_uri") {
+          Alert.alert("播放失败", "录音文件已丢失");
+        } else if (!result.ok) {
+          Alert.alert("播放失败", "无法播放录音，请重试");
         }
-        setPlayingAudioId(null);
-        return;
+      } catch (error) {
+        console.error("Failed to play audio:", error);
+        Alert.alert("播放失败", "无法播放录音，请重试");
       }
-
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.pause();
-        if (statusListenerRef.current) {
-          audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
-          statusListenerRef.current = null;
-        }
-        audioPlayerRef.current.remove();
-        audioPlayerRef.current = null;
-      }
-
-      const uri = audio.localUri || audio.remoteUrl;
-      if (!uri) {
-        Alert.alert("播放失败", "录音文件已丢失");
-        return;
-      }
-
-      const player = createAudioPlayer(uri);
-      audioPlayerRef.current = player;
-
-      const audioDuration = audio.duration;
-      const statusListener = (status: AudioStatus) => {
-        if (status.currentTime !== undefined) {
-          const clampedPosition = Math.min(status.currentTime, audioDuration);
-          setPlaybackPosition(clampedPosition);
-        }
-        if (status.didJustFinish) {
-          setPlayingAudioId(null);
-          setPlaybackPosition(0);
-          audioPlayerRef.current = null;
-          statusListenerRef.current = null;
-        }
-      };
-      statusListenerRef.current = statusListener;
-
-      player.addListener("playbackStatusUpdate" as any, statusListener);
-      player.play();
-
-      setPlayingAudioId(audio.id);
-    } catch (error) {
-      console.error("Failed to play audio:", error);
-      Alert.alert("播放失败", "无法播放录音，请重试");
-    }
-  }, [playingAudioId]);
+    },
+    [entry.id],
+  );
 
   useEffect(() => {
-    return () => {
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.pause();
-        if (statusListenerRef.current) {
-          audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
-          statusListenerRef.current = null;
-        }
-        audioPlayerRef.current.remove();
-        audioPlayerRef.current = null;
-      }
-    };
-  }, []);
+    if (!isExpanded && playbackEntryId === entry.id) {
+      useAppStore.getState().stopAudio();
+    }
+  }, [isExpanded, playbackEntryId, entry.id]);
 
   const handleResolve = () => {
     triggerHaptic("success");
@@ -386,16 +338,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleEdit = () => {
     triggerHaptic("light");
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-      if (statusListenerRef.current) {
-        audioPlayerRef.current.removeListener("playbackStatusUpdate" as any, statusListenerRef.current);
-        statusListenerRef.current = null;
-      }
-      audioPlayerRef.current.remove();
-      audioPlayerRef.current = null;
-    }
-    setPlayingAudioId(null);
+    useAppStore.getState().stopAudio();
     setIsEditModalVisible(true);
   };
 
@@ -449,13 +392,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                           key={audio.id}
                           style={[
                             styles.audioPlayItem,
-                            playingAudioId === audio.id && styles.audioPlayItemActive
+                            isAudioRowActive(audio) && styles.audioPlayItemActive
                           ]}
                           onPress={() => handlePlayAudio(audio)}
                           accessibilityRole="button"
                           accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
                         >
-                          {playingAudioId === audio.id ? (
+                          {isAudioRowActive(audio) && isPlayingGlobal ? (
                             <Pause size={16} color="#6C63FF" />
                           ) : (
                             <Play size={16} color="#9CA3AF" />
@@ -463,13 +406,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                           <Text
                             style={[
                               styles.audioPlayName,
-                              playingAudioId === audio.id && styles.audioPlayNameActive
+                              isAudioRowActive(audio) && styles.audioPlayNameActive
                             ]}
                             numberOfLines={1}
                           >
                             {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
                           </Text>
-                          {playingAudioId === audio.id && (
+                          {isAudioRowActive(audio) && isPlayingGlobal && (
                             <Text style={styles.audioPlayDuration}>
                               {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
                             </Text>
@@ -577,13 +520,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                         key={audio.id}
                         style={[
                           styles.audioPlayItem,
-                          playingAudioId === audio.id && styles.audioPlayItemActive
+                          isAudioRowActive(audio) && styles.audioPlayItemActive
                         ]}
                         onPress={() => handlePlayAudio(audio)}
                         accessibilityRole="button"
                         accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
                       >
-                        {playingAudioId === audio.id ? (
+                        {isAudioRowActive(audio) && isPlayingGlobal ? (
                           <Pause size={16} color="#6C63FF" />
                         ) : (
                           <Play size={16} color="#9CA3AF" />
@@ -591,13 +534,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                         <Text
                           style={[
                             styles.audioPlayName,
-                            playingAudioId === audio.id && styles.audioPlayNameActive
+                            isAudioRowActive(audio) && styles.audioPlayNameActive
                           ]}
                           numberOfLines={1}
                         >
                           {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
                         </Text>
-                        {playingAudioId === audio.id && (
+                        {isAudioRowActive(audio) && isPlayingGlobal && (
                           <Text style={styles.audioPlayDuration}>
                             {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
                           </Text>

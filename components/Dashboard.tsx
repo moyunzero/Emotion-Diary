@@ -1,4 +1,5 @@
 import { formatDateChinese } from "@/shared/formatting";
+import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -89,13 +90,16 @@ const getEmptyStateContent = (filter: DashboardFilterType): {
 /**
  * Calculate filter dropdown position with boundary detection
  * Uses responsive sizing based on screen width
+ *
+ * minTop 用于阻止下拉菜单进入页面顶部固定 header 的占位区域，是抽出 sticky 筛选条后的护栏。
  */
 const calculateDropdownPosition = (
   filterButtonLayout: { x: number; y: number; width: number; height: number },
   windowWidth: number,
   windowHeight: number,
   dropdownWidth: number,
-  dropdownHeight: number = 200
+  dropdownHeight: number = 200,
+  minTop: number = 0,
 ): { top: number; right: number } => {
   const rightPosition = windowWidth - filterButtonLayout.x - filterButtonLayout.width;
   const topPosition = filterButtonLayout.y + filterButtonLayout.height;
@@ -105,13 +109,22 @@ const calculateDropdownPosition = (
     16,
     Math.min(rightPosition, windowWidth - dropdownWidth - 16),
   );
-  const adjustedTop =
+  const rawTop =
     topPosition + dropdownHeight > windowHeight
       ? filterButtonLayout.y - dropdownHeight // Show above if not enough space below
       : topPosition;
+  // 防御：即便上翻或测量异常，也不让下拉与顶部固定 header 重叠
+  const adjustedTop = Math.max(rawTop, minTop);
 
   return { top: adjustedTop, right: adjustedRight };
 };
+
+/**
+ * 顶部固定 header 的竖向占位估算（dp），用于下拉菜单 top 的下限护栏。
+ * 来源：styles.header paddingTop(sm=8) + title 行高 33.6 + xs(4) + subtitle 行高 16.8 + paddingBottom(xxl=24) ≈ 86.4。
+ * 若未来调整 styles.header 的 padding 或字号，必须同步更新本常量。
+ */
+const STICKY_HEADER_TOP_GUARD = 88;
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -195,26 +208,27 @@ const Dashboard: React.FC = () => {
   }, [measureFilterButton]);
 
   const filteredEntries = useMemo(() => {
+    const visible = excludeSoftDeletedEntries(entries);
     if (filter === "all") {
-      const activeEntries = entries
+      const activeEntries = visible
         .filter((e) => e.status === Status.ACTIVE)
         .sort((a, b) => b.timestamp - a.timestamp);
-      const resolvedEntries = entries
+      const resolvedEntries = visible
         .filter((e) => e.status === Status.RESOLVED)
         .sort((a, b) => b.timestamp - a.timestamp);
-      const burnedEntries = entries
+      const burnedEntries = visible
         .filter((e) => e.status === Status.BURNED)
         .sort((a, b) => b.timestamp - a.timestamp);
       return [...activeEntries, ...resolvedEntries, ...burnedEntries];
     }
 
-    let filtered = entries;
+    let filtered = visible;
     if (filter === "active") {
-      filtered = entries.filter((e) => e.status === Status.ACTIVE);
+      filtered = visible.filter((e) => e.status === Status.ACTIVE);
     } else if (filter === "resolved") {
-      filtered = entries.filter((e) => e.status === Status.RESOLVED);
+      filtered = visible.filter((e) => e.status === Status.RESOLVED);
     } else if (filter === "burned") {
-      filtered = entries.filter((e) => e.status === Status.BURNED);
+      filtered = visible.filter((e) => e.status === Status.BURNED);
     }
 
     return filtered.sort((a, b) => b.timestamp - a.timestamp);
@@ -239,49 +253,12 @@ const Dashboard: React.FC = () => {
   // FlatList key 提取函数
   const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
 
-  // 渲染列表头部（只包含天气站和标题）
+  // 渲染列表头部（仅 WeatherStation；筛选条已提到 FlashList 外侧固定，避免随列表滚动）
   const renderListHeader = useCallback(() => (
-    <>
-      {/* Weather Station */}
-      <View style={styles.weatherSection}>
-        <WeatherStation />
-      </View>
-
-      {/* List Header - 标题和筛选按钮 */}
-      <View style={styles.listHeader}>
-        <Text style={[styles.listTitle, { color: colors.text.primary }]}>
-          {filterLabel}
-          <Text style={[styles.count, { color: colors.text.tertiary }]}>
-            {" "}
-            ({filteredEntries.length})
-          </Text>
-        </Text>
-
-        <TouchableOpacity
-          ref={filterButtonRef}
-          onPress={handleFilterButtonPress}
-          onLayout={() => {
-            // 当布局变化时重新测量，始终保持位置最新
-            measureFilterButton();
-          }}
-          style={[
-            styles.filterButton,
-            isFilterOpen && styles.filterButtonActive,
-            { backgroundColor: colors.background.primary },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={`筛选按钮，当前显示${filterLabel}`}
-          accessibilityHint="点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆"
-          accessibilityState={{ expanded: isFilterOpen }}
-        >
-          <Filter
-            size={18}
-            color={isFilterOpen ? colors.submit : colors.text.secondary}
-          />
-        </TouchableOpacity>
-      </View>
-    </>
-   ), [colors, filteredEntries.length, filterLabel, isFilterOpen, handleFilterButtonPress, measureFilterButton, styles]);
+    <View style={styles.weatherSection}>
+      <WeatherStation />
+    </View>
+  ), [styles.weatherSection]);
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
@@ -304,6 +281,40 @@ const Dashboard: React.FC = () => {
         />
       </View>
 
+      {/* 筛选条 - sticky 在 header 下方，不随列表滚动（避免按钮 measure 坐标随滚动漂移导致下拉错位） */}
+      <View style={styles.listHeader}>
+        <Text style={[styles.listTitle, { color: colors.text.primary }]}>
+          {filterLabel}
+          <Text style={[styles.count, { color: colors.text.tertiary }]}>
+            {" "}
+            ({filteredEntries.length})
+          </Text>
+        </Text>
+
+        <TouchableOpacity
+          ref={filterButtonRef}
+          onPress={handleFilterButtonPress}
+          onLayout={() => {
+            // 抽到 FlashList 外后按钮位置基本稳定，这里仍保留以覆盖旋转/字号变更等极端场景
+            measureFilterButton();
+          }}
+          style={[
+            styles.filterButton,
+            isFilterOpen && styles.filterButtonActive,
+            { backgroundColor: colors.background.primary },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`筛选按钮，当前显示${filterLabel}`}
+          accessibilityHint="点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆"
+          accessibilityState={{ expanded: isFilterOpen }}
+        >
+          <Filter
+            size={18}
+            color={isFilterOpen ? colors.submit : colors.text.secondary}
+          />
+        </TouchableOpacity>
+      </View>
+
       {/* List - 包含天气站作为头部 */}
       <FlashList
         contentContainerStyle={styles.flashListContent}
@@ -311,8 +322,10 @@ const Dashboard: React.FC = () => {
         renderItem={renderEntry}
         keyExtractor={keyExtractor}
         ListHeaderComponent={renderListHeader}
-        onScroll={() => { if (isFilterOpen) setIsFilterOpen(false); }}
-        scrollEventThrottle={16}
+        // 勿用 onScroll：惯性滚动期间会持续触发，用户未停滑时点筛选会先开后立刻被关掉
+        onScrollBeginDrag={() => {
+          if (isFilterOpen) setIsFilterOpen(false);
+        }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <View style={styles.emptyIconContainer}>
@@ -356,7 +369,8 @@ const Dashboard: React.FC = () => {
             windowWidth,
             windowHeight,
             dropdownWidth,
-            dropdownHeight
+            dropdownHeight,
+            STICKY_HEADER_TOP_GUARD,
           );
 
           return (
