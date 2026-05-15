@@ -1,7 +1,7 @@
 {
   "name": "emotion-diary",
   "main": "expo-router/entry",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -99,14 +99,23 @@
       "^@/(.*)$": "<rootDir>/$1"
     },
     "transform": {
-      "^.+\\.tsx?$": ["ts-jest", {
-        "tsconfig": {
-          "strict": true,
-          "paths": { "@/*": ["./*"] }
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "strict": true,
+            "paths": {
+              "@/*": [
+                "./*"
+              ]
+            }
+          }
         }
-      }]
+      ]
     },
-    "testPathIgnorePatterns": ["/node_modules/"]
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "private": true
 }

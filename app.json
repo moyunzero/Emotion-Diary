@@ -2,7 +2,7 @@
   "expo": {
     "name": "心晴MO",
     "slug": "emotion-diary",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
@@ -67,9 +67,7 @@
         {
           "photosPermission": "心晴MO仅在你保存情绪回顾图时访问相册以完成写入。",
           "savePhotosPermission": "心晴MO需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。",
-          "granularPermissions": [
-            "photo"
-          ]
+          "granularPermissions": ["photo"]
         }
       ],
       "expo-audio"
