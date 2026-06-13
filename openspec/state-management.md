@@ -183,7 +183,18 @@ interface AppStore {
   4. 保存到本地（防抖 500ms）
   5. 重新计算天气状态
 - **副作用**：更新 `entries`、触发 `_saveEntries`、触发 `_calculateWeather`
-- **注意**：**不**写入 `entry_tombstones`（墓碑仅用于永久从云端删除等路径）。下次 `syncToCloud` 会把 `deletedat` 一并 upsert 到 Supabase；`syncFromCloud` / `recoverFromCloud` 对同 `id` **以云端行为准**，故云端无 `deletedat` 时可覆盖本地软删状态（「找回回忆」语义）
+- **注意**：**不**写入 `entry_tombstones`（墓碑仅用于永久从云端删除等路径）。下次 `syncToCloud` 会把 `deletedat` 一并 upsert 到 Supabase；`syncFromCloud` / `recoverFromCloud` 对同 `id` **以云端行为准**，故云端无 `deletedat` 时可覆盖本地软删状态（「从云端合并」语义）
+
+#### restoreEntry
+- **签名**：`(id: string) => Promise<void>`
+- **说明**：清除 `deletedAt`，条目回到主列表；入口为 Profile → 回收站（`changes/005-recycle-bin-ui`）
+- **行为**：与 `deleteEntry` 对称——`_saveEntries`、`_calculateWeather`；若 `firstEntryDate` 已清空则 `updateFirstEntryDate(entry.timestamp)`
+
+#### purgeEntryForever
+- **签名**：`(id: string) => Promise<boolean>`
+- **说明**：**永久删除**（B4 · `changes/007-entry-snapshots-purge`）— 从本地 `entries` 移除；已登录时 `insertEntryTombstone` 登记墓碑，后续 `syncToCloud` 物理删云行
+- **与软删分流**：普通 `deleteEntry` 仅设 `deletedAt`、不写墓碑；回收站 UI 提供「恢复」与「永久删除」两条路径（`constants/purgeEntry.ts` 文案）
+- **返回值**：`true` 表示本地已移除；同步失败时条目仍已从本地消失，调用方应提示用户稍后重试同步
 
 ### 用户操作
 
@@ -275,7 +286,7 @@ interface AppStore {
   2. 检查是否正在同步（防止竞态条件）
   3. 拉取 `entry_tombstones`，本地与云端行均过滤墓碑 id
   4. 将云端行映射为 `MoodEntry`（`deletedat` / `deletedAt` → `deletedAt` 毫秒）
-  5. **合并**：`Map` 先放入本地（墓碑已剔除），再按云端顺序 `set(cloudEntry.id, cloudEntry)` — **同 id 以云端行为准**（找回回忆依赖此规则）
+  5. **合并**：`mergeCloudPullEntries`（`shared/sync/cloudMerge.ts`）— 本地墓碑已剔除，再按云端行覆盖同 id — **同 id 以云端行为准**（找回回忆依赖此规则）；云端行在入参前已剔除墓碑 id
   6. 按 `timestamp` 降序排序，更新 `entries` 与 AsyncStorage，重算天气，并 `_syncFirstEntryDateFromCloud`
 - **错误处理**：
   - 用户未登录返回 `false`
@@ -299,7 +310,7 @@ interface AppStore {
 - **参数**：
   - `days`：预测天数（默认 7 天）
 - **行为**：
-  1. 检查 `entries.length < 3`（**当前实现**：`entries` 数组总长度，**含**已软删条目；不足则置 `emotionForecast` 为 `null` 并返回）
+  1. 检查 `excludeSoftDeletedEntries(entries).length < 3`（不足则置 `emotionForecast` 为 `null` 并返回）；`predictEmotionTrend` 入参仍为全量 `entries`（内部再过滤软删）
   2. 调用 AI 服务生成预测（`utils/aiService.ts` 内会对入参做 `excludeSoftDeletedEntries`）
   3. 更新 `emotionForecast` 状态
 - **错误处理**：如果生成失败，将 `emotionForecast` 设为 `null`

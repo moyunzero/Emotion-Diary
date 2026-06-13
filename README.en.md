@@ -320,7 +320,28 @@ eas build --platform ios --profile production
 
 ## 📋 Version History
 
-### v1.1.0 (Current Version)
+Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
+
+### [1.2.0] - 2026-06-13 · App Store submission
+
+#### Added
+
+- Recycle bin: soft delete with restore or permanent purge
+- Emotion reminders and revisit touchpoints (off by default; configurable in Profile)
+
+#### Changed
+
+- Cloud sync: separate “backup to cloud” vs “merge from cloud” flows with clearer confirmations
+- Audio: exponential backoff on upload failures and in-entry retry UI
+- Performance: dashboard filter bucketing and deferred Insights sections
+- UI: unified grouped settings cards on Profile and Recycle Bin
+
+#### Developer / quality
+
+- Regression tests for sync, merge, and soft delete (OpenSpec `003`–`010`)
+- Playwright (Web) and Maestro (iOS) recycle-bin E2E (local only, not in CI)
+
+### [1.1.0] - 2026-04-20
 
 - ✅ Weather-themed icon system (replacing emoji)
 - ✅ Mind Garden insights page (completely redesigned)
@@ -330,7 +351,7 @@ eas build --platform ios --profile production
 - ✅ Trigger insights with gardening advice
 - ✅ Voice recording feature (record and play back voice diary entries)
 
-### v1.0.0
+### [1.0.0]
 
 - ✅ Basic emotion recording functionality
 - ✅ Emotion weather station visualization
@@ -338,13 +359,11 @@ eas build --platform ios --profile production
 - ✅ Vent burning feature
 - ✅ Android/iOS app building
 
-### Future Plans
+### Planned (not scheduled)
 
 - 📊 More data analysis dimensions
 - 🎨 Theme customization system
 - 🌍 Multi-language support
-- 📱 Data export functionality
-- 🔔 Emotion reminder feature
 
 ## 🤝 Contributing Guidelines
 

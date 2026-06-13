@@ -46,12 +46,22 @@ cd Emotion-Diary
 ```bash
 yarn typecheck
 yarn lint
+yarn test              # Jest 单测（不含 e2e/）
 ```
 
 ### CI 行为摘要
 
-- **Pull Request**：运行 `yarn lint`、`yarn typecheck`。
-- **push 到 `master`**：除上述步骤外，另运行 `yarn verify:governance` 与 `node scripts/verify-governance-smoke.js`（治理与冒烟）。
+- **Pull Request / push 到 `master`**：`yarn typecheck` → `yarn lint` → `yarn test`（Node 22，无模拟器）。
+- **仅 push 到 `master`**：另跑 `yarn verify:governance` 与 `node scripts/verify-governance-smoke.js`。
+
+**E2E（本地，未进 CI）**：
+
+| 平台 | 命令 | 前置 |
+| --- | --- | --- |
+| Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
+| iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
+
+Maestro 诊断：`yarn test:maestro:preflight`。Flow 见 `e2e/`、`.maestro/`。详情见 [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4。
 
 ### 文档与社区
 
@@ -106,7 +116,7 @@ yarn lint
 ### ☁️ 数据同步
 
 - **离线优先**：本地存储保护用户隐私
-- **云端备份**：可选 Supabase 云端同步；删除默认为**软删除**（仍可同步与按云端合并恢复），非即时物理抹除
+- **云端备份**：可选 Supabase 云端同步；删除默认为**软删除**（回收站可恢复），永久删除会从云端清除
 - **智能数据迁移**：支持访客数据与登录用户数据无缝切换
 
 ## 🎨 设计亮点
@@ -417,7 +427,28 @@ eas build --platform ios --profile production
 
 ## 📋 版本历史
 
-### v1.1.0 (当前版本)
+格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。
+
+### [1.2.0] - 2026-06-13 · App Store 提审
+
+#### 新增
+
+- 回收站：删除改为移至回收站，可恢复或永久删除
+- 情绪提醒与回访触达（默认关闭，可在个人中心配置）
+
+#### 改进
+
+- 云端同步：「备份到云端」与「从云端合并」分流，确认文案更清晰
+- 音频：上传失败指数退避重试，条目内可手动重试
+- 性能：大列表筛选分桶、Insights 重模块延迟挂载
+- 界面：个人中心与回收站统一分组卡片样式
+
+#### 开发与质量
+
+- 同步 / 合并 / 软删回归单测（OpenSpec `003`–`010`）
+- Expo Web Playwright、iOS Maestro 回收站 E2E（本地，未进 CI）
+
+### [1.1.0] - 2026-04-20
 
 - ✅ 天气主题图标系统（替代 emoji）
 - ✅ 心灵花园洞察页面（全新设计）
@@ -427,20 +458,19 @@ eas build --platform ios --profile production
 - ✅ 情绪触发洞察与园艺建议
 - ✅ 语音录制功能（支持录制、播放语音日记）
 
-### v1.0.0
+### [1.0.0]
 
 - ✅ 基础情绪记录功能
 - ✅ 情绪气象站可视化
 - ✅ 数据洞察分析
 - ✅ 气话焚烧功能
-- ✅ Android/iOS应用打包
+- ✅ Android/iOS 应用打包
 
-### 未来计划
+### 规划中（未排期）
 
 - 📊 更多数据分析维度
 - 🎨 主题定制系统
 - 🌍 多语言支持
-- 🔔 情绪提醒功能
 
 ## 🤝 贡献指南
 

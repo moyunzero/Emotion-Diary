@@ -44,10 +44,13 @@ app/
 ├── (tabs)/_layout.tsx       # 三 Tab
 ├── (tabs)/index|record|insights.tsx
 ├── profile.tsx
+├── recycle-bin.tsx          # 回收站（005 / 010）
 └── review-export.tsx
 ```
 
-屏幕实现下沉到 `components/` 或 `features/profile/ProfileScreen.tsx` 等；`(tabs)/` 为分组，不出现在 URL。
+屏幕实现下沉到 `components/`、`features/profile/ProfileScreen.tsx`、`features/recycleBin/RecycleBinScreen.tsx` 等；`(tabs)/` 为分组，不出现在 URL。
+
+**深链（Maestro / 手动）**：scheme `emotiondiary://`（见 `app.json`）— 例：`emotiondiary://record`、`emotiondiary://profile`、`emotiondiary://recycle-bin`；Tab 在自动化中不可靠，E2E 优先深链导航（`.maestro/subflows/open-url.yaml`）。
 
 ---
 
@@ -62,7 +65,12 @@ Emotion-Diary/
 ├── hooks/  services/  utils/  lib/  shared/  styles/  constants/
 ├── types.ts  types/
 ├── supabase/functions/delete-account/
-├── __tests__/unit/     # Jest
+├── __tests__/unit/     # Jest（`yarn test`；不含 `e2e/`）
+├── e2e/                # Playwright · Expo Web（`yarn test:e2e`）
+├── .maestro/           # Maestro 原生 E2E（`yarn test:maestro`）
+├── features/recycleBin/  # 回收站屏
+├── scripts/maestro-preflight.sh
+├── playwright.config.ts
 ├── scripts/  .github/workflows/ci.yml
 └── app.json  eas.json  tsconfig.json  eslint.config.js  metro.config.js  knip.json
 ```
@@ -120,7 +128,7 @@ Emotion-Diary/
 | `EXPO_PUBLIC_GROQ_API_KEY` | AI |
 | Edge 运行时 | `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`（仅 Edge，不进客户端） |
 
-**离线 / 同步（摘要）**：写先入 AsyncStorage；`syncToCloud` / `syncFromCloud` 在 `useAppStore.ts`；墓碑删云见 `shared/sync/tombstone.ts` 与迁移 `entry_tombstones`（未执行 migration 前查询失败则降级为不删云）。音频路径与 Storage 约定见 `services/audioSync.ts`。
+**离线 / 同步（摘要）**：写先入 AsyncStorage；`syncToCloud` / `syncFromCloud` 在 `useAppStore.ts`；墓碑拉取见 `services/entryTombstones.ts`，过滤/合并规则见 `shared/sync/tombstone.ts`。若线上尚无 `entry_tombstones` 表或 RLS 拒绝读取，查询失败时客户端降级为「无墓碑集合」（与历史行为一致，仅影响按墓碑删云/过滤）。音频路径与 Storage 约定见 `services/audioSync.ts`。
 
 **未集成**：Sentry/埋点/推送/IAP 等当前未使用。
 
@@ -136,7 +144,8 @@ Emotion-Diary/
 | AI 调用 | `utils/aiService.ts` |
 | 音频上云 | `services/audioSync.ts` |
 | 录音手势与片段回调 | `shared/audio/recordingCoordinator.ts`、`components/AudioRecorder/RecordingSessionHost.tsx` |
-| CI | `.github/workflows/ci.yml`（PR：`typecheck`→`lint`；push `master` 追加 `verify:governance`） |
+| CI | `.github/workflows/ci.yml`（PR/push：`typecheck`→`lint`→`test`；push `master` 追加 `verify:governance`） |
+| E2E（本地） | `e2e/` + `playwright.config.ts`；`.maestro/flows/` + `scripts/maestro-preflight.sh` |
 
 ---
 

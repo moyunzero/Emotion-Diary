@@ -5,7 +5,7 @@
 | 阶段 | 内容 | 状态 |
 |------|------|------|
 | **阶段一（已落地）** | `deleteEntry` 软删（`deletedAt`）、`addEntry` 使用 `generateEntryId()`（UUID v4）、主列表/天气/AI 等经 `excludeSoftDeletedEntries` / `isSoftDeleted`；`syncToCloud` 写入 `entries.deletedat`；`syncFromCloud` / `recoverFromCloud` 合并：**同 id 以云端行为准**；`entry_tombstones` **仅**永久删云 / 销户等路径，**不**在普通软删写入 | **已实现** |
-| **阶段二（未做）** | 不可变快照表、登录前/退出前自动快照、按快照选择与单条恢复、与「当前云表」分名的恢复 UI | **未实现**（本文件下文「必须达成」2–4 条仍以目标语义描述阶段二） |
+| **阶段二（已取消）** | 不可变快照表、登录前/退出前自动快照、按快照选择与单条恢复、与「当前云表」分名的恢复 UI | **已取消**（产品决定不做 B2 本地快照；永久删除见 007 B4）
 
 ## 背景
 
@@ -14,7 +14,7 @@
   - 「备份/恢复」与「日常 `syncToCloud` / `syncFromCloud` / `recoverFromCloud`」语义混用：用户期望**命名快照**与**从指定快照精确合并**（阶段二）；当前已用 **拉云合并以云端为准** 缓解「云端备份无 `deletedat` 时覆盖本地软删」类场景（阶段一）。
   - 游客 / 登录 / 退出全链路需以 **`MoodEntry.id`** 为唯一键保留可追溯历史；新建条为 UUID v4；历史数据可能仍为旧版时间戳 id。**登录前备份**（阶段二）待实现。
 - **用户或业务影响**：误删或换设备后无法按「某次备份时刻」找回；登录合并时可能丢本地已删但仍有业务价值的记录。
-- **相关代码**：`store/modules/entries.ts`（`deleteEntry` / `burnEntry`）、`store/useAppStore.ts`（同步与恢复）、`store/modules/user.ts` / `store/modules/storage.ts`（会话与存储键）、`types.ts`（`MoodEntry` / `Status`）、`supabase/migrations/*`（`entries`、可选 `entry_tombstones` 仅用于**永久清除**路径）。
+- **相关代码**：`store/modules/entries.ts`（`deleteEntry` / `burnEntry`）、`store/useAppStore.ts`（同步与恢复）、`store/modules/user.ts` / `store/modules/storage.ts`（会话与存储键）、`types.ts`（`MoodEntry` / `Status`）、`services/entryTombstones.ts`（拉取墓碑 id）、`shared/sync/tombstone.ts`（墓碑 id 规范化与列表过滤）。Supabase 表 `entries` / `entry_tombstones` 的 DDL **未放在本仓库**（当前仅有 `supabase/functions/delete-account/`）；线上 schema 以 Supabase 项目或团队另行维护的 migration/SQL 为准。
 - **相关文档**：`openspec/state-management.md`、`openspec/data-models.md`、`openspec/services.md`。
 
 ## 目标
@@ -52,7 +52,7 @@
 
 - **`MoodEntry`**：已含 `deletedAt`、`burnedAt`、`Status.BURNED` 等；普通删除**不得** `filter` 丢行（当前实现：`map` 设 `deletedAt`）。
 - **快照**：建议字段：`id`、`user_id`（可空表示仅本地游客快照？）、`created_at`、`reason`（`manual` | `auto` | `pre_login` | `pre_logout` | …）、`payload`（JSON：完整 `MoodEntry[]` 或压缩 blob）、`client_device_id`（可选）。
-- **`entry_tombstones`**：保留表与 migration；**仅**「用户确认永久销毁」或销户清理路径写入，**不**在普通软删路径写入。
+- **`entry_tombstones`**：表保留给「用户确认永久销毁」或销户清理等路径写入；**不**在普通软删路径写入。客户端 **`purgeEntryForever`**（007）经 `services/entryTombstones.insertEntryTombstone` 写入墓碑；`syncToCloud` 按墓碑 id 物理删云端 `entries` 行；`syncFromCloud` 合并前剔除墓碑 id。与 `delete-account` Edge 清理契约对齐。
 
 ## 验收标准
 

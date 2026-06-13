@@ -25,7 +25,7 @@ yarn verify:governance  # 治理规则校验
 **CI流程（PR和push到master）**：
 
 ```text
-typecheck -> lint
+typecheck -> lint -> test
 ```
 
 **额外（仅push到master）**：
@@ -33,6 +33,12 @@ typecheck -> lint
 ```text
 verify:governance -> verify-governance-smoke.js
 ```
+
+（`yarn test` 为 Jest/ts-jest 纯 Node 单测，与 `.github/workflows/ci.yml` 中 Node 22 一致。）
+
+**E2E（本地，未进 CI）**：Web 回收站主路径 `yarn test:e2e`（Playwright）；iOS/Android 原生全链路 `yarn test:maestro`（需 [Maestro CLI](https://maestro.mobile.dev) + 模拟器已安装 dev build）。Flow 见 `e2e/`、`.maestro/`。
+
+**日志**：新代码优先 `utils/logger`；信息级勿在生产刷屏（`__DEV__` 或 `logger`）。详见 [`openspec/engineering-quality.md`](./openspec/engineering-quality.md) 摘要与 `utils/logger.ts` 中 `persistLog` 说明。
 
 ## 项目架构
 
@@ -90,6 +96,7 @@ interface MoodEntry {
 - 开发前先读 **`openspec/README.md`**，再按需打开 **`openspec/engineering-system.md`**（栈、目录、集成）或 **`openspec/engineering-quality.md`**（约定、风险、UI 壳层、测试）
 - 新功能、重要修复、跨模块重构先在 **`openspec/changes/<编号>-<名称>/`** 建立 `SPEC.md`（可从 `openspec/templates/` 拷贝）；复杂任务补 `PLAN.md` 和 `VERIFICATION.md`
 - **`.planning/`** 为本地规划目录（默认 **gitignore**，不上传 GitHub）；SSD 任务与工程正文以 **`openspec/`**（`changes/`、`engineering-system.md`、`engineering-quality.md`）为准
+- 大批次合入前对照：**[`openspec/changes/WORKTREE-2026-06.md`](./openspec/changes/WORKTREE-2026-06.md)**（003–010 代码入口、E2E、验证命令）
 - 改代码后同步更新受影响文档；新风险写入 **`openspec/engineering-quality.md`** §2，新约定写入同文件 §1（或 §4 若属测试/CI）
 - 最终回复必须说明改动依据、验证结果、未验证项或剩余风险
 

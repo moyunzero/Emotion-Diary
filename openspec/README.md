@@ -9,6 +9,8 @@
 
 两篇文首均有 **SDD 定位**（工程事实 vs `changes/*/SPEC.md` 验收契约）及与根目录 `data-models.md` 等的**禁止双写**说明。仓库根 **`.planning/`** 为本地规划（**gitignore**，不上传远程）。
 
+**迭代排期（母规范）**：竞品校准后的工程优先路线图见 [`iteration-roadmap-2026.md`](./iteration-roadmap-2026.md)（指导 `changes/003`–`010`，不替代各任务 `SPEC.md`）。
+
 ---
 
 ## 目录结构
@@ -24,6 +26,7 @@ openspec/
 ├── services.md                  # 服务层规范
 ├── utils.md                     # 工具函数规范
 ├── consistency-report.md        # 规范与实现一致性报告（若有）
+├── iteration-roadmap-2026.md    # 迭代路线图（母规范，指导 changes/003–010）
 ├── engineering-system.md        # 工程：架构、目录、栈、集成、同步
 ├── engineering-quality.md       # 工程：约定、风险、UI 壳层、测试/CI
 ├── templates/                   # 新任务拷贝用模板
@@ -34,10 +37,13 @@ openspec/
     └── <编号>-<简短名称>/
         ├── SPEC.md              # 必填：目标、验收、约束
         ├── PLAN.md              # 可选：多步骤/高风险时
-        └── VERIFICATION.md      # 必填：验证命令与结果
+        ├── VERIFICATION.md      # 必填：验证命令与结果
+        └── REGRESSION-CHECKLIST.md  # 可选：手工回归（如 003）
 ```
 
 新任务建议路径示例：`openspec/changes/002-audio-recovery-tests/SPEC.md`。
+
+**当前大批次索引**（合入前对照）：[`changes/WORKTREE-2026-06.md`](./changes/WORKTREE-2026-06.md)（003–010 + E2E + 验证命令）。
 
 ---
 
@@ -54,7 +60,7 @@ openspec/
 ## 开发闭环（Agent / 人类通用）
 
 1. **读取上下文**  
-   `AGENTS.md` → `openspec/README.md`（本文件）→ **`engineering-quality.md`**（约定、风险、UI 壳层、测试）；栈/目录/集成见 **`engineering-system.md`**。另读与任务相关的 `openspec/*.md` 及源码、测试。
+   `AGENTS.md` → `openspec/README.md`（本文件）→ **`engineering-quality.md`**（约定、风险、UI 壳层、测试）；栈/目录/集成见 **`engineering-system.md`**。排新任务前对照 **[`iteration-roadmap-2026.md`](./iteration-roadmap-2026.md)**（波次与依赖）。另读与任务相关的 `openspec/*.md` 及源码、测试。
 
 2. **建立或确认规范**  
    新功能、重要修复、跨模块重构：在 `openspec/changes/<编号>-<名称>/` 创建 `SPEC.md`（自 `templates/SPEC.md` 拷贝）。简单局部改动可不建新目录，但须在 PR/回复中说明依据与验证方式。

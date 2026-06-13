@@ -22,7 +22,9 @@
 
 **Store**：业务经 `useAppStore` action；selector 精确字段；不直接 mutate 嵌套对象。登录/冷启动恢复会话时须先尝试 `migrateGuestDataToUser`（游客键并入用户键）；登出/注销时用当前 `entries` 快照**覆盖** `mood_entries_guest`，不与旧游客数据合并。
 
-**错误**：用户可见错误经 `utils/errorHandler.ts`；异步 `try/catch`；日志 `__DEV__ && console.warn`。
+**错误**：用户可见错误经 `utils/errorHandler.ts`；异步 `try/catch`。
+
+**日志**：`utils/logger.ts` 经 `isDevelopment()` 在开发环境输出到控制台；新代码优先 `logger.warn` / `logger.error`（`services` / `shared` 等无 store 依赖处可直接用）。存量与紧急路径仍可见 `console.error` / `console.warn`；**信息级**避免在生产包刷屏，用 `__DEV__ && console.log` 或 `logger`。`Logger.persistLog` 为**刻意不实现**（未接 Sentry/本地错误日志文件前仅占位），见 `utils/logger.ts`。
 
 **Git**：分支 `YYMMDD-(feat|fix|chore|refactor)-描述`；Conventional Commits；PR 小步、附验证说明。
 
@@ -38,11 +40,11 @@
 
 | ID | 主题 | 状态摘要 |
 |----|------|----------|
-| C1 | 云端删除与墓碑 | `entry_tombstones` 仍用于显式删云 / `delete-account` 清理；**普通 `deleteEntry` 不写墓碑**（见 `changes/002-entry-backup-soft-delete/SPEC.md`）。未跑 migration 时仅影响登记删云与销户路径 |
+| C1 | 云端删除与墓碑 | `purgeEntryForever` 经 `insertEntryTombstone` 登记墓碑；`syncToCloud`/`syncFromCloud` 过滤并物理删云；普通 `deleteEntry` 不写墓碑（007） |
 | C2 | 注销与音频 | Edge `delete-account` 与客户端清理需保持契约一致 |
-| H1 | 同步冲突 | 多设备并发近似「最后写入优先」；无版本向量。`syncFromCloud` 对同 id **以云端行为准**；`syncToCloud` 为全量 upsert 本地当前 `entries`（墓碑 id 除外） |
-| H2 | 音频失败 | 上传失败仅本地；需重试策略 |
-| H3 | 大列表 | 历史条目多时有性能压力；控制 `getItemType` |
+| H1 | 同步冲突 | 多设备并发近似「最后写入优先」；无版本向量。`syncFromCloud` 对同 id **以云端行为准**；`syncToCloud` 为全量 upsert 本地当前 `entries`（墓碑 id 除外）。Profile「备份到云端 / 从云端合并」文案与确认框见 `constants/syncDataOps.ts`、`changes/004-sync-ux-clarity`；互斥锁 `shared/sync/syncLock.ts` |
+| H2 | 音频失败 | `uploadAudioWithRetry` 指数退避（`shared/audio/uploadRetry.ts`）；耗尽标 `failed`；备份含 pending+failed；条目内可重试（`retryAudioUpload`） |
+| H3 | 大列表 | `getItemType` + `filterDashboardEntries`（008）；播放进度仅活跃卡片订阅 |
 | H4 | SecureStore | Token 过大可能失败；已压缩 session |
 | H5 | AI 成本/可用性 | Groq 限流；缓存 TTL 见 `store/modules/ai.ts` |
 | H6 | 天气 | 缓存偏旧；错误降级静态文案 |
@@ -50,7 +52,7 @@
 
 ### 2.2 中 / 低（摘要）
 
-- **M1–M6**：类型收紧、大组件拆分、魔法字符串常量化、重复天气逻辑抽取、Insights 懒加载、测试补齐。  
+- **M1–M6**：类型收紧、大组件拆分、魔法字符串常量化、重复天气逻辑抽取、Insights 首屏下 deferred 挂载（`InsightsDeferredSections` · 008）、测试补齐（PR CI 已跑 `yarn test`，见 `.github/workflows/ci.yml`）。  
 - **M7（录音 clipHandler）**：多挂载点须 `clipBinding` + `releaseRecordingClipHandler`；详见 §2.3。  
 - **L1–L3**：死代码清理、JSDoc、主题 token 统一。  
 - **脆弱区**：`useAppStore.ts` 同步与初始化、`shared/audio/recordingCoordinator.ts`、`audioSync.ts`、`aiService.ts`、`lib/supabase.ts`。  
@@ -118,7 +120,8 @@ flowchart TB
 | 区域 | 要点 |
 |------|------|
 | Tabs 三屏 | 列表/表单/洞察；各自 `Screen` + `ScreenHeader` 或内嵌头部 |
-| Profile | 长表单滚动；子路由返回栈清晰 |
+| Profile | 长表单滚动；`GroupedSettingsCard` 分组列表（010）；子路由返回栈清晰 |
+| 回收站 | `app/recycle-bin.tsx`；`RecycleBinEntryCard` 只读卡 + 文字操作行（010） |
 | Review Export | 导出前校验；大列表注意内存 |
 
 ---
@@ -131,9 +134,11 @@ flowchart TB
 
 **目录**：`__tests__/unit/**` 镜像 `utils/` / `store/` / `shared/` / `hooks/`。
 
-**命令**：`yarn test`；单文件 `yarn test __tests__/unit/...`。
+**命令**：`yarn test`（Jest 排除 `e2e/`，Playwright 用 `yarn test:e2e`）；单文件 `yarn test __tests__/unit/...`。
 
-**CI**（`.github/workflows/ci.yml`）：PR 上 `yarn typecheck` → `yarn lint`；push `master` 额外 `yarn verify:governance`（含 smoke）。详见根目录 `AGENTS.md`。
+**E2E**：Expo Web 回收站主路径见 `e2e/`（Playwright，`yarn test:e2e`）；iOS/Android 原生全链路见 `.maestro/flows/`（Maestro，`yarn test:maestro`，需 [Maestro CLI](https://maestro.mobile.dev)、模拟器已 Boot、`yarn start`、且已通过 `yarn ios` 安装与当前依赖一致的 dev build `com.moyunzero.emotiondiary`）。Xcode SDK 与 Simulator runtime 不一致时先 `bash scripts/maestro-preflight.sh` 诊断。
+
+**CI**（`.github/workflows/ci.yml`）：PR 上 `yarn typecheck` → `yarn lint` → `yarn test`；push `master` 额外 `yarn verify:governance`（含 smoke）。详见根目录 `AGENTS.md`。
 
 ---
 
