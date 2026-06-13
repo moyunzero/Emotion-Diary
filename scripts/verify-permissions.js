@@ -12,6 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { getNativeAppFile } = require('./ios-project-paths');
 
 // ANSI 颜色代码
 const colors = {
@@ -29,9 +30,9 @@ function log(message, color = 'reset') {
 
 function readInfoPlist() {
   try {
-    const plistPath = path.join(process.cwd(), 'ios/app/Info.plist');
-    
-    if (!fs.existsSync(plistPath)) {
+    const plistPath = getNativeAppFile('Info.plist');
+
+    if (!plistPath || !fs.existsSync(plistPath)) {
       log('ℹ️  Info.plist 文件不存在（可能还未运行 expo prebuild）', 'blue');
       return null;
     }

@@ -13,6 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { getNativeAppFile } = require('./ios-project-paths');
 const { execSync } = require('child_process');
 
 // ANSI 颜色代码
@@ -31,11 +32,16 @@ function log(message, color = 'reset') {
 
 function readPrivacyManifest() {
   try {
-    const manifestPath = path.join(process.cwd(), 'ios/app/PrivacyInfo.xcprivacy');
-    
-    if (!fs.existsSync(manifestPath)) {
+    const manifestPath = getNativeAppFile('PrivacyInfo.xcprivacy');
+
+    if (!manifestPath || !fs.existsSync(manifestPath)) {
       log('❌ PrivacyInfo.xcprivacy 文件不存在', 'red');
-      log('   文件应该位于: ios/app/PrivacyInfo.xcprivacy', 'red');
+      const hint = getNativeAppFile('PrivacyInfo.xcprivacy');
+      if (hint) {
+        log(`   期望位置: ${path.relative(process.cwd(), hint)}`, 'red');
+      } else {
+        log('   运行 expo prebuild 后应位于 ios/<AppName>/PrivacyInfo.xcprivacy', 'red');
+      }
       return null;
     }
 

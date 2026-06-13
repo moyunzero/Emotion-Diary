@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { findXcodePbxprojPath, hasIosNativeProject } = require('./ios-project-paths');
 
 // ANSI 颜色代码
 const colors = {
@@ -40,9 +41,9 @@ function readAppJson() {
 
 function readXcodeProjectVersion() {
   try {
-    const pbxprojPath = path.join(process.cwd(), 'ios/app.xcodeproj/project.pbxproj');
-    
-    if (!fs.existsSync(pbxprojPath)) {
+    const pbxprojPath = findXcodePbxprojPath();
+
+    if (!pbxprojPath) {
       log('ℹ️  Xcode 项目文件不存在（可能还未运行 expo prebuild）', 'blue');
       return null;
     }
@@ -114,7 +115,7 @@ function main() {
   
   if (xcodeVersion) {
     log(`   ✅ Xcode 项目中的 IPHONEOS_DEPLOYMENT_TARGET: ${xcodeVersion}`, 'green');
-  } else if (xcodeVersion === null && !fs.existsSync(path.join(process.cwd(), 'ios/app.xcodeproj/project.pbxproj'))) {
+  } else if (xcodeVersion === null && !hasIosNativeProject()) {
     log('   ℹ️  Xcode 项目尚未生成，运行 expo prebuild 后将自动同步', 'blue');
   } else {
     log('   ❌ Xcode 项目中未找到 IPHONEOS_DEPLOYMENT_TARGET', 'red');
