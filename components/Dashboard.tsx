@@ -1,5 +1,9 @@
 import { formatDateChinese } from "@/shared/formatting";
-import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import {
+  filterDashboardEntries,
+  getDashboardEntryItemType,
+  type DashboardFilterType,
+} from "@/shared/entries/dashboardFilter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -18,20 +22,21 @@ import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
 import { calculateResponsiveDimension } from "../styles/constants";
-import { MoodEntry, Status } from "../types";
+import { MoodEntry } from "../types";
 import { AppScreenShell } from "./AppScreenShell";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
+import { RevisitBanner } from "./retention/RevisitBanner";
 import WeatherStation from "./WeatherStation";
 
-// Type alias for dashboard filter
-type DashboardFilterType = "all" | "active" | "resolved" | "burned";
+// Type alias for dashboard filter (shared with dashboardFilter.ts)
+type DashboardFilter = DashboardFilterType;
 
 // Pure helper functions moved to module level
 /**
  * Get the display label for a filter type
  */
-const getFilterLabel = (filter: DashboardFilterType): string => {
+const getFilterLabel = (filter: DashboardFilter): string => {
   switch (filter) {
     case "active":
       return "未处理";
@@ -54,7 +59,7 @@ const getWeatherAdvice = (condition: string): string => {
 /**
  * Get empty state content based on filter type
  */
-const getEmptyStateContent = (filter: DashboardFilterType): {
+const getEmptyStateContent = (filter: DashboardFilter): {
   title: string;
   desc: string;
   showButton: boolean;
@@ -148,7 +153,7 @@ const Dashboard: React.FC = () => {
     }))
   );
   const { colors } = useThemeStyles();
-  const [filter, setFilter] = useState<DashboardFilterType>("active");
+  const [filter, setFilter] = useState<DashboardFilter>("active");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterButtonLayout, setFilterButtonLayout] = useState<{
     x: number;
@@ -167,7 +172,7 @@ const Dashboard: React.FC = () => {
           savedFilter &&
           ["all", "active", "resolved", "burned"].includes(savedFilter)
         ) {
-          setFilter(savedFilter as DashboardFilterType);
+          setFilter(savedFilter as DashboardFilter);
         }
       } catch (error) {
         console.error("加载过滤偏好失败:", error);
@@ -178,7 +183,7 @@ const Dashboard: React.FC = () => {
 
   // 保存过滤偏好
   const handleFilterChange = useCallback(
-    (newFilter: DashboardFilterType) => {
+    (newFilter: DashboardFilter) => {
       setFilter(newFilter);
       setIsFilterOpen(false);
       AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {
@@ -207,32 +212,15 @@ const Dashboard: React.FC = () => {
     }
   }, [measureFilterButton]);
 
-  const filteredEntries = useMemo(() => {
-    const visible = excludeSoftDeletedEntries(entries);
-    if (filter === "all") {
-      const activeEntries = visible
-        .filter((e) => e.status === Status.ACTIVE)
-        .sort((a, b) => b.timestamp - a.timestamp);
-      const resolvedEntries = visible
-        .filter((e) => e.status === Status.RESOLVED)
-        .sort((a, b) => b.timestamp - a.timestamp);
-      const burnedEntries = visible
-        .filter((e) => e.status === Status.BURNED)
-        .sort((a, b) => b.timestamp - a.timestamp);
-      return [...activeEntries, ...resolvedEntries, ...burnedEntries];
-    }
+  const filteredEntries = useMemo(
+    () => filterDashboardEntries(entries, filter),
+    [entries, filter],
+  );
 
-    let filtered = visible;
-    if (filter === "active") {
-      filtered = visible.filter((e) => e.status === Status.ACTIVE);
-    } else if (filter === "resolved") {
-      filtered = visible.filter((e) => e.status === Status.RESOLVED);
-    } else if (filter === "burned") {
-      filtered = visible.filter((e) => e.status === Status.BURNED);
-    }
-
-    return filtered.sort((a, b) => b.timestamp - a.timestamp);
-  }, [entries, filter]);
+  const getItemType = useCallback(
+    (item: MoodEntry) => getDashboardEntryItemType(item),
+    [],
+  );
 
   // Use pure functions for computed values
   const emptyStateContent = useMemo(() => getEmptyStateContent(filter), [filter]);
@@ -255,10 +243,13 @@ const Dashboard: React.FC = () => {
 
   // 渲染列表头部（仅 WeatherStation；筛选条已提到 FlashList 外侧固定，避免随列表滚动）
   const renderListHeader = useCallback(() => (
-    <View style={styles.weatherSection}>
-      <WeatherStation />
+    <View>
+      <View style={styles.weatherSection}>
+        <WeatherStation />
+      </View>
+      <RevisitBanner entries={entries} />
     </View>
-  ), [styles.weatherSection]);
+  ), [styles.weatherSection, entries]);
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
@@ -321,6 +312,7 @@ const Dashboard: React.FC = () => {
         data={filteredEntries}
         renderItem={renderEntry}
         keyExtractor={keyExtractor}
+        getItemType={getItemType}
         ListHeaderComponent={renderListHeader}
         // 勿用 onScroll：惯性滚动期间会持续触发，用户未停滑时点筛选会先开后立刻被关掉
         onScrollBeginDrag={() => {

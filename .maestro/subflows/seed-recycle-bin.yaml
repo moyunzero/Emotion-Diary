@@ -1,0 +1,63 @@
+appId: com.moyunzero.emotiondiary
+---
+# 造数：记一笔 → 气象站软删 → Profile 回收站（断言条目可见）
+# 由父 flow 传入 ENTRY_CONTENT
+# 说明：Maestro 对 Tab 栏 tap 在 RN 下不稳定，导航改用 emotiondiary:// deep link
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "情绪气象站"
+    timeout: 90000
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 60000
+- tapOn:
+    id: mood-content-input
+- inputText: ${ENTRY_CONTENT}
+- tapOn: "记录这一刻"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 15000
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible: "情绪气象站"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 15000
+- tapOn:
+    id: mood-entry-card
+    index: 0
+- tapOn: "删除这条情绪记录"
+- extendedWaitUntil:
+    visible: "取消"
+    timeout: 5000
+- tapOn:
+    text: "移至回收站"
+    index: 1
+- extendedWaitUntil:
+    notVisible: "取消"
+    timeout: 10000
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://recycle-bin
+- extendedWaitUntil:
+    visible: "回收站"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: recycle-bin-entry-card
+    timeout: 10000

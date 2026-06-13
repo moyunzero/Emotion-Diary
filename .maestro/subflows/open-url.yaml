@@ -1,0 +1,10 @@
+appId: com.moyunzero.emotiondiary
+---
+# 子流程：simctl openurl + 可选「在 App 中打开」确认
+# 环境变量 URL 必填，例如 emotiondiary://record
+- openLink: ${URL}
+- runFlow:
+    when:
+      visible: "在“心晴MO”中打开？"
+    commands:
+      - tapOn: "打开"

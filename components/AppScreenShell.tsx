@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { Edge } from 'react-native-safe-area-context';
 import { ScreenContainer } from './ScreenContainer';
 import {
@@ -75,14 +75,26 @@ export function AppScreenShell({
         hasCustomCenter,
     );
 
+  const mainContent = scrollable ? (
+    <ScrollView
+      style={[{ flex: 1 }, style]}
+      contentContainerStyle={contentContainerStyle}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      removeClippedSubviews={removeClippedSubviews}
+    >
+      {children}
+    </ScrollView>
+  ) : (
+    <View style={[{ flex: 1 }, style]}>{children}</View>
+  );
+
   return (
     <ScreenContainer
       edges={edges}
-      scrollable={scrollable}
+      scrollable={false}
       keyboardAware={keyboardAware}
-      removeClippedSubviews={removeClippedSubviews}
-      style={style}
-      contentContainerStyle={contentContainerStyle}
+      style={scrollable ? undefined : style}
     >
       <View style={{ flex: 1 }}>
         {hasHeader ? (
@@ -102,7 +114,7 @@ export function AppScreenShell({
             style={headerStyle}
           />
         ) : null}
-        <View style={{ flex: 1 }}>{children}</View>
+        {mainContent}
         {footer}
       </View>
     </ScreenContainer>

@@ -3,18 +3,29 @@
  * 处理音频文件的上传、下载和同步状态管理
  */
 
+import {
+  AUDIO_UPLOAD_MAX_ATTEMPTS,
+  computeUploadRetryDelayMs,
+  sleepMs,
+} from "../shared/audio/uploadRetry";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AudioData } from "../types";
 
 const AUDIO_BUCKET = "audios";
-const MAX_RETRY_COUNT = 3;
+
+export interface PendingAudioUploadResult {
+  success: number;
+  failed: number;
+  results: Map<string, string>;
+  failedAudioIds: string[];
+}
 
 /**
  * 上传单个音频文件到云端
  */
 export const uploadAudio = async (
   audioData: AudioData,
-  userId: string
+  userId: string,
 ): Promise<{ success: boolean; remoteUrl?: string; error?: string }> => {
   if (!isSupabaseConfigured()) {
     return { success: false, error: "Supabase 未配置" };
@@ -54,42 +65,64 @@ export const uploadAudio = async (
 };
 
 /**
- * 批量上传待同步的音频文件
+ * 单条音频：最多尝试 AUDIO_UPLOAD_MAX_ATTEMPTS 次，失败间指数退避。
+ */
+export async function uploadAudioWithRetry(
+  audio: AudioData,
+  userId: string,
+  deps: {
+    upload?: typeof uploadAudio;
+    sleep?: (ms: number) => Promise<void>;
+  } = {},
+): Promise<{ success: true; remoteUrl: string } | { success: false }> {
+  const upload = deps.upload ?? uploadAudio;
+  const sleep = deps.sleep ?? sleepMs;
+
+  for (let attempt = 0; attempt < AUDIO_UPLOAD_MAX_ATTEMPTS; attempt++) {
+    const result = await upload(audio, userId);
+    if (result.success && result.remoteUrl) {
+      return { success: true, remoteUrl: result.remoteUrl };
+    }
+    if (attempt < AUDIO_UPLOAD_MAX_ATTEMPTS - 1) {
+      await sleep(computeUploadRetryDelayMs(attempt));
+    }
+  }
+
+  return { success: false };
+}
+
+/**
+ * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）
  */
 export const uploadPendingAudios = async (
   audios: AudioData[],
-  userId: string
-): Promise<{ success: number; failed: number; results: Map<string, string> }> => {
+  userId: string,
+): Promise<PendingAudioUploadResult> => {
   const results = new Map<string, string>();
+  const failedAudioIds: string[] = [];
   let success = 0;
   let failed = 0;
 
   const pendingAudios = audios.filter(
-    (a) => a.syncStatus === "pending" && a.localUri
+    (a) =>
+      (a.syncStatus === "pending" || a.syncStatus === "failed") && a.localUri,
   );
 
   for (const audio of pendingAudios) {
-    let retries = 0;
-    let uploaded = false;
-
-    while (retries < MAX_RETRY_COUNT && !uploaded) {
-      const result = await uploadAudio(audio, userId);
-
-      if (result.success && result.remoteUrl) {
-        results.set(audio.id, result.remoteUrl);
-        success++;
-        uploaded = true;
-      } else {
-        retries++;
-        if (retries >= MAX_RETRY_COUNT) {
-          failed++;
-          console.error(`音频 ${audio.id} 上传失败，已重试 ${MAX_RETRY_COUNT} 次`);
-        }
-      }
+    const outcome = await uploadAudioWithRetry(audio, userId);
+    if (outcome.success) {
+      results.set(audio.id, outcome.remoteUrl);
+      success++;
+    } else {
+      failed++;
+      failedAudioIds.push(audio.id);
+      console.error(
+        `音频 ${audio.id} 上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
+      );
     }
   }
 
-  return { success, failed, results };
+  return { success, failed, results, failedAudioIds };
 };
 
 /**

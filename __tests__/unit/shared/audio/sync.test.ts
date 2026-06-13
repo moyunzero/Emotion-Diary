@@ -9,7 +9,7 @@
  * - 输入 entries / audios 不可变（不修改原对象）
  */
 
-import { applyRemoteUrlsToEntries } from '../../../../shared/audio/sync';
+import { applyRemoteUrlsToEntries, applyAudioUploadResults } from '../../../../shared/audio/sync';
 import { AudioData, MoodEntry, MoodLevel, Status } from '../../../../types';
 
 function makeAudio(overrides: Partial<AudioData> = {}): AudioData {
@@ -144,5 +144,34 @@ describe('applyRemoteUrlsToEntries (H7 回归)', () => {
 
     expect(updatedEntries[0]).toBe(entry);
     expect(writeback).toEqual([]);
+  });
+});
+
+describe('applyAudioUploadResults', () => {
+  it('失败 id 标记为 failed', () => {
+    const audio = makeAudio({ id: 'aud-fail', syncStatus: 'pending' });
+    const entry = makeEntry({ id: 'e1', audios: [audio] });
+    const { updatedEntries, writeback } = applyAudioUploadResults(
+      [entry],
+      new Map(),
+      new Set(['aud-fail']),
+    );
+
+    expect(updatedEntries[0].audios?.[0].syncStatus).toBe('failed');
+    expect(writeback).toHaveLength(1);
+  });
+
+  it('成功与失败可同时应用', () => {
+    const a1 = makeAudio({ id: 'ok', syncStatus: 'pending' });
+    const a2 = makeAudio({ id: 'bad', syncStatus: 'pending' });
+    const entry = makeEntry({ id: 'e1', audios: [a1, a2] });
+    const { updatedEntries } = applyAudioUploadResults(
+      [entry],
+      new Map([['ok', 'https://cdn/ok.m4a']]),
+      new Set(['bad']),
+    );
+
+    expect(updatedEntries[0].audios?.[0].syncStatus).toBe('synced');
+    expect(updatedEntries[0].audios?.[1].syncStatus).toBe('failed');
   });
 });

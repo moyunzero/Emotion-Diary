@@ -1,0 +1,20 @@
+appId: com.moyunzero.emotiondiary
+---
+# 全链路：创建 → 软删 → 回收站 → 永久删除 → 条目消失
+- runFlow:
+    file: ../subflows/seed-recycle-bin.yaml
+    env:
+      ENTRY_CONTENT: "Maestro E2E 回收站永久删除测试"
+- tapOn: "永久删除这条记录"
+- extendedWaitUntil:
+    visible: "取消"
+    timeout: 5000
+- tapOn:
+    text: "永久删除"
+    index: 1
+- extendedWaitUntil:
+    notVisible: "取消"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "回收站是空的"
+    timeout: 10000

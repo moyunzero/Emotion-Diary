@@ -34,7 +34,18 @@ export function applyRemoteUrlsToEntries(
   entries: MoodEntry[],
   remoteUrlMap: Map<string, string>,
 ): ApplyRemoteUrlsResult {
-  if (remoteUrlMap.size === 0) {
+  return applyAudioUploadResults(entries, remoteUrlMap, new Set());
+}
+
+/**
+ * 应用批量上传结果：成功写入 remoteUrl + synced；失败标记 failed。
+ */
+export function applyAudioUploadResults(
+  entries: MoodEntry[],
+  remoteUrlMap: Map<string, string>,
+  failedAudioIds: ReadonlySet<string>,
+): ApplyRemoteUrlsResult {
+  if (remoteUrlMap.size === 0 && failedAudioIds.size === 0) {
     return { updatedEntries: entries, writeback: [] };
   }
 
@@ -48,6 +59,10 @@ export function applyRemoteUrlsToEntries(
       if (remoteUrl) {
         changed = true;
         return { ...audio, remoteUrl, syncStatus: 'synced' as const };
+      }
+      if (failedAudioIds.has(audio.id)) {
+        changed = true;
+        return { ...audio, syncStatus: 'failed' as const };
       }
       return audio;
     });

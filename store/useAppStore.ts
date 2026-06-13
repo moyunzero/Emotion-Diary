@@ -7,19 +7,26 @@ import { ensureMilliseconds } from "@/shared/formatting";
 import "react-native-url-polyfill/auto";
 import { create } from "zustand";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
-import { MoodEntry, User } from "../types";
+import { User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
 import { uploadPendingAudios } from "../services/audioSync";
+import { rescheduleEmotionRemindersFromStorage } from "../services/emotionReminders";
+import { fetchUserTombstoneEntryIds } from "../services/entryTombstones";
 import { initAudioCoordinator } from "../shared/audio/coordinator";
 import { initRecordingCoordinator } from "../shared/audio/recordingCoordinator";
-import { applyRemoteUrlsToEntries } from "../shared/audio/sync";
+import { applyAudioUploadResults } from "../shared/audio/sync";
+import { mergeCloudPullEntries } from "../shared/sync/cloudMerge";
 import {
-  collectTombstoneEntryIds,
-  filterOutTombstonedEntries,
-} from "../shared/sync/tombstone";
+  consumePendingSyncRequest,
+  hasPendingSyncRequest,
+  isSyncLockHeld,
+  releaseSyncLock,
+  tryBeginSync,
+} from "../shared/sync/syncLock";
+import { filterOutTombstonedEntries } from "../shared/sync/tombstone";
 import { createAIModule } from "./modules/ai";
 import { createAudioSlice } from "./modules/audio";
 import {
@@ -35,11 +42,7 @@ import { createWeatherModule } from "./modules/weather";
 let audioCoordinatorInitialized = false;
 let recordingCoordinatorInitialized = false;
 
-// 同步操作互斥锁，防止竞态条件
-let isSyncingRef = false;
-
-// 待处理的同步请求标志
-let pendingSyncRef = false;
+// 待处理同步的防抖定时器（互斥见 shared/sync/syncLock.ts）
 
 // 同步请求防抖定时器
 let syncDebounceTimerRef: ReturnType<typeof setTimeout> | null = null;
@@ -61,7 +64,7 @@ export const cleanupStoreTimers = (): void => {
  * 这样可以合并快速连续的同步请求
  */
 const processPendingSync = async (): Promise<void> => {
-  if (pendingSyncRef && !isSyncingRef) {
+  if (hasPendingSyncRequest() && !isSyncLockHeld()) {
     // 清除现有的防抖定时器
     if (syncDebounceTimerRef) {
       clearTimeout(syncDebounceTimerRef);
@@ -69,8 +72,7 @@ const processPendingSync = async (): Promise<void> => {
 
     // 设置新的防抖定时器（300ms）
     syncDebounceTimerRef = setTimeout(async () => {
-      if (pendingSyncRef && !isSyncingRef) {
-        pendingSyncRef = false;
+      if (consumePendingSyncRequest() && !isSyncLockHeld()) {
         if (__DEV__) console.log("处理待处理的同步请求");
         await useAppStore.getState().syncToCloud();
       }
@@ -229,14 +231,13 @@ export const useAppStore = create<AppState>()((...args) => {
         return false;
       }
 
-      if (isSyncingRef) {
+      const begin = tryBeginSync();
+      if (!begin.proceed) {
         if (__DEV__) console.log("同步操作正在进行中，标记为待处理");
-        pendingSyncRef = true;
         set({ syncStatus: "pending" });
         return false;
       }
 
-      isSyncingRef = true;
       set({ syncStatus: "syncing" });
 
       try {
@@ -256,18 +257,15 @@ export const useAppStore = create<AppState>()((...args) => {
         const currentUserId = session.user.id;
 
         // B-3：仅根据 entry_tombstones 显式删云，禁止「云端有、本地无」差集删除（H3 完整版）。
-        const { data: tombstoneRows, error: tombstoneFetchError } =
-          await supabase
-            .from("entry_tombstones")
-            .select("entry_id")
-            .eq("user_id", currentUserId);
+        const {
+          tombstoneIdsArr,
+          tombstoneIdSet,
+          tombstoneFetchError,
+        } = await fetchUserTombstoneEntryIds(supabase, currentUserId);
 
         if (tombstoneFetchError) {
           console.warn("获取 entry_tombstones 失败:", tombstoneFetchError);
         }
-
-        const tombstoneIdsArr = collectTombstoneEntryIds(tombstoneRows);
-        const tombstoneIdSet = new Set(tombstoneIdsArr);
 
         // 准备同步数据（墓碑命中的 id 不得再 upsert，否则会复活已 purge 的云端行）
         const entriesToSync = filterOutTombstonedEntries(
@@ -396,18 +394,28 @@ export const useAppStore = create<AppState>()((...args) => {
                 throw upsertError;
               }
             }
-          } catch (error: any) {
+          } catch (error: unknown) {
             console.error("同步记录失败:", error);
             console.error("失败的记录数量:", entriesToSync.length);
             console.error("第一条记录示例:", entriesToSync[0]);
 
-            // 如果是约束错误，提供更详细的信息
-            if (error.code === "23514") {
+            const pgCode =
+              error !== null &&
+              typeof error === "object" &&
+              "code" in error &&
+              (error as { code?: string }).code === "23514";
+
+            if (pgCode) {
+              const e = error as {
+                message?: string;
+                details?: string;
+                hint?: string;
+              };
               console.error("数据库约束检查失败 (23514)");
               console.error("错误详情:", {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
+                message: e.message,
+                details: e.details,
+                hint: e.hint,
               });
 
               throw new Error("数据库约束检查失败。请查看控制台日志了解详情。");
@@ -426,27 +434,36 @@ export const useAppStore = create<AppState>()((...args) => {
         try {
           const allAudios = entries
             .flatMap((e) => e.audios || [])
-            .filter((a) => a.syncStatus === "pending");
-          
+            .filter(
+              (a) =>
+                a.syncStatus === "pending" || a.syncStatus === "failed",
+            );
+
           if (allAudios.length > 0) {
-            const uploadResult = await uploadPendingAudios(allAudios, currentUserId);
+            const uploadResult = await uploadPendingAudios(
+              allAudios,
+              currentUserId,
+            );
             if (__DEV__) {
-              console.log(`音频同步完成: 成功 ${uploadResult.success}, 失败 ${uploadResult.failed}`);
+              console.log(
+                `音频同步完成: 成功 ${uploadResult.success}, 失败 ${uploadResult.failed}`,
+              );
             }
-            
-            if (uploadResult.results.size > 0) {
-              // 决策与回归逻辑见 shared/audio/sync.ts：把 audioId → remoteUrl 映射应用到 entries，
-              // 同时拿到需要回写云端的 payload 列表（H7 回归点）。
-              const { updatedEntries, writeback } = applyRemoteUrlsToEntries(
+
+            if (
+              uploadResult.results.size > 0 ||
+              uploadResult.failedAudioIds.length > 0
+            ) {
+              const failedSet = new Set(uploadResult.failedAudioIds);
+              const { updatedEntries, writeback } = applyAudioUploadResults(
                 entries,
                 uploadResult.results,
+                failedSet,
               );
 
               set({ entries: updatedEntries });
               get()._saveEntries();
 
-              // 关键：把含 remoteUrl 的 audios 回写到云端 entries 表，
-              // 否则其他设备 recoverFromCloud 拿到的 audios.remoteUrl 永远是 null，无法播放。
               for (const payload of writeback) {
                 const { error: writebackError } = await supabase
                   .from("entries")
@@ -457,10 +474,16 @@ export const useAppStore = create<AppState>()((...args) => {
                 if (writebackError) {
                   console.warn(
                     `回写 entry ${payload.id} 的 audios 元数据失败:`,
-                    writebackError
+                    writebackError,
                   );
                 }
               }
+            }
+
+            if (uploadResult.failed > 0) {
+              console.warn(
+                `[syncToCloud] ${uploadResult.failed} 条语音上传失败，已标记 failed，可重试`,
+              );
             }
           }
         } catch (audioError) {
@@ -475,7 +498,7 @@ export const useAppStore = create<AppState>()((...args) => {
         set({ syncStatus: "error" });
         throw new Error(errorMsg);
       } finally {
-        isSyncingRef = false;
+        releaseSyncLock();
         // 处理待处理的同步请求
         setTimeout(() => processPendingSync(), 100);
       }
@@ -493,14 +516,13 @@ export const useAppStore = create<AppState>()((...args) => {
         return false;
       }
 
-      if (isSyncingRef) {
+      const beginPull = tryBeginSync();
+      if (!beginPull.proceed) {
         if (__DEV__) console.log("同步操作正在进行中，标记为待处理");
-        pendingSyncRef = true;
         set({ syncStatus: "pending" });
         return false;
       }
 
-      isSyncingRef = true;
       set({ syncStatus: "syncing" });
 
       try {
@@ -519,17 +541,12 @@ export const useAppStore = create<AppState>()((...args) => {
 
         const currentUserId = session.user.id;
 
-        const { data: tombstoneRows, error: tombstoneFetchError } =
-          await supabase
-            .from("entry_tombstones")
-            .select("entry_id")
-            .eq("user_id", currentUserId);
+        const { tombstoneIdSet, tombstoneFetchError } =
+          await fetchUserTombstoneEntryIds(supabase, currentUserId);
 
         if (tombstoneFetchError) {
           console.warn("获取 entry_tombstones 失败:", tombstoneFetchError);
         }
-
-        const tombstoneIdSet = new Set(collectTombstoneEntryIds(tombstoneRows));
 
         const { data, error } = await supabase
           .from("entries")
@@ -585,24 +602,11 @@ export const useAppStore = create<AppState>()((...args) => {
           })
           .filter((cloudEntry) => !tombstoneIdSet.has(cloudEntry.id));
 
-        const localForMerge = filterOutTombstonedEntries(
+        const uniqueMergedEntries = mergeCloudPullEntries(
           entries,
+          transformedCloudData,
           tombstoneIdSet,
         );
-
-        // 合并数据：先保留本地独有 id，再以云端行覆盖同 id（找回回忆 = 以云端备份为准）
-        const mergedEntriesMap = new Map<string, MoodEntry>();
-
-        localForMerge.forEach((entry) => {
-          mergedEntriesMap.set(entry.id, entry);
-        });
-
-        for (const cloudEntry of transformedCloudData) {
-          mergedEntriesMap.set(cloudEntry.id, cloudEntry);
-        }
-
-        const uniqueMergedEntries = Array.from(mergedEntriesMap.values());
-        uniqueMergedEntries.sort((a, b) => b.timestamp - a.timestamp);
 
         set({ entries: uniqueMergedEntries });
 
@@ -624,7 +628,7 @@ export const useAppStore = create<AppState>()((...args) => {
         set({ syncStatus: "error" });
         throw new Error(errorMsg);
       } finally {
-        isSyncingRef = false;
+        releaseSyncLock();
         // 处理待处理的同步请求
         setTimeout(() => processPendingSync(), 100);
       }
@@ -657,6 +661,9 @@ export const initializeStore = (): (() => void) => {
         // 在用户数据加载完成后，初始化 firstEntryDate
         store.initializeFirstEntryDate().catch((error) => {
           console.error("初始化 firstEntryDate 失败:", error);
+        });
+        rescheduleEmotionRemindersFromStorage().catch((error) => {
+          console.warn("恢复情绪提醒调度失败:", error);
         });
       });
     } catch (error) {

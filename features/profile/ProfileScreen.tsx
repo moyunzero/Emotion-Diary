@@ -3,11 +3,14 @@ import CompanionDaysModal from "@/components/CompanionDaysModal";
 import { Toast } from "@/components/Toast";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { useAppStore } from "@/store/useAppStore";
-import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import {
+  excludeSoftDeletedEntries,
+  onlySoftDeletedEntries,
+} from "@/shared/entries/visibility";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { CloudRain, Sun } from "lucide-react-native";
 import { useCallback, useEffect, useMemo } from "react";
 import {
@@ -22,6 +25,7 @@ import { ProfileSettingsSection } from "./components/ProfileSettingsSection";
 import { ProfileStatsSection } from "./components/ProfileStatsSection";
 import { useProfileAuthHandlers } from "./hooks/useProfileAuthHandlers";
 import { useProfileScreenState } from "./hooks/useProfileScreenState";
+import { useProfileRetentionHandlers } from "./hooks/useProfileRetentionHandlers";
 import { useProfileSyncHandlers } from "./hooks/useProfileSyncHandlers";
 
 export function ProfileScreen() {
@@ -40,7 +44,14 @@ export function ProfileScreen() {
     [entries],
   );
 
+  const recycleBinCount = useMemo(
+    () => onlySoftDeletedEntries(entries).length,
+    [entries],
+  );
+
   const state = useProfileScreenState();
+  const retentionHandlers = useProfileRetentionHandlers(state.setToast);
+
   const syncHandlers = useProfileSyncHandlers({
     isSyncingRef: state.isSyncingRef,
     setIsLoading: state.setIsLoading,
@@ -172,12 +183,14 @@ export function ProfileScreen() {
 
       <AppScreenShell
         edges={["top", "bottom"]}
-        showHeader={false}
+        onBack={handleBack}
+        title="个人中心"
+        backAccessibilityLabel="返回上一页"
+        headerStyle={profileStyles.stackHeader}
         scrollable
         contentContainerStyle={profileContentPadding}
       >
         <ProfileHeaderSection
-          onBack={handleBack}
           avatarUri={user?.avatar}
           name={user?.name}
           handle={
@@ -213,8 +226,18 @@ export function ProfileScreen() {
           lastSyncTime={state.lastSyncTime}
           formatLastSyncTime={syncHandlers.formatLastSyncTime}
           isLoading={state.isLoading}
-          onSyncUpload={() => syncHandlers.handleSyncAction("upload")}
-          onSyncDownload={() => syncHandlers.handleSyncAction("download")}
+          storeSyncStatus={syncHandlers.storeSyncStatus}
+          recycleBinCount={recycleBinCount}
+          onOpenRecycleBin={() => router.push("/recycle-bin" as Href)}
+          reminderSettings={retentionHandlers.reminderSettings}
+          reminderLoading={retentionHandlers.reminderLoading}
+          reminderSupported={retentionHandlers.reminderSupported}
+          onToggleDailyReminder={retentionHandlers.toggleDailyReminder}
+          onToggleWeeklyReviewNotification={
+            retentionHandlers.toggleWeeklyReviewNotification
+          }
+          onSyncUpload={syncHandlers.handleSyncUpload}
+          onSyncDownload={syncHandlers.handleSyncPull}
           onLogout={authHandlers.handleLogout}
           onDeleteAccount={authHandlers.handleDeleteAccount}
           isLoginModalOpen={state.isLoginModalOpen}

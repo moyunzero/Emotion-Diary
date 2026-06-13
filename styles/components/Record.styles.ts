@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { createResponsiveMetrics } from "../../shared/responsive";
 import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { createStackScreenHeaderStyle } from "../../styles/stackScreenHeader";
 
 export function createRecordStyles(width: number, height: number) {
   const m = createResponsiveMetrics(width, height);
@@ -23,12 +24,7 @@ export function createRecordStyles(width: number, height: number) {
       paddingBottom: DESIGN_TOKENS.spacing.xxxl * 3,
     },
     /** 供 AppScreenShell / StackScreenHeader 外层：内边距与底部分割线 */
-    stackHeader: {
-      paddingHorizontal: m.padding.horizontal,
-      paddingVertical: DESIGN_TOKENS.spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: COLORS.gray[50],
-    },
+    stackHeader: createStackScreenHeaderStyle(width, height),
     content: {
       padding: m.padding.horizontal,
     },

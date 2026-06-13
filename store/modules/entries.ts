@@ -7,6 +7,8 @@
 
 import { StateCreator } from 'zustand';
 import { MAX_EDIT_HISTORY } from '../../constants';
+import { supabase } from '../../lib/supabase';
+import { insertEntryTombstone } from '../../services/entryTombstones';
 import {
   appendEditHistoryWithLimit,
   buildEditHistorySnapshot,
@@ -14,6 +16,7 @@ import {
 import {
   excludeSoftDeletedEntries,
   generateEntryId,
+  isSoftDeleted,
 } from '../../shared/entries/visibility';
 import { MoodEntry, Status } from '../../types';
 import {
@@ -174,6 +177,98 @@ export const createEntriesSlice: StateCreator<
 
     get()._saveEntries();
     get()._calculateWeather();
+  },
+
+  /**
+   * 从回收站恢复：清除 `deletedAt`，条目回到主列表。
+   */
+  restoreEntry: async (id): Promise<void> => {
+    const { entries } = get();
+    const entry = entries.find((e) => e.id === id);
+    if (!entry || !isSoftDeleted(entry)) {
+      return;
+    }
+
+    const updatedEntries = entries.map((e) =>
+      e.id === id ? { ...e, deletedAt: undefined } : e,
+    );
+    set({ entries: updatedEntries });
+
+    const store = get();
+    if (store.updateFirstEntryDate) {
+      await store.updateFirstEntryDate(entry.timestamp);
+    }
+
+    get()._saveEntries();
+    get()._calculateWeather();
+  },
+
+  /**
+   * 永久删除：从本地移除并登记墓碑；已登录时触发云端同步删行。
+   */
+  purgeEntryForever: async (id): Promise<boolean> => {
+    const { entries, user } = get();
+    const entry = entries.find((e) => e.id === id);
+    if (!entry) {
+      return false;
+    }
+
+    const updatedEntries = entries.filter((e) => e.id !== id);
+    set({ entries: updatedEntries });
+
+    if (user) {
+      const { error } = await insertEntryTombstone(supabase, user.id, id);
+      if (error) {
+        console.warn("登记墓碑失败:", error.message);
+      }
+      try {
+        await get().syncToCloud();
+      } catch (syncError) {
+        console.warn("永久删除后同步失败:", syncError);
+      }
+    }
+
+    const store = get();
+    const stillVisible = excludeSoftDeletedEntries(updatedEntries);
+    if (stillVisible.length === 0 && store.clearFirstEntryDate) {
+      await store.clearFirstEntryDate();
+    }
+
+    store._saveEntries();
+    store._calculateWeather();
+    return true;
+  },
+
+  /**
+   * 将失败语音标回 pending 并触发云端备份（已登录时）。
+   */
+  retryAudioUpload: async (entryId, audioId): Promise<void> => {
+    const { entries, user } = get();
+    let found = false;
+    const updatedEntries = entries.map((entry) => {
+      if (entry.id !== entryId || !entry.audios?.length) return entry;
+      let entryChanged = false;
+      const updatedAudios = entry.audios.map((audio) => {
+        if (audio.id !== audioId) return audio;
+        if (audio.syncStatus !== "failed" && audio.syncStatus !== "pending") {
+          return audio;
+        }
+        entryChanged = true;
+        return { ...audio, syncStatus: "pending" as const };
+      });
+      if (!entryChanged) return entry;
+      found = true;
+      return { ...entry, audios: updatedAudios };
+    });
+
+    if (!found) return;
+
+    set({ entries: updatedEntries });
+    get()._saveEntries();
+
+    if (user) {
+      await get().syncToCloud();
+    }
   },
 
   /**

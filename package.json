@@ -1,16 +1,22 @@
 {
   "name": "emotion-diary",
   "main": "expo-router/entry",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint app components features hooks lib services store utils types constants.ts constants types.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
+    "lint": "eslint app components constants features hooks lib services store utils shared types types.ts constants.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:maestro": "maestro test .maestro/flows",
+    "test:maestro:preflight": "bash scripts/maestro-preflight.sh",
+    "test:maestro:restore": "maestro test .maestro/flows/recycle-bin-restore.yaml",
+    "test:maestro:purge": "maestro test .maestro/flows/recycle-bin-purge.yaml",
     "build:optimized": "node ./scripts/build-optimized.js",
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",
@@ -45,6 +51,7 @@
     "expo-image": "~3.0.11",
     "expo-linking": "~8.0.11",
     "expo-media-library": "~18.2.1",
+    "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.21",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
@@ -70,6 +77,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/inquirer": "^9.0.9",
     "@types/jest": "29.5.14",
     "@types/node": "^25.6.2",
@@ -114,7 +122,8 @@
       ]
     },
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/e2e/"
     ]
   },
   "private": true

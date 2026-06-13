@@ -3,7 +3,7 @@
  *
  * B-3 / CONCERNS H3：禁止再用「云端有但本地无」做差集 DELETE。
  * `entry_tombstones` 由**显式永久清除**或既有同步管线写入（例如需物理删云时登记）；**普通 `deleteEntry` 不写墓碑**，
- * 产品方向见 `openspec/changes/002-entry-backup-soft-delete/SPEC.md`（软删 + 快照恢复）。
+ * 产品方向见 `openspec/changes/002-entry-backup-soft-delete/SPEC.md`（软删 + 回收站/永久删除）。
  * `syncFromCloud` / `recoverFromCloud` 仍会按墓碑过滤云端行；`syncToCloud` 可对已登记 id 物理删云。
  */
 

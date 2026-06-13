@@ -3,10 +3,13 @@
  */
 
 import {
+  Archive,
   CheckCircle,
   CloudDownload,
   CloudUpload,
+  History,
   LogOut,
+  Bell,
   User as UserIcon,
   UserX,
   X,
@@ -20,6 +23,7 @@ import {
   Modal,
   Platform,
   ScrollView,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -33,6 +37,19 @@ import {
   ProfileMenuItem,
   ProfileSectionHeader,
 } from "@/components/Profile";
+import {
+  GroupedSettingsCard,
+  ScreenFootnote,
+} from "@/components/settings";
+import { createSettingsStyles } from "@/components/settings/settings.styles";
+import { RETENTION_COPY } from "@/constants/retentionCopy";
+import { COLORS } from "@/constants/colors";
+import type { EmotionReminderSettings } from "@/services/reminderSettings";
+import {
+  SYNC_DATA_OPS,
+  formatStoreSyncStatusLabel,
+  type StoreSyncStatus,
+} from "@/constants/syncDataOps";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import {
   AVATAR_PRESETS,
@@ -45,6 +62,14 @@ const AVATARS = AVATAR_PRESETS;
 export type ProfileSettingsSectionProps = {
   user: { id: string; name: string; email?: string; avatar?: string } | null;
   syncStatus: "idle" | "syncing" | "success" | "error";
+  storeSyncStatus: StoreSyncStatus;
+  recycleBinCount: number;
+  onOpenRecycleBin: () => void;
+  reminderSettings: EmotionReminderSettings;
+  reminderLoading: boolean;
+  reminderSupported: boolean;
+  onToggleDailyReminder: () => void;
+  onToggleWeeklyReviewNotification: () => void;
   syncProgress: string;
   lastSyncTime: number | null;
   formatLastSyncTime: (ts: number | null) => string;
@@ -105,6 +130,14 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
   const {
     user,
     syncStatus,
+    storeSyncStatus,
+    recycleBinCount,
+    onOpenRecycleBin,
+    reminderSettings,
+    reminderLoading,
+    reminderSupported,
+    onToggleDailyReminder,
+    onToggleWeeklyReviewNotification,
     syncProgress,
     lastSyncTime,
     formatLastSyncTime,
@@ -163,7 +196,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
   const { width, height } = useWindowDimensions();
   const { profileStyles } = useMemo(
     () => createProfileStyles(width, height),
-    [width, height]
+    [width, height],
+  );
+  const settingsStyles = useMemo(
+    () => createSettingsStyles(width, height),
+    [width, height],
   );
 
   const tError = (key: string): string => {
@@ -198,42 +235,51 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     <View style={profileStyles.menuContainer}>
       <ProfileSectionHeader title="数据与安全" />
 
-      {user && (
-        <View style={profileStyles.syncStatusContainer}>
-          <View style={profileStyles.syncStatusRow}>
-            <View style={profileStyles.syncStatusLeft}>
-              {syncStatus === "syncing" && (
+      {user ? (
+        <ScreenFootnote>{SYNC_DATA_OPS.sectionHint}</ScreenFootnote>
+      ) : null}
+
+      <GroupedSettingsCard
+        statusRow={
+          user ? (
+            <View style={settingsStyles.statusRow}>
+              {(syncStatus === "syncing" || storeSyncStatus === "syncing") && (
                 <ActivityIndicator
                   size="small"
                   color="#3B82F6"
-                  style={{ marginRight: 8 }}
+                  style={settingsStyles.statusIcon}
                 />
               )}
-              {syncStatus === "success" && (
+              {syncStatus === "success" && storeSyncStatus === "idle" && (
                 <CheckCircle
                   size={16}
                   color="#10B981"
-                  style={{ marginRight: 8 }}
+                  style={settingsStyles.statusIcon}
                 />
               )}
-              {syncStatus === "error" && (
-                <X size={16} color="#EF4444" style={{ marginRight: 8 }} />
+              {(syncStatus === "error" || storeSyncStatus === "error") && (
+                <X size={16} color="#EF4444" style={settingsStyles.statusIcon} />
               )}
-              <Text style={profileStyles.syncStatusText}>
+              <Text style={settingsStyles.statusText}>
                 {syncProgress ||
-                  `最后同步：${formatLastSyncTime(lastSyncTime)}`}
+                  formatStoreSyncStatusLabel(
+                    storeSyncStatus,
+                    `最后同步：${formatLastSyncTime(lastSyncTime)}`,
+                  )}
               </Text>
             </View>
-          </View>
-        </View>
-      )}
-
-      <View style={profileStyles.menuGroup}>
+          ) : undefined
+        }
+      >
         <ProfileMenuItem
           icon={<CloudUpload size={20} color="#EF4444" />}
           iconBgColor="#FEF2F2"
-          title="备份心事"
-          subtext={syncStatus === "syncing" ? "正在备份..." : undefined}
+          title={SYNC_DATA_OPS.uploadTitle}
+          subtext={
+            syncStatus === "syncing"
+              ? SYNC_DATA_OPS.uploadProgress
+              : SYNC_DATA_OPS.uploadSubtext
+          }
           showChevron={syncStatus !== "syncing"}
           disabled={isLoading}
           onPress={onSyncUpload}
@@ -242,18 +288,110 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         <ProfileMenuItem
           icon={<CloudDownload size={20} color="#3B82F6" />}
           iconBgColor="#EFF6FF"
-          title="找回回忆"
-          subtext={syncStatus === "syncing" ? "正在同步..." : undefined}
+          title={SYNC_DATA_OPS.pullTitle}
+          subtext={
+            syncStatus === "syncing"
+              ? SYNC_DATA_OPS.pullProgress
+              : SYNC_DATA_OPS.pullSubtext
+          }
           showChevron={syncStatus !== "syncing"}
           disabled={isLoading}
           onPress={onSyncDownload}
         />
-      </View>
+        <View style={profileStyles.menuDivider} />
+        <ProfileMenuItem
+          icon={<Archive size={20} color="#6B7280" />}
+          iconBgColor={COLORS.gray[50]}
+          title="回收站"
+          subtext={
+            recycleBinCount > 0
+              ? `${recycleBinCount} 条可恢复`
+              : "暂无已删除记录"
+          }
+          showChevron={true}
+          disabled={isLoading}
+          onPress={onOpenRecycleBin}
+        />
+      </GroupedSettingsCard>
+
+      <ProfileSectionHeader title="留存与提醒" />
+      <GroupedSettingsCard>
+        <View style={profileStyles.menuItem}>
+          <View
+            style={[
+              profileStyles.menuIcon,
+              { backgroundColor: "#FEF2F2" },
+            ]}
+          >
+            <Bell size={20} color="#EF4444" />
+          </View>
+          <View style={profileStyles.menuTextContainer}>
+            <Text style={profileStyles.menuText}>
+              {RETENTION_COPY.dailyReminderTitle}
+            </Text>
+            <Text style={profileStyles.menuSubtext}>
+              {reminderSupported
+                ? reminderSettings.dailyReminderEnabled
+                  ? RETENTION_COPY.dailyReminderSubtextEnabled(
+                      reminderSettings.dailyReminderHour,
+                      reminderSettings.dailyReminderMinute,
+                    )
+                  : RETENTION_COPY.dailyReminderSubtextDisabled
+                : RETENTION_COPY.webReminderUnsupported}
+            </Text>
+          </View>
+          {reminderSupported ? (
+            <Switch
+              value={reminderSettings.dailyReminderEnabled}
+              onValueChange={() => onToggleDailyReminder()}
+              disabled={isLoading || reminderLoading}
+              trackColor={{ false: COLORS.gray[200], true: "#FECACA" }}
+              thumbColor={
+                reminderSettings.dailyReminderEnabled ? "#EF4444" : "#f4f3f4"
+              }
+            />
+          ) : null}
+        </View>
+        {reminderSupported && reminderSettings.dailyReminderEnabled ? (
+          <>
+            <View style={profileStyles.menuDivider} />
+            <View style={profileStyles.menuItem}>
+              <View
+                style={[
+                  profileStyles.menuIcon,
+                  { backgroundColor: "#EFF6FF" },
+                ]}
+              >
+                <History size={20} color="#3B82F6" />
+              </View>
+              <View style={profileStyles.menuTextContainer}>
+                <Text style={profileStyles.menuText}>
+                  {RETENTION_COPY.weeklyReviewToggleTitle}
+                </Text>
+                <Text style={profileStyles.menuSubtext}>
+                  {RETENTION_COPY.weeklyReviewToggleSubtext}
+                </Text>
+              </View>
+              <Switch
+                value={reminderSettings.weeklyReviewNotificationEnabled}
+                onValueChange={() => onToggleWeeklyReviewNotification()}
+                disabled={isLoading || reminderLoading}
+                trackColor={{ false: COLORS.gray[200], true: "#BFDBFE" }}
+                thumbColor={
+                  reminderSettings.weeklyReviewNotificationEnabled
+                    ? "#3B82F6"
+                    : "#f4f3f4"
+                }
+              />
+            </View>
+          </>
+        ) : null}
+      </GroupedSettingsCard>
 
       {user && (
         <>
           <ProfileSectionHeader title="其他" />
-          <View style={profileStyles.menuGroup}>
+          <GroupedSettingsCard>
             <ProfileMenuItem
               icon={<LogOut size={20} color="#EF4444" />}
               iconBgColor="#FEF2F2"
@@ -272,7 +410,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               danger
               onPress={onDeleteAccount}
             />
-          </View>
+          </GroupedSettingsCard>
         </>
       )}
 

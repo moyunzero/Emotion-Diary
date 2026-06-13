@@ -13,6 +13,11 @@ import { RecordingSessionHost } from '../components/AudioRecorder/RecordingSessi
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
 import { logger } from '../utils/logger';
+import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
+
+if (Platform.OS === 'web') {
+  installWebAlertPolyfill();
+}
 
 // 防止启动画面自动隐藏
 SplashScreen.preventAutoHideAsync();
@@ -119,6 +124,10 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="review-export"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="recycle-bin"
               options={{ headerShown: false }}
             />
           </Stack>

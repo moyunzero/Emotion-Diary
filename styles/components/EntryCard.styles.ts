@@ -223,6 +223,22 @@ export function createEntryCardStyles(width: number, height: number) {
       color: '#6C63FF',
       marginLeft: DESIGN_TOKENS.spacing.xs,
     },
+    audioPlayRow: {
+      marginBottom: 4,
+    },
+    audioSyncMeta: {
+      paddingHorizontal: DESIGN_TOKENS.spacing.xs,
+      paddingBottom: DESIGN_TOKENS.spacing.xs,
+    },
+    audioSyncPending: {
+      fontSize: 11,
+      color: COLORS.text.tertiary,
+    },
+    audioSyncFailed: {
+      fontSize: 11,
+      color: '#EF4444',
+      fontWeight: '600',
+    },
     actionsContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',

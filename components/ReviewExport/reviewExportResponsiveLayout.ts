@@ -1,7 +1,6 @@
 import type { ResponsiveStyleValues } from '../../hooks/useResponsiveStyles';
 
 export type ReviewExportResponsiveLayout = {
-  headerPaddingHorizontal: number;
   headerPaddingTop: number;
   headerPaddingBottom: number;
   headerTitleFontSize: number;
@@ -25,7 +24,6 @@ export type ReviewExportResponsiveLayout = {
 export const buildReviewExportResponsiveLayout = (
   responsive: ResponsiveStyleValues,
 ): ReviewExportResponsiveLayout => ({
-  headerPaddingHorizontal: Math.max(8, Math.round(responsive.padding.horizontal * 0.5)),
   headerPaddingTop: Math.max(4, Math.round(responsive.padding.vertical * 0.25)),
   headerPaddingBottom: Math.max(8, Math.round(responsive.padding.vertical * 0.5)),
   headerTitleFontSize: responsive.fontSize.cardTitle + 2,

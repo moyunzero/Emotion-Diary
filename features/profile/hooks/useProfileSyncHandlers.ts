@@ -1,9 +1,12 @@
 /**
- * Profile 同步流程：syncToCloud、recoverFromCloud、isSyncingRef 防抖
+ * Profile 同步流程：syncToCloud、recoverFromCloud；与 store.syncStatus 对齐
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import { Alert } from "react-native";
+import { SYNC_DATA_OPS } from "@/constants/syncDataOps";
+import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
 import type { MutableRefObject } from "react";
 import type { SyncStatus } from "./useProfileScreenState";
@@ -14,7 +17,6 @@ type StateRef = {
   setSyncStatus: (v: SyncStatus) => void;
   setSyncProgress: (v: string) => void;
   setLastSyncTime: (v: number) => void;
-  /** 未登录时点击备份/恢复：打开登录弹窗（与头像区「点击登录」一致） */
   setIsLoginModalOpen: (v: boolean) => void;
   setIsRegisterMode: (v: boolean) => void;
 };
@@ -22,9 +24,10 @@ type StateRef = {
 export function useProfileSyncHandlers(state: StateRef) {
   const syncToCloud = useAppStore((s) => s.syncToCloud);
   const recoverFromCloud = useAppStore((s) => s.recoverFromCloud);
+  const storeSyncStatus = useAppStore((s) => s.syncStatus);
   const user = useAppStore((s) => s.user);
 
-  const handleSyncAction = useCallback(
+  const runSyncAction = useCallback(
     async (type: "upload" | "download") => {
       if (!user) {
         state.setIsRegisterMode(false);
@@ -40,35 +43,71 @@ export function useProfileSyncHandlers(state: StateRef) {
       setIsLoading(true);
       setSyncStatus("syncing");
       setSyncProgress(
-        type === "upload" ? "正在备份到云端..." : "正在从云端同步...",
+        type === "upload"
+          ? SYNC_DATA_OPS.uploadProgress
+          : SYNC_DATA_OPS.pullProgress,
       );
 
       try {
-        if (type === "upload") {
-          await syncToCloud();
-          const now = Date.now();
-          state.setLastSyncTime(now);
-          await AsyncStorage.setItem("last_sync_time", now.toString());
-          const currentEntries = useAppStore.getState().entries;
-          setSyncStatus("success");
-          setSyncProgress(`成功备份 ${currentEntries.length} 条记录`);
+        const ok =
+          type === "upload"
+            ? await syncToCloud()
+            : await recoverFromCloud();
+
+        if (!ok) {
+          const status = useAppStore.getState().syncStatus;
+          if (status === "pending") {
+            setSyncStatus("syncing");
+            setSyncProgress(SYNC_DATA_OPS.pendingMessage);
+            setTimeout(() => {
+              setSyncStatus("idle");
+              setSyncProgress("");
+            }, 2500);
+            return;
+          }
+          if (status === "error") {
+            setSyncStatus("error");
+            setSyncProgress(SYNC_DATA_OPS.notLoggedIn);
+            setTimeout(() => {
+              setSyncStatus("idle");
+              setSyncProgress("");
+            }, 3000);
+            return;
+          }
+          setSyncStatus("error");
+          setSyncProgress("操作未完成，请稍后重试");
           setTimeout(() => {
             setSyncStatus("idle");
             setSyncProgress("");
-          }, 2000);
-        } else {
-          await recoverFromCloud();
-          const now = Date.now();
-          state.setLastSyncTime(now);
-          await AsyncStorage.setItem("last_sync_time", now.toString());
-          const currentEntries = useAppStore.getState().entries;
-          setSyncStatus("success");
-          setSyncProgress(`成功同步 ${currentEntries.length} 条记录`);
-          setTimeout(() => {
-            setSyncStatus("idle");
-            setSyncProgress("");
-          }, 2000);
+          }, 3000);
+          return;
         }
+
+        const now = Date.now();
+        state.setLastSyncTime(now);
+        await AsyncStorage.setItem("last_sync_time", now.toString());
+        const visibleCount = excludeSoftDeletedEntries(
+          useAppStore.getState().entries,
+        ).length;
+        const failedAudioCount = useAppStore
+          .getState()
+          .entries.flatMap((e) => e.audios ?? [])
+          .filter((a) => a.syncStatus === "failed").length;
+        setSyncStatus("success");
+        const baseMsg =
+          type === "upload"
+            ? SYNC_DATA_OPS.uploadSuccess(visibleCount)
+            : SYNC_DATA_OPS.pullSuccess(visibleCount);
+        setSyncProgress(
+          failedAudioCount > 0
+            ? `${baseMsg}；${failedAudioCount} 条语音上传失败，可在条目中重试`
+            : baseMsg,
+        );
+        useAppStore.setState({ syncStatus: "idle" });
+        setTimeout(() => {
+          setSyncStatus("idle");
+          setSyncProgress("");
+        }, 2000);
       } catch (error: unknown) {
         const err = error as { message?: string };
         const errorMessage = err?.message || "操作失败，请稍后重试";
@@ -85,6 +124,24 @@ export function useProfileSyncHandlers(state: StateRef) {
     },
     [syncToCloud, recoverFromCloud, user, state],
   );
+
+  const handleSyncUpload = useCallback(() => {
+    void runSyncAction("upload");
+  }, [runSyncAction]);
+
+  const handleSyncPull = useCallback(() => {
+    Alert.alert(
+      SYNC_DATA_OPS.pullConfirmTitle,
+      SYNC_DATA_OPS.pullConfirmMessage,
+      [
+        { text: SYNC_DATA_OPS.pullConfirmCancel, style: "cancel" },
+        {
+          text: SYNC_DATA_OPS.pullConfirmOk,
+          onPress: () => void runSyncAction("download"),
+        },
+      ],
+    );
+  }, [runSyncAction]);
 
   const formatLastSyncTime = useCallback((timestamp: number | null) => {
     if (!timestamp) return "从未同步";
@@ -103,5 +160,10 @@ export function useProfileSyncHandlers(state: StateRef) {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   }, []);
 
-  return { handleSyncAction, formatLastSyncTime };
+  return {
+    handleSyncUpload,
+    handleSyncPull,
+    formatLastSyncTime,
+    storeSyncStatus,
+  };
 }

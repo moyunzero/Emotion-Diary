@@ -131,5 +131,15 @@ export function createMoodFormStyles(width: number, height: number) {
       fontSize: m.fontSize.body,
       fontWeight: '600',
     },
+    advancedToggle: {
+      alignSelf: 'center',
+      paddingVertical: DESIGN_TOKENS.spacing.sm,
+      marginBottom: DESIGN_TOKENS.spacing.sm,
+    },
+    advancedToggleText: {
+      fontSize: m.fontSize.small,
+      color: COLORS.submit,
+      fontWeight: '600',
+    },
   });
 }

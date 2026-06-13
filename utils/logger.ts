@@ -174,15 +174,14 @@ export class Logger {
   }
 
   /**
-   * 持久化日志到本地存储
-   * 注意：这是一个简化实现，实际项目中可能需要使用 AsyncStorage 或其他持久化方案
+   * 持久化 ERROR 级日志（占位实现）。
+   *
+   * **刻意不实现**到 AsyncStorage/文件：本应用未接 Sentry/远端日志；持久化会增加 I/O、隐私与清理策略成本。
+   * 若未来需要「可回溯错误日志」，应单独开 SSD 任务（存储上限、脱敏、与 GDPR/心理类数据边界）。
    */
   private persistLog(entry: LogEntry): void {
-    // TODO: 实现日志持久化逻辑
-    // 可以使用 AsyncStorage 或文件系统
-    // 这里暂时只在控制台输出
     if (isDevelopment()) {
-      console.log('[Logger] 持久化日志:', entry);
+      console.log("[Logger] ERROR（未持久化，仅开发期提示）:", entry);
     }
   }
 }

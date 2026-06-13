@@ -165,10 +165,13 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
       setPrescription(result);
       setIsExpanded(true);
       setGeneratingStep('');
-    } catch (error: any) {
-      const errorMessage = error?.message || '生成情绪处方时出现错误';
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && error.message
+          ? error.message
+          : "生成情绪处方时出现错误";
       setGenerateError(errorMessage);
-      console.error('生成处方失败:', error);
+      console.error("生成处方失败:", error);
     } finally {
       setIsGenerating(false);
       setGeneratingStep('');

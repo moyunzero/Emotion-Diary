@@ -2,7 +2,7 @@
   "expo": {
     "name": "心晴MO",
     "slug": "emotion-diary",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
@@ -70,7 +70,13 @@
           "granularPermissions": ["photo"]
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "color": "#EF4444"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -6,6 +6,7 @@
 import { StyleSheet } from "react-native";
 import { createResponsiveMetrics } from "../../shared/responsive";
 import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { createStackScreenHeaderStyle } from "../../styles/stackScreenHeader";
 import {
   BORDER_RADIUS,
   FONT_SIZE,
@@ -37,13 +38,10 @@ export function createProfileStyles(width: number, height: number) {
       backgroundColor: COLORS.background.page,
       opacity: 0.6,
     },
-    /** Phase 15：栈顶栏外边距（布局由 StackScreenHeader 负责） */
-    stackHeader: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-    },
+    /** Phase 15：栈顶栏（固定于 AppScreenShell，与 Record / 回收站一致） */
+    stackHeader: createStackScreenHeaderStyle(width, height),
     profileSection: {
-      marginTop: SPACING.xl,
+      marginTop: spacing.lg,
       marginBottom: SPACING.xxl,
       flexDirection: "row",
       alignItems: "center",
@@ -141,13 +139,6 @@ export function createProfileStyles(width: number, height: number) {
       marginBottom: spacing.sm,
       marginLeft: spacing.xs,
     },
-    menuGroup: {
-      backgroundColor: COLORS.background.primary,
-      borderRadius: borderRadius.xl,
-      overflow: "hidden",
-      marginBottom: SPACING.xxl,
-      ...shadow.md,
-    },
     menuItem: {
       flexDirection: "row",
       alignItems: "center",
@@ -184,26 +175,6 @@ export function createProfileStyles(width: number, height: number) {
       height: 1,
       backgroundColor: COLORS.gray[100],
       marginLeft: 68,
-    },
-    syncStatusContainer: {
-      backgroundColor: COLORS.gray[50],
-      borderRadius: borderRadius.medium,
-      padding: spacing.sm,
-      marginBottom: spacing.sm,
-    },
-    syncStatusRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    syncStatusLeft: {
-      flexDirection: "row",
-      alignItems: "center",
-      flex: 1,
-    },
-    syncStatusText: {
-      fontSize: fontSize.sm,
-      color: COLORS.text.secondary,
     },
     loadingOverlay: {
       ...StyleSheet.absoluteFillObject,

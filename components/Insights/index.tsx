@@ -6,14 +6,11 @@ import { useAppStore } from '../../store/useAppStore';
 import { Status } from '../../types';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { AppScreenShell } from '../AppScreenShell';
-import EmotionPodcast from '../ai/EmotionPodcast';
 import { EmptyGarden } from './EmptyGarden';
-import { EmotionReleaseArchive } from './EmotionReleaseArchive';
-import { GardenFooter } from './GardenFooter';
 import { GardenHeader } from './GardenHeader';
 import { HealingProgress } from './HealingProgress';
-import { RelationshipGarden } from './RelationshipGarden';
-import { TriggerInsight } from './TriggerInsight';
+import { InsightsDeferredSections } from './InsightsDeferredSections';
+import { WeeklyReviewBanner } from '../retention/WeeklyReviewBanner';
 import { WeeklyMoodWeather } from './WeeklyMoodWeather';
 import { INSIGHTS_COLORS } from './constants';
 
@@ -106,6 +103,8 @@ const InsightsComponent: React.FC = () => {
         </View>
 
         <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
+          <WeeklyReviewBanner entries={visibleEntries} />
+
           {/* 本周情绪天气 */}
           <WeeklyMoodWeather entries={visibleEntries} />
 
@@ -115,20 +114,8 @@ const InsightsComponent: React.FC = () => {
             resolvedCount={stats.resolved} 
           />
 
-          {/* 情绪播客 */}
-          <EmotionPodcast />
-
-          {/* 情绪释放档案（心晴MO 特色闭环） */}
-          <EmotionReleaseArchive entries={visibleEntries} />
-
-          {/* 关系花盆 */}
-          <RelationshipGarden entries={visibleEntries} />
-
-          {/* 情绪触发洞察 */}
-          <TriggerInsight entries={visibleEntries} />
-
-          {/* 底部鼓励语 */}
-          <GardenFooter 
+          <InsightsDeferredSections
+            entries={visibleEntries}
             thisMonthCount={stats.thisMonthCount}
             lastMonthCount={stats.lastMonthCount}
             resolvedCount={stats.resolved}

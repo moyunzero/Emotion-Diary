@@ -94,6 +94,16 @@ coverage/
 *.lcov
 .nyc_output/
 
+# Playwright / Maestro E2E artifacts（本地跑测产生）
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# 本地代码智能索引（不入库）
+.codegraph/
+.understand-anything/
+
 # TypeScript
 *.tsbuildinfo
 *.js.map

@@ -115,6 +115,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const resolveEntry = useAppStore((state) => state.resolveEntry);
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);
+  const retryAudioUpload = useAppStore((state) => state.retryAudioUpload);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -134,10 +135,15 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
 
-  const currentAudioId = useAppStore((s) => s.currentAudioId);
-  const playbackEntryId = useAppStore((s) => s.playbackEntryId);
-  const isPlayingGlobal = useAppStore((s) => s.isPlaying);
-  const playbackPosition = useAppStore((s) => s.playbackPosition);
+  const currentAudioId = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.currentAudioId : null,
+  );
+  const isPlayingGlobal = useAppStore(
+    (s) => s.playbackEntryId === entry.id && s.isPlaying,
+  );
+  const playbackPosition = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.playbackPosition : 0,
+  );
 
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -145,8 +151,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const isAudioRowActive = (audio: AudioData) =>
-    playbackEntryId === entry.id && currentAudioId === audio.id;
+  const isAudioRowActive = useCallback(
+    (audio: AudioData) => currentAudioId === audio.id,
+    [currentAudioId],
+  );
 
   const handlePlayAudio = useCallback(
     async (audio: AudioData) => {
@@ -165,11 +173,80 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     [entry.id],
   );
 
+  const renderAudioRow = useCallback(
+    (audio: AudioData) => (
+      <View key={audio.id} style={styles.audioPlayRow}>
+        <TouchableOpacity
+          style={[
+            styles.audioPlayItem,
+            isAudioRowActive(audio) && styles.audioPlayItemActive,
+          ]}
+          onPress={() => handlePlayAudio(audio)}
+          accessibilityRole="button"
+          accessibilityLabel={`播放录音：${audio.name || "录制于 " + new Date(audio.createdAt).toLocaleTimeString()}`}
+        >
+          {isAudioRowActive(audio) && isPlayingGlobal ? (
+            <Pause size={16} color="#6C63FF" />
+          ) : (
+            <Play size={16} color="#9CA3AF" />
+          )}
+          <Text
+            style={[
+              styles.audioPlayName,
+              isAudioRowActive(audio) && styles.audioPlayNameActive,
+            ]}
+            numberOfLines={1}
+          >
+            {audio.name ||
+              `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`}
+          </Text>
+          {isAudioRowActive(audio) && isPlayingGlobal && (
+            <Text style={styles.audioPlayDuration}>
+              {formatDuration(playbackPosition)} /{" "}
+              {formatDuration(audio.duration)}
+            </Text>
+          )}
+        </TouchableOpacity>
+        {audio.syncStatus === "pending" && (
+          <View style={styles.audioSyncMeta}>
+            <Text style={styles.audioSyncPending}>待上传云端</Text>
+          </View>
+        )}
+        {audio.syncStatus === "failed" && (
+          <TouchableOpacity
+            style={styles.audioSyncMeta}
+            onPress={() => retryAudioUpload(entry.id, audio.id)}
+            accessibilityRole="button"
+            accessibilityLabel="重试上传语音"
+          >
+            <Text style={styles.audioSyncFailed}>上传失败 · 点击重试</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    ),
+    [
+      entry.id,
+      handlePlayAudio,
+      isAudioRowActive,
+      isPlayingGlobal,
+      playbackPosition,
+      retryAudioUpload,
+      styles,
+    ],
+  );
+
+  const isActivePlaybackEntry = useAppStore(
+    (s) => s.playbackEntryId === entry.id,
+  );
+
   useEffect(() => {
-    if (!isExpanded && playbackEntryId === entry.id) {
+    if (!isExpanded && isActivePlaybackEntry) {
       useAppStore.getState().stopAudio();
     }
-  }, [isExpanded, playbackEntryId, entry.id]);
+  }, [isExpanded, isActivePlaybackEntry, entry.id]);
 
   const handleResolve = () => {
     triggerHaptic("success");
@@ -179,12 +256,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleDelete = () => {
     Alert.alert(
-      "确认删除",
-      `确定要删除这条记录吗？\n\n"${entry.content.substring(0, 30)}${entry.content.length > 30 ? "..." : ""}"`,
+      "移至回收站",
+      `确定将这条记录移至回收站吗？可在个人页回收站中恢复。\n\n"${entry.content.substring(0, 30)}${entry.content.length > 30 ? "..." : ""}"`,
       [
         { text: "取消", style: "cancel" },
         {
-          text: "删除",
+          text: "移至回收站",
           style: "destructive",
           onPress: () => {
             triggerHaptic("error");
@@ -387,38 +464,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   {entry.audios && entry.audios.length > 0 && (
                     <View style={styles.burnedAudioContainer}>
                       <Text style={styles.burnedAudioLabel}>语音：</Text>
-                      {entry.audios.map((audio) => (
-                        <TouchableOpacity
-                          key={audio.id}
-                          style={[
-                            styles.audioPlayItem,
-                            isAudioRowActive(audio) && styles.audioPlayItemActive
-                          ]}
-                          onPress={() => handlePlayAudio(audio)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
-                        >
-                          {isAudioRowActive(audio) && isPlayingGlobal ? (
-                            <Pause size={16} color="#6C63FF" />
-                          ) : (
-                            <Play size={16} color="#9CA3AF" />
-                          )}
-                          <Text
-                            style={[
-                              styles.audioPlayName,
-                              isAudioRowActive(audio) && styles.audioPlayNameActive
-                            ]}
-                            numberOfLines={1}
-                          >
-                            {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
-                          </Text>
-                          {isAudioRowActive(audio) && isPlayingGlobal && (
-                            <Text style={styles.audioPlayDuration}>
-                              {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
-                            </Text>
-                          )}
-                        </TouchableOpacity>
-                      ))}
+                      {entry.audios.map((audio) => renderAudioRow(audio))}
                     </View>
                   )}
                 </View>
@@ -441,6 +487,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         style={styles.wrapper}
         ref={viewRef}
         collapsable={false}
+        testID="mood-entry-card"
         onLayout={(e) => setLayout(e.nativeEvent.layout)}
       >
         <Animated.View
@@ -457,7 +504,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             }}
             activeOpacity={1}
             accessibilityRole="button"
-            accessibilityLabel={`情绪记录卡片，涉及${entry.people?.join("和") || "相关人"}，${isExpanded ? "已展开" : "点击展开查看详情"}`}
+            accessibilityLabel={`情绪记录卡片，${entry.content}，涉及${entry.people?.join("和") || "相关人"}，${isExpanded ? "已展开" : "点击展开查看详情"}`}
             accessibilityHint={
               isExpanded ? "点击收起卡片" : "点击展开查看完整内容和操作选项"
             }
@@ -487,6 +534,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 <Text
                   style={styles.contentText}
                   numberOfLines={isExpanded ? undefined : 3}
+                  accessibilityLabel={entry.content}
                 >
                   {entry.content}
                 </Text>
@@ -515,38 +563,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 {isExpanded && entry.audios && entry.audios.length > 0 && (
                   <View style={styles.audioPlaySection}>
                     <Text style={styles.audioPlaySectionTitle}>语音</Text>
-                    {entry.audios.map((audio) => (
-                      <TouchableOpacity
-                        key={audio.id}
-                        style={[
-                          styles.audioPlayItem,
-                          isAudioRowActive(audio) && styles.audioPlayItemActive
-                        ]}
-                        onPress={() => handlePlayAudio(audio)}
-                        accessibilityRole="button"
-                        accessibilityLabel={`播放录音：${audio.name || '录制于 ' + new Date(audio.createdAt).toLocaleTimeString()}`}
-                      >
-                        {isAudioRowActive(audio) && isPlayingGlobal ? (
-                          <Pause size={16} color="#6C63FF" />
-                        ) : (
-                          <Play size={16} color="#9CA3AF" />
-                        )}
-                        <Text
-                          style={[
-                            styles.audioPlayName,
-                            isAudioRowActive(audio) && styles.audioPlayNameActive
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
-                        </Text>
-                        {isAudioRowActive(audio) && isPlayingGlobal && (
-                          <Text style={styles.audioPlayDuration}>
-                            {formatDuration(playbackPosition)} / {formatDuration(audio.duration)}
-                          </Text>
-                        )}
-                      </TouchableOpacity>
-                    ))}
+                    {entry.audios.map((audio) => renderAudioRow(audio))}
                   </View>
                 )}
               </View>
@@ -612,6 +629,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={handleDelete}
+                testID="entry-delete-button"
                 accessibilityRole="button"
                 accessibilityLabel="删除这条情绪记录"
                 accessibilityHint="点击删除这条记录，删除后将无法恢复"

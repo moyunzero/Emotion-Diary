@@ -27,6 +27,17 @@ export enum Status {
 export type SyncStatus = 'pending' | 'synced' | 'failed';
 
 /**
+ * 录音 UI/会话状态（store 与 `shared/audio/recordingCoordinator` 共用；勿在 shared 中从 store 再导入类型）。
+ */
+export type RecordingState =
+  | 'idle' // 空闲，显示"按住说话"
+  | 'preparing' // 权限/会话/arm 序列中
+  | 'recording' // 正在录音，显示"松开结束" + 波形
+  | 'canceling' // 向上滑动取消，显示"松开取消"
+  | 'processing' // 录音结束，正在处理文件
+  | 'preview'; // 显示预览和播放/删除按钮
+
+/**
  * 音频数据结构
  */
 export interface AudioData {

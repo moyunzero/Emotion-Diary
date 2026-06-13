@@ -7,18 +7,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   InteractionManager,
   Linking,
+  PixelRatio,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,8 +39,13 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
+import { createStackScreenHeaderStyle } from '../../styles/stackScreenHeader';
 import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
 import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
+import {
+  REVIEW_EXPORT_CAPTURE_MAX_WIDTH,
+  REVIEW_EXPORT_CAPTURE_QUALITY,
+} from '../../constants/performance';
 
 const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
 
@@ -49,8 +56,23 @@ const PRESETS: { key: ReviewExportPreset; label: string }[] = [
   { key: 'last_month', label: REVIEW_PRESET_LABEL.last_month },
 ];
 
+const PRESET_VALUES: ReviewExportPreset[] = [
+  'this_week',
+  'last_week',
+  'this_month',
+  'last_month',
+];
+
+function parseInitialPreset(raw: string | undefined): ReviewExportPreset {
+  if (raw && PRESET_VALUES.includes(raw as ReviewExportPreset)) {
+    return raw as ReviewExportPreset;
+  }
+  return 'this_month';
+}
+
 export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
+  const { preset: presetParam } = useLocalSearchParams<{ preset?: string }>();
 
   useFocusEffect(
     useCallback(() => {
@@ -62,6 +84,7 @@ export const ReviewExportScreen: React.FC = () => {
   );
 
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   const responsive = useResponsiveStyles();
   const responsiveLayout = useMemo(
     () => buildReviewExportResponsiveLayout(responsive),
@@ -75,7 +98,9 @@ export const ReviewExportScreen: React.FC = () => {
     [userFirstEntryDate, entries],
   );
 
-  const [preset, setPreset] = useState<ReviewExportPreset>('this_month');
+  const [preset, setPreset] = useState<ReviewExportPreset>(() =>
+    parseInitialPreset(presetParam),
+  );
   const [now] = useState(() => new Date());
   const [isBusy, setIsBusy] = useState(false);
 
@@ -135,10 +160,30 @@ export const ReviewExportScreen: React.FC = () => {
     if (!target) {
       throw new Error('截图区域未就绪');
     }
+
+    const layout = await new Promise<{ width: number; height: number }>(
+      (resolve, reject) => {
+        target.measure((_x, _y, width, height) => {
+          if (width <= 0 || height <= 0) {
+            reject(new Error('截图区域尺寸无效'));
+            return;
+          }
+          resolve({ width, height });
+        });
+      },
+    );
+
+    const pixelWidth = Math.round(layout.width * PixelRatio.get());
+    const captureWidth = Math.min(
+      pixelWidth,
+      REVIEW_EXPORT_CAPTURE_MAX_WIDTH,
+    );
+
     const uri = await captureRef(target, {
       format: 'png',
-      quality: 1,
+      quality: REVIEW_EXPORT_CAPTURE_QUALITY,
       result: 'tmpfile',
+      width: captureWidth,
     });
     if (!uri || typeof uri !== 'string') {
       throw new Error('截图失败，请稍后重试');
@@ -227,7 +272,7 @@ export const ReviewExportScreen: React.FC = () => {
       titleFontFamily="Lato_700Bold"
       titleFontSize={responsiveLayout.headerTitleFontSize}
       headerStyle={{
-        paddingHorizontal: responsiveLayout.headerPaddingHorizontal,
+        ...createStackScreenHeaderStyle(width, height),
         paddingTop: responsiveLayout.headerPaddingTop,
         paddingBottom: responsiveLayout.headerPaddingBottom,
       }}

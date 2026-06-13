@@ -404,12 +404,12 @@ export const createUserSlice: StateCreator<
         } else {
           set({ user: null });
           await AsyncStorage.removeItem("user_session");
-          get()._loadEntries();
+          await get()._loadEntries();
         }
       } catch (error) {
         console.error("Error loading user:", error);
         set({ user: null });
-        get()._loadEntries();
+        await get()._loadEntries();
       }
     },
 

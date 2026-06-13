@@ -20,6 +20,8 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn typecheck
       - run: yarn lint
+      # 单元测试为 Node/ts-jest，无 iOS/Android 模拟器依赖（Node 版本与 setup-node 一致）
+      - run: yarn test
 
   governance:
     runs-on: ubuntu-latest
@@ -35,5 +37,6 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn typecheck
       - run: yarn lint
+      - run: yarn test
       - run: yarn verify:governance
       - run: node scripts/verify-governance-smoke.js

@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { DEADLINE_CONFIG, MOOD_CONFIG, MOOD_DESCRIPTIONS } from "../constants";
+import { RETENTION_COPY } from "../constants/retentionCopy";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { createMoodFormStyles } from "../styles/components/MoodForm.styles";
 import { MoodLevel } from "../types";
@@ -54,6 +55,8 @@ interface MoodFormProps {
   onDeleteCustomPerson: (value: string) => Promise<string[]>;
   onDeleteCustomTrigger: (value: string) => Promise<string[]>;
   onSubmit: () => void;
+  /** 创建流默认折叠人物/触发器/期限，降低记录门槛（A4） */
+  compactMode?: boolean;
 }
 
 /**
@@ -83,6 +86,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   onDeleteCustomPerson,
   onDeleteCustomTrigger,
   onSubmit,
+  compactMode = false,
 }) => {
   // 提交与校验由父组件 onSubmit 统一处理（写 store、关弹窗等）；此处仅在用户完成表单操作后触发回调。
   // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
@@ -99,6 +103,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   const [selectedMoodTip, setSelectedMoodTip] = useState<MoodLevel | null>(
     null,
   );
+  const [showAdvanced, setShowAdvanced] = useState(!compactMode);
 
   const handleAddCustomTag = async (
     type: "people" | "trigger",
@@ -204,6 +209,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>发生了什么？</Text>
         <TextInput
+          testID="mood-content-input"
           value={content}
           onChangeText={onContentChange}
           placeholder="无论是委屈、愤怒还是难过，都可以写下来..."
@@ -220,6 +226,21 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         />
       </View>
 
+      {compactMode && !showAdvanced ? (
+        <TouchableOpacity
+          style={styles.advancedToggle}
+          onPress={() => setShowAdvanced(true)}
+          accessibilityRole="button"
+          accessibilityLabel="展开补充项"
+        >
+          <Text style={styles.advancedToggleText}>
+            {RETENTION_COPY.quickFormExpand}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+
+      {showAdvanced ? (
+        <>
       {/* 3. Deadline */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>打算什么时候聊聊？</Text>
@@ -321,6 +342,21 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         prefix="#"
         isLastSection
       />
+        </>
+      ) : null}
+
+      {compactMode && showAdvanced ? (
+        <TouchableOpacity
+          style={styles.advancedToggle}
+          onPress={() => setShowAdvanced(false)}
+          accessibilityRole="button"
+          accessibilityLabel="收起补充项"
+        >
+          <Text style={styles.advancedToggleText}>
+            {RETENTION_COPY.quickFormCollapse}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
 
       {/* 情绪等级提示 Modal */}
       <Modal

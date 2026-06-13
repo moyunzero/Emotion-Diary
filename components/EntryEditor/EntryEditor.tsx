@@ -369,6 +369,7 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomPerson={handleDeleteCustomPerson}
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
+        compactMode={isCreate}
       />
       <View
         style={
@@ -406,6 +407,7 @@ export function EntryEditor(props: EntryEditorProps) {
 
   const submitButton = (
     <TouchableOpacity
+      testID="mood-submit-button"
       onPress={handleSubmit}
       disabled={isSubmitDisabled}
       style={[

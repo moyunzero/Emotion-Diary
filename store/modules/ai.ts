@@ -3,6 +3,7 @@
  * 负责情绪预测和播客生成
  */
 
+import { excludeSoftDeletedEntries } from '../../shared/entries/visibility';
 import { EmotionForecast, EmotionPodcast } from '../../types';
 import { generateEmotionPodcast, predictEmotionTrend } from '../../utils/aiService';
 import { AIModule, ModuleCreator } from './types';
@@ -21,9 +22,10 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
   generateForecast: async (days: number = 7): Promise<void> => {
     try {
       const { entries } = get();
+      const visibleEntries = excludeSoftDeletedEntries(entries);
 
-      if (entries.length < 3) {
-        // 数据不足，无法生成预测
+      if (visibleEntries.length < 3) {
+        // 数据不足，无法生成预测（门槛与洞察一致：不含软删）
         set({ emotionForecast: null });
         return;
       }

@@ -1,0 +1,5 @@
+# Maestro 原生 E2E（iOS / Android 模拟器或真机）
+# 前置：Maestro CLI、模拟器已 Boot、Metro（yarn start）、本机 dev build 与当前 JS 一致
+# Xcode 26.5 + 仅 26.2/26.4 Simulator 时 xcodebuild 会失败 — 需安装 iOS 26.5 Platform
+# 诊断：bash scripts/maestro-preflight.sh
+appId: com.moyunzero.emotiondiary

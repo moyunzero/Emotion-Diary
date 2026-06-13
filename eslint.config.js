@@ -11,7 +11,21 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
-    files: ['app/**/*.{ts,tsx,js,jsx}', 'components/**/*.{ts,tsx,js,jsx}', 'store/**/*.{ts,tsx,js,jsx}', 'utils/**/*.{ts,tsx,js,jsx}', 'hooks/**/*.{ts,tsx,js,jsx}', 'services/**/*.{ts,tsx,js,jsx}', 'lib/**/*.{ts,tsx,js,jsx}', 'features/**/*.{ts,tsx,js,jsx}', 'shared/**/*.{ts,tsx,js,jsx}'],
+    files: [
+      'app/**/*.{ts,tsx,js,jsx}',
+      'components/**/*.{ts,tsx,js,jsx}',
+      'store/**/*.{ts,tsx,js,jsx}',
+      'utils/**/*.{ts,tsx,js,jsx}',
+      'hooks/**/*.{ts,tsx,js,jsx}',
+      'services/**/*.{ts,tsx,js,jsx}',
+      'lib/**/*.{ts,tsx,js,jsx}',
+      'features/**/*.{ts,tsx,js,jsx}',
+      'shared/**/*.{ts,tsx,js,jsx}',
+      'types/**/*.{ts,tsx,js,jsx}',
+      'constants/**/*.{ts,tsx,js,jsx}',
+      'types.ts',
+      'constants.ts',
+    ],
     plugins: {
       boundaries,
     },
@@ -38,7 +52,7 @@ module.exports = defineConfig([
               from: ['store', 'components'],
               disallow: ['app'],
               message:
-                'GOV-02 boundary: store/components 不能依赖路由层 app（先 warn，满足升级条件后可切到 error）。',
+                'GOV-02 boundary: store/components 不能依赖路由层 app。',
             },
             {
               from: ['features'],

@@ -17,8 +17,7 @@ import {
 import * as Haptics from "expo-haptics";
 import { md5 } from "js-md5";
 import { Alert, Linking } from "react-native";
-import type { RecordingState } from "../../store/modules/types";
-import type { AudioData } from "../../types";
+import type { AudioData, RecordingState } from "../../types";
 import { logger } from "../../utils/logger";
 import { audioCoordinator } from "./coordinator";
 

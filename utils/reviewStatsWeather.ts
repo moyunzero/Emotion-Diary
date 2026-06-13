@@ -33,6 +33,17 @@ export function moodLevelToExportWeatherBucket(
   return 'stormy';
 }
 
+function localDayKey(timestampMs: number): string {
+  const d = new Date(timestampMs);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * O(n) 按自然日聚合 max mood，替代逐日 filter 全表。
+ */
 export function countWeatherBucketDaysByMaxMood(
   entries: MoodEntry[],
   startMs: number,
@@ -45,35 +56,22 @@ export function countWeatherBucketDaysByMaxMood(
     stormy: 0,
   };
 
-  const cursor = new Date(startMs);
-  cursor.setHours(0, 0, 0, 0);
+  const dayMaxLevel = new Map<string, number>();
 
-  while (cursor.getTime() <= endMs) {
-    const dayStart = new Date(cursor);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(cursor);
-    dayEnd.setHours(23, 59, 59, 999);
-
-    const ds = Math.max(dayStart.getTime(), startMs);
-    const de = Math.min(dayEnd.getTime(), endMs);
-
-    if (ds <= de) {
-      const dayEntries = entries.filter(
-        (e) =>
-          !isSoftDeleted(e) &&
-          e.timestamp >= ds &&
-          e.timestamp <= de,
-      );
-      if (dayEntries.length > 0) {
-        const maxLevel = Math.max(
-          ...dayEntries.map((e) => e.moodLevel as number),
-        ) as MoodLevel;
-        const bucket = moodLevelToExportWeatherBucket(maxLevel);
-        counts[bucket] += 1;
-      }
+  for (const entry of entries) {
+    if (isSoftDeleted(entry)) continue;
+    if (entry.timestamp < startMs || entry.timestamp > endMs) continue;
+    const dayKey = localDayKey(entry.timestamp);
+    const level = entry.moodLevel as number;
+    const prev = dayMaxLevel.get(dayKey);
+    if (prev === undefined || level > prev) {
+      dayMaxLevel.set(dayKey, level);
     }
+  }
 
-    cursor.setDate(cursor.getDate() + 1);
+  for (const maxLevel of dayMaxLevel.values()) {
+    const bucket = moodLevelToExportWeatherBucket(maxLevel as MoodLevel);
+    counts[bucket] += 1;
   }
 
   return counts;

@@ -41,6 +41,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: '气象站',
+            tabBarButtonTestID: 'tab-dashboard',
             tabBarIcon: ({ color, size }) => (
               <CloudSun size={28} color={color} strokeWidth={2} />
             ),
@@ -50,6 +51,7 @@ export default function TabLayout() {
           name="record"
           options={{
             title: '记一笔',
+            tabBarButtonTestID: 'tab-record',
             tabBarIcon: ({ color, size }) => (
               <PenLine size={28} color={color} strokeWidth={2} />
             ),
@@ -58,7 +60,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="insights"
           options={{
+            lazy: true,
             title: '洞察',
+            tabBarButtonTestID: 'tab-insights',
             tabBarIcon: ({ color, size }) => (
               <BarChart2 size={28} color={color} strokeWidth={2} />
             ),

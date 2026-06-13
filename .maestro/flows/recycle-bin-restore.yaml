@@ -1,0 +1,33 @@
+appId: com.moyunzero.emotiondiary
+---
+# 全链路：创建 → 软删 → 回收站 → 恢复 → 气象站可见
+- runFlow:
+    file: ../subflows/seed-recycle-bin.yaml
+    env:
+      ENTRY_CONTENT: "Maestro E2E 回收站恢复测试"
+- tapOn: "恢复这条记录"
+- extendedWaitUntil:
+    visible: "取消"
+    timeout: 5000
+- tapOn: "恢复"
+- extendedWaitUntil:
+    notVisible: "取消"
+    timeout: 10000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible: "情绪气象站"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 15000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://recycle-bin
+- extendedWaitUntil:
+    visible: "回收站是空的"
+    timeout: 10000

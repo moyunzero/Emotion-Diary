@@ -3,25 +3,18 @@
  * 将 Store 拆分为多个模块以提高可维护性；实现见 `store/modules/*.ts`。
  */
 
-import {
-    AudioData,
-    EmotionForecast,
-    EmotionPodcast,
-    MoodEntry,
-    User,
-    WeatherState,
+import type {
+  AudioData,
+  EmotionForecast,
+  EmotionPodcast,
+  MoodEntry,
+  RecordingState,
+  User,
+  WeatherState,
 } from "../../types";
 
-/**
- * 录音状态
- */
-export type RecordingState =
-  | 'idle'        // 空闲，显示"按住说话"
-  | 'preparing'   // 权限/会话/arm 序列中
-  | 'recording'   // 正在录音，显示"松开结束" + 波形
-  | 'canceling'   // 向上滑动取消，显示"松开取消"
-  | 'processing'  // 录音结束，正在处理文件
-  | 'preview';    // 显示预览和播放/删除按钮
+/** 供仅消费 `RecordingState` 的模块从本文件再导出（与根 `types` 同源）。 */
+export type { RecordingState };
 
 /**
  * 条目管理模块接口
@@ -39,6 +32,9 @@ export interface EntriesModule {
   resolveEntry: (id: string) => void;
   burnEntry: (id: string) => void;
   deleteEntry: (id: string) => Promise<void>;
+  restoreEntry: (id: string) => Promise<void>;
+  purgeEntryForever: (id: string) => Promise<boolean>;
+  retryAudioUpload: (entryId: string, audioId: string) => Promise<void>;
   _setEntries: (entries: MoodEntry[]) => void;
   _loadEntries: () => Promise<void>;
   _saveEntries: () => void;
@@ -140,7 +136,13 @@ export interface AudioModule {
  * 组合所有模块的状态和方法
  */
 export interface AppState
-  extends EntriesModule, UserModule, SyncModule, WeatherModule, AIModule, AudioModule {}
+  extends
+    EntriesModule,
+    UserModule,
+    SyncModule,
+    WeatherModule,
+    AIModule,
+    AudioModule {}
 
 /**
  * 类型安全的模块创建器签名
