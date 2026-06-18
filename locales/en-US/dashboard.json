@@ -82,6 +82,41 @@
     "relatedPersonFallback": "someone",
     "peopleJoiner": " and "
   },
+  "weatherStation": {
+    "title": "Relationship Weather",
+    "emotionIndex": "Mood index",
+    "conditionLabel": "Conditions",
+    "conditions": {
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rainy": "Rainy",
+      "stormy": "Stormy"
+    },
+    "forecast": {
+      "title": "Emotion forecast",
+      "generate": "Generate forecast",
+      "trendTitle": "7-day outlook"
+    },
+    "risk": {
+      "high": "High risk",
+      "medium": "Medium risk",
+      "low": "Low risk"
+    },
+    "dates": {
+      "today": "Today",
+      "tomorrow": "Tomorrow"
+    },
+    "alerts": {
+      "minEntries": {
+        "title": "Heads up",
+        "message": "You need at least 3 mood entries to generate a forecast"
+      },
+      "generateFailed": {
+        "title": "Couldn't generate forecast",
+        "message": "Something went wrong while generating your forecast. Please try again."
+      }
+    }
+  },
   "alerts": {
     "playbackFailed": {
       "title": "Playback failed",

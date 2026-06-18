@@ -82,6 +82,41 @@
     "relatedPersonFallback": "相关人",
     "peopleJoiner": "和"
   },
+  "weatherStation": {
+    "title": "关系天气",
+    "emotionIndex": "情绪指数",
+    "conditionLabel": "天气状况",
+    "conditions": {
+      "sunny": "晴朗",
+      "cloudy": "多云",
+      "rainy": "有雨",
+      "stormy": "暴风雨"
+    },
+    "forecast": {
+      "title": "情绪预报",
+      "generate": "生成预测",
+      "trendTitle": "未来7天趋势"
+    },
+    "risk": {
+      "high": "高风险",
+      "medium": "中风险",
+      "low": "低风险"
+    },
+    "dates": {
+      "today": "今天",
+      "tomorrow": "明天"
+    },
+    "alerts": {
+      "minEntries": {
+        "title": "提示",
+        "message": "需要至少3条情绪记录才能生成预测"
+      },
+      "generateFailed": {
+        "title": "生成失败",
+        "message": "生成情绪预测时出现错误，请稍后重试"
+      }
+    }
+  },
   "alerts": {
     "playbackFailed": {
       "title": "播放失败",
