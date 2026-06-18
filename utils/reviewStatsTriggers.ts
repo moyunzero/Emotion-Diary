@@ -2,7 +2,7 @@
  * 周期内 Top 触发器 + 园艺建议（与 `TriggerInsight` 计数一致）。
  */
 
-import { TRIGGER_ADVICE } from '../components/Insights/constants';
+import { resolveTriggerAdvice } from '@/i18n/resolvePresetLabel';
 import { MoodEntry } from '../types';
 import { filterEntriesInRange } from './reviewStats';
 
@@ -33,6 +33,6 @@ export function getTopTriggersWithAdvice(
   return ranked.slice(0, limit).map(({ name, count }) => ({
     name,
     count,
-    advice: TRIGGER_ADVICE[name] ?? TRIGGER_ADVICE['其他'],
+    advice: resolveTriggerAdvice(name),
   }));
 }

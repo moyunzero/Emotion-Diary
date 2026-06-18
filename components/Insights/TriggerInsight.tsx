@@ -1,10 +1,12 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { resolveTriggerAdvice, resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
 import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { formatMonthDay } from '../../shared/formatting';
 import { MoodEntry } from '../../types';
-import { INSIGHTS_COLORS, TRIGGER_ADVICE } from './constants';
+import { INSIGHTS_COLORS } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
 
 interface TriggerInsightProps {
@@ -12,6 +14,7 @@ interface TriggerInsightProps {
 }
 
 const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -188,7 +191,6 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
     return {
       trigger: topTrigger.name,
       revisitText,
-      stepOne: TRIGGER_ADVICE[topTrigger.name] || TRIGGER_ADVICE["其他"],
     };
   }, [entries, triggerData]);
 
@@ -201,16 +203,16 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
       <View style={styles.container}>
         <View style={styles.header}>
           <Leaf size={20} color={INSIGHTS_COLORS.accent} />
-          <Text style={styles.title}>情绪触发洞察</Text>
+          <Text style={styles.title}>{t('triggers.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
           <Sprout size={40} color="#D1D5DB" />
           <Text style={styles.emptyText}>
             {remaining > 0 
-              ? `再记录 ${remaining} 条情绪即可查看洞察` 
-              : '还没有足够的数据'}
+              ? t('triggers.empty.needMore', { remaining })
+              : t('triggers.empty.noData')}
           </Text>
-          <Text style={styles.emptySubtext}>记录更多情绪来获取洞察吧</Text>
+          <Text style={styles.emptySubtext}>{t('triggers.empty.hint')}</Text>
           {remaining > 0 && (
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
@@ -222,7 +224,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
                 />
               </View>
               <Text style={styles.progressText}>
-                {currentCount}/{minEntries}
+                {t('triggers.empty.progress', { current: currentCount, min: minEntries })}
               </Text>
             </View>
           )}
@@ -235,9 +237,9 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
     <View style={styles.container}>
       <View style={styles.header}>
         <Leaf size={20} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.title}>情绪触发洞察</Text>
+        <Text style={styles.title}>{t('triggers.title')}</Text>
       </View>
-      <Text style={styles.subtitle}>了解什么容易影响你的情绪</Text>
+      <Text style={styles.subtitle}>{t('triggers.subtitle')}</Text>
 
       <View style={styles.cardsContainer}>
         {triggerData.map((trigger, index) => (
@@ -246,13 +248,15 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
               <View style={styles.rankBadge}>
                 <Text style={styles.rankText}>#{index + 1}</Text>
               </View>
-              <Text style={styles.triggerName}>{trigger.name}</Text>
-              <Text style={styles.triggerCount}>{trigger.count}次</Text>
+              <Text style={styles.triggerName}>{resolveTriggerLabel(trigger.name)}</Text>
+              <Text style={styles.triggerCount}>
+                {trigger.count}{t('triggers.countSuffix')}
+              </Text>
             </View>
             <View style={styles.adviceContainer}>
               <Sparkles size={14} color={INSIGHTS_COLORS.secondary} />
               <Text style={styles.adviceText}>
-                {TRIGGER_ADVICE[trigger.name] || TRIGGER_ADVICE['其他']}
+                {resolveTriggerAdvice(trigger.name)}
               </Text>
             </View>
             <PrescriptionCard
@@ -266,10 +270,20 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
 
       {actionLoop && (
         <View style={styles.loopContainer}>
-          <Text style={styles.loopTitle}>行动闭环（心晴MO 特色）</Text>
-          <Text style={styles.loopText}>1. 触发源：{actionLoop.trigger}</Text>
-          <Text style={styles.loopText}>2. 本次行动：{actionLoop.stepOne}</Text>
-          <Text style={styles.loopText}>3. 回访时间：{actionLoop.revisitText} 再看一次情绪变化</Text>
+          <Text style={styles.loopTitle}>{t('triggers.actionLoop.title')}</Text>
+          <Text style={styles.loopText}>
+            {t('triggers.actionLoop.stepTrigger', {
+              trigger: resolveTriggerLabel(actionLoop.trigger),
+            })}
+          </Text>
+          <Text style={styles.loopText}>
+            {t('triggers.actionLoop.stepAction', {
+              stepOne: resolveTriggerAdvice(actionLoop.trigger),
+            })}
+          </Text>
+          <Text style={styles.loopText}>
+            {t('triggers.actionLoop.stepRevisit', { date: actionLoop.revisitText })}
+          </Text>
         </View>
       )}
     </View>
