@@ -38,6 +38,28 @@ describe("insights and system copy", () => {
     );
   });
 
+  it("insights.triggers.title uses Trigger insights in en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("triggers.title", { ns: "insights" })).toMatch(
+      /Trigger insights/i,
+    );
+  });
+
+  it("insights.prescription.generate locked en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("prescription.generate", { ns: "insights" })).toBe(
+      "Get AI suggestions",
+    );
+  });
+
+  it("insights.relationship.title locked zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("relationship.title", { ns: "insights" })).toBe("关系花园");
+  });
+
   it("system.audio.permission.title locked zh-Hans", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("zh-Hans");
@@ -64,5 +86,25 @@ describe("insights and system copy", () => {
     expect(
       i18n.t("sync.audioUploadFailedSuffix", { ns: "system", count: 2 }),
     ).toContain("2");
+  });
+
+  it("dashboard.weatherStation.title non-empty in en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("weatherStation.title", { ns: "dashboard" }).length).toBeGreaterThan(0);
+  });
+
+  it("dashboard.weatherStation.dates.today is Today in en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("weatherStation.dates.today", { ns: "dashboard" })).toBe("Today");
+  });
+
+  it("dashboard.weatherStation.alerts.minEntries.title locked zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("weatherStation.alerts.minEntries.title", { ns: "dashboard" })).toBe(
+      "提示",
+    );
   });
 });

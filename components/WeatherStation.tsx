@@ -1,10 +1,12 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun, TrendingUp } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 const WeatherStationComponent: React.FC = () => {
+  const { t } = useTranslation('dashboard');
   const weather = useAppStore((state) => state.weather);
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
@@ -48,11 +50,14 @@ const WeatherStationComponent: React.FC = () => {
   );
 
   /**
-   * 生成预测
+   * Generate emotion forecast
    */
   const handleGenerateForecast = async () => {
     if (visibleEntries.length < 3) {
-      Alert.alert('提示', '需要至少3条情绪记录才能生成预测');
+      Alert.alert(
+        t('weatherStation.alerts.minEntries.title'),
+        t('weatherStation.alerts.minEntries.message'),
+      );
       return;
     }
 
@@ -61,15 +66,18 @@ const WeatherStationComponent: React.FC = () => {
       await generateForecast(7);
       setIsForecastExpanded(true);
     } catch (error) {
-      Alert.alert('生成失败', '生成情绪预测时出现错误，请稍后重试');
-      console.error('生成预测失败:', error);
+      Alert.alert(
+        t('weatherStation.alerts.generateFailed.title'),
+        t('weatherStation.alerts.generateFailed.message'),
+      );
+      console.error('Forecast generation failed:', error);
     } finally {
       setIsGenerating(false);
     }
   };
 
   /**
-   * 获取风险等级颜色
+   * Risk level color helper
    */
   const getRiskColor = (riskLevel: 'high' | 'medium' | 'low') => {
     switch (riskLevel) {
@@ -85,7 +93,7 @@ const WeatherStationComponent: React.FC = () => {
   };
 
   /**
-   * 格式化日期
+   * Format date for forecast labels (today/tomorrow via i18n)
    */
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -94,20 +102,28 @@ const WeatherStationComponent: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     
     if (date.toDateString() === today.toDateString()) {
-      return '今天';
+      return t('weatherStation.dates.today');
     } else if (date.toDateString() === tomorrow.toDateString()) {
-      return '明天';
+      return t('weatherStation.dates.tomorrow');
     } else {
       return `${date.getMonth() + 1}/${date.getDate()}`;
     }
   };
+
+  const conditionLabel = useMemo(() => {
+    const key = `weatherStation.conditions.${weather.condition}` as const;
+    const translated = t(key);
+    return translated === key
+      ? t('weatherStation.conditions.sunny')
+      : translated;
+  }, [weather.condition, t]);
 
   return (
     <View>
       <Animated.View style={[styles.container, { backgroundColor: currentWeather.bgColor }]}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: currentWeather.textColor }]}>
-            关系天气
+            {t('weatherStation.title')}
           </Text>
           <Text style={[styles.score, { color: currentWeather.textColor }]}>
             {weather.score}°
@@ -124,23 +140,21 @@ const WeatherStationComponent: React.FC = () => {
         
         <View style={styles.details}>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>情绪指数</Text>
+            <Text style={styles.detailLabel}>{t('weatherStation.emotionIndex')}</Text>
             <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
               {weather.score}
             </Text>
           </View>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>天气状况</Text>
+            <Text style={styles.detailLabel}>{t('weatherStation.conditionLabel')}</Text>
             <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
-              {weather.condition === 'sunny' ? '晴朗' : 
-               weather.condition === 'cloudy' ? '多云' : 
-               weather.condition === 'rainy' ? '有雨' : '暴风雨'}
+              {conditionLabel}
             </Text>
           </View>
         </View>
       </Animated.View>
 
-      {/* 情绪预报区域 */}
+      {/* Emotion forecast section */}
       <View style={styles.forecastContainer}>
         <TouchableOpacity
           style={styles.forecastHeader}
@@ -155,7 +169,7 @@ const WeatherStationComponent: React.FC = () => {
         >
           <View style={styles.forecastHeaderLeft}>
             <TrendingUp size={20} color="#FDA4AF" />
-            <Text style={styles.forecastTitle}>情绪预报</Text>
+            <Text style={styles.forecastTitle}>{t('weatherStation.forecast.title')}</Text>
             {emotionForecast && emotionForecast.warnings.length > 0 && (
               <View style={styles.warningBadge}>
                 <AlertTriangle size={12} color="#FFFFFF" />
@@ -174,16 +188,16 @@ const WeatherStationComponent: React.FC = () => {
               <ChevronDown size={20} color="#6B7280" />
             )
           ) : (
-            <Text style={styles.generateForecastText}>生成预测</Text>
+            <Text style={styles.generateForecastText}>{t('weatherStation.forecast.generate')}</Text>
           )}
         </TouchableOpacity>
 
         {isForecastExpanded && emotionForecast && (
           <View style={styles.forecastContent}>
-            {/* 摘要 */}
+            {/* AI summary — rendered as cached (D-89 defer) */}
             <Text style={styles.forecastSummary}>{emotionForecast.summary}</Text>
 
-            {/* 预警信息 */}
+            {/* AI warnings — message body cached (D-89 defer) */}
             {emotionForecast.warnings.length > 0 && (
               <View style={styles.warningsContainer}>
                 {emotionForecast.warnings.slice(0, 3).map((warning) => (
@@ -201,9 +215,9 @@ const WeatherStationComponent: React.FC = () => {
               </View>
             )}
 
-            {/* 未来7天预测 */}
+            {/* 7-day predictions */}
             <View style={styles.predictionsContainer}>
-              <Text style={styles.predictionsTitle}>未来7天趋势</Text>
+              <Text style={styles.predictionsTitle}>{t('weatherStation.forecast.trendTitle')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.predictionsList}>
                   {emotionForecast.predictions.map((prediction) => (
@@ -230,11 +244,7 @@ const WeatherStationComponent: React.FC = () => {
                           { color: getRiskColor(prediction.riskLevel) },
                         ]}
                       >
-                        {prediction.riskLevel === 'high'
-                          ? '高风险'
-                          : prediction.riskLevel === 'medium'
-                          ? '中风险'
-                          : '低风险'}
+                        {t(`weatherStation.risk.${prediction.riskLevel}`)}
                       </Text>
                     </View>
                   ))}
