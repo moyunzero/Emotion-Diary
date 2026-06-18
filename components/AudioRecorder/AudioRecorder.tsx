@@ -6,6 +6,8 @@ import { useIsFocused } from "@react-navigation/native";
 import { AudioModule } from "expo-audio";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { i18n } from "@/i18n";
 import { audioCoordinator } from "../../shared/audio/coordinator";
 import {
   dismissRecordingPreview,
@@ -45,6 +47,7 @@ export const AudioRecorder = React.forwardRef<
   AudioRecorderHandle,
   AudioRecorderProps
 >(({ audios, onAudiosChange, disabled = false, layoutPreset = "create", clipBinding = "tab-focus" }, ref) => {
+  const { t } = useTranslation("record");
   const isNavFocused = useIsFocused();
   const currentPlayingId = useAppStore((s) => s.currentAudioId);
   const isPlaying = useAppStore((s) => s.isPlaying);
@@ -121,11 +124,17 @@ export const AudioRecorder = React.forwardRef<
 
         const result = await audioCoordinator.playDraftAudio(audio);
         if (!result.ok) {
-          Alert.alert("播放失败", "无法播放录音，请重试");
+          Alert.alert(
+            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+            i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+          );
         }
       } catch (error) {
         console.error("Failed to play audio:", error);
-        Alert.alert("播放失败", "无法播放录音，请重试");
+        Alert.alert(
+          i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+          i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+        );
       }
     },
     [currentPlayingId, isPlaying],
@@ -212,7 +221,7 @@ export const AudioRecorder = React.forwardRef<
       onPause={handlePauseAudio}
       onDelete={handleDeleteAudio}
       onRename={handleRenameAudio}
-      headerTitle="语音列表"
+      headerTitle={t("audio.list.headerTitle")}
       headerVariant={isEditLayout ? "minimal" : "default"}
       listPlacement={
         editListFirst ? "before-recording" : "after-recording"

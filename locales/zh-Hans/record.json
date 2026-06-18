@@ -1,0 +1,104 @@
+{
+  "screen": {
+    "title": "记录这一刻",
+    "editTitle": "编辑记录",
+    "backHint": "点击返回上一页"
+  },
+  "sections": {
+    "mood": { "title": "此刻的心情是？" },
+    "content": {
+      "title": "发生了什么？",
+      "placeholder": "无论是委屈、愤怒还是难过，都可以写下来...",
+      "accessibilityLabel": "情绪内容输入框",
+      "accessibilityHint": "在这里输入你的情绪和感受，描述发生了什么"
+    },
+    "deadline": { "title": "打算什么时候聊聊？" },
+    "people": { "title": "和谁有关？（可选）" },
+    "triggers": { "title": "因为什么？（可选）" },
+    "audio": { "title": "语音附件" }
+  },
+  "customDeadline": {
+    "button": "自定义",
+    "placeholder": "比如：等他主动联系、周末见面时、下个月...",
+    "accessibilityLabel": "自定义期限",
+    "accessibilityHint": "点击输入自定义的沟通期限"
+  },
+  "advanced": {
+    "expandA11y": "展开补充项",
+    "collapseA11y": "收起补充项"
+  },
+  "moodTip": { "close": "知道了" },
+  "submit": {
+    "createLabel": "记录完成",
+    "editLabel": "保存修改",
+    "createA11y": "提交情绪记录",
+    "editA11y": "保存对这条情绪记录的修改",
+    "createDisabledHint": "请先输入情绪内容或录制语音后才能提交",
+    "editDisabledHint": "请先输入文字或保留语音后再保存",
+    "createHint": "点击保存这条情绪记录",
+    "editHint": "点击保存修改",
+    "emptyValidation": {
+      "title": "提示",
+      "body": "写点什么吧，哪怕只是一句话或一段语音"
+    }
+  },
+  "addTag": { "placeholder": "添加自定义标签" },
+  "presets": {
+    "people": {
+      "boyfriend": "男朋友",
+      "girlfriend": "女朋友",
+      "husband": "老公",
+      "wife": "老婆",
+      "friend": "朋友",
+      "other": "其他"
+    },
+    "triggers": {
+      "work": "工作",
+      "study": "学习",
+      "family": "家庭",
+      "friends": "朋友",
+      "communication": "沟通",
+      "trust": "信任",
+      "privacy": "隐私",
+      "other": "其他"
+    }
+  },
+  "alerts": {
+    "deleteTag": {
+      "title": "确认删除",
+      "message": "确定要删除标签 \"{{tag}}\" 吗？",
+      "confirm": "删除"
+    }
+  },
+  "moodSelector": {
+    "accessibilityLabel": "选择情绪等级：{{label}}",
+    "accessibilityHint": "点击选择{{label}}，长按查看详细说明"
+  },
+  "deadlineSelector": {
+    "accessibilityLabel": "期限：{{label}}",
+    "accessibilityHint": "点击选择{{label}}作为沟通期限"
+  },
+  "audio": {
+    "recordButton": {
+      "disabled": "录音不可用",
+      "holdToTalk": "按住说话",
+      "releaseToStop": "松开结束",
+      "preparing": "准备中...",
+      "releaseToCancel": "松开取消",
+      "processing": "处理中...",
+      "addVoice": "添加语音"
+    },
+    "list": {
+      "headerTitle": "语音列表",
+      "countA11y": "{{count}} 条语音",
+      "countShort": "{{count}} 条",
+      "recordedAt": "录制于 {{time}}",
+      "playA11y": "播放录音：{{label}}"
+    },
+    "delete": {
+      "title": "删除语音",
+      "message": "确定要删除这段语音吗？删除后无法恢复。",
+      "confirm": "删除"
+    }
+  }
+}

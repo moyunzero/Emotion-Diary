@@ -5,7 +5,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import { Alert } from "react-native";
-import { SYNC_DATA_OPS } from "@/constants/syncDataOps";
+import { i18n } from "@/i18n";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
 import type { MutableRefObject } from "react";
@@ -44,8 +44,8 @@ export function useProfileSyncHandlers(state: StateRef) {
       setSyncStatus("syncing");
       setSyncProgress(
         type === "upload"
-          ? SYNC_DATA_OPS.uploadProgress
-          : SYNC_DATA_OPS.pullProgress,
+          ? i18n.t("upload.progress", { ns: "sync" })
+          : i18n.t("pull.progress", { ns: "sync" }),
       );
 
       try {
@@ -58,7 +58,7 @@ export function useProfileSyncHandlers(state: StateRef) {
           const status = useAppStore.getState().syncStatus;
           if (status === "pending") {
             setSyncStatus("syncing");
-            setSyncProgress(SYNC_DATA_OPS.pendingMessage);
+            setSyncProgress(i18n.t("pendingMessage", { ns: "sync" }));
             setTimeout(() => {
               setSyncStatus("idle");
               setSyncProgress("");
@@ -67,7 +67,7 @@ export function useProfileSyncHandlers(state: StateRef) {
           }
           if (status === "error") {
             setSyncStatus("error");
-            setSyncProgress(SYNC_DATA_OPS.notLoggedIn);
+            setSyncProgress(i18n.t("notLoggedIn", { ns: "sync" }));
             setTimeout(() => {
               setSyncStatus("idle");
               setSyncProgress("");
@@ -75,7 +75,9 @@ export function useProfileSyncHandlers(state: StateRef) {
             return;
           }
           setSyncStatus("error");
-          setSyncProgress("操作未完成，请稍后重试");
+          setSyncProgress(
+            i18n.t("sync.operationIncomplete", { ns: "system" }),
+          );
           setTimeout(() => {
             setSyncStatus("idle");
             setSyncProgress("");
@@ -96,11 +98,14 @@ export function useProfileSyncHandlers(state: StateRef) {
         setSyncStatus("success");
         const baseMsg =
           type === "upload"
-            ? SYNC_DATA_OPS.uploadSuccess(visibleCount)
-            : SYNC_DATA_OPS.pullSuccess(visibleCount);
+            ? i18n.t("upload.success", { ns: "sync", count: visibleCount })
+            : i18n.t("pull.success", { ns: "sync", count: visibleCount });
         setSyncProgress(
           failedAudioCount > 0
-            ? `${baseMsg}；${failedAudioCount} 条语音上传失败，可在条目中重试`
+            ? `${baseMsg}；${i18n.t("sync.audioUploadFailedSuffix", {
+                ns: "system",
+                count: failedAudioCount,
+              })}`
             : baseMsg,
         );
         useAppStore.setState({ syncStatus: "idle" });
@@ -110,7 +115,9 @@ export function useProfileSyncHandlers(state: StateRef) {
         }, 2000);
       } catch (error: unknown) {
         const err = error as { message?: string };
-        const errorMessage = err?.message || "操作失败，请稍后重试";
+        const errorMessage =
+          err?.message ||
+          i18n.t("sync.operationFailed", { ns: "system" });
         setSyncStatus("error");
         setSyncProgress(errorMessage);
         setTimeout(() => {
@@ -131,12 +138,15 @@ export function useProfileSyncHandlers(state: StateRef) {
 
   const handleSyncPull = useCallback(() => {
     Alert.alert(
-      SYNC_DATA_OPS.pullConfirmTitle,
-      SYNC_DATA_OPS.pullConfirmMessage,
+      i18n.t("pull.confirmTitle", { ns: "sync" }),
+      i18n.t("pull.confirmMessage", { ns: "sync" }),
       [
-        { text: SYNC_DATA_OPS.pullConfirmCancel, style: "cancel" },
         {
-          text: SYNC_DATA_OPS.pullConfirmOk,
+          text: i18n.t("actions.cancel", { ns: "common" }),
+          style: "cancel",
+        },
+        {
+          text: i18n.t("pull.confirmOk", { ns: "sync" }),
           onPress: () => void runSyncAction("download"),
         },
       ],
@@ -144,14 +154,14 @@ export function useProfileSyncHandlers(state: StateRef) {
   }, [runSyncAction]);
 
   const formatLastSyncTime = useCallback((timestamp: number | null) => {
-    if (!timestamp) return "从未同步";
+    if (!timestamp) return i18n.t("neverSynced", { ns: "sync" });
     const now = Date.now();
     const diff = now - timestamp;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "刚刚同步";
+    if (minutes < 1) return i18n.t("justSynced", { ns: "sync" });
     if (minutes < 60) return `${minutes}分钟前`;
     if (hours < 24) return `${hours}小时前`;
     if (days < 7) return `${days}天前`;

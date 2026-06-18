@@ -1,0 +1,104 @@
+{
+  "screen": {
+    "title": "Capture this moment",
+    "editTitle": "Edit Entry",
+    "backHint": "Go back to the previous screen"
+  },
+  "sections": {
+    "mood": { "title": "How are you feeling?" },
+    "content": {
+      "title": "What happened?",
+      "placeholder": "Whether it's hurt, anger, or sadness — you can write it here...",
+      "accessibilityLabel": "Mood content input",
+      "accessibilityHint": "Describe what you're feeling and what happened"
+    },
+    "deadline": { "title": "When do you want to talk about it?" },
+    "people": { "title": "Who is this about? (optional)" },
+    "triggers": { "title": "What triggered it? (optional)" },
+    "audio": { "title": "Voice attachments" }
+  },
+  "customDeadline": {
+    "button": "Custom",
+    "placeholder": "e.g. when they reach out, this weekend, next month...",
+    "accessibilityLabel": "Custom deadline",
+    "accessibilityHint": "Enter a custom time to talk"
+  },
+  "advanced": {
+    "expandA11y": "Show more options",
+    "collapseA11y": "Hide extra options"
+  },
+  "moodTip": { "close": "Got it" },
+  "submit": {
+    "createLabel": "Save entry",
+    "editLabel": "Save changes",
+    "createA11y": "Submit mood entry",
+    "editA11y": "Save changes to this mood entry",
+    "createDisabledHint": "Add some text or a voice note before submitting",
+    "editDisabledHint": "Add text or keep a voice note before saving",
+    "createHint": "Save this mood entry",
+    "editHint": "Save your changes",
+    "emptyValidation": {
+      "title": "Almost there",
+      "body": "Write a line or record a voice note — even a few words count"
+    }
+  },
+  "addTag": { "placeholder": "Add a custom tag" },
+  "presets": {
+    "people": {
+      "boyfriend": "Boyfriend",
+      "girlfriend": "Girlfriend",
+      "husband": "Husband",
+      "wife": "Wife",
+      "friend": "Friend",
+      "other": "Other"
+    },
+    "triggers": {
+      "work": "Work",
+      "study": "Study",
+      "family": "Family",
+      "friends": "Friends",
+      "communication": "Communication",
+      "trust": "Trust",
+      "privacy": "Privacy",
+      "other": "Other"
+    }
+  },
+  "alerts": {
+    "deleteTag": {
+      "title": "Delete tag",
+      "message": "Delete tag \"{{tag}}\"?",
+      "confirm": "Delete"
+    }
+  },
+  "moodSelector": {
+    "accessibilityLabel": "Select mood level: {{label}}",
+    "accessibilityHint": "Tap to select {{label}}; long press for details"
+  },
+  "deadlineSelector": {
+    "accessibilityLabel": "Deadline: {{label}}",
+    "accessibilityHint": "Select {{label}} as your talk-by time"
+  },
+  "audio": {
+    "recordButton": {
+      "disabled": "Recording unavailable",
+      "holdToTalk": "Hold to talk",
+      "releaseToStop": "Release to finish",
+      "preparing": "Preparing...",
+      "releaseToCancel": "Release to cancel",
+      "processing": "Processing...",
+      "addVoice": "Add voice note"
+    },
+    "list": {
+      "headerTitle": "Voice notes",
+      "countA11y": "{{count}} voice note(s)",
+      "countShort": "{{count}}",
+      "recordedAt": "Recorded at {{time}}",
+      "playA11y": "Play recording: {{label}}"
+    },
+    "delete": {
+      "title": "Delete voice note",
+      "message": "Delete this voice note? This cannot be undone.",
+      "confirm": "Delete"
+    }
+  }
+}

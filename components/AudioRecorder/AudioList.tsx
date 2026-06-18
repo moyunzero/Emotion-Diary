@@ -5,6 +5,7 @@
 
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { AudioData } from "../../types";
 import { AudioPreview } from "./AudioPreview";
 
@@ -34,10 +35,13 @@ export const AudioList: React.FC<AudioListProps> = ({
   onPause,
   onDelete,
   onRename,
-  headerTitle = "语音列表",
+  headerTitle,
   listPlacement = "after-recording",
   headerVariant = "default",
 }) => {
+  const { t } = useTranslation("record");
+  const resolvedHeaderTitle = headerTitle ?? t("audio.list.headerTitle");
+
   if (!audios || audios.length === 0) {
     return null;
   }
@@ -59,16 +63,22 @@ export const AudioList: React.FC<AudioListProps> = ({
       return (
         <View
           style={styles.headerMinimal}
-          accessibilityLabel={`${audios.length} 条语音`}
+          accessibilityLabel={t("audio.list.countA11y", {
+            count: audios.length,
+          })}
         >
-          <Text style={styles.headerCountOnly}>{audios.length} 条</Text>
+          <Text style={styles.headerCountOnly}>
+            {t("audio.list.countShort", { count: audios.length })}
+          </Text>
         </View>
       );
     }
     return (
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{headerTitle}</Text>
-        <Text style={styles.headerCount}>{audios.length} 条</Text>
+        <Text style={styles.headerTitle}>{resolvedHeaderTitle}</Text>
+        <Text style={styles.headerCount}>
+          {t("audio.list.countShort", { count: audios.length })}
+        </Text>
       </View>
     );
   };

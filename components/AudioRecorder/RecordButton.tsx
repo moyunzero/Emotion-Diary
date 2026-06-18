@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { recordingCoordinator } from "../../shared/audio/recordingCoordinator";
 import { useAppStore } from "../../store/useAppStore";
 
@@ -25,6 +26,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
   disabled = false,
   compact = false,
 }) => {
+  const { t } = useTranslation("record");
   const recordingState = useAppStore((s) => s.recordingState);
   const slideOffsetY = React.useRef(new Animated.Value(0)).current;
   const iconSize = compact ? 20 : 24;
@@ -55,7 +57,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
               compact && styles.buttonTextDisabledCompact,
             ]}
           >
-            录音不可用
+            {t("audio.recordButton.disabled")}
           </Text>
         </View>
       );
@@ -66,7 +68,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <StopCircle size={iconSize} color="#fff" />
-            <Text style={textStyle}>松开结束</Text>
+            <Text style={textStyle}>{t("audio.recordButton.releaseToStop")}</Text>
           </View>
         );
 
@@ -74,7 +76,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <View style={styles.processingIndicator} />
-            <Text style={textStyle}>准备中...</Text>
+            <Text style={textStyle}>{t("audio.recordButton.preparing")}</Text>
           </View>
         );
 
@@ -82,7 +84,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#fff" />
-            <Text style={[...textStyle, styles.cancelText]}>松开取消</Text>
+            <Text style={[...textStyle, styles.cancelText]}>
+              {t("audio.recordButton.releaseToCancel")}
+            </Text>
           </View>
         );
 
@@ -90,7 +94,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <View style={styles.processingIndicator} />
-            <Text style={textStyle}>处理中...</Text>
+            <Text style={textStyle}>{t("audio.recordButton.processing")}</Text>
           </View>
         );
 
@@ -98,7 +102,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#4CAF50" />
-            <Text style={[...textStyle, styles.previewText]}>添加语音</Text>
+            <Text style={[...textStyle, styles.previewText]}>
+              {t("audio.recordButton.addVoice")}
+            </Text>
           </View>
         );
 
@@ -107,7 +113,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#fff" />
-            <Text style={textStyle}>按住说话</Text>
+            <Text style={textStyle}>{t("audio.recordButton.holdToTalk")}</Text>
           </View>
         );
     }

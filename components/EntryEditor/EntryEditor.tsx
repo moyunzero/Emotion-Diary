@@ -386,7 +386,9 @@ export function EntryEditor(props: EntryEditorProps) {
         }
       >
         {embedded ? (
-          <Text style={embeddedStyles.audioSectionTitle}>语音附件</Text>
+          <Text style={embeddedStyles.audioSectionTitle}>
+            {t("sections.audio.title")}
+          </Text>
         ) : null}
         <AudioRecorder
           audios={audios}

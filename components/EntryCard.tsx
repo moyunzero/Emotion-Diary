@@ -28,7 +28,7 @@ import {
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
-import { AudioData, Deadline, MoodEntry, MoodLevel, Status } from "../types";
+import { AudioData, MoodEntry, MoodLevel, Status } from "../types";
 import { areAudioDataArraysEqual, areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
@@ -115,6 +115,8 @@ const makeImageFromView = async (
  */
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
+  const { t: tSystem } = useTranslation("system");
+  const { t: tRecord } = useTranslation("record");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -206,6 +208,23 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     [entry.id],
   );
 
+  const formatAudioTime = useCallback((createdAt: number): string => {
+    const locale = i18n.language.startsWith("zh") ? "zh-CN" : "en-US";
+    return new Date(createdAt).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, []);
+
+  const getAudioDisplayLabel = useCallback(
+    (audio: AudioData): string =>
+      audio.name ||
+      tRecord("audio.list.recordedAt", {
+        time: formatAudioTime(audio.createdAt),
+      }),
+    [formatAudioTime, tRecord],
+  );
+
   const renderAudioRow = useCallback(
     (audio: AudioData) => (
       <View key={audio.id} style={styles.audioPlayRow}>
@@ -216,7 +235,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           ]}
           onPress={() => handlePlayAudio(audio)}
           accessibilityRole="button"
-          accessibilityLabel={`播放录音：${audio.name || "录制于 " + new Date(audio.createdAt).toLocaleTimeString()}`}
+          accessibilityLabel={tRecord("audio.list.playA11y", {
+            label: getAudioDisplayLabel(audio),
+          })}
         >
           {isAudioRowActive(audio) && isPlayingGlobal ? (
             <Pause size={16} color="#6C63FF" />
@@ -230,11 +251,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             ]}
             numberOfLines={1}
           >
-            {audio.name ||
-              `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`}
+            {getAudioDisplayLabel(audio)}
           </Text>
           {isAudioRowActive(audio) && isPlayingGlobal && (
             <Text style={styles.audioPlayDuration}>
@@ -245,7 +262,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         </TouchableOpacity>
         {audio.syncStatus === "pending" && (
           <View style={styles.audioSyncMeta}>
-            <Text style={styles.audioSyncPending}>待上传云端</Text>
+            <Text style={styles.audioSyncPending}>
+              {tSystem("audio.pendingUpload")}
+            </Text>
           </View>
         )}
         {audio.syncStatus === "failed" && (
@@ -253,21 +272,26 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             style={styles.audioSyncMeta}
             onPress={() => retryAudioUpload(entry.id, audio.id)}
             accessibilityRole="button"
-            accessibilityLabel="重试上传语音"
+            accessibilityLabel={tSystem("audio.retryUploadA11y")}
           >
-            <Text style={styles.audioSyncFailed}>上传失败 · 点击重试</Text>
+            <Text style={styles.audioSyncFailed}>
+              {tSystem("audio.uploadFailedRetry")}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
     ),
     [
       entry.id,
+      getAudioDisplayLabel,
       handlePlayAudio,
       isAudioRowActive,
       isPlayingGlobal,
       playbackPosition,
       retryAudioUpload,
       styles,
+      tRecord,
+      tSystem,
     ],
   );
 
@@ -622,7 +646,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                     <View style={styles.audioTag}>
                       <Mic size={12} color="#6C63FF" />
                       <Text style={styles.audioTagText}>
-                        {entry.audios.length}条语音
+                        {tSystem("audio.voiceCount", {
+                          count: entry.audios.length,
+                        })}
                       </Text>
                     </View>
                   )}
@@ -631,7 +657,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 {/* Audio Playback Section - Only in expanded state */}
                 {isExpanded && entry.audios && entry.audios.length > 0 && (
                   <View style={styles.audioPlaySection}>
-                    <Text style={styles.audioPlaySectionTitle}>语音</Text>
+                    <Text style={styles.audioPlaySectionTitle}>
+                      {tSystem("audio.voicePlaySection")}
+                    </Text>
                     {entry.audios.map((audio) => renderAudioRow(audio))}
                   </View>
                 )}
