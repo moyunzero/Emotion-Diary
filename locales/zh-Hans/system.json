@@ -1,0 +1,43 @@
+{
+  "sync": {
+    "operationIncomplete": "操作未完成，请稍后重试",
+    "operationFailed": "操作失败，请稍后重试",
+    "audioUploadFailedSuffix": "{{count}} 条语音上传失败，可在条目中重试"
+  },
+  "audio": {
+    "permission": {
+      "title": "需要录音权限",
+      "message": "请在设置中开启麦克风权限",
+      "cancel": "取消",
+      "openSettings": "去设置"
+    },
+    "recordFailed": {
+      "title": "录音失败",
+      "message": "无法开始录音，请重试"
+    },
+    "saveFailed": {
+      "title": "保存失败",
+      "message": "无法保存录音，请重试"
+    },
+    "playbackFailed": {
+      "title": "播放失败",
+      "message": "无法播放录音，请重试"
+    },
+    "recordDisabled": "录音不可用",
+    "pendingUpload": "待上传云端",
+    "uploadFailedRetry": "上传失败 · 点击重试",
+    "retryUploadA11y": "重试上传语音",
+    "voiceSectionTitle": "语音",
+    "voiceCount": "{{count}}条语音",
+    "voicePlaySection": "语音"
+  },
+  "alerts": {
+    "podcastGenerateFailed": {
+      "title": "生成失败",
+      "message": "生成情绪播客时出现错误，请稍后重试"
+    }
+  },
+  "generic": {
+    "operationFailed": "操作失败，请稍后重试"
+  }
+}

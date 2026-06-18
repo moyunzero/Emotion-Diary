@@ -1,0 +1,43 @@
+{
+  "sync": {
+    "operationIncomplete": "Operation incomplete. Please try again later.",
+    "operationFailed": "Operation failed. Please try again later.",
+    "audioUploadFailedSuffix": "{{count}} voice note(s) failed to upload; retry from entries"
+  },
+  "audio": {
+    "permission": {
+      "title": "Microphone access needed",
+      "message": "Enable microphone access in Settings to record voice notes.",
+      "cancel": "Cancel",
+      "openSettings": "Open Settings"
+    },
+    "recordFailed": {
+      "title": "Recording failed",
+      "message": "Could not start recording. Please try again."
+    },
+    "saveFailed": {
+      "title": "Save failed",
+      "message": "Could not save the recording. Please try again."
+    },
+    "playbackFailed": {
+      "title": "Playback failed",
+      "message": "Could not play the recording. Please try again."
+    },
+    "recordDisabled": "Recording unavailable",
+    "pendingUpload": "Pending cloud upload",
+    "uploadFailedRetry": "Upload failed · tap to retry",
+    "retryUploadA11y": "Retry voice upload",
+    "voiceSectionTitle": "Voice",
+    "voiceCount": "{{count}} voice note(s)",
+    "voicePlaySection": "Voice"
+  },
+  "alerts": {
+    "podcastGenerateFailed": {
+      "title": "Generation failed",
+      "message": "Something went wrong creating the emotion podcast. Please try again later."
+    }
+  },
+  "generic": {
+    "operationFailed": "Operation failed. Please try again later."
+  }
+}
