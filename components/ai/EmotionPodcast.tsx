@@ -1,6 +1,7 @@
 import { Loader2, Mic, RefreshCw, Share2 } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { i18n } from '@/i18n';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
 
@@ -143,7 +144,10 @@ const EmotionPodcast: React.FC = () => {
     try {
       await generatePodcast(selectedPeriod);
     } catch (error) {
-      Alert.alert('生成失败', '生成情绪播客时出现错误，请稍后重试');
+      Alert.alert(
+        i18n.t('alerts.podcastGenerateFailed.title', { ns: 'system' }),
+        i18n.t('alerts.podcastGenerateFailed.message', { ns: 'system' }),
+      );
       console.error('生成播客失败:', error);
     } finally {
       setIsGenerating(false);
