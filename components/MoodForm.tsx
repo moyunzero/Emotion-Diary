@@ -15,10 +15,11 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { DEADLINE_CONFIG, MOOD_CONFIG, MOOD_DESCRIPTIONS } from "../constants";
-import { RETENTION_COPY } from "../constants/retentionCopy";
+import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
+import { getDeadlineLabel, getMoodDescription, getMoodLabel } from "@/i18n/moodLabels";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { createMoodFormStyles } from "../styles/components/MoodForm.styles";
+import { useTranslation } from "react-i18next";
 import { MoodLevel } from "../types";
 import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { getMoodIcon } from "../utils/moodIconUtils";
@@ -97,6 +98,9 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
     [width, height]
   );
   const { trigger: triggerHaptic } = useHapticFeedback();
+  const { t: tRetention } = useTranslation("retention");
+  const { t: tRecord } = useTranslation("record");
+  const { t: tCommon } = useTranslation("common");
 
   // 情绪等级提示 Modal
   const [moodTipVisible, setMoodTipVisible] = useState(false);
@@ -128,10 +132,13 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
     type: "people" | "trigger",
     value: string,
   ) => {
-    Alert.alert("确认删除", `确定要删除标签 "${value}" 吗？`, [
-      { text: "取消", style: "cancel" },
+    Alert.alert(
+      tRecord("alerts.deleteTag.title"),
+      tRecord("alerts.deleteTag.message", { tag: value }),
+      [
+      { text: tCommon("actions.cancel"), style: "cancel" },
       {
-        text: "删除",
+        text: tRecord("alerts.deleteTag.confirm"),
         style: "destructive",
         onPress: async () => {
           if (type === "people") {
@@ -149,17 +156,19 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           }
         },
       },
-    ]);
+    ],
+    );
   };
 
   return (
     <>
       {/* 1. Mood Selector */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>此刻的心情是？</Text>
+        <Text style={styles.sectionTitle}>{tRecord("sections.mood.title")}</Text>
         <View style={styles.moodContainer}>
           {MOOD_LEVEL_VALUES.map((level) => {
               const config = MOOD_CONFIG[level as MoodLevel];
+              const moodLabel = getMoodLabel(level as MoodLevel);
               const isSelected = moodLevel === level;
               return (
                 <TouchableOpacity
@@ -175,8 +184,12 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                     isSelected && styles.moodButtonSelected,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel={`选择情绪等级：${config.label}`}
-                  accessibilityHint={`点击选择${config.label}，长按查看详细说明`}
+                  accessibilityLabel={tRecord("moodSelector.accessibilityLabel", {
+                    label: moodLabel,
+                  })}
+                  accessibilityHint={tRecord("moodSelector.accessibilityHint", {
+                    label: moodLabel,
+                  })}
                   accessibilityState={{ selected: isSelected }}
                 >
                   <View
@@ -197,7 +210,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                       isSelected && styles.moodLabelSelected,
                     ]}
                   >
-                    {config.label}
+                    {moodLabel}
                   </Text>
                 </TouchableOpacity>
               );
@@ -207,12 +220,14 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
       {/* 2. Content Input */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>发生了什么？</Text>
+        <Text style={styles.sectionTitle}>
+          {tRecord("sections.content.title")}
+        </Text>
         <TextInput
           testID="mood-content-input"
           value={content}
           onChangeText={onContentChange}
-          placeholder="无论是委屈、愤怒还是难过，都可以写下来..."
+          placeholder={tRecord("sections.content.placeholder")}
           multiline
           numberOfLines={4}
           style={styles.contentInput}
@@ -221,8 +236,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           blurOnSubmit={false}
           textAlignVertical="top"
           maxLength={1000}
-          accessibilityLabel="情绪内容输入框"
-          accessibilityHint="在这里输入你的情绪和感受，描述发生了什么"
+          accessibilityLabel={tRecord("sections.content.accessibilityLabel")}
+          accessibilityHint={tRecord("sections.content.accessibilityHint")}
         />
       </View>
 
@@ -231,10 +246,10 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           style={styles.advancedToggle}
           onPress={() => setShowAdvanced(true)}
           accessibilityRole="button"
-          accessibilityLabel="展开补充项"
+          accessibilityLabel={tRecord("advanced.expandA11y")}
         >
           <Text style={styles.advancedToggleText}>
-            {RETENTION_COPY.quickFormExpand}
+            {tRetention("quickForm.expand")}
           </Text>
         </TouchableOpacity>
       ) : null}
@@ -243,9 +258,13 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         <>
       {/* 3. Deadline */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>打算什么时候聊聊？</Text>
+        <Text style={styles.sectionTitle}>
+          {tRecord("sections.deadline.title")}
+        </Text>
         <View style={styles.deadlineContainer}>
-          {Object.entries(DEADLINE_CONFIG).map(([key, config]) => (
+          {Object.entries(DEADLINE_CONFIG).map(([key, config]) => {
+            const deadlineLabel = getDeadlineLabel(key);
+            return (
             <TouchableOpacity
               key={key}
               onPress={() => {
@@ -259,8 +278,12 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   styles.deadlineButtonSelected,
               ]}
               accessibilityRole="button"
-              accessibilityLabel={`期限：${config.label}`}
-              accessibilityHint={`点击选择${config.label}作为沟通期限`}
+              accessibilityLabel={tRecord("deadlineSelector.accessibilityLabel", {
+                label: deadlineLabel,
+              })}
+              accessibilityHint={tRecord("deadlineSelector.accessibilityHint", {
+                label: deadlineLabel,
+              })}
               accessibilityState={{
                 selected: !isCustomDeadline && deadline === key,
               }}
@@ -273,10 +296,11 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                     styles.deadlineTextSelected,
                 ]}
               >
-                {config.label}
+                {deadlineLabel}
               </Text>
             </TouchableOpacity>
-          ))}
+          );
+          })}
 
           <TouchableOpacity
             onPress={() => onCustomDeadlineChange(true, customDeadlineText)}
@@ -285,8 +309,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
               isCustomDeadline && styles.deadlineButtonSelected,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="自定义期限"
-            accessibilityHint="点击输入自定义的沟通期限"
+            accessibilityLabel={tRecord("customDeadline.accessibilityLabel")}
+            accessibilityHint={tRecord("customDeadline.accessibilityHint")}
             accessibilityState={{ selected: isCustomDeadline }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -297,7 +321,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   isCustomDeadline && styles.deadlineTextSelected,
                 ]}
               >
-                自定义
+                {tRecord("customDeadline.button")}
               </Text>
             </View>
           </TouchableOpacity>
@@ -307,7 +331,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           <TextInput
             value={customDeadlineText}
             onChangeText={(text) => onCustomDeadlineChange(true, text)}
-            placeholder="比如：等他主动联系、周末见面时、下个月..."
+            placeholder={tRecord("customDeadline.placeholder")}
             style={styles.customDeadlineInput}
             placeholderTextColor="#9CA3AF"
             autoFocus
@@ -321,7 +345,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
       {/* 4. People Tags */}
       <TagSelector
-        title="和谁有关？（可选）"
+        title={tRecord("sections.people.title")}
         options={allPeople}
         selected={selectedPeople}
         customOptions={customPeopleOptions}
@@ -332,7 +356,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
       {/* 5. Trigger Tags（最后一节，无底边距，由 Record 操作栏统一控制上下间距） */}
       <TagSelector
-        title="因为什么？（可选）"
+        title={tRecord("sections.triggers.title")}
         options={allTriggers}
         selected={selectedTriggers}
         customOptions={customTriggerOptions}
@@ -350,10 +374,10 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           style={styles.advancedToggle}
           onPress={() => setShowAdvanced(false)}
           accessibilityRole="button"
-          accessibilityLabel="收起补充项"
+          accessibilityLabel={tRecord("advanced.collapseA11y")}
         >
           <Text style={styles.advancedToggleText}>
-            {RETENTION_COPY.quickFormCollapse}
+            {tRetention("quickForm.collapse")}
           </Text>
         </TouchableOpacity>
       ) : null}
@@ -381,16 +405,18 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   )}
                 </View>
                 <Text style={styles.moodTipTitle}>
-                  {MOOD_CONFIG[selectedMoodTip].label}
+                  {getMoodLabel(selectedMoodTip)}
                 </Text>
                 <Text style={styles.moodTipDescription}>
-                  {MOOD_DESCRIPTIONS[selectedMoodTip]}
+                  {getMoodDescription(selectedMoodTip)}
                 </Text>
                 <TouchableOpacity
                   style={styles.moodTipCloseButton}
                   onPress={() => setMoodTipVisible(false)}
                 >
-                  <Text style={styles.moodTipCloseText}>知道了</Text>
+                  <Text style={styles.moodTipCloseText}>
+                    {tRecord("moodTip.close")}
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
