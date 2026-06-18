@@ -72,11 +72,19 @@ describe("system trust copy", () => {
     );
   });
 
-  it("system.alerts.podcastGenerateFailed.title locked en-US", async () => {
+  it("system.errors.networkConnectionFailed locked zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("errors.networkConnectionFailed", { ns: "system" })).toBe(
+      "网络连接失败，请检查网络设置",
+    );
+  });
+
+  it("system.errors.networkConnectionFailed locked en-US", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("en-US");
-    expect(i18n.t("alerts.podcastGenerateFailed.title", { ns: "system" })).toMatch(
-      /failed/i,
+    expect(i18n.t("errors.networkConnectionFailed", { ns: "system" })).toMatch(
+      /Network/i,
     );
   });
 });

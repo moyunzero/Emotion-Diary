@@ -39,5 +39,30 @@
   },
   "generic": {
     "operationFailed": "Operation failed. Please try again later."
+  },
+  "errors": {
+    "networkConnectionFailed": "Network connection failed. Check your network settings.",
+    "invalidLoginCredentials": "Incorrect email or password. Please try again.",
+    "authFailedRelogin": "Authentication failed. Please sign in again.",
+    "emailRegistered": "This email is already registered.",
+    "rateLimited": "Too many requests. Please try again later.",
+    "dbTableMissing": "Database table missing. Please contact support.",
+    "recordExistsWillUpdate": "Record already exists. Will try to update.",
+    "rlsPolicyError": "Database permission error. Contact support to check row-level security.",
+    "permissionDenied": "Permission denied. Check your account status.",
+    "requestTimeout": "Request timed out. Check your network connection.",
+    "sessionVerifyFailed": "Session verification failed. Please sign in again.",
+    "identityVerifyFailed": "Identity verification failed. Please sign in again.",
+    "dbConstraintFailed": "Database constraint check failed. See console logs for details.",
+    "networkUnavailableAutoSync": "Network unavailable. Data will sync when you're back online.",
+    "validationFailed": "Please check your input.",
+    "sessionExpired": "Session expired. Please sign in again.",
+    "syncRetry": "Sync failed. Will retry automatically.",
+    "aiUnavailable": "AI service is temporarily unavailable. Please try again later.",
+    "aiUnavailableCached": "AI service unavailable. Showing previous analysis.",
+    "storageError": "Local storage error.",
+    "storageFull": "Storage full. Free up space on your device.",
+    "unexpectedError": "Something unexpected happened.",
+    "unexpectedErrorLogged": "Something unexpected happened. We've logged this issue."
   }
 }

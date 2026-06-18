@@ -39,5 +39,30 @@
   },
   "generic": {
     "operationFailed": "操作失败，请稍后重试"
+  },
+  "errors": {
+    "networkConnectionFailed": "网络连接失败，请检查网络设置",
+    "invalidLoginCredentials": "邮箱或密码错误，请重新输入",
+    "authFailedRelogin": "认证失败，请重新登录",
+    "emailRegistered": "该邮箱已被注册",
+    "rateLimited": "请求过于频繁，请稍后再试",
+    "dbTableMissing": "数据库表不存在，请联系管理员",
+    "recordExistsWillUpdate": "记录已存在，将尝试更新",
+    "rlsPolicyError": "数据库权限配置错误，请联系管理员检查行级安全策略",
+    "permissionDenied": "权限不足，请检查账号状态",
+    "requestTimeout": "请求超时，请检查网络连接",
+    "sessionVerifyFailed": "认证状态验证失败，请重新登录",
+    "identityVerifyFailed": "用户身份验证失败，请重新登录",
+    "dbConstraintFailed": "数据库约束检查失败。请查看控制台日志了解详情。",
+    "networkUnavailableAutoSync": "网络连接不可用，数据将在恢复后自动同步",
+    "validationFailed": "请检查输入的数据是否正确",
+    "sessionExpired": "会话已过期，请重新登录",
+    "syncRetry": "同步失败，将自动重试",
+    "aiUnavailable": "AI服务暂时不可用，请稍后重试",
+    "aiUnavailableCached": "AI服务暂时不可用，显示历史分析",
+    "storageError": "本地存储发生错误",
+    "storageFull": "存储空间不足，请清理设备空间",
+    "unexpectedError": "发生了意外错误",
+    "unexpectedErrorLogged": "发生了意外错误，我们已记录此问题"
   }
 }
