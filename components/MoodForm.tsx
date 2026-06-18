@@ -60,6 +60,8 @@ interface MoodFormProps {
   compactMode?: boolean;
   getPeopleLabel?: (item: string) => string;
   getTriggerLabel?: (item: string) => string;
+  peopleSectionTitle?: string;
+  triggersSectionTitle?: string;
 }
 
 /**
@@ -92,6 +94,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   compactMode = false,
   getPeopleLabel = (item) => item,
   getTriggerLabel = (item) => item,
+  peopleSectionTitle,
+  triggersSectionTitle,
 }) => {
   // 提交与校验由父组件 onSubmit 统一处理（写 store、关弹窗等）；此处仅在用户完成表单操作后触发回调。
   // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
@@ -349,7 +353,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
       {/* 4. People Tags */}
       <TagSelector
-        title={tRecord("sections.people.title")}
+        title={peopleSectionTitle ?? tRecord("sections.people.title")}
         options={allPeople}
         selected={selectedPeople}
         customOptions={customPeopleOptions}
@@ -361,7 +365,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
       {/* 5. Trigger Tags（最后一节，无底边距，由 Record 操作栏统一控制上下间距） */}
       <TagSelector
-        title={tRecord("sections.triggers.title")}
+        title={triggersSectionTitle ?? tRecord("sections.triggers.title")}
         options={allTriggers}
         selected={selectedTriggers}
         customOptions={customTriggerOptions}
@@ -492,6 +496,8 @@ const MoodFormComparison = (
       prevProps.onDeleteCustomTrigger !== nextProps.onDeleteCustomTrigger ||
       prevProps.onSubmit !== nextProps.onSubmit ||
       prevProps.compactMode !== nextProps.compactMode ||
+      prevProps.peopleSectionTitle !== nextProps.peopleSectionTitle ||
+      prevProps.triggersSectionTitle !== nextProps.triggersSectionTitle ||
       prevProps.getPeopleLabel !== nextProps.getPeopleLabel ||
       prevProps.getTriggerLabel !== nextProps.getTriggerLabel
     ) {
