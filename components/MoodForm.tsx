@@ -58,6 +58,8 @@ interface MoodFormProps {
   onSubmit: () => void;
   /** 创建流默认折叠人物/触发器/期限，降低记录门槛（A4） */
   compactMode?: boolean;
+  getPeopleLabel?: (item: string) => string;
+  getTriggerLabel?: (item: string) => string;
 }
 
 /**
@@ -88,6 +90,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   onDeleteCustomTrigger,
   onSubmit,
   compactMode = false,
+  getPeopleLabel = (item) => item,
+  getTriggerLabel = (item) => item,
 }) => {
   // 提交与校验由父组件 onSubmit 统一处理（写 store、关弹窗等）；此处仅在用户完成表单操作后触发回调。
   // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
@@ -352,6 +356,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         onToggle={onPeopleToggle}
         onAdd={(val) => handleAddCustomTag("people", val)}
         onDelete={(val) => handleDeleteCustomTag("people", val)}
+        getLabel={getPeopleLabel}
       />
 
       {/* 5. Trigger Tags（最后一节，无底边距，由 Record 操作栏统一控制上下间距） */}
@@ -365,6 +370,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         onDelete={(val) => handleDeleteCustomTag("trigger", val)}
         prefix="#"
         isLastSection
+        getLabel={getTriggerLabel}
       />
         </>
       ) : null}
@@ -484,7 +490,10 @@ const MoodFormComparison = (
       prevProps.onAddCustomTrigger !== nextProps.onAddCustomTrigger ||
       prevProps.onDeleteCustomPerson !== nextProps.onDeleteCustomPerson ||
       prevProps.onDeleteCustomTrigger !== nextProps.onDeleteCustomTrigger ||
-      prevProps.onSubmit !== nextProps.onSubmit
+      prevProps.onSubmit !== nextProps.onSubmit ||
+      prevProps.compactMode !== nextProps.compactMode ||
+      prevProps.getPeopleLabel !== nextProps.getPeopleLabel ||
+      prevProps.getTriggerLabel !== nextProps.getTriggerLabel
     ) {
       return false;
     }

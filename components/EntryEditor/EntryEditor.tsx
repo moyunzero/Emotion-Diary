@@ -15,7 +15,9 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DEADLINE_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../../constants";
+import { DEADLINE_CONFIG, MOOD_CONFIG, PEOPLE_KEYS, TRIGGER_KEYS } from "../../constants";
+import { getDeadlineLabel, getMoodDescription, getMoodLabel } from "@/i18n/moodLabels";
+import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
 import { COLORS } from "../../constants/colors";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { createRecordStyles } from "../../styles/components/Record.styles";
@@ -106,8 +108,8 @@ export function EntryEditor(props: EntryEditorProps) {
   const [customTriggerOptions, setCustomTriggerOptions] = useState<string[]>(
     [],
   );
-  const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
-  const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
+  const allPeople = [...PEOPLE_KEYS, ...customPeopleOptions];
+  const allTriggers = [...TRIGGER_KEYS, ...customTriggerOptions];
 
   const [audios, setAudios] = useState<AudioData[]>([]);
 
@@ -370,6 +372,8 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
         compactMode={isCreate}
+        getPeopleLabel={resolvePeopleLabel}
+        getTriggerLabel={resolveTriggerLabel}
       />
       <View
         style={
