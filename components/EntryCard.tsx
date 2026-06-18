@@ -17,7 +17,14 @@ import {
     useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
-import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
+import { useTranslation } from "react-i18next";
+import { MOOD_CONFIG } from "../constants";
+import { i18n } from "@/i18n";
+import { getDeadlineLabel } from "@/i18n/moodLabels";
+import {
+  resolvePeopleLabel,
+  resolveTriggerLabel,
+} from "@/i18n/resolvePresetLabel";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
@@ -107,6 +114,7 @@ const makeImageFromView = async (
  * Uses React.memo with a custom comparison function for performance optimization.
  */
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
+  const { t } = useTranslation("dashboard");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -124,8 +132,24 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const moodConfig =
     MOOD_CONFIG[entry.moodLevel] || MOOD_CONFIG[MoodLevel.ANNOYED];
-  const deadlineLabel =
-    DEADLINE_CONFIG[entry.deadline as Deadline]?.label || entry.deadline;
+  const deadlineLabel = getDeadlineLabel(entry.deadline);
+  const resolvedPeopleLabels = useMemo(
+    () => (entry.people ?? []).map(resolvePeopleLabel),
+    [entry.people],
+  );
+  const resolvedTriggerLabels = useMemo(
+    () => (entry.triggers ?? []).map(resolveTriggerLabel),
+    [entry.triggers],
+  );
+  const peopleDisplay = resolvedPeopleLabels.join(", ");
+  const peopleA11y =
+    resolvedPeopleLabels.length > 0
+      ? resolvedPeopleLabels.join(t("entryCard.peopleJoiner"))
+      : t("entryCard.relatedPersonFallback");
+  const contentExcerpt = useMemo(() => {
+    const maxLen = 30;
+    return `${entry.content.substring(0, maxLen)}${entry.content.length > maxLen ? "..." : ""}`;
+  }, [entry.content]);
 
   // Burning effect state
   const viewRef = useRef<View>(null);
@@ -161,13 +185,22 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
       try {
         const result = await audioCoordinator.playEntryAudio(entry.id, audio);
         if (!result.ok && result.reason === "no_uri") {
-          Alert.alert("播放失败", "录音文件已丢失");
+          Alert.alert(
+            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+            i18n.t("alerts.playbackFailed.bodyMissing", { ns: "dashboard" }),
+          );
         } else if (!result.ok) {
-          Alert.alert("播放失败", "无法播放录音，请重试");
+          Alert.alert(
+            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+            i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+          );
         }
       } catch (error) {
         console.error("Failed to play audio:", error);
-        Alert.alert("播放失败", "无法播放录音，请重试");
+        Alert.alert(
+          i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+          i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+        );
       }
     },
     [entry.id],
@@ -256,17 +289,23 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleDelete = () => {
     Alert.alert(
-      "移至回收站",
-      `确定将这条记录移至回收站吗？可在个人页回收站中恢复。\n\n"${entry.content.substring(0, 30)}${entry.content.length > 30 ? "..." : ""}"`,
+      i18n.t("alerts.moveToRecycle.title", { ns: "dashboard" }),
+      i18n.t("alerts.moveToRecycle.message", {
+        ns: "dashboard",
+        excerpt: contentExcerpt,
+      }),
       [
-        { text: "取消", style: "cancel" },
         {
-          text: "移至回收站",
+          text: i18n.t("actions.cancel", { ns: "common" }),
+          style: "cancel",
+        },
+        {
+          text: i18n.t("alerts.moveToRecycle.confirm", { ns: "dashboard" }),
           style: "destructive",
           onPress: () => {
             triggerHaptic("error");
             deleteEntry(entry.id);
-            setIsExpanded(false); // 操作完成后折叠卡片
+            setIsExpanded(false);
           },
         },
       ],
@@ -277,12 +316,15 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     if (isPreparing) return;
 
     Alert.alert(
-      "气话焚烧",
-      "真的要烧掉这段记忆吗？\n\n焚烧后会留下灰烬痕迹，但内容将无法恢复。",
+      i18n.t("alerts.burn.title", { ns: "dashboard" }),
+      i18n.t("alerts.burn.message", { ns: "dashboard" }),
       [
-        { text: "再想想", style: "cancel" },
         {
-          text: "确认焚烧",
+          text: i18n.t("alerts.burn.cancel", { ns: "dashboard" }),
+          style: "cancel",
+        },
+        {
+          text: i18n.t("alerts.burn.confirm", { ns: "dashboard" }),
           style: "destructive",
           onPress: async () => {
             setIsPreparing(true);
@@ -330,17 +372,24 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   // 彻底删除灰烬（只对已焚烧的卡片显示）
   const handleDeleteAsh = () => {
-    Alert.alert("彻底删除", "确定要彻底删除这个灰烬吗？删除后将无法找回。", [
-      { text: "取消", style: "cancel" },
-      {
-        text: "彻底删除",
-        style: "destructive",
-        onPress: () => {
-          triggerHaptic("error");
-          deleteEntry(entry.id);
+    Alert.alert(
+      i18n.t("alerts.deleteAsh.title", { ns: "dashboard" }),
+      i18n.t("alerts.deleteAsh.message", { ns: "dashboard" }),
+      [
+        {
+          text: i18n.t("actions.cancel", { ns: "common" }),
+          style: "cancel",
         },
-      },
-    ]);
+        {
+          text: i18n.t("alerts.deleteAsh.confirm", { ns: "dashboard" }),
+          style: "destructive",
+          onPress: () => {
+            triggerHaptic("error");
+            deleteEntry(entry.id);
+          },
+        },
+      ],
+    );
   };
 
   const getMoodColor = () => {
@@ -443,27 +492,37 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
             {/* 灰烬内容 */}
             <View style={styles.textContainer}>
-              <Text style={styles.burnedTitle}>已化作青烟，随风而去</Text>
+              <Text style={styles.burnedTitle}>{t("entryCard.burnedTitle")}</Text>
               <Text style={styles.burnedDate}>
-                焚烧于 {formatEntryDate(entry.burnedAt || entry.timestamp)}
+                {t("entryCard.burnedAt", {
+                  date: formatEntryDate(entry.burnedAt || entry.timestamp),
+                })}
               </Text>
               {isExpanded && (
                 <View style={styles.burnedContentContainer}>
                   <Text style={styles.burnedContentLabel}>
-                    原始内容（仅供回顾）：
+                    {t("entryCard.burnedContentLabel")}
                   </Text>
                   <Text style={styles.burnedContent}>{entry.content}</Text>
                   <View style={styles.burnedMetaContainer}>
                     <Text style={styles.burnedMeta}>
-                      涉及：{entry.people.join(", ")}
+                      {t("entryCard.burnedMetaPeople", {
+                        people: peopleDisplay,
+                      })}
                     </Text>
                     <Text style={styles.burnedMeta}>
-                      触发：{entry.triggers.map((t) => `#${t}`).join(" ")}
+                      {t("entryCard.burnedMetaTriggers", {
+                        triggers: resolvedTriggerLabels
+                          .map((label) => `#${label}`)
+                          .join(" "),
+                      })}
                     </Text>
                   </View>
                   {entry.audios && entry.audios.length > 0 && (
                     <View style={styles.burnedAudioContainer}>
-                      <Text style={styles.burnedAudioLabel}>语音：</Text>
+                      <Text style={styles.burnedAudioLabel}>
+                        {t("entryCard.burnedAudioLabel")}
+                      </Text>
                       {entry.audios.map((audio) => renderAudioRow(audio))}
                     </View>
                   )}
@@ -471,8 +530,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               )}
               <Text style={styles.burnedHint}>
                 {isExpanded
-                  ? "点击收起 · 长按彻底删除"
-                  : "点击查看原始内容 · 长按彻底删除"}
+                  ? t("entryCard.burnedHintExpanded")
+                  : t("entryCard.burnedHintCollapsed")}
               </Text>
             </View>
           </View>
@@ -504,9 +563,17 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             }}
             activeOpacity={1}
             accessibilityRole="button"
-            accessibilityLabel={`情绪记录卡片，${entry.content}，涉及${entry.people?.join("和") || "相关人"}，${isExpanded ? "已展开" : "点击展开查看详情"}`}
+            accessibilityLabel={t("entryCard.cardA11y", {
+              content: entry.content,
+              people: peopleA11y,
+              expanded: isExpanded
+                ? t("entryCard.cardExpanded")
+                : t("entryCard.cardCollapsed"),
+            })}
             accessibilityHint={
-              isExpanded ? "点击收起卡片" : "点击展开查看完整内容和操作选项"
+              isExpanded
+                ? t("entryCard.cardCollapseHint")
+                : t("entryCard.cardExpandHint")
             }
             accessibilityState={{ expanded: isExpanded }}
           >
@@ -525,7 +592,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               <View style={styles.textContainer}>
                 <View style={styles.header}>
                   <Text style={styles.peopleText} numberOfLines={1}>
-                    {entry.people?.join(", ") || ""}
+                    {peopleDisplay}
                   </Text>
                   <Text style={styles.dateText}>
                     {formatEntryDate(entry.timestamp)}
@@ -544,9 +611,11 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   <View style={styles.deadlineTag}>
                     <Text style={styles.deadlineText}>{deadlineLabel}</Text>
                   </View>
-                  {entry.triggers?.map((t) => (
-                    <View key={t} style={styles.triggerTag}>
-                      <Text style={styles.triggerText}>#{t}</Text>
+                  {entry.triggers?.map((trigger, index) => (
+                    <View key={trigger} style={styles.triggerTag}>
+                      <Text style={styles.triggerText}>
+                        #{resolvedTriggerLabels[index] ?? trigger}
+                      </Text>
                     </View>
                   ))}
                   {entry.audios && entry.audios.length > 0 && (
@@ -577,26 +646,26 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 style={styles.actionButton}
                 onPress={handleEdit}
                 accessibilityRole="button"
-                accessibilityLabel="编辑这条情绪记录"
-                accessibilityHint="点击编辑记录的内容、标签或期限"
+                accessibilityLabel={t("entryCard.editA11y")}
+                accessibilityHint={t("entryCard.editHint")}
               >
                 <View style={styles.actionIcon}>
                   <Edit size={20} color="#3B82F6" />
                 </View>
-                <Text style={styles.actionText}>编辑</Text>
+                <Text style={styles.actionText}>{t("entryCard.edit")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={handleResolve}
                 accessibilityRole="button"
-                accessibilityLabel="标记为已和解"
-                accessibilityHint="点击标记这条情绪记录为已解决，表示已经与相关的人沟通或自己消化"
+                accessibilityLabel={t("entryCard.resolveA11y")}
+                accessibilityHint={t("entryCard.resolveHint")}
               >
                 <View style={styles.actionIcon}>
                   <CheckCircle size={20} color="#10B981" />
                 </View>
-                <Text style={styles.actionText}>和解打卡</Text>
+                <Text style={styles.actionText}>{t("entryCard.resolve")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -608,8 +677,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 onPress={handleBurn}
                 disabled={isPreparing}
                 accessibilityRole="button"
-                accessibilityLabel="气话焚烧"
-                accessibilityHint="点击焚烧这条情绪记录，释放负面情绪，内容将无法恢复"
+                accessibilityLabel={t("entryCard.burnA11y")}
+                accessibilityHint={t("entryCard.burnHint")}
                 accessibilityState={{ disabled: isPreparing }}
               >
                 {isPreparing ? (
@@ -620,7 +689,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       <Flame size={22} color="#FF4500" />
                     </View>
                     <Text style={[styles.actionText, styles.burnActionText]}>
-                      气话焚烧
+                      {t("entryCard.burn")}
                     </Text>
                   </>
                 )}
@@ -631,14 +700,14 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 onPress={handleDelete}
                 testID="entry-delete-button"
                 accessibilityRole="button"
-                accessibilityLabel="删除这条情绪记录"
-                accessibilityHint="点击删除这条记录，删除后将无法恢复"
+                accessibilityLabel={t("entryCard.deleteA11y")}
+                accessibilityHint={t("entryCard.deleteHint")}
               >
                 <View style={styles.actionIcon}>
                   <Trash2 size={18} color="#9CA3AF" />
                 </View>
                 <Text style={[styles.actionText, styles.deleteActionText]}>
-                  删除
+                  {t("entryCard.delete")}
                 </Text>
               </TouchableOpacity>
             </View>

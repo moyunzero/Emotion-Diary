@@ -1,0 +1,108 @@
+{
+  "header": {
+    "title": "情绪气象站"
+  },
+  "filter": {
+    "all": "全部记录",
+    "active": "未处理",
+    "resolved": "已和解",
+    "burned": "灰烬回忆",
+    "buttonA11y": "筛选按钮，当前显示{{label}}",
+    "buttonHint": "点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆",
+    "activeA11y": "筛选：未处理",
+    "activeHint": "点击只显示未处理的情绪记录",
+    "resolvedA11y": "筛选：已和解",
+    "resolvedHint": "点击只显示已和解的情绪记录",
+    "burnedA11y": "筛选：灰烬回忆",
+    "burnedHint": "点击只显示已焚烧的情绪记录",
+    "allA11y": "筛选：全部记录",
+    "allHint": "点击显示所有情绪记录"
+  },
+  "empty": {
+    "active": {
+      "title": "暂无待处理的情绪",
+      "desc": "你的心情花园正在茁壮成长",
+      "cta": "去记录",
+      "ctaA11y": "去记录情绪",
+      "ctaHint": "点击跳转到记录页面，开始记录你的第一份情绪"
+    },
+    "resolved": {
+      "title": "还没有已和解的记录",
+      "desc": "记录情绪，与自己和解",
+      "cta": "去记录",
+      "ctaA11y": "去记录情绪",
+      "ctaHint": "点击跳转到记录页面，开始记录你的第一份情绪"
+    },
+    "burned": {
+      "title": "还没有焚烧过的气话",
+      "desc": "负面情绪可以通过焚烧释放",
+      "cta": "去记录",
+      "ctaA11y": "去记录情绪",
+      "ctaHint": "点击跳转到记录页面，开始记录你的第一份情绪"
+    },
+    "all": {
+      "title": "开始记录你的第一份情绪吧",
+      "desc": "让每一次表达都成为照料心灵的过程",
+      "cta": "去记录",
+      "ctaA11y": "去记录情绪",
+      "ctaHint": "点击跳转到记录页面，开始记录你的第一份情绪"
+    }
+  },
+  "weatherAdvice": {
+    "sunny": "宜开心",
+    "cloudy": "宜沟通"
+  },
+  "entryCard": {
+    "edit": "编辑",
+    "resolve": "和解打卡",
+    "burn": "气话焚烧",
+    "delete": "删除",
+    "moveToRecycle": "移至回收站",
+    "burnedTitle": "已化作青烟，随风而去",
+    "burnedAt": "焚烧于 {{date}}",
+    "burnedContentLabel": "原始内容（仅供回顾）：",
+    "burnedMetaPeople": "涉及：{{people}}",
+    "burnedMetaTriggers": "触发：{{triggers}}",
+    "burnedAudioLabel": "语音：",
+    "burnedHintExpanded": "点击收起 · 长按彻底删除",
+    "burnedHintCollapsed": "点击查看原始内容 · 长按彻底删除",
+    "cardA11y": "情绪记录卡片，{{content}}，涉及{{people}}，{{expanded}}",
+    "cardExpanded": "已展开",
+    "cardCollapsed": "点击展开查看详情",
+    "cardExpandHint": "点击展开查看完整内容和操作选项",
+    "cardCollapseHint": "点击收起卡片",
+    "editA11y": "编辑这条情绪记录",
+    "editHint": "点击编辑记录的内容、标签或期限",
+    "resolveA11y": "标记为已和解",
+    "resolveHint": "点击标记这条情绪记录为已解决，表示已经与相关的人沟通或自己消化",
+    "burnA11y": "气话焚烧",
+    "burnHint": "点击焚烧这条情绪记录，释放负面情绪，内容将无法恢复",
+    "deleteA11y": "删除这条情绪记录",
+    "deleteHint": "点击删除这条记录，删除后将无法恢复",
+    "relatedPersonFallback": "相关人",
+    "peopleJoiner": "和"
+  },
+  "alerts": {
+    "playbackFailed": {
+      "title": "播放失败",
+      "bodyMissing": "录音文件已丢失",
+      "bodyRetry": "无法播放录音，请重试"
+    },
+    "moveToRecycle": {
+      "title": "移至回收站",
+      "message": "确定将这条记录移至回收站吗？可在个人页回收站中恢复。\n\n\"{{excerpt}}\"",
+      "confirm": "移至回收站"
+    },
+    "burn": {
+      "title": "气话焚烧",
+      "message": "真的要烧掉这段记忆吗？\n\n焚烧后会留下灰烬痕迹，但内容将无法恢复。",
+      "cancel": "再想想",
+      "confirm": "确认焚烧"
+    },
+    "deleteAsh": {
+      "title": "彻底删除",
+      "message": "确定要彻底删除这个灰烬吗？删除后将无法找回。",
+      "confirm": "彻底删除"
+    }
+  }
+}
