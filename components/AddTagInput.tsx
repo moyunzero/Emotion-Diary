@@ -89,7 +89,7 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
       style={styles.addTagButton}
     >
       <Plus size={12} color="#6B7280" />
-      <Text style={styles.addTagText}>自定义</Text>
+      <Text style={styles.addTagText}>{t('addTag.custom')}</Text>
     </TouchableOpacity>
   );
 };

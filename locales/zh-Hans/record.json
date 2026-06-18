@@ -42,7 +42,13 @@
       "body": "写点什么吧，哪怕只是一句话或一段语音"
     }
   },
-  "addTag": { "placeholder": "添加自定义标签" },
+  "toasts": {
+    "submitSuccess": "记录成功！已保存到你的情绪日记 💫"
+  },
+  "addTag": {
+    "placeholder": "添加自定义标签",
+    "custom": "自定义"
+  },
   "presets": {
     "people": {
       "boyfriend": "男朋友",

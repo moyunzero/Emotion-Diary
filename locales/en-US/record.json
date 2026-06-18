@@ -42,7 +42,13 @@
       "body": "Write a line or record a voice note — even a few words count"
     }
   },
-  "addTag": { "placeholder": "Add a custom tag" },
+  "toasts": {
+    "submitSuccess": "Saved! Your entry is in your mood diary 💫"
+  },
+  "addTag": {
+    "placeholder": "Add a custom tag",
+    "custom": "Custom"
+  },
   "presets": {
     "people": {
       "boyfriend": "Boyfriend",

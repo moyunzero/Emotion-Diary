@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Record from '../../components/Record';
 import { ToastManager } from '../../components/Toast';
 import { useStopAudioOnTabBlur } from '../../hooks/useStopAudioOnTabBlur';
+import { i18n } from '../../i18n';
 
 export default function RecordTab() {
   useStopAudioOnTabBlur();
@@ -15,7 +16,7 @@ export default function RecordTab() {
 
   const handleSuccess = () => {
     setToast({
-      message: '记录成功！已保存到你的情绪日记 💫',
+      message: i18n.t('toasts.submitSuccess', { ns: 'record' }),
       type: 'success',
     });
   };
