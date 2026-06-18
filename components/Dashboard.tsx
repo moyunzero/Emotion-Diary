@@ -15,6 +15,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/shallow";
@@ -32,65 +33,12 @@ import WeatherStation from "./WeatherStation";
 // Type alias for dashboard filter (shared with dashboardFilter.ts)
 type DashboardFilter = DashboardFilterType;
 
-// Pure helper functions moved to module level
-/**
- * Get the display label for a filter type
- */
-const getFilterLabel = (filter: DashboardFilter): string => {
-  switch (filter) {
-    case "active":
-      return "未处理";
-    case "resolved":
-      return "已和解";
-    case "burned":
-      return "灰烬回忆";
-    default:
-      return "全部记录";
-  }
-};
-
-/**
- * Get weather advice based on weather condition
- */
-const getWeatherAdvice = (condition: string): string => {
-  return condition === "sunny" ? "宜开心" : "宜沟通";
-};
-
-/**
- * Get empty state content based on filter type
- */
-const getEmptyStateContent = (filter: DashboardFilter): {
-  title: string;
-  desc: string;
-  showButton: boolean;
-} => {
-  switch (filter) {
-    case "active":
-      return {
-        title: "暂无待处理的情绪",
-        desc: "你的心情花园正在茁壮成长",
-        showButton: true,
-      };
-    case "resolved":
-      return {
-        title: "还没有已和解的记录",
-        desc: "记录情绪，与自己和解",
-        showButton: true,
-      };
-    case "burned":
-      return {
-        title: "还没有焚烧过的气话",
-        desc: "负面情绪可以通过焚烧释放",
-        showButton: true,
-      };
-    default:
-      return {
-        title: "开始记录你的第一份情绪吧",
-        desc: "让每一次表达都成为照料心灵的过程",
-        showButton: true,
-      };
-  }
-};
+const FILTER_OPTIONS: DashboardFilter[] = [
+  "active",
+  "resolved",
+  "burned",
+  "all",
+];
 
 /**
  * Calculate filter dropdown position with boundary detection
@@ -132,6 +80,7 @@ const calculateDropdownPosition = (
 const STICKY_HEADER_TOP_GUARD = 88;
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation("dashboard");
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -222,10 +171,27 @@ const Dashboard: React.FC = () => {
     [],
   );
 
-  // Use pure functions for computed values
-  const emptyStateContent = useMemo(() => getEmptyStateContent(filter), [filter]);
-  const filterLabel = useMemo(() => getFilterLabel(filter), [filter]);
-  const weatherAdvice = useMemo(() => getWeatherAdvice(weather.condition), [weather.condition]);
+  const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
+  const weatherAdvice = useMemo(
+    () =>
+      t(
+        weather.condition === "sunny"
+          ? "weatherAdvice.sunny"
+          : "weatherAdvice.cloudy",
+      ),
+    [t, weather.condition],
+  );
+  const emptyStateContent = useMemo(
+    () => ({
+      title: t(`empty.${filter}.title`),
+      desc: t(`empty.${filter}.desc`),
+      cta: t(`empty.${filter}.cta`),
+      ctaA11y: t(`empty.${filter}.ctaA11y`),
+      ctaHint: t(`empty.${filter}.ctaHint`),
+      showButton: true,
+    }),
+    [t, filter],
+  );
 
   // 焚烧处理函数已在 EntryCard 内部处理，这里无需操作
   const handleBurn = useCallback((_id: string) => {
@@ -257,7 +223,7 @@ const Dashboard: React.FC = () => {
       <View style={styles.header}>
         <View>
           <Text style={[styles.title, { color: colors.text.primary }]}>
-            情绪气象站
+            {t("header.title")}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
             {formatDateChinese(Date.now())} · {weatherAdvice}
@@ -295,8 +261,8 @@ const Dashboard: React.FC = () => {
             { backgroundColor: colors.background.primary },
           ]}
           accessibilityRole="button"
-          accessibilityLabel={`筛选按钮，当前显示${filterLabel}`}
-          accessibilityHint="点击打开筛选菜单，可以选择查看全部记录、未处理、已和解或灰烬回忆"
+          accessibilityLabel={t("filter.buttonA11y", { label: filterLabel })}
+          accessibilityHint={t("filter.buttonHint")}
           accessibilityState={{ expanded: isFilterOpen }}
         >
           <Filter
@@ -334,8 +300,8 @@ const Dashboard: React.FC = () => {
                 style={[styles.emptyButton, { backgroundColor: colors.submit }]}
                 onPress={() => router.push("/record")}
                 accessibilityRole="button"
-                accessibilityLabel="去记录情绪"
-                accessibilityHint="点击跳转到记录页面，开始记录你的第一份情绪"
+                accessibilityLabel={emptyStateContent.ctaA11y}
+                accessibilityHint={emptyStateContent.ctaHint}
               >
                 <Text
                   style={[
@@ -343,7 +309,7 @@ const Dashboard: React.FC = () => {
                     { color: colors.text.inverse },
                   ]}
                 >
-                  去记录
+                  {emptyStateContent.cta}
                 </Text>
               </TouchableOpacity>
             )}
@@ -384,110 +350,35 @@ const Dashboard: React.FC = () => {
                   },
                 ]}
               >
-                <TouchableOpacity
-                  onPress={() => handleFilterChange("active")}
-                  style={[
-                    styles.filterOption,
-                    filter === "active" && {
-                      backgroundColor: colors.background.page,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="筛选：未处理"
-                  accessibilityHint="点击只显示未处理的情绪记录"
-                  accessibilityState={{ selected: filter === "active" }}
-                >
-                  <Text
+                {FILTER_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    onPress={() => handleFilterChange(option)}
                     style={[
-                      styles.filterOptionText,
-                      { color: colors.text.secondary },
-                      filter === "active" && {
-                        color: colors.submit,
-                        fontWeight: "700",
+                      styles.filterOption,
+                      filter === option && {
+                        backgroundColor: colors.background.page,
                       },
                     ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(`filter.${option}A11y`)}
+                    accessibilityHint={t(`filter.${option}Hint`)}
+                    accessibilityState={{ selected: filter === option }}
                   >
-                    未处理
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFilterChange("resolved")}
-                  style={[
-                    styles.filterOption,
-                    filter === "resolved" && {
-                      backgroundColor: colors.background.page,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="筛选：已和解"
-                  accessibilityHint="点击只显示已和解的情绪记录"
-                  accessibilityState={{ selected: filter === "resolved" }}
-                >
-                  <Text
-                    style={[
-                      styles.filterOptionText,
-                      { color: colors.text.secondary },
-                      filter === "resolved" && {
-                        color: colors.submit,
-                        fontWeight: "700",
-                      },
-                    ]}
-                  >
-                    已和解
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFilterChange("burned")}
-                  style={[
-                    styles.filterOption,
-                    filter === "burned" && {
-                      backgroundColor: colors.background.page,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="筛选：灰烬回忆"
-                  accessibilityHint="点击只显示已焚烧的情绪记录"
-                  accessibilityState={{ selected: filter === "burned" }}
-                >
-                  <Text
-                    style={[
-                      styles.filterOptionText,
-                      { color: colors.text.secondary },
-                      filter === "burned" && {
-                        color: colors.submit,
-                        fontWeight: "700",
-                      },
-                    ]}
-                  >
-                    灰烬
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFilterChange("all")}
-                  style={[
-                    styles.filterOption,
-                    filter === "all" && {
-                      backgroundColor: colors.background.page,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="筛选：全部记录"
-                  accessibilityHint="点击显示所有情绪记录"
-                  accessibilityState={{ selected: filter === "all" }}
-                >
-                  <Text
-                    style={[
-                      styles.filterOptionText,
-                      { color: colors.text.secondary },
-                      filter === "all" && {
-                        color: colors.submit,
-                        fontWeight: "700",
-                      },
-                    ]}
-                  >
-                    全部
-                  </Text>
-                </TouchableOpacity>
+                    <Text
+                      style={[
+                        styles.filterOptionText,
+                        { color: colors.text.secondary },
+                        filter === option && {
+                          color: colors.submit,
+                          fontWeight: "700",
+                        },
+                      ]}
+                    >
+                      {t(`filter.${option}`)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </>
           );
