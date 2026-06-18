@@ -136,7 +136,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           ]}
           numberOfLines={2}
         >
-          "{latest.content}"
+          &ldquo;{latest.content}&rdquo;
         </Text>
         <View style={styles.questionRow}>
           <NotebookPen size={14} color="#16A34A" />

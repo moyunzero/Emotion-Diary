@@ -1,8 +1,17 @@
 /**
  * reviewExportDerived.test.ts
  * 验证 computeReviewExportDerivedState 的派生统计数值正确性。
- * 纯逻辑，无 React Native 依赖，无 mock。
  */
+
+jest.mock("expo-localization", () => ({
+  getLocales: jest.fn(() => [{ languageTag: "zh-Hans" }]),
+}));
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
 
 import { MoodEntry, MoodLevel, Status } from '../../../types';
 import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';

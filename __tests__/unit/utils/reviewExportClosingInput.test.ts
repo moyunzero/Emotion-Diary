@@ -4,6 +4,16 @@
  * 并覆盖 normalizeFirstEntryDate 的边界情况。
  */
 
+jest.mock("expo-localization", () => ({
+  getLocales: jest.fn(() => [{ languageTag: "zh-Hans" }]),
+}));
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
 import { MoodEntry, MoodLevel, Status } from '../../../types';
 import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
 import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';
