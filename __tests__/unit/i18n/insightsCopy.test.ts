@@ -60,6 +60,20 @@ describe("insights and system copy", () => {
     expect(i18n.t("relationship.title", { ns: "insights" })).toBe("关系花园");
   });
 
+  it("record.toasts.submitSuccess locked zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("toasts.submitSuccess", { ns: "record" })).toBe(
+      "记录成功！已保存到你的情绪日记 💫",
+    );
+  });
+
+  it("record.toasts.submitSuccess locked en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("toasts.submitSuccess", { ns: "record" })).toMatch(/Saved!/i);
+  });
+
   it("system.audio.permission.title locked zh-Hans", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("zh-Hans");
