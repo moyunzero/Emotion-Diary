@@ -1,5 +1,6 @@
 import { Flower2 } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
@@ -10,6 +11,7 @@ interface GardenHeaderProps {
 }
 
 const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, resolvedCount }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, spacing } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -40,17 +42,17 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
   );
 
   const getGardenStatus = () => {
-    if (totalEntries === 0) return '开始种下你的第一颗种子吧';
+    if (totalEntries === 0) return t('header.status.empty');
     const rate = resolvedCount / totalEntries;
-    if (rate >= 0.7) return '你的花园正在茁壮成长';
-    return '记得给花园浇浇水哦';
+    if (rate >= 0.7) return t('header.status.thriving');
+    return t('header.status.needsWater');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Flower2 size={28} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.title}>我的心灵花园</Text>
+        <Text style={styles.title}>{t('header.title')}</Text>
       </View>
       <Text style={styles.subtitle}>{getGardenStatus()}</Text>
     </View>

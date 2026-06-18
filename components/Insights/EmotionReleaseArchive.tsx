@@ -1,5 +1,7 @@
+import { resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
 import { Flame, NotebookPen, Wind } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
@@ -13,6 +15,7 @@ interface EmotionReleaseArchiveProps {
 const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
   entries,
 }) => {
+  const { t } = useTranslation("insights");
   const responsive = useResponsiveStyles();
   const releaseData = useMemo(() => {
     const burnedEntries = entries
@@ -44,10 +47,12 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       >
         <View style={styles.header}>
           <Flame size={20} color="#EA580C" />
-          <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
+          <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
+            {t("releaseArchive.title")}
+          </Text>
         </View>
         <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
-          心晴MO 独有：焚烧后会保留温和的复盘线索
+          {t("releaseArchive.subtitleEmpty")}
         </Text>
         <View style={styles.emptyCard}>
           <Wind size={28} color="#9CA3AF" />
@@ -60,7 +65,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
               },
             ]}
           >
-            你还没有使用「气话焚烧」，下次试试把难受交给火焰。
+            {t("releaseArchive.empty.text")}
           </Text>
         </View>
       </View>
@@ -69,8 +74,10 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
 
   const latest = releaseData.latestBurned;
   const reflectionQuestion = latest.triggers[0]
-    ? `这次被「${latest.triggers[0]}」触发时，我真正想被理解的是什么？`
-    : "这次情绪背后，我最希望被看见的需求是什么？";
+    ? t("releaseArchive.reflectionWithTrigger", {
+        trigger: resolveTriggerLabel(latest.triggers[0]),
+      })
+    : t("releaseArchive.reflectionGeneric");
 
   return (
     <View
@@ -85,30 +92,39 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
     >
       <View style={styles.header}>
         <Flame size={20} color="#EA580C" />
-        <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>情绪释放档案</Text>
+        <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
+          {t("releaseArchive.title")}
+        </Text>
       </View>
       <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
-        心晴MO 独有：释放情绪，同时保留成长证据
+        {t("releaseArchive.subtitleFilled")}
       </Text>
 
       <View style={styles.metricRow}>
         <View style={styles.metricPill}>
-          <Text style={[styles.metricLabel, { fontSize: responsive.fontSize.small - 1 }]}>释放率</Text>
+          <Text style={[styles.metricLabel, { fontSize: responsive.fontSize.small - 1 }]}>
+            {t("releaseArchive.metrics.releaseRate")}
+          </Text>
           <Text style={[styles.metricValue, { fontSize: responsive.fontSize.body }]}>
             {releaseData.releaseRate}%
           </Text>
         </View>
         <View style={styles.metricPill}>
-          <Text style={[styles.metricLabel, { fontSize: responsive.fontSize.small - 1 }]}>已焚烧</Text>
+          <Text style={[styles.metricLabel, { fontSize: responsive.fontSize.small - 1 }]}>
+            {t("releaseArchive.metrics.burnedCount")}
+          </Text>
           <Text style={[styles.metricValue, { fontSize: responsive.fontSize.body }]}>
-            {releaseData.burnedCount} 条
+            {releaseData.burnedCount}
+            {t("releaseArchive.metrics.burnedUnit")}
           </Text>
         </View>
       </View>
 
       <View style={styles.recordCard}>
         <Text style={[styles.recordDate, { fontSize: responsive.fontSize.small - 1 }]}>
-          最近一次释放：{formatDateChinese(latest.burnedAt || latest.timestamp)}
+          {t("releaseArchive.latestRelease", {
+            date: formatDateChinese(latest.burnedAt || latest.timestamp),
+          })}
         </Text>
         <Text
           style={[
@@ -120,7 +136,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           ]}
           numberOfLines={2}
         >
-          “{latest.content}”
+          "{latest.content}"
         </Text>
         <View style={styles.questionRow}>
           <NotebookPen size={14} color="#16A34A" />
@@ -226,4 +242,3 @@ const styles = StyleSheet.create({
 });
 
 export const EmotionReleaseArchive = memo(EmotionReleaseArchiveComponent);
-
