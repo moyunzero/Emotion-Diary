@@ -1,0 +1,63 @@
+{
+  "screen": {
+    "title": "情绪回顾图"
+  },
+  "presets": {
+    "this_week": "本周",
+    "last_week": "上周",
+    "this_month": "本月",
+    "last_month": "上月"
+  },
+  "actions": {
+    "saveToAlbum": "保存到相册",
+    "continue": "继续"
+  },
+  "alerts": {
+    "privacy": {
+      "title": "隐私提示",
+      "message": "回顾图含你的情绪与记录信息；保存后可在系统相册中查看，请注意设备共用与他人翻看风险。"
+    },
+    "permission": {
+      "title": "需要相册权限",
+      "message": "请在系统设置中允许心晴MO将回顾图保存到相册。"
+    },
+    "saveFail": {
+      "title": "保存失败"
+    },
+    "saveSuccess": {
+      "title": "已保存",
+      "message": "回顾图已保存到系统相册。"
+    },
+    "webUnsupported": {
+      "title": "暂不支持",
+      "message": "请在 iOS 或 Android 应用中保存回顾图到相册。"
+    }
+  },
+  "a11y": {
+    "exportRange": "回顾时间范围：{{start}} 到 {{end}}"
+  },
+  "canvas": {
+    "dateRangeSeparator": "～",
+    "companionLine": "陪伴{{appName}}第 {{days}} 天",
+    "rateLabel": "本期情绪解决率",
+    "deltaNoCompare": "本期暂无环比对比",
+    "deltaVsPrevious": "{{arrow}}{{pct}}% vs 上一期",
+    "periodStats": "本期共记录 {{total}} 笔，已和解 {{resolved}} 笔",
+    "trendTitle": "解决率趋势（近 6 个月）",
+    "trendCaption": "柱高代表当月已和解占比，月份从左到右由旧到新",
+    "trendEmpty": "最近 6 个月暂无记录，先从一条小情绪开始。",
+    "monthShort": "{{month}}月",
+    "weatherSection": "本期情绪气象站",
+    "weatherEmpty": "本期暂无天气分布数据",
+    "weatherLine": "{{label}} {{days}} 天",
+    "weatherDays": "{{days}} 天",
+    "triggersSection": "Top 情绪触发",
+    "triggersEmpty": "本期暂无触发器统计",
+    "triggerLine": "{{name}} · {{count}} 次",
+    "triggerCount": "{{count}} 次",
+    "aiLoading": "正在写一句话…",
+    "aiHintReady": "由 AI 生成",
+    "aiHintFallback": "当前为默认文案",
+    "footerBrand": "心晴MO · 情绪回顾"
+  }
+}
