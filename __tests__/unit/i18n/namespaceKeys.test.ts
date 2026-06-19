@@ -2,6 +2,8 @@
  * INS-03, INS-04, SYS-01, SYS-02, SYS-05 — bilingual key parity gate for six namespaces
  */
 
+import zhAi from "@/locales/zh-Hans/ai.json";
+import enAi from "@/locales/en-US/ai.json";
 import zhCommon from "@/locales/zh-Hans/common.json";
 import enCommon from "@/locales/en-US/common.json";
 import zhProfile from "@/locales/zh-Hans/profile.json";
@@ -69,6 +71,7 @@ const NAMESPACE_PAIRS: Array<{
   { name: "dashboard", zh: zhDashboard, en: enDashboard },
   { name: "insights", zh: zhInsights, en: enInsights },
   { name: "system", zh: zhSystem, en: enSystem },
+  { name: "ai", zh: zhAi, en: enAi },
 ];
 
 describe("namespace key parity (zh-Hans vs en-US)", () => {

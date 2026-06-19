@@ -1,5 +1,7 @@
 import { formatDateChinese } from '@/shared/formatting';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
+import { i18n } from '@/i18n';
+import type { AppLocale } from '@/i18n/mapDeviceLocale';
 import { MoodEntry, MoodLevel } from '../types';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
@@ -33,6 +35,22 @@ interface CacheEntry<T = unknown> {
 }
 
 const cache = new Map<string, CacheEntry>();
+
+function getActiveLocale(): AppLocale {
+  return i18n.language === 'en-US' ? 'en-US' : 'zh-Hans';
+}
+
+export function buildAiCacheKey(
+  locale: AppLocale,
+  segment: string,
+  ...parts: (string | number)[]
+): string {
+  return `loc:${locale}:${segment}:${parts.join(':')}`;
+}
+
+export function clearAiCache(): void {
+  cache.clear();
+}
 
 /**
  * 清理过期缓存
@@ -89,6 +107,16 @@ const setCache = <T = unknown>(key: string, data: T, ttl: number = 24 * 60 * 60 
   
   cache.set(key, { data, timestamp: Date.now(), ttl });
 };
+
+/** @internal unit tests only */
+export function __seedAiCacheForTest<T>(key: string, data: T): void {
+  setCache(key, data, 60_000);
+}
+
+/** @internal unit tests only */
+export function __peekAiCacheForTest<T>(key: string): T | null {
+  return getCached<T>(key);
+}
 
 /**
  * 错误类型枚举（用于 AI 服务特定的错误分类）
@@ -299,7 +327,12 @@ export const analyzeEmotionCycle = async (
   entries: MoodEntry[]
 ): Promise<EmotionCycleAnalysis> => {
   const data = excludeSoftDeletedEntries(entries);
-  const cacheKey = `cycle_${data.length}_${data[0]?.timestamp || 0}`;
+  const cacheKey = buildAiCacheKey(
+    getActiveLocale(),
+    'cycle',
+    data.length,
+    data[0]?.timestamp || 0,
+  );
   const cached = getCached<EmotionCycleAnalysis>(cacheKey);
   if (cached) return cached;
 
@@ -397,7 +430,13 @@ export const predictEmotionTrend = async (
   // 修复：移除 Date.now()，使用基于数据的缓存键，避免每次调用都生成新缓存
   // 使用最近一条记录的时间戳作为缓存键的一部分，这样数据变化时缓存会失效
   const latestTimestamp = data.length > 0 ? data[0].timestamp : 0;
-  const cacheKey = `forecast_${data.length}_${days}_${Math.floor(latestTimestamp / (60 * 60 * 1000))}`; // 按小时缓存
+  const cacheKey = buildAiCacheKey(
+    getActiveLocale(),
+    'forecast',
+    data.length,
+    days,
+    Math.floor(latestTimestamp / (60 * 60 * 1000)),
+  );
   const cached = getCached<EmotionForecast>(cacheKey);
   if (cached) return cached;
 
@@ -508,18 +547,23 @@ export async function generateReviewExportClosingLine(
   userId: string = 'anonymous',
   userName: string = '朋友',
 ): Promise<string> {
-  const cacheKey = `rx_closing_${userId}_${JSON.stringify({
-    preset: summary.presetLabel,
-    start: summary.periodStartMs,
-    end: summary.periodEndMs,
-    days: summary.companionDays,
-    rate: summary.resolutionRatePct,
-    delta: summary.deltaPct,
-    total: summary.totalEntries,
-    resolved: summary.resolvedEntries,
-    weather: summary.topWeatherLines,
-    triggers: summary.topTriggerLines,
-  })}`;
+  const cacheKey = buildAiCacheKey(
+    getActiveLocale(),
+    'rx_closing',
+    userId,
+    JSON.stringify({
+      preset: summary.presetLabel,
+      start: summary.periodStartMs,
+      end: summary.periodEndMs,
+      days: summary.companionDays,
+      rate: summary.resolutionRatePct,
+      delta: summary.deltaPct,
+      total: summary.totalEntries,
+      resolved: summary.resolvedEntries,
+      weather: summary.topWeatherLines,
+      triggers: summary.topTriggerLines,
+    }),
+  );
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
@@ -588,7 +632,14 @@ export const generateEmotionPodcast = async (
   userName: string = '朋友',
 ): Promise<string | null> => {
   const data = excludeSoftDeletedEntries(entries);
-  const cacheKey = `rx_podcast_${userId}_${period}_${data.length}_${data[0]?.timestamp || 0}`;
+  const cacheKey = buildAiCacheKey(
+    getActiveLocale(),
+    'rx_podcast',
+    userId,
+    period,
+    data.length,
+    data[0]?.timestamp || 0,
+  );
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
@@ -708,7 +759,14 @@ export const generateEmotionPrescription = async (
   userName: string = '朋友',
   firstEntryDate?: number,
 ): Promise<EmotionPrescription> => {
-  const cacheKey = `rx_${userId}_${trigger}_${moodLevel}_${entries.length}`;
+  const cacheKey = buildAiCacheKey(
+    getActiveLocale(),
+    'rx',
+    userId,
+    trigger,
+    moodLevel,
+    entries.length,
+  );
   const cached = getCached<EmotionPrescription>(cacheKey);
   if (cached) return cached;
 
