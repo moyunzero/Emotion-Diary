@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 import { i18n } from "@/i18n";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
+import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
 import type { MutableRefObject } from "react";
 import type { SyncStatus } from "./useProfileScreenState";
 
@@ -26,6 +27,7 @@ export function useProfileSyncHandlers(state: StateRef) {
   const recoverFromCloud = useAppStore((s) => s.recoverFromCloud);
   const storeSyncStatus = useAppStore((s) => s.syncStatus);
   const user = useAppStore((s) => s.user);
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
 
   const runSyncAction = useCallback(
     async (type: "upload" | "download") => {
@@ -153,22 +155,11 @@ export function useProfileSyncHandlers(state: StateRef) {
     );
   }, [runSyncAction]);
 
-  const formatLastSyncTime = useCallback((timestamp: number | null) => {
-    if (!timestamp) return i18n.t("neverSynced", { ns: "sync" });
-    const now = Date.now();
-    const diff = now - timestamp;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return i18n.t("justSynced", { ns: "sync" });
-    if (minutes < 60) return `${minutes}分钟前`;
-    if (hours < 24) return `${hours}小时前`;
-    if (days < 7) return `${days}天前`;
-
-    const date = new Date(timestamp);
-    return `${date.getMonth() + 1}/${date.getDate()}`;
-  }, []);
+  const formatLastSyncTime = useCallback(
+    (timestamp: number | null) =>
+      formatLastSyncTimeValue(timestamp, effectiveLocale),
+    [effectiveLocale],
+  );
 
   return {
     handleSyncUpload,
