@@ -50,7 +50,10 @@ lerna-debug.log*
 
 # AI / Planning — 本地规划目录，不上传 GitHub（工程正文见 openspec/engineering-system.md、openspec/engineering-quality.md）
 .planning/
-app-store-submission/
+# App Store 本地素材（截图等）；metadata 文案入库
+app-store-submission/*
+!app-store-submission/metadata/
+!app-store-submission/metadata/**
 agent-transcripts/
 
 # Lockfiles (Project uses yarn, ignore npm/pnpm locks to avoid confusion)

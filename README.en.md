@@ -46,12 +46,15 @@ Copy `.env.example` to `.env` and fill values as needed (do not commit real secr
 ```bash
 yarn typecheck
 yarn lint
+yarn test              # Jest unit tests (excludes e2e/)
 ```
 
 ### CI summary
 
-- **Pull requests:** runs `yarn lint` and `yarn typecheck`.
-- **Push to `master`:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
+- **Pull requests / push to `master`:** `yarn typecheck` → `yarn lint` → `yarn test` (Node 22).
+- **Push to `master` only:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
+
+**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). See [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4.
 
 ### Community & docs
 
@@ -111,6 +114,12 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Cloud Backup**: Optional Supabase sync; deleting an entry is a **soft delete** by default (data can remain syncable and recoverable via cloud merge), not immediate physical wipe
 - **Smart Data Migration**: Seamless switching between guest data and logged-in user data
 
+### 🌍 Bilingual UI (v1.3)
+- **Simplified Chinese & English** across the app
+- **Follow system** or **manual** language in Profile → Language
+- Dates, relative time, AI output, native permission dialogs, and review export follow the active locale
+- Switching language clears AI caches and refreshes forecast/podcast content
+
 ## 🎨 Design Highlights
 
 - **Healing Color Scheme**: Pink-green gradient theme, warm and comfortable
@@ -153,6 +162,7 @@ yarn start
 | **Animations** | React Native Reanimated | ~4.1.1 |
 | **SVG Support** | React Native SVG | 15.12.1 |
 | **Type Support** | TypeScript | ~5.9.2 |
+| **i18n** | i18next + react-i18next + expo-localization | ^26 / ^17 |
 | **Build Tools** | EAS Build | - |
 
 ## 📁 Project Structure
@@ -175,6 +185,7 @@ Emotion-Diary/
 │   ├── useAppStore.ts
 │   └── modules/
 ├── hooks/ lib/ utils/ services/ shared/
+├── i18n/ locales/               # Runtime i18n + zh-Hans / en-US bundles
 ├── styles/ types/ constants/    # Plus root types.ts, constants.ts
 ├── assets/ scripts/ openspec/ docs/
 ├── .planning/                   # Local planning (gitignored); specs in openspec/
@@ -315,12 +326,32 @@ eas build --platform ios --profile production
 
 **Q: How to modify gardening advice text?**
 
-- Modify `TRIGGER_ADVICE` object in `components/Insights.tsx`
-- You can add corresponding advice for new triggers
+- Edit `triggers.advice` / `triggers.adviceShort` in `locales/zh-Hans/insights.json` and `locales/en-US/insights.json`
+- Resolved at runtime via `resolveTriggerAdvice` in `i18n/resolvePresetLabel.ts`
 
 ## 📋 Version History
 
 Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
+
+### [1.3.0] - 2026-06-19 · App Store update
+
+#### Added
+
+- **Full bilingual UI**: Simplified Chinese and English; Profile → Language with Follow System or manual pick
+- **Localized surfaces**: record flow, dashboard, Mind Garden, review export, sync messages, recycle bin, retention banners, auth, and more
+- **Localized iOS permission dialogs** via `locales/native/` and `expo.locales`
+- **Locale-aware AI**: forecast, podcast, prescription, and review closing line follow active language; caches clear on language switch
+
+#### Changed
+
+- Locale-aware dates and relative time strings
+- Companion milestones and trigger labels/advice no longer leak hardcoded Chinese
+- English plural grammar and accessibility copy improvements
+
+#### Developer / quality
+
+- i18n copy gates and bilingual smoke tests (`__tests__/unit/i18n/`)
+- Recycle-bin E2E flows use testIDs instead of locale-specific button text
 
 ### [1.2.0] - 2026-06-13 · App Store submission
 
@@ -363,7 +394,6 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 
 - 📊 More data analysis dimensions
 - 🎨 Theme customization system
-- 🌍 Multi-language support
 
 ## 🤝 Contributing Guidelines
 

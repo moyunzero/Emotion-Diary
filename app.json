@@ -2,7 +2,7 @@
   "expo": {
     "name": "心晴MO",
     "slug": "emotion-diary",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
@@ -68,9 +68,7 @@
         {
           "photosPermission": "MoodMO accesses your photo library only when you save an emotion review image.",
           "savePhotosPermission": "MoodMO saves your emotion review image to your photo library when you tap Save.",
-          "granularPermissions": [
-            "photo"
-          ]
+          "granularPermissions": ["photo"]
         }
       ],
       "expo-audio",
