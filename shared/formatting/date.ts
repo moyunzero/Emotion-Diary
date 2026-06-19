@@ -1,3 +1,6 @@
+import type { AppLocale } from '@/i18n/mapDeviceLocale';
+import { i18n } from '@/i18n';
+
 export type DateInput = number | Date | null | undefined;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -13,14 +16,25 @@ function startOfLocalDay(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-export function formatDateChinese(input: DateInput): string {
-  const date = toValidDate(input);
-  if (!date) return '日期未知';
+export function toIntlLocale(locale: AppLocale): string {
+  return locale;
+}
 
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return `${year}年${month}月${day}日`;
+export function formatLocaleDate(
+  input: DateInput,
+  locale: AppLocale,
+  style: 'long' | 'medium' | 'short' = 'long',
+): string {
+  const date = toValidDate(input);
+  if (!date) {
+    return i18n.getFixedT(locale, 'common')('relative.unknown');
+  }
+  return new Intl.DateTimeFormat(toIntlLocale(locale), { dateStyle: style }).format(date);
+}
+
+/** @deprecated — use formatLocaleDate(input, 'zh-Hans') */
+export function formatDateChinese(input: DateInput): string {
+  return formatLocaleDate(input, 'zh-Hans', 'long');
 }
 
 export function formatMonthDay(input: DateInput): string {
@@ -51,16 +65,21 @@ export function ensureMilliseconds(timestamp: number): number {
   return timestamp;
 }
 
-export function formatRelativeDayLabel(inputDate: DateInput, now: Date = new Date()): string {
+export function formatRelativeDayLabel(
+  inputDate: DateInput,
+  now: Date = new Date(),
+  locale: AppLocale = 'zh-Hans',
+): string {
   const target = toValidDate(inputDate);
   const nowDate = toValidDate(now);
-  if (!target || !nowDate) return '未知时间';
+  const t = i18n.getFixedT(locale, 'common');
+  if (!target || !nowDate) return t('relative.unknown');
 
   const diffDays = Math.round((startOfLocalDay(nowDate) - startOfLocalDay(target)) / DAY_MS);
 
-  if (diffDays === 0) return '今天';
-  if (diffDays === 1) return '昨天';
-  if (diffDays === -1) return '明天';
-  if (diffDays > 1) return `${diffDays}天前`;
-  return `${Math.abs(diffDays)}天后`;
+  if (diffDays === 0) return t('relative.today');
+  if (diffDays === 1) return t('relative.yesterday');
+  if (diffDays === -1) return t('relative.tomorrow');
+  if (diffDays > 1) return t('relative.daysAgo', { count: diffDays });
+  return t('relative.daysLater', { count: Math.abs(diffDays) });
 }
