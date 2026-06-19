@@ -1,0 +1,32 @@
+{
+  "purge": {
+    "confirmTitle": "永久删除",
+    "confirmMessage": "永久删除后无法从回收站恢复；若已登录，同步时也会从云端清除且不可通过「从云端合并」找回。确定继续？",
+    "confirmOk": "永久删除",
+    "buttonLabel": "永久删除",
+    "accessibilityLabel": "永久删除这条记录",
+    "successToast": "已永久删除"
+  },
+  "restore": {
+    "title": "恢复记录",
+    "messagePrefix": "将「",
+    "messageSuffix": "」移回主列表？",
+    "confirm": "恢复",
+    "buttonLabel": "恢复",
+    "accessibilityLabel": "恢复这条记录",
+    "emptyPreview": "这条记录"
+  },
+  "card": {
+    "deletedAtPrefix": "删除于",
+    "noTextContent": "（无文字内容）",
+    "audioCount": "{{count}}条语音"
+  },
+  "screen": {
+    "title": "回收站"
+  },
+  "footnote": "这里是你从主列表移出的记录。可恢复至首页，或永久删除（不可从回收站找回）。",
+  "emptyState": {
+    "title": "回收站是空的",
+    "body": "删除记录时会暂存在这里，方便你误删后找回"
+  }
+}

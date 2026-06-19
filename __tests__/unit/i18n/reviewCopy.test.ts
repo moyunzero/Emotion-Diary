@@ -24,9 +24,21 @@ describe("review export copy via i18n", () => {
     expect(i18n.t("presets.this_month", { ns: "review" })).toMatch(/month/i);
   });
 
-  it("canvas rateLabel en-US", async () => {
+  it("canvas footerBrand en-US", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("en-US");
-    expect(i18n.t("canvas.rateLabel", { ns: "review" }).length).toBeGreaterThan(0);
+    expect(i18n.t("canvas.footerBrand", { ns: "review" })).toMatch(/MoodMO|心晴/i);
+  });
+
+  it("a11y exportRange en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    const label = i18n.t("a11y.exportRange", {
+      ns: "review",
+      start: "Jun 1",
+      end: "Jun 19",
+    });
+    expect(label).toMatch(/Review period/i);
+    expect(label).toMatch(/Jun 1/);
   });
 });

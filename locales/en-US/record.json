@@ -8,7 +8,7 @@
     "mood": { "title": "How are you feeling?" },
     "content": {
       "title": "What happened?",
-      "placeholder": "Whether it's hurt, anger, or sadness — you can write it here...",
+      "placeholder": "Hurt, anger, sadness — write it here",
       "accessibilityLabel": "Mood content input",
       "accessibilityHint": "Describe what you're feeling and what happened"
     },
@@ -86,13 +86,13 @@
   },
   "audio": {
     "recordButton": {
-      "disabled": "Recording unavailable",
+      "disabled": "Mic unavailable",
       "holdToTalk": "Hold to talk",
-      "releaseToStop": "Release to finish",
+      "releaseToStop": "Release to end",
       "preparing": "Preparing...",
       "releaseToCancel": "Release to cancel",
       "processing": "Processing...",
-      "addVoice": "Add voice note"
+      "addVoice": "Add voice"
     },
     "list": {
       "headerTitle": "Voice notes",

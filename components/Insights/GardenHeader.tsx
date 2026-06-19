@@ -54,7 +54,9 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
         <Flower2 size={28} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>{t('header.title')}</Text>
       </View>
-      <Text style={styles.subtitle}>{getGardenStatus()}</Text>
+      <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
+        {getGardenStatus()}
+      </Text>
     </View>
   );
 };

@@ -217,6 +217,9 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                       styles.moodLabel,
                       isSelected && styles.moodLabelSelected,
                     ]}
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.8}
                   >
                     {moodLabel}
                   </Text>

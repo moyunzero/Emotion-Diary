@@ -5,6 +5,7 @@
 
 import { Frown } from 'lucide-react-native';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { logger } from '../utils/logger';
 import AppIcon from './icons/AppIcon';
@@ -20,9 +21,45 @@ interface State {
   error: Error | null;
 }
 
+type ErrorFallbackProps = {
+  error: Error;
+  onReset: () => void;
+};
+
+function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
+  const { t } = useTranslation('common');
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <AppIcon name={Frown} size={64} color="#DC2626" strokeWidth={2} />
+        </View>
+        <Text style={styles.title}>{t('shell.error.title')}</Text>
+        <Text style={styles.message}>{t('shell.error.message')}</Text>
+
+        {__DEV__ && (
+          <View style={styles.errorDetails}>
+            <Text style={styles.errorTitle}>{t('shell.error.devDetailsTitle')}</Text>
+            <Text style={styles.errorText}>{error.message}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onReset}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonText}>{t('shell.error.retry')}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 /**
  * Error Boundary 组件
- * 
+ *
  * @example
  * ```tsx
  * <ErrorBoundary>
@@ -47,13 +84,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // 记录错误到日志系统
     logger.error('ErrorBoundary', error.message, {
       stack: error.stack,
       componentStack: errorInfo.componentStack,
     });
 
-    // 在开发环境输出详细错误信息
     if (__DEV__) {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
@@ -68,39 +103,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render(): ReactNode {
     if (this.state.hasError && this.state.error) {
-      // 如果提供了自定义 fallback，使用它
       if (this.props.fallback) {
         return this.props.fallback(this.state.error, this.resetError);
       }
 
-      // 默认错误UI
       return (
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <View style={styles.iconContainer}>
-              <AppIcon name={Frown} size={64} color="#DC2626" strokeWidth={2} />
-            </View>
-            <Text style={styles.title}>哎呀，出了点小问题</Text>
-            <Text style={styles.message}>
-              应用遇到了一个意外错误，但你的数据是安全的
-            </Text>
-            
-            {__DEV__ && (
-              <View style={styles.errorDetails}>
-                <Text style={styles.errorTitle}>错误详情（开发模式）：</Text>
-                <Text style={styles.errorText}>{this.state.error.message}</Text>
-              </View>
-            )}
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={this.resetError}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.buttonText}>重新加载</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <ErrorFallback error={this.state.error} onReset={this.resetError} />
       );
     }
 

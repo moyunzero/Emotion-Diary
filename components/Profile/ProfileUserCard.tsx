@@ -68,7 +68,7 @@ export function ProfileUserCard({
         {isLoggedIn ? (
           <>
             <Text style={profileStyles.userName} numberOfLines={1}>
-              {name ?? "未设置昵称"}
+              {name ?? t("userCard.noName")}
             </Text>
             <Text style={profileStyles.userHandle} numberOfLines={1}>
               {handle ?? ""}
@@ -81,8 +81,8 @@ export function ProfileUserCard({
           </>
         ) : (
           <TouchableOpacity onPress={onPress} accessibilityRole="button">
-            <Text style={profileStyles.loginTitle}>点击登录</Text>
-            <Text style={profileStyles.loginSubtitle}>开启您的情绪之旅</Text>
+            <Text style={profileStyles.loginTitle}>{t("userCard.tapToLogin")}</Text>
+            <Text style={profileStyles.loginSubtitle}>{t("userCard.loginSubtitle")}</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -1,0 +1,32 @@
+{
+  "purge": {
+    "confirmTitle": "Delete forever",
+    "confirmMessage": "Once deleted, this entry can't be restored from the recycle bin. If you're signed in, sync will remove it from the cloud too — merging from cloud won't bring it back. Continue?",
+    "confirmOk": "Delete forever",
+    "buttonLabel": "Delete forever",
+    "accessibilityLabel": "Delete this entry forever",
+    "successToast": "Deleted forever"
+  },
+  "restore": {
+    "title": "Restore entry",
+    "messagePrefix": "Move 「",
+    "messageSuffix": "」 back to your main list?",
+    "confirm": "Restore",
+    "buttonLabel": "Restore",
+    "accessibilityLabel": "Restore this entry",
+    "emptyPreview": "this entry"
+  },
+  "card": {
+    "deletedAtPrefix": "Deleted on",
+    "noTextContent": "(No text content)",
+    "audioCount": "{{count}} voice note(s)"
+  },
+  "screen": {
+    "title": "Recycle bin"
+  },
+  "footnote": "Entries you remove from the main list land here. Restore them to the home screen, or delete forever (no undo from the bin).",
+  "emptyState": {
+    "title": "Recycle bin is empty",
+    "body": "When you delete an entry, it stays here so you can recover mistakes"
+  }
+}

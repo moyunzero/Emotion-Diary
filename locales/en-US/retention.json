@@ -1,0 +1,48 @@
+{
+  "dailyReminder": {
+    "title": "Mood check-in reminder",
+    "subtextEnabled": "A gentle nudge every day at {{hour}}:{{minute}}",
+    "subtextDisabled": "Off by default; local notifications only — no diary content"
+  },
+  "weeklyReview": {
+    "toggleTitle": "Weekend review reminder",
+    "toggleSubtext": "Saturday 10:00 — time to create your weekly review"
+  },
+  "enableConfirm": {
+    "title": "Turn on mood reminders",
+    "message": "{{appName}} will send a local notification at your chosen time, inviting you to spend a minute on your mood. No diary text is included, and nothing is uploaded to the cloud.",
+    "ok": "Turn on",
+    "cancel": "Not now"
+  },
+  "permissionDenied": "Notification permission was denied — we can't remind you at the scheduled time",
+  "webReminderUnsupported": "Local notifications aren't supported on web — please use the app",
+  "dailyNotification": {
+    "title": "MoodMO",
+    "body": "How was your day? Take a minute to check in with yourself"
+  },
+  "weeklyNotification": {
+    "title": "MoodMO · Weekly review",
+    "body": "Your week deserves to be seen — create your review"
+  },
+  "revisitBanner": {
+    "titleToday": "You haven't logged today yet",
+    "titleDaysAgo": "Your last entry was {{days}} days ago",
+    "action": "Log now",
+    "dismiss": "Not today"
+  },
+  "weeklyBanner": {
+    "title": "Your weekly review is ready",
+    "body": "Gather this week's moods into one review image",
+    "action": "Create last week's review",
+    "dismiss": "Skip this week"
+  },
+  "quickForm": {
+    "expand": "More options",
+    "collapse": "Hide extras"
+  },
+  "androidChannelName": "Mood reminders",
+  "toasts": {
+    "dailyEnabled": "Mood check-in reminders are on",
+    "enableDailyFirst": "Turn on mood check-in reminders first"
+  }
+}

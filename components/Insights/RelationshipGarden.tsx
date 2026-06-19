@@ -62,12 +62,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           flexDirection: 'row',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
-          gap: layout.gridGap,
+          rowGap: layout.gridGap + 4,
         },
         potItem: {
           alignItems: 'center',
-          width: layout.gridItemWidth,
-          minWidth: 80,
+          width: '48%',
+          minWidth: 120,
         },
         pot: {
           width: 56,
@@ -85,14 +85,18 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           textAlign: 'center',
         },
         statusBadge: {
-          paddingHorizontal: 8,
+          paddingHorizontal: 6,
           paddingVertical: 2,
           borderRadius: 10,
           marginBottom: 3,
+          maxWidth: '100%',
+          alignSelf: 'stretch',
+          alignItems: 'center',
         },
         statusText: {
-          fontSize: fontSize.small,
+          fontSize: fontSize.small - 1,
           fontWeight: 'bold',
+          textAlign: 'center',
         },
         statsText: {
           fontSize: fontSize.small,
@@ -173,7 +177,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             bloomingColor: INSIGHTS_COLORS.bloomingColor,
             growingColor: INSIGHTS_COLORS.growingColor,
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
-          });
+          }, t);
           return (
             <View key={person.name} style={styles.potItem}>
               {/* 花盆图标 */}
@@ -186,12 +190,17 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               </Text>
               {/* 状态标签 */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
-                <Text style={[styles.statusText, { color: potStatus.color }]}>
+                <Text
+                  style={[styles.statusText, { color: potStatus.color }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
                   {potStatus.label}
                 </Text>
               </View>
               {/* 统计 */}
-              <Text style={styles.statsText}>
+              <Text style={styles.statsText} numberOfLines={1}>
                 {t('relationship.healedCount', {
                   resolved: person.resolved,
                   total: person.total,

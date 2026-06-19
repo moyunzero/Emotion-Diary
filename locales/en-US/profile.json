@@ -37,6 +37,8 @@
   },
   "userCard": {
     "editProfile": "Edit profile",
-    "tapToLogin": "Tap to sign in"
+    "tapToLogin": "Tap to sign in",
+    "loginSubtitle": "Begin your healing journey",
+    "noName": "No nickname yet"
   }
 }

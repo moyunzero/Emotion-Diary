@@ -2,7 +2,7 @@
   "prompts": {
     "closing": {
       "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Write like a caring friend in English. No corporate tone, no medical promises. Use garden or weather metaphors, acknowledge {{userName}}'s effort, and offer one insightful sentence. Respond in English only. Output plain text only — no title, list, or markdown.",
-      "user": "Write a gentle one-sentence summary (~80–120 words) in second person, using garden or weather metaphors where natural. Do not invent numbers.\n\n- Period: {{presetLabel}}\n- Range: {{periodStart}} – {{periodEnd}}\n- Day {{companionDays}} with Mood Diary\n- {{rateLine}}\n- {{deltaLine}}\n- {{totalEntries}} entries this period, {{resolvedEntries}} resolved\n- Top weather: {{topWeather}}\n- Top triggers: {{topTriggers}}\n\nRespond in English only. Output one paragraph of English text.",
+      "user": "Write a gentle one-sentence summary (~80–120 words) in second person, using garden or weather metaphors where natural. Do not invent numbers.\n\n- Period: {{presetLabel}}\n- Range: {{periodStart}} – {{periodEnd}}\n- Day {{companionDays}} with MoodMO\n- {{rateLine}}\n- {{deltaLine}}\n- {{totalEntries}} entries this period, {{resolvedEntries}} resolved\n- Top weather: {{topWeather}}\n- Top triggers: {{topTriggers}}\n\nRespond in English only. Output one paragraph of English text.",
       "rateNoData": "Resolution rate this period: N/A",
       "rateWithValue": "Resolution rate this period: {{pct}}%",
       "deltaNoData": "Vs previous period: no comparison",
@@ -27,7 +27,7 @@
       "empty": "No mood entries yet — start recording how you feel.",
       "rateNoData": "No resolution rate for this period",
       "rateWithValue": "Resolution rate is {{pct}}%",
-      "default": "In {{presetLabel}}, you logged {{totalEntries}} entries and resolved {{resolvedEntries}}. {{rateText}}. Every entry deserves kindness — Mood Diary is here for you."
+      "default": "In {{presetLabel}}, you logged {{totalEntries}} entries and resolved {{resolvedEntries}}. {{rateText}}. Every entry deserves kindness — MoodMO is here for you."
     },
     "podcast": {
       "empty": "No mood entries yet — start recording how you feel.",
@@ -103,7 +103,7 @@
       "periodReviewMonth": "This month recap",
       "shareTitle": "Mood recap",
       "shareMessagePrefix": "My mood recap\n\n",
-      "shareMessageSuffix": "\n\nFrom Mood Diary ❤️"
+      "shareMessageSuffix": "\n\nFrom MoodMO ❤️"
     }
   }
 }

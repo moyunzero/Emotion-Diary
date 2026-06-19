@@ -92,6 +92,12 @@
       "rainy": "有雨",
       "stormy": "暴风雨"
     },
+    "descriptions": {
+      "sunny": "相处不错哦~",
+      "cloudy": "有些小情绪，需要关注",
+      "rainy": "建议安排一次深度沟通",
+      "stormy": "雷雨天，先照顾好自己，再慢慢沟通"
+    },
     "forecast": {
       "title": "情绪预报",
       "generate": "生成预测",

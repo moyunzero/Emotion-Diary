@@ -92,6 +92,12 @@
       "rainy": "Rainy",
       "stormy": "Stormy"
     },
+    "descriptions": {
+      "sunny": "Things are going well~",
+      "cloudy": "Some small feelings need attention",
+      "rainy": "Consider scheduling a deeper conversation",
+      "stormy": "A stormy day — care for yourself first, talk when it settles"
+    },
     "forecast": {
       "title": "Emotion forecast",
       "generate": "Generate forecast",

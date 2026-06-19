@@ -139,6 +139,14 @@ const WeatherStationComponent: React.FC = () => {
       : translated;
   }, [weather.condition, t]);
 
+  const descriptionLabel = useMemo(() => {
+    const key = `weatherStation.descriptions.${weather.condition}` as const;
+    const translated = t(key);
+    return translated === key
+      ? t('weatherStation.descriptions.sunny')
+      : translated;
+  }, [weather.condition, t]);
+
   return (
     <View>
       <Animated.View style={[styles.container, { backgroundColor: currentWeather.bgColor }]}>
@@ -156,7 +164,7 @@ const WeatherStationComponent: React.FC = () => {
         </View>
         
         <Text style={[styles.description, { color: currentWeather.textColor }]}>
-          {weather.description}
+          {descriptionLabel}
         </Text>
         
         <View style={styles.details}>

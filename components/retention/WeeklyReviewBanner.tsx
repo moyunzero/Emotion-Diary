@@ -2,7 +2,6 @@
  * 周回顾触达（A3）：周末应用内提示生成回顾图。
  */
 
-import { RETENTION_COPY } from "@/constants/retentionCopy";
 import {
   getIsoWeekKey,
   shouldShowWeeklyReviewBanner,
@@ -11,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { ImageIcon, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Pressable,
   Text,
@@ -28,6 +28,7 @@ type WeeklyReviewBannerProps = {
 
 export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
   const router = useRouter();
+  const { t } = useTranslation("retention");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createWeeklyReviewBannerStyles(width, height),
@@ -66,13 +67,13 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
       <View style={styles.row}>
         <ImageIcon size={18} color="#3B82F6" />
         <View style={styles.textCol}>
-          <Text style={styles.title}>{RETENTION_COPY.weeklyBannerTitle}</Text>
-          <Text style={styles.body}>{RETENTION_COPY.weeklyBannerBody}</Text>
+          <Text style={styles.title}>{t("weeklyBanner.title")}</Text>
+          <Text style={styles.body}>{t("weeklyBanner.body")}</Text>
         </View>
         <TouchableOpacity
           onPress={handleDismiss}
           accessibilityRole="button"
-          accessibilityLabel={RETENTION_COPY.weeklyBannerDismiss}
+          accessibilityLabel={t("weeklyBanner.dismiss")}
         >
           <X size={18} color="#9CA3AF" />
         </TouchableOpacity>
@@ -85,9 +86,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
         onPress={handleOpen}
         accessibilityRole="button"
       >
-        <Text style={styles.actionText}>
-          {RETENTION_COPY.weeklyBannerAction}
-        </Text>
+        <Text style={styles.actionText}>{t("weeklyBanner.action")}</Text>
       </Pressable>
     </View>
   );

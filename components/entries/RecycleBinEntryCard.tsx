@@ -4,7 +4,8 @@
 
 import { MOOD_CONFIG } from "@/constants";
 import { getDeadlineLabel, getMoodLabel } from "@/i18n/moodLabels";
-import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
+import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
+import { useAppStore } from "@/store/useAppStore";
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { createResponsiveMetrics } from "@/shared/responsive";
 import { MoodEntry, MoodLevel } from "@/types";
@@ -193,6 +194,7 @@ export function RecycleBinEntryCard({
   onPurge,
 }: RecycleBinEntryCardProps) {
   const { t } = useTranslation("recycle");
+  const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createRecycleBinEntryCardStyles(width, height),
@@ -203,10 +205,19 @@ export function RecycleBinEntryCard({
   const trimmed = entry.content.trim();
   const hasAudio = (entry.audios?.length ?? 0) > 0;
   const isBusy = isRestoring || isPurging;
-  const peopleLabel = entry.people?.filter(Boolean).map(resolvePeopleLabel).join(", ");
+  const peopleLabel = useMemo(
+    () => entry.people?.filter(Boolean).map(resolvePeopleLabel).join(", "),
+    [entry.people, effectiveLocale],
+  );
   const titleText = peopleLabel || getMoodLabel(entry.moodLevel);
-  const deadlineLabel = getDeadlineLabel(entry.deadline);
-  const triggers = entry.triggers?.filter(Boolean) ?? [];
+  const deadlineLabel = useMemo(
+    () => getDeadlineLabel(entry.deadline),
+    [entry.deadline, effectiveLocale],
+  );
+  const resolvedTriggers = useMemo(
+    () => (entry.triggers?.filter(Boolean) ?? []).map(resolveTriggerLabel),
+    [entry.triggers, effectiveLocale],
+  );
 
   return (
     <View style={styles.wrapper} testID="recycle-bin-entry-card">
@@ -233,16 +244,19 @@ export function RecycleBinEntryCard({
               <Text style={styles.contentText} numberOfLines={3} accessibilityLabel={entry.content}>
                 {trimmed || t("card.noTextContent")}
               </Text>
-              {deadlineLabel || triggers.length > 0 || hasAudio ? (
+              {deadlineLabel || resolvedTriggers.length > 0 || hasAudio ? (
                 <View style={styles.tagsContainer}>
                   {deadlineLabel ? (
                     <View style={styles.deadlineTag}>
                       <Text style={styles.deadlineText}>{deadlineLabel}</Text>
                     </View>
                   ) : null}
-                  {triggers.map((t) => (
-                    <View key={t} style={styles.triggerTag}>
-                      <Text style={styles.triggerText}>#{t}</Text>
+                  {resolvedTriggers.map((label, index) => (
+                    <View
+                      key={`${entry.triggers?.[index] ?? label}-${index}`}
+                      style={styles.triggerTag}
+                    >
+                      <Text style={styles.triggerText}>#{label}</Text>
                     </View>
                   ))}
                   {hasAudio ? (

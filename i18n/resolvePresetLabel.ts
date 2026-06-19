@@ -1,42 +1,53 @@
 import { PEOPLE_KEYS, TRIGGER_KEYS } from "../constants";
+import enRecord from "../locales/en-US/record.json";
+import zhRecord from "../locales/zh-Hans/record.json";
 import { i18n } from "./index";
 
 const PEOPLE_KEY_SET = new Set<string>(PEOPLE_KEYS);
 const TRIGGER_KEY_SET = new Set<string>(TRIGGER_KEYS);
 
-const LEGACY_PEOPLE_ZH: Record<string, (typeof PEOPLE_KEYS)[number]> = {
-  男朋友: "boyfriend",
-  女朋友: "girlfriend",
-  老公: "husband",
-  老婆: "wife",
-  朋友: "friend",
-  其他: "other",
-};
+function buildLabelToKeyMap(
+  presets: Record<string, string>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, label] of Object.entries(presets)) {
+    out[label] = key;
+  }
+  return out;
+}
 
-const LEGACY_TRIGGER_ZH: Record<string, (typeof TRIGGER_KEYS)[number]> = {
-  工作: "work",
-  学习: "study",
-  家庭: "family",
-  朋友: "friends",
-  沟通: "communication",
-  信任: "trust",
-  隐私: "privacy",
-  其他: "other",
-};
+const LEGACY_PEOPLE_ZH = buildLabelToKeyMap(
+  zhRecord.presets.people,
+) as Record<string, (typeof PEOPLE_KEYS)[number]>;
+const LEGACY_PEOPLE_EN = buildLabelToKeyMap(
+  enRecord.presets.people,
+) as Record<string, (typeof PEOPLE_KEYS)[number]>;
+const LEGACY_TRIGGER_ZH = buildLabelToKeyMap(
+  zhRecord.presets.triggers,
+) as Record<string, (typeof TRIGGER_KEYS)[number]>;
+const LEGACY_TRIGGER_EN = buildLabelToKeyMap(
+  enRecord.presets.triggers,
+) as Record<string, (typeof TRIGGER_KEYS)[number]>;
 
 function resolvePresetKey(
   raw: string,
   keySet: Set<string>,
-  legacyMap: Record<string, string>,
+  legacyZh: Record<string, string>,
+  legacyEn: Record<string, string>,
 ): string | null {
   if (keySet.has(raw)) {
     return raw;
   }
-  return legacyMap[raw] ?? null;
+  return legacyZh[raw] ?? legacyEn[raw] ?? null;
 }
 
 export function resolvePeopleLabel(raw: string): string {
-  const key = resolvePresetKey(raw, PEOPLE_KEY_SET, LEGACY_PEOPLE_ZH);
+  const key = resolvePresetKey(
+    raw,
+    PEOPLE_KEY_SET,
+    LEGACY_PEOPLE_ZH,
+    LEGACY_PEOPLE_EN,
+  );
   if (key) {
     return i18n.t(`presets.people.${key}` as "presets.people.boyfriend", {
       ns: "record",
@@ -46,7 +57,12 @@ export function resolvePeopleLabel(raw: string): string {
 }
 
 export function resolveTriggerLabel(raw: string): string {
-  const key = resolvePresetKey(raw, TRIGGER_KEY_SET, LEGACY_TRIGGER_ZH);
+  const key = resolvePresetKey(
+    raw,
+    TRIGGER_KEY_SET,
+    LEGACY_TRIGGER_ZH,
+    LEGACY_TRIGGER_EN,
+  );
   if (key) {
     return i18n.t(`presets.triggers.${key}` as "presets.triggers.work", {
       ns: "record",
@@ -55,11 +71,30 @@ export function resolveTriggerLabel(raw: string): string {
   return raw;
 }
 
+function resolveTriggerKey(raw: string): (typeof TRIGGER_KEYS)[number] | null {
+  return resolvePresetKey(
+    raw,
+    TRIGGER_KEY_SET,
+    LEGACY_TRIGGER_ZH,
+    LEGACY_TRIGGER_EN,
+  ) as (typeof TRIGGER_KEYS)[number] | null;
+}
+
 export function resolveTriggerAdvice(raw: string): string {
-  const key = resolvePresetKey(raw, TRIGGER_KEY_SET, LEGACY_TRIGGER_ZH);
+  const key = resolveTriggerKey(raw);
   const adviceKey = (key ?? "other") as (typeof TRIGGER_KEYS)[number];
   return i18n.t(
     `triggers.advice.${adviceKey}` as `triggers.advice.${(typeof TRIGGER_KEYS)[number]}`,
+    { ns: "insights" },
+  );
+}
+
+/** Compact advice for cards and action-loop UI (INS-02 / adviceShort). */
+export function resolveTriggerAdviceShort(raw: string): string {
+  const key = resolveTriggerKey(raw);
+  const adviceKey = (key ?? "other") as (typeof TRIGGER_KEYS)[number];
+  return i18n.t(
+    `triggers.adviceShort.${adviceKey}` as `triggers.adviceShort.${(typeof TRIGGER_KEYS)[number]}`,
     { ns: "insights" },
   );
 }

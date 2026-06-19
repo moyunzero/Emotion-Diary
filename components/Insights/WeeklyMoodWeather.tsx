@@ -126,13 +126,13 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
               ]}
             >
               <Text style={[styles.weekday, today && styles.todayText]}>
-                {getWeekdayName(date)}
+                {getWeekdayName(date, t)}
               </Text>
               <View style={styles.iconContainer}>
                 {getMoodWeatherIcon(moodLevel, 28)}
               </View>
               <Text style={[styles.status, today && styles.todayText]}>
-                {getMoodFlowerStatus(moodLevel)}
+                {getMoodFlowerStatus(moodLevel, t)}
               </Text>
             </View>
           );

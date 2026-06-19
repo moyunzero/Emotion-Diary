@@ -39,6 +39,12 @@ describe("bilingual end-to-end copy smoke", () => {
     expect(i18n.t("index", { ns: "tabs" })).toBe("Weather");
     expect(i18n.t("record", { ns: "tabs" })).toBe("Record");
     expect(i18n.t("insights", { ns: "tabs" })).toBe("Garden");
+    expect(i18n.t("stats.entriesLabel", { ns: "profile" })).toBe("Mood entries");
+    expect(i18n.t("stats.weatherScoreLabel", { ns: "profile" })).toBe("Mood index");
+    expect(i18n.t("weatherStation.descriptions.stormy", { ns: "dashboard" })).toMatch(
+      /care for yourself/i,
+    );
+    expect(i18n.t("utils.weekdays.1", { ns: "insights" })).toMatch(/mon/i);
   });
 
   it("same path keys zh-Hans locked", async () => {
@@ -62,5 +68,11 @@ describe("bilingual end-to-end copy smoke", () => {
     expect(i18n.t("index", { ns: "tabs" })).toBe("气象站");
     expect(i18n.t("record", { ns: "tabs" })).toBe("记一笔");
     expect(i18n.t("insights", { ns: "tabs" })).toBe("花园");
+    expect(i18n.t("stats.entriesLabel", { ns: "profile" })).toBe("心事记录");
+    expect(i18n.t("stats.weatherScoreLabel", { ns: "profile" })).toBe("心情指数");
+    expect(i18n.t("weatherStation.descriptions.stormy", { ns: "dashboard" })).toBe(
+      "雷雨天，先照顾好自己，再慢慢沟通",
+    );
+    expect(i18n.t("utils.weekdays.1", { ns: "insights" })).toBe("周一");
   });
 });

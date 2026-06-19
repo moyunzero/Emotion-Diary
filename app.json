@@ -66,8 +66,8 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "Mood Diary accesses your photo library only when you save an emotion review image.",
-          "savePhotosPermission": "Mood Diary saves your emotion review image to your photo library when you tap Save.",
+          "photosPermission": "MoodMO accesses your photo library only when you save an emotion review image.",
+          "savePhotosPermission": "MoodMO saves your emotion review image to your photo library when you tap Save.",
           "granularPermissions": [
             "photo"
           ]

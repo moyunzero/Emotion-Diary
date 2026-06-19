@@ -1,0 +1,31 @@
+{
+  "level": {
+    "1": {
+      "label": "Hurt",
+      "description": "A gentle ache, like light rain on your heart — you deserve understanding and comfort."
+    },
+    "2": {
+      "label": "Low",
+      "description": "Clouds have dimmed the sunshine — give yourself time and space to breathe."
+    },
+    "3": {
+      "label": "Mad",
+      "description": "Storm clouds are gathering — your feelings deserve to be heard and expressed."
+    },
+    "4": {
+      "label": "Furious",
+      "description": "Lightning across the sky — pause, ground yourself, and seek honest conversation."
+    },
+    "5": {
+      "label": "Storm",
+      "description": "Thunder and lightning — this intensity needs care, calm, and space to settle."
+    }
+  },
+  "deadline": {
+    "today": { "label": "Talk today" },
+    "week": { "label": "This week" },
+    "month": { "label": "This month" },
+    "later": { "label": "Later" },
+    "self": { "label": "On my own" }
+  }
+}

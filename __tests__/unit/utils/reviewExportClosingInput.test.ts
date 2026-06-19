@@ -14,9 +14,9 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   removeItem: jest.fn(),
 }));
 
-import { MoodEntry, MoodLevel, Status } from '../../../types';
-import { buildReviewExportClosingSummary } from '../../../utils/reviewExportClosingInput';
-import { computeReviewExportDerivedState } from '../../../utils/reviewExportDerived';
+import { MoodEntry, MoodLevel, Status } from '@/types';
+import { buildReviewExportClosingSummary } from '@/utils/reviewExportClosingInput';
+import { computeReviewExportDerivedState } from '@/utils/reviewExportDerived';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function makeEntry(overrides: Partial<MoodEntry> = {}): MoodEntry {
@@ -37,6 +37,13 @@ const NOW = new Date('2025-03-15T12:00:00.000Z');
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 describe('buildReviewExportClosingSummary', () => {
+  beforeAll(async () => {
+    const { initI18n } = await import('@/i18n');
+    await initI18n();
+    const { i18n } = await import('@/i18n');
+    await i18n.changeLanguage('zh-Hans');
+  });
+
   it('returns the same closingSummary as computeReviewExportDerivedState', () => {
     const marchStart = new Date('2025-03-01T00:00:00.000Z').getTime();
     const entries = [

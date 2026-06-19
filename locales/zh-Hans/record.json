@@ -8,7 +8,7 @@
     "mood": { "title": "此刻的心情是？" },
     "content": {
       "title": "发生了什么？",
-      "placeholder": "无论是委屈、愤怒还是难过，都可以写下来...",
+      "placeholder": "委屈、生气、难过…都可以写在这里",
       "accessibilityLabel": "情绪内容输入框",
       "accessibilityHint": "在这里输入你的情绪和感受，描述发生了什么"
     },

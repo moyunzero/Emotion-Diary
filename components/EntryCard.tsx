@@ -135,14 +135,17 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const moodConfig =
     MOOD_CONFIG[entry.moodLevel] || MOOD_CONFIG[MoodLevel.ANNOYED];
-  const deadlineLabel = getDeadlineLabel(entry.deadline);
+  const deadlineLabel = useMemo(
+    () => getDeadlineLabel(entry.deadline),
+    [entry.deadline, effectiveLocale],
+  );
   const resolvedPeopleLabels = useMemo(
     () => (entry.people ?? []).map(resolvePeopleLabel),
-    [entry.people],
+    [entry.people, effectiveLocale],
   );
   const resolvedTriggerLabels = useMemo(
     () => (entry.triggers ?? []).map(resolveTriggerLabel),
-    [entry.triggers],
+    [entry.triggers, effectiveLocale],
   );
   const peopleDisplay = resolvedPeopleLabels.join(", ");
   const peopleA11y =

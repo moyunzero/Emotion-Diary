@@ -4,6 +4,7 @@
 
 import { ChevronLeft, X } from 'lucide-react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Pressable,
     StyleProp,
@@ -49,6 +50,7 @@ export function StackScreenHeader({
   sideSlotWidth,
   style,
 }: StackScreenHeaderProps) {
+  const { t } = useTranslation('common');
   const { tokens, screenHeader } = useThemeStyles();
   const slotW = sideSlotWidth ?? screenHeader.sideSlotWidth;
   const resolvedTitleColor = titleColor ?? screenHeader.titleColor;
@@ -56,7 +58,8 @@ export function StackScreenHeader({
   const showLeading = Boolean(onBack);
   const showTitle = title.length > 0;
   const showCustomCenter = headerCenter != null && headerCenter !== false;
-  const defaultBackLabel = leading === 'close' ? '关闭' : '返回';
+  const defaultBackLabel =
+    leading === 'close' ? t('shell.close') : t('shell.back');
   const resolvedBackLabel = backAccessibilityLabel ?? defaultBackLabel;
 
   return (

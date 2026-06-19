@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Platform } from "react-native";
 
-import { RETENTION_COPY } from "@/constants/retentionCopy";
+import { i18n } from "@/i18n";
 import {
   applyEmotionReminderSchedule,
   requestReminderPermissions,
@@ -50,16 +50,19 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
 
     const confirmEnable = await new Promise<boolean>((resolve) => {
       Alert.alert(
-        RETENTION_COPY.enableConfirmTitle,
-        RETENTION_COPY.enableConfirmMessage,
+        i18n.t("enableConfirm.title", { ns: "retention" }),
+        i18n.t("enableConfirm.message", {
+          ns: "retention",
+          appName: i18n.t("appName", { ns: "common" }),
+        }),
         [
           {
-            text: RETENTION_COPY.enableConfirmCancel,
+            text: i18n.t("enableConfirm.cancel", { ns: "retention" }),
             style: "cancel",
             onPress: () => resolve(false),
           },
           {
-            text: RETENTION_COPY.enableConfirmOk,
+            text: i18n.t("enableConfirm.ok", { ns: "retention" }),
             onPress: () => resolve(true),
           },
         ],
@@ -71,7 +74,9 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
     const perm = await requestReminderPermissions();
     if (!perm.ok) {
       setToast({
-        message: perm.message ?? RETENTION_COPY.permissionDenied,
+        message:
+          perm.message ??
+          i18n.t("permissionDenied", { ns: "retention" }),
         type: "info",
       });
       return;
@@ -81,13 +86,16 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
       ...reminderSettings,
       dailyReminderEnabled: true,
     });
-    setToast({ message: "已开启情绪记录提醒", type: "success" });
+    setToast({
+      message: i18n.t("toasts.dailyEnabled", { ns: "retention" }),
+      type: "success",
+    });
   }, [reminderSettings, persistSettings, setToast]);
 
   const toggleWeeklyReviewNotification = useCallback(async () => {
     if (!reminderSettings.dailyReminderEnabled) {
       setToast({
-        message: "请先开启情绪记录提醒",
+        message: i18n.t("toasts.enableDailyFirst", { ns: "retention" }),
         type: "info",
       });
       return;
@@ -97,7 +105,9 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
       const perm = await requestReminderPermissions();
       if (!perm.ok) {
         setToast({
-          message: perm.message ?? RETENTION_COPY.permissionDenied,
+          message:
+            perm.message ??
+            i18n.t("permissionDenied", { ns: "retention" }),
           type: "info",
         });
         return;

@@ -2,9 +2,9 @@
   "header": {
     "title": "我的心灵花园",
     "status": {
-      "empty": "开始种下你的第一颗种子吧",
-      "thriving": "你的花园正在茁壮成长",
-      "needsWater": "记得给花园浇浇水哦"
+      "empty": "种下第一颗种子吧",
+      "thriving": "茁壮成长",
+      "needsWater": "该浇水啦"
     }
   },
   "empty": {
@@ -24,44 +24,44 @@
         "text": "花园会记录你的每一步"
       }
     },
-    "encouragement": "点击下方「记录」开始你的治愈之旅 ✨"
+    "encouragement": "点击下方「记录」开始 ✨"
   },
-  "reviewCta": "生成情绪回顾图",
+  "reviewCta": "生成回顾",
   "weeklyWeather": {
     "title": "本周情绪天气"
   },
   "healing": {
     "title": "治愈进度",
     "stats": {
-      "bloomed": "朵情绪小花绽放",
-      "pending": "颗种子等待发芽"
+      "bloomed": "已和解",
+      "pending": "待处理"
     },
-    "encouragement": "每一次面对情绪，都是在浇灌自己的心灵"
+    "encouragement": "面对情绪，就是在浇灌自己"
   },
   "relationship": {
     "title": "关系花园",
-    "subtitle": "这些关系需要你的关注",
+    "subtitle": "需要你的关注",
     "empty": {
-      "title": "还没有种下关系的种子",
-      "hint": "记录情绪时添加相关的人吧"
+      "title": "还没有关系的种子",
+      "hint": "记录时添加相关的人吧"
     },
-    "healedCount": "{{resolved}}/{{total}} 已治愈"
+    "healedCount": "{{resolved}}/{{total}} 和解"
   },
   "triggers": {
     "title": "情绪触发洞察",
-    "subtitle": "了解什么容易影响你的情绪",
+    "subtitle": "什么容易影响你的情绪",
     "empty": {
-      "needMore": "再记录 {{remaining}} 条情绪即可查看洞察",
-      "noData": "还没有足够的数据",
-      "hint": "记录更多情绪来获取洞察吧",
+      "needMore": "再记 {{remaining}} 条可查看",
+      "noData": "数据还不够",
+      "hint": "多记录一些再来看看",
       "progress": "{{current}}/{{min}}"
     },
     "countSuffix": "次",
     "actionLoop": {
-      "title": "行动闭环（心晴MO 特色）",
-      "stepTrigger": "1. 触发源：{{trigger}}",
-      "stepAction": "2. 本次行动：{{stepOne}}",
-      "stepRevisit": "3. 回访时间：{{date}} 再看一次情绪变化"
+      "title": "行动闭环",
+      "stepTrigger": "1. 触发：{{trigger}}",
+      "stepAction": "2. 试试：{{stepOne}}",
+      "stepRevisit": "3. {{date}} 再看变化"
     },
     "advice": {
       "work": "给自己的花园放个假吧，休息也是成长的一部分",
@@ -72,6 +72,16 @@
       "trust": "信任是需要时间慢慢浇灌的，给彼此一些耐心",
       "privacy": "每朵花都需要自己的空间，尊重边界很重要",
       "other": "每一次情绪都是了解自己的机会"
+    },
+    "adviceShort": {
+      "work": "给花园放个假",
+      "study": "压力会过去，坚持就好",
+      "family": "摩擦也是修剪",
+      "friends": "主动表达关心",
+      "communication": "用「我感到…」开头",
+      "trust": "给彼此一点耐心",
+      "privacy": "尊重彼此空间",
+      "other": "了解自己的机会"
     }
   },
   "prescription": {
@@ -88,29 +98,29 @@
   },
   "releaseArchive": {
     "title": "情绪释放档案",
-    "subtitleEmpty": "心晴MO 独有：焚烧后会保留温和的复盘线索",
-    "subtitleFilled": "心晴MO 独有：释放情绪，同时保留成长证据",
+    "subtitleEmpty": "焚烧后会留下温和的复盘线索",
+    "subtitleFilled": "释放情绪，留存成长痕迹",
     "metrics": {
       "releaseRate": "释放率",
       "burnedCount": "已焚烧",
       "burnedUnit": "条"
     },
     "empty": {
-      "text": "你还没有使用「气话焚烧」，下次试试把难受交给火焰。"
+      "text": "还没用过「气话焚烧」，下次试试把难受交给火焰。"
     },
-    "reflectionWithTrigger": "这次被「{{trigger}}」触发时，我真正想被理解的是什么？",
-    "reflectionGeneric": "这次情绪背后，我最希望被看见的需求是什么？",
-    "latestRelease": "最近一次释放：{{date}}"
+    "reflectionWithTrigger": "「{{trigger}}」真正触动我的是什么？",
+    "reflectionGeneric": "这次最想被看见的是什么？",
+    "latestRelease": "最近：{{date}}"
   },
   "footer": {
     "messages": {
-      "startRecording": "开始记录，让你的心灵花园生根发芽吧",
-      "thisMonthMore": "本月你认真照料了花园 {{count}} 次，比上月多了 {{diff}} 次",
-      "thisMonthLess": "本月你照料了花园 {{count}} 次，记得常来看看哦",
-      "gardenBeautiful": "你的花园正在变得越来越美丽"
+      "startRecording": "开始记录，让花园生根吧",
+      "thisMonthMore": "本月照料 {{count}} 次，比上月多 {{diff}} 次",
+      "thisMonthLess": "本月照料 {{count}} 次，常来看看哦",
+      "gardenBeautiful": "花园越来越美了"
     },
     "subMessages": {
-      "withResolved": "每一朵盛开的花，都是你勇敢面对情绪的证明",
+      "withResolved": "每一朵盛开，都是勇敢面对的证明",
       "default": "每一次记录，都是照料心灵的开始"
     }
   },
@@ -126,16 +136,16 @@
     },
     "flowerStatus": {
       "seed": "种子",
-      "1": "含苞待放",
-      "2": "花苞微开",
-      "3": "需要照料",
+      "1": "含苞",
+      "2": "微开",
+      "3": "需照料",
       "4": "有点蔫",
-      "5": "需紧急浇水"
+      "5": "需浇水"
     },
     "potStatus": {
-      "blooming": "繁花盛开",
-      "growing": "正常生长",
-      "needWater": "需要浇水"
+      "blooming": "盛开",
+      "growing": "生长中",
+      "needWater": "需浇水"
     },
     "growthStage": {
       "seed": "种子",
