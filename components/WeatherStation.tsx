@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun, TrendingUp } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
@@ -10,15 +10,36 @@ const WeatherStationComponent: React.FC = () => {
   const weather = useAppStore((state) => state.weather);
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
+  const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const generateForecast = useAppStore((state) => state.generateForecast);
 
   const visibleEntries = useMemo(
     () => excludeSoftDeletedEntries(entries),
     [entries],
   );
-  
+
   const [isForecastExpanded, setIsForecastExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const prevLocaleRef = useRef(effectiveLocale);
+
+  useEffect(() => {
+    if (prevLocaleRef.current === effectiveLocale) return;
+    prevLocaleRef.current = effectiveLocale;
+    setIsForecastExpanded(false);
+    if (visibleEntries.length >= 3) {
+      void (async () => {
+        setIsGenerating(true);
+        try {
+          await generateForecast(7);
+          setIsForecastExpanded(true);
+        } catch (error) {
+          console.error('Forecast regen on locale change failed:', error);
+        } finally {
+          setIsGenerating(false);
+        }
+      })();
+    }
+  }, [effectiveLocale, generateForecast, visibleEntries.length]);
 
   // 天气配置对象，统一管理图标、背景色和文字颜色（使用 useMemo 缓存）
   const weatherConfig = useMemo(() => ({

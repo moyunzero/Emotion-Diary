@@ -3,6 +3,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useAppStore } from '@/store/useAppStore';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
 import { INSIGHTS_COLORS } from './constants';
@@ -15,6 +16,8 @@ interface PrescriptionCardProps {
 
 const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, moodLevel, entries }) => {
   const { t } = useTranslation('insights');
+  const { t: tAi } = useTranslation('ai');
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const { fontSize } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -147,6 +150,12 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
     };
   }, []);
 
+  useEffect(() => {
+    setPrescription(null);
+    setGenerateError(null);
+    setIsExpanded(false);
+  }, [effectiveLocale, trigger, moodLevel]);
+
   const handleGenerate = async () => {
     if (generatingStepTimeoutRef.current) {
       clearTimeout(generatingStepTimeoutRef.current);
@@ -155,15 +164,23 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
     
     setIsGenerating(true);
     setGenerateError(null);
-    setGeneratingStep('正在分析你的情绪模式...');
-    
+    setGeneratingStep(tAi('prescription.generating.analyzing'));
+
     try {
       generatingStepTimeoutRef.current = setTimeout(() => {
-        setGeneratingStep('正在生成个性化建议...');
+        setGeneratingStep(tAi('prescription.generating.generating'));
         generatingStepTimeoutRef.current = null;
       }, 1000);
-      
-      const result = await generateEmotionPrescription(trigger, moodLevel, entries);
+
+      const result = await generateEmotionPrescription(
+        trigger,
+        moodLevel,
+        entries,
+        'anonymous',
+        '朋友',
+        undefined,
+        effectiveLocale,
+      );
       setPrescription(result);
       setIsExpanded(true);
       setGeneratingStep('');
@@ -201,7 +218,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="small" color={INSIGHTS_COLORS.accent} />
         <Text style={styles.loadingText}>
-          {generatingStep || 'AI正在生成建议...'}
+          {generatingStep || tAi('prescription.generating.default')}
         </Text>
       </View>
     );
@@ -210,7 +227,10 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
   if (generateError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>生成失败：{generateError}</Text>
+        <Text style={styles.errorText}>
+          {tAi('prescription.errorPrefix')}
+          {generateError}
+        </Text>
         <TouchableOpacity
           style={styles.retryButton}
           onPress={handleGenerate}
