@@ -7,7 +7,7 @@ import { formatLocaleDate } from '@/shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
 
 /**
- * 情绪播客组件
+ * Emotion podcast card — AI-generated mood recap
  * 生成并展示AI生成的情绪回顾文案
  */
 const EmotionPodcast: React.FC = () => {
