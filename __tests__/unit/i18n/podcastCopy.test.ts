@@ -21,7 +21,6 @@ describe("podcast.ui copy via i18n", () => {
   it("en-US title is not hardcoded CJK", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("en-US");
-    // @ts-expect-error podcast.ui keys land in GREEN
     const title = i18n.t("podcast.ui.title", { ns: "ai" });
     expect(title).not.toBe("情绪播客");
     expect(title).not.toMatch(/^podcast\.ui\./);
@@ -31,17 +30,14 @@ describe("podcast.ui copy via i18n", () => {
   it("zh-Hans title is 情绪播客", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("zh-Hans");
-    // @ts-expect-error podcast.ui keys land in GREEN
     expect(i18n.t("podcast.ui.title", { ns: "ai" })).toBe("情绪播客");
   });
 
   it("periodWeek localized per locale", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("en-US");
-    // @ts-expect-error podcast.ui keys land in GREEN
     expect(i18n.t("podcast.ui.periodWeek", { ns: "ai" })).toMatch(/week/i);
     await i18n.changeLanguage("zh-Hans");
-    // @ts-expect-error podcast.ui keys land in GREEN
     expect(i18n.t("podcast.ui.periodWeek", { ns: "ai" })).toBe("本周");
   });
 });

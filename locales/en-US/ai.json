@@ -90,5 +90,20 @@
       "default": "AI is generating suggestions…"
     },
     "errorPrefix": "Generation failed: "
+  },
+  "podcast": {
+    "ui": {
+      "title": "Mood Podcast",
+      "subtitle": "Let AI craft a warm recap of your moods",
+      "periodWeek": "This week",
+      "periodMonth": "This month",
+      "generating": "Generating…",
+      "generateButton": "Create {{period}} recap",
+      "periodReviewWeek": "This week recap",
+      "periodReviewMonth": "This month recap",
+      "shareTitle": "Mood recap",
+      "shareMessagePrefix": "My mood recap\n\n",
+      "shareMessageSuffix": "\n\nFrom Mood Diary ❤️"
+    }
   }
 }

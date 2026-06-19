@@ -34,5 +34,9 @@
   },
   "screen": {
     "title": "个人中心"
+  },
+  "userCard": {
+    "editProfile": "编辑个人资料",
+    "tapToLogin": "点击登录"
   }
 }

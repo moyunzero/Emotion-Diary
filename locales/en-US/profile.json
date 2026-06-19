@@ -34,5 +34,9 @@
   },
   "screen": {
     "title": "Profile"
+  },
+  "userCard": {
+    "editProfile": "Edit profile",
+    "tapToLogin": "Tap to sign in"
   }
 }

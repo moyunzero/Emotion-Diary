@@ -90,5 +90,20 @@
       "default": "AI正在生成建议..."
     },
     "errorPrefix": "生成失败："
+  },
+  "podcast": {
+    "ui": {
+      "title": "情绪播客",
+      "subtitle": "让AI为你生成温暖的情绪回顾",
+      "periodWeek": "本周",
+      "periodMonth": "本月",
+      "generating": "生成中...",
+      "generateButton": "生成{{period}}回顾",
+      "periodReviewWeek": "本周回顾",
+      "periodReviewMonth": "本月回顾",
+      "shareTitle": "情绪回顾",
+      "shareMessagePrefix": "我的情绪回顾\n\n",
+      "shareMessageSuffix": "\n\n来自情绪日记 ❤️"
+    }
   }
 }

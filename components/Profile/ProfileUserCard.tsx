@@ -6,6 +6,7 @@
 import { Camera } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useTranslation } from "react-i18next";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
 
@@ -34,6 +35,7 @@ export function ProfileUserCard({
   isLoggedIn,
   onPress,
 }: ProfileUserCardProps) {
+  const { t } = useTranslation("profile");
   const { width, height } = useWindowDimensions();
   const { profileStyles } = useMemo(
     () => createProfileStyles(width, height),
@@ -45,7 +47,9 @@ export function ProfileUserCard({
         onPress={onPress}
         style={profileStyles.avatarWrapper}
         accessibilityRole="button"
-        accessibilityLabel={isLoggedIn ? "编辑个人资料" : "点击登录"}
+        accessibilityLabel={
+          isLoggedIn ? t("userCard.editProfile") : t("userCard.tapToLogin")
+        }
       >
         <Avatar
           uri={avatarUri ?? undefined}
