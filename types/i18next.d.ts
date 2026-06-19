@@ -1,4 +1,5 @@
 import "i18next";
+import type zhAi from "../locales/zh-Hans/ai.json";
 import type zhAuth from "../locales/zh-Hans/auth.json";
 import type zhCommon from "../locales/zh-Hans/common.json";
 import type zhDashboard from "../locales/zh-Hans/dashboard.json";
@@ -30,6 +31,7 @@ declare module "i18next" {
       dashboard: typeof zhDashboard;
       insights: typeof zhInsights;
       system: typeof zhSystem;
+      ai: typeof zhAi;
     };
   }
 }

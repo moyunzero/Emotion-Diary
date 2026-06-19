@@ -1,0 +1,25 @@
+{
+  "appName": "Mood Diary",
+  "actions": {
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "shell": {
+    "back": "Back",
+    "close": "Close",
+    "error": {
+      "title": "Oops, something went wrong",
+      "message": "The app hit an unexpected snag, but your data is safe",
+      "retry": "Try again",
+      "devDetailsTitle": "Error details (dev mode):"
+    }
+  },
+  "relative": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "daysAgo": "{{count}} days ago",
+    "daysLater": "In {{count}} days",
+    "unknown": "Unknown time"
+  }
+}

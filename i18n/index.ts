@@ -2,6 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import * as Localization from "expo-localization";
 
+import enAi from "../locales/en-US/ai.json";
 import enAuth from "../locales/en-US/auth.json";
 import enCommon from "../locales/en-US/common.json";
 import enDashboard from "../locales/en-US/dashboard.json";
@@ -15,6 +16,7 @@ import enRetention from "../locales/en-US/retention.json";
 import enReview from "../locales/en-US/review.json";
 import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
+import zhAi from "../locales/zh-Hans/ai.json";
 import zhAuth from "../locales/zh-Hans/auth.json";
 import zhCommon from "../locales/zh-Hans/common.json";
 import zhDashboard from "../locales/zh-Hans/dashboard.json";
@@ -72,6 +74,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           dashboard: zhDashboard,
           insights: zhInsights,
           system: zhSystem,
+          ai: zhAi,
         },
         "en-US": {
           common: enCommon,
@@ -87,6 +90,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           dashboard: enDashboard,
           insights: enInsights,
           system: enSystem,
+          ai: enAi,
         },
       },
       lng: effectiveLocale,
@@ -107,6 +111,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "dashboard",
         "insights",
         "system",
+        "ai",
       ],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },

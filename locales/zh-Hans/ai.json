@@ -1,0 +1,35 @@
+{
+  "prompts": {
+    "closing": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友。（Wave 2 占位）",
+      "user": "请根据统计摘要写一句话总结。（Wave 2 占位）"
+    },
+    "podcast": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友。（Wave 2 占位）",
+      "user": "请生成情绪播客回顾。（Wave 2 占位）"
+    },
+    "prescription": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友。（Wave 2 占位）",
+      "user": "请给出情绪处方建议。（Wave 2 占位）"
+    }
+  },
+  "fallbacks": {
+    "closing": {
+      "default": "每一次记录都值得被温柔看见，心晴MO 会一直在。"
+    },
+    "podcast": {
+      "default": "最近还没有情绪记录，开始记录你的情绪吧~"
+    },
+    "prescription": {
+      "default": "先深呼吸，给自己一点耐心。"
+    }
+  },
+  "forecast": {
+    "timeSlot": {
+      "morning": "上午",
+      "afternoon": "下午",
+      "evening": "晚上"
+    },
+    "summaryStable": "未来{{days}}天情绪趋势平稳，继续保持良好的情绪管理习惯。"
+  }
+}

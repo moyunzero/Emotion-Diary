@@ -1,0 +1,35 @@
+{
+  "prompts": {
+    "closing": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Respond in English only. (Wave 2 stub)",
+      "user": "Write a one-sentence summary from the stats. Respond in English only. (Wave 2 stub)"
+    },
+    "podcast": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Respond in English only. (Wave 2 stub)",
+      "user": "Generate an emotional podcast recap. Respond in English only. (Wave 2 stub)"
+    },
+    "prescription": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Respond in English only. (Wave 2 stub)",
+      "user": "Provide emotional prescription advice. Respond in English only. (Wave 2 stub)"
+    }
+  },
+  "fallbacks": {
+    "closing": {
+      "default": "Every entry deserves to be seen with kindness. Mood Diary is here for you."
+    },
+    "podcast": {
+      "default": "No mood entries yet — start recording how you feel."
+    },
+    "prescription": {
+      "default": "Take a deep breath and give yourself a moment."
+    }
+  },
+  "forecast": {
+    "timeSlot": {
+      "morning": "morning",
+      "afternoon": "afternoon",
+      "evening": "evening"
+    },
+    "summaryStable": "Your mood looks steady over the next {{days}} days. Keep up the good habits."
+  }
+}
