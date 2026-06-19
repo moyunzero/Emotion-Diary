@@ -76,8 +76,12 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                     color={milestone.color}
                     testID="current-milestone-icon"
                   />
-                  <Text style={styles.milestoneTitle}>{milestone.title}</Text>
-                  <Text style={styles.milestoneDesc}>{milestone.description}</Text>
+                  <Text style={styles.milestoneTitle}>
+                    {t(`companionDays.milestones.${milestone.days}.title` as 'companionDays.milestones.7.title')}
+                  </Text>
+                  <Text style={styles.milestoneDesc}>
+                    {t(`companionDays.milestones.${milestone.days}.description` as 'companionDays.milestones.7.description')}
+                  </Text>
                 </View>
               </View>
             )}
@@ -92,7 +96,9 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                     color="#6B7280"
                     testID="next-milestone-icon"
                   />
-                  <Text style={styles.nextTitle}>{nextMilestone.title}</Text>
+                  <Text style={styles.nextTitle}>
+                    {t(`companionDays.milestones.${nextMilestone.days}.title` as 'companionDays.milestones.7.title')}
+                  </Text>
                   <Text style={styles.nextDays}>{t('companionDays.daysToNext', { count: daysToNext })}</Text>
                 </View>
               </View>

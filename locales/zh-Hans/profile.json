@@ -35,7 +35,15 @@
     "nextMilestone": "下一个里程碑",
     "daysToNext_one": "还需 {{count}} 天",
     "daysToNext_other": "还需 {{count}} 天",
-    "maxAchievement": "恭喜！您已达到最高成就！"
+    "maxAchievement": "恭喜！您已达到最高成就！",
+    "milestones": {
+      "7": { "title": "初识七日", "description": "我们已经相伴7天了" },
+      "30": { "title": "满月之约", "description": "一个月的陪伴" },
+      "100": { "title": "百日之诺", "description": "100天的坚持" },
+      "365": { "title": "周年纪念", "description": "整整一年的陪伴" },
+      "500": { "title": "长久相伴", "description": "500天的情绪旅程" },
+      "1000": { "title": "千日传奇", "description": "1000天的不离不弃" }
+    }
   },
   "screen": {
     "title": "个人中心"
