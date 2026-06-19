@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
+import { i18n } from "../../i18n";
 import { isSoftDeleted } from "../../shared/entries/visibility";
 import type { MoodEntry, User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
@@ -435,10 +436,14 @@ export const createUserSlice: StateCreator<
             throw new Error("User already registered");
           }
           if (error.message.includes("Password should be at least")) {
-            throw new Error("密码强度不足，请尝试设置更复杂的密码");
+            throw new Error(
+              i18n.t("errors.password_weak", { ns: "auth" }),
+            );
           }
           if (error.message.includes("Invalid email")) {
-            throw new Error("邮箱格式不正确，请确认后重试");
+            throw new Error(
+              i18n.t("errors.email_invalid", { ns: "auth" }),
+            );
           }
           return false;
         }
@@ -472,16 +477,22 @@ export const createUserSlice: StateCreator<
         if (error) {
           console.error("登录失败:", error.message);
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error("邮箱或密码不正确");
+            throw new Error(
+              i18n.t("login.invalidCredentials", { ns: "auth" }),
+            );
           }
           if (error.message.includes("Email not confirmed")) {
-            throw new Error("邮箱尚未完成验证，请先前往邮箱完成验证");
+            throw new Error(
+              i18n.t("login.emailNotConfirmed", { ns: "auth" }),
+            );
           }
           if (
             error.message.includes("Failed to fetch") ||
             error.message.includes("Network")
           ) {
-            throw new Error("网络连接异常，请稍后重试");
+            throw new Error(
+              i18n.t("errors.network_error", { ns: "auth" }),
+            );
           }
           return false;
         }

@@ -1,9 +1,12 @@
 import { Flower2, Leaf, Sprout, Sun, TreeDeciduous } from 'lucide-react-native';
+import type { TFunction } from 'i18next';
 import React from 'react';
 import { MOOD_CONFIG } from '../../constants';
 import { getMondayWeekRangeContaining } from '../../shared/time-range';
 import { MoodLevel } from '../../types';
 import { getMoodIcon } from '../../utils/moodIconUtils';
+
+type InsightsT = TFunction<'insights'>;
 
 // 获取本周的日期范围
 export const getWeekDates = () => {
@@ -19,10 +22,9 @@ export const getWeekDates = () => {
   return dates;
 };
 
-// 获取星期几的中文名
-export const getWeekdayName = (date: Date) => {
-  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-  return weekdays[date.getDay()];
+// 获取星期几的本地化名称
+export const getWeekdayName = (date: Date, t: InsightsT) => {
+  return t(`utils.weekdays.${date.getDay()}` as 'utils.weekdays.0');
 };
 
 // 判断是否是今天
@@ -46,38 +48,81 @@ export const getMoodWeatherIcon = (level: MoodLevel | null, size: number = 24): 
 };
 
 // 获取情绪等级对应的花朵状态文案
-export const getMoodFlowerStatus = (level: number | null) => {
-  if (level === null) return '种子';
-  switch (level) {
-    case 1: return '含苞待放';
-    case 2: return '花苞微开';
-    case 3: return '需要照料';
-    case 4: return '有点蔫';
-    case 5: return '需紧急浇水';
-    default: return '种子';
+export const getMoodFlowerStatus = (level: number | null, t: InsightsT) => {
+  if (level === null) {
+    return t('utils.flowerStatus.seed');
   }
+  const key = String(level) as '1' | '2' | '3' | '4' | '5';
+  if (key in { '1': 1, '2': 1, '3': 1, '4': 1, '5': 1 }) {
+    return t(`utils.flowerStatus.${key}`);
+  }
+  return t('utils.flowerStatus.seed');
 };
 
 // 获取花盆状态
-export const getFlowerPotStatus = (resolveRate: number, colors: {
-  bloomingColor: string;
-  growingColor: string;
-  needWaterColor: string;
-}) => {
+export const getFlowerPotStatus = (
+  resolveRate: number,
+  colors: {
+    bloomingColor: string;
+    growingColor: string;
+    needWaterColor: string;
+  },
+  t: InsightsT,
+) => {
   if (resolveRate >= 0.7) {
-    return { status: 'blooming', label: '繁花盛开', color: colors.bloomingColor };
+    return {
+      status: 'blooming',
+      label: t('utils.potStatus.blooming'),
+      color: colors.bloomingColor,
+    };
   } else if (resolveRate >= 0.3) {
-    return { status: 'growing', label: '正常生长', color: colors.growingColor };
+    return {
+      status: 'growing',
+      label: t('utils.potStatus.growing'),
+      color: colors.growingColor,
+    };
   } else {
-    return { status: 'needWater', label: '需要浇水', color: colors.needWaterColor };
+    return {
+      status: 'needWater',
+      label: t('utils.potStatus.needWater'),
+      color: colors.needWaterColor,
+    };
   }
 };
 
 // 获取成长阶段
-export const getGrowthStage = (rate: number) => {
-  if (rate >= 0.8) return { stage: 'bloom', label: '开花', icon: Flower2 };
-  if (rate >= 0.6) return { stage: 'bud', label: '花苞', icon: TreeDeciduous };
-  if (rate >= 0.4) return { stage: 'seedling', label: '幼苗', icon: Leaf };
-  if (rate >= 0.2) return { stage: 'sprout', label: '发芽', icon: Sprout };
-  return { stage: 'seed', label: '种子', icon: Sprout };
+export const getGrowthStage = (rate: number, t: InsightsT) => {
+  if (rate >= 0.8) {
+    return {
+      stage: 'bloom',
+      label: t('utils.growthStage.bloom'),
+      icon: Flower2,
+    };
+  }
+  if (rate >= 0.6) {
+    return {
+      stage: 'bud',
+      label: t('utils.growthStage.bud'),
+      icon: TreeDeciduous,
+    };
+  }
+  if (rate >= 0.4) {
+    return {
+      stage: 'seedling',
+      label: t('utils.growthStage.seedling'),
+      icon: Leaf,
+    };
+  }
+  if (rate >= 0.2) {
+    return {
+      stage: 'sprout',
+      label: t('utils.growthStage.sprout'),
+      icon: Sprout,
+    };
+  }
+  return {
+    stage: 'seed',
+    label: t('utils.growthStage.seed'),
+    icon: Sprout,
+  };
 };

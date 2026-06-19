@@ -5,25 +5,13 @@
 import { useCallback } from "react";
 import { Alert, Animated, Platform } from "react-native";
 import { useRouter } from "expo-router";
+import { i18n } from "@/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import { getDefaultAvatar } from "@/utils/avatarPresets";
 import type { ToastState } from "./useProfileScreenState";
 
-const tError = (key: string): string => {
-  const map: Record<string, string> = {
-    username_required: "昵称不能为空，请输入 2-20 个字符",
-    email_required: "邮箱不能为空，请输入有效的邮箱地址",
-    email_invalid: "邮箱格式不正确，请检查后重新输入",
-    password_required: "密码不能为空",
-    password_weak: "密码需为 6-20 位，包含字母和数字",
-    confirm_required: "请再次输入密码进行确认",
-    confirm_mismatch: "两次输入的密码不一致，请重新确认",
-    network_error: "网络异常，请稍后重试",
-    register_failed: "注册失败，请稍后重试",
-    email_registered: "该邮箱已被注册，请直接登录",
-  };
-  return map[key] || key;
-};
+const tError = (key: string): string =>
+  i18n.t(`errors.${key}`, { ns: "auth", defaultValue: key });
 
 export type AuthState = {
   isLoading: boolean;
@@ -237,15 +225,19 @@ export function useProfileAuthHandlers(state: AuthState) {
           state.setLoginPasswordError("");
           state.setLoginGlobalError("");
         } else {
-          state.setLoginGlobalError("登录失败，请检查邮箱和密码是否正确");
+          state.setLoginGlobalError(i18n.t("login.failed", { ns: "auth" }));
         }
       }
     } catch (error: unknown) {
       const err = error as { message?: string };
       if (state.isRegisterMode) {
-        state.setRegisterGlobalError(err?.message || "注册失败，请稍后重试");
+        state.setRegisterGlobalError(
+          err?.message || tError("register_failed"),
+        );
       } else {
-        state.setLoginGlobalError(err?.message || "登录失败，请稍后重试");
+        state.setLoginGlobalError(
+          err?.message || i18n.t("login.failedGeneric", { ns: "auth" }),
+        );
       }
     } finally {
       state.setIsLoading(false);
@@ -261,7 +253,10 @@ export function useProfileAuthHandlers(state: AuthState) {
 
   const handleSaveProfile = useCallback(async () => {
     if (!state.editName.trim()) {
-      Alert.alert("提示", "昵称不能为空哦");
+      Alert.alert(
+        i18n.t("editProfile.emptyNameTitle", { ns: "auth" }),
+        i18n.t("editProfile.emptyNameMessage", { ns: "auth" }),
+      );
       return;
     }
     state.setIsLoading(true);
@@ -272,51 +267,74 @@ export function useProfileAuthHandlers(state: AuthState) {
       });
       state.setIsEditProfileOpen(false);
     } catch {
-      Alert.alert("保存失败", "请稍后重试");
+      Alert.alert(
+        i18n.t("editProfile.saveFailedTitle", { ns: "auth" }),
+        i18n.t("editProfile.saveFailedMessage", { ns: "auth" }),
+      );
     } finally {
       state.setIsLoading(false);
     }
   }, [state, updateUser]);
 
   const handleLogout = useCallback(() => {
-    Alert.alert("退出登录", "确定要退出吗？", [
-      { text: "取消", style: "cancel" },
-      {
-        text: "退出",
-        style: "destructive",
-        onPress: async () => {
-          state.setIsLoading(true);
-          try {
-            await logout();
-            router.back();
-          } catch {
-            Alert.alert("退出失败", "请稍后重试");
-          } finally {
-            state.setIsLoading(false);
-          }
+    Alert.alert(
+      i18n.t("logout.title", { ns: "auth" }),
+      i18n.t("logout.message", { ns: "auth" }),
+      [
+        {
+          text: i18n.t("actions.cancel", { ns: "common" }),
+          style: "cancel",
         },
-      },
-    ]);
+        {
+          text: i18n.t("logout.confirm", { ns: "auth" }),
+          style: "destructive",
+          onPress: async () => {
+            state.setIsLoading(true);
+            try {
+              await logout();
+              router.back();
+            } catch {
+              Alert.alert(
+                i18n.t("logout.failedTitle", { ns: "auth" }),
+                i18n.t("logout.failedMessage", { ns: "auth" }),
+              );
+            } finally {
+              state.setIsLoading(false);
+            }
+          },
+        },
+      ],
+    );
   }, [state, logout, router]);
 
   const handleDeleteAccount = useCallback(() => {
     Alert.alert(
-      "注销账号",
-      "注销后，您的云端账号及所有心事记录将被永久删除，无法恢复。本地记录将转为游客模式保留。\n\n确定要注销吗？",
+      i18n.t("deleteAccount.title", { ns: "auth" }),
+      i18n.t("deleteAccount.message", { ns: "auth" }),
       [
-        { text: "取消", style: "cancel" },
         {
-          text: "确认注销",
+          text: i18n.t("actions.cancel", { ns: "common" }),
+          style: "cancel",
+        },
+        {
+          text: i18n.t("deleteAccount.confirm", { ns: "auth" }),
           style: "destructive",
           onPress: async () => {
             state.setIsLoading(true);
             try {
               await deleteAccount();
-              state.setToast({ message: "账号已注销", type: "success" });
+              state.setToast({
+                message: i18n.t("deleteAccount.successToast", { ns: "auth" }),
+                type: "success",
+              });
               router.back();
             } catch (e: unknown) {
               const err = e as { message?: string };
-              Alert.alert("注销失败", err?.message || "请稍后重试");
+              Alert.alert(
+                i18n.t("deleteAccount.failedTitle", { ns: "auth" }),
+                err?.message ||
+                  i18n.t("deleteAccount.failedMessage", { ns: "auth" }),
+              );
             } finally {
               state.setIsLoading(false);
             }

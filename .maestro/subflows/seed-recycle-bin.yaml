@@ -6,7 +6,8 @@ appId: com.moyunzero.emotiondiary
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: "情绪气象站"
+    visible:
+      id: dashboard-header
     timeout: 90000
 - runFlow:
     file: open-url.yaml
@@ -19,7 +20,6 @@ appId: com.moyunzero.emotiondiary
 - tapOn:
     id: mood-content-input
 - inputText: ${ENTRY_CONTENT}
-- tapOn: "记录这一刻"
 - tapOn:
     id: mood-submit-button
 - extendedWaitUntil:
@@ -31,7 +31,8 @@ appId: com.moyunzero.emotiondiary
     env:
       URL: emotiondiary://
 - extendedWaitUntil:
-    visible: "情绪气象站"
+    visible:
+      id: dashboard-header
     timeout: 30000
 - extendedWaitUntil:
     visible:
@@ -40,12 +41,13 @@ appId: com.moyunzero.emotiondiary
 - tapOn:
     id: mood-entry-card
     index: 0
-- tapOn: "删除这条情绪记录"
+- tapOn:
+    id: entry-delete-button
+# RN Alert 无 testID；cancel=index 0，destructive confirm=index 1（移至回收站 / Move to recycle bin）
 - extendedWaitUntil:
     visible: "取消"
     timeout: 5000
 - tapOn:
-    text: "移至回收站"
     index: 1
 - extendedWaitUntil:
     notVisible: "取消"
@@ -54,9 +56,6 @@ appId: com.moyunzero.emotiondiary
     file: open-url.yaml
     env:
       URL: emotiondiary://recycle-bin
-- extendedWaitUntil:
-    visible: "回收站"
-    timeout: 10000
 - extendedWaitUntil:
     visible:
       id: recycle-bin-entry-card

@@ -1,6 +1,6 @@
 /**
- * 情绪回顾图页面：选择时间预设、渲染可截图画布、可选 AI 收尾句，并支持保存 PNG 到系统相册。
- * 隐私与权限在首次保存时通过 Alert 与 AsyncStorage 标记确认。
+ * Mood review export: preset selection, capturable canvas, optional AI closing line, save PNG to Photos.
+ * Privacy and permissions confirmed via Alert and AsyncStorage on first save.
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 import * as MediaLibrary from 'expo-media-library';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -27,8 +28,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
-import { formatDateChinese } from '../../shared/formatting';
-import { REVIEW_PRESET_LABEL, type ReviewExportPreset } from '../../shared/time-range';
+import { formatLocaleDate } from '../../shared/formatting';
+import { type ReviewExportPreset } from '../../shared/time-range';
 import { forceCancelRecording } from '../../shared/audio/recordingCoordinator';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -49,13 +50,6 @@ import {
 
 const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
 
-const PRESETS: { key: ReviewExportPreset; label: string }[] = [
-  { key: 'this_week', label: REVIEW_PRESET_LABEL.this_week },
-  { key: 'this_month', label: REVIEW_PRESET_LABEL.this_month },
-  { key: 'last_week', label: REVIEW_PRESET_LABEL.last_week },
-  { key: 'last_month', label: REVIEW_PRESET_LABEL.last_month },
-];
-
 const PRESET_VALUES: ReviewExportPreset[] = [
   'this_week',
   'last_week',
@@ -72,7 +66,11 @@ function parseInitialPreset(raw: string | undefined): ReviewExportPreset {
 
 export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation('review');
+  const { t: tCommon } = useTranslation('common');
+  const { t: tSystem } = useTranslation('system');
   const { preset: presetParam } = useLocalSearchParams<{ preset?: string }>();
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
 
   useFocusEffect(
     useCallback(() => {
@@ -98,6 +96,11 @@ export const ReviewExportScreen: React.FC = () => {
     [userFirstEntryDate, entries],
   );
 
+  const PRESETS = useMemo(
+    () => PRESET_VALUES.map((key) => ({ key, label: t(`presets.${key}`) })),
+    [t],
+  );
+
   const [preset, setPreset] = useState<ReviewExportPreset>(() =>
     parseInitialPreset(presetParam),
   );
@@ -106,17 +109,27 @@ export const ReviewExportScreen: React.FC = () => {
 
   const derived = useMemo(
     () =>
-      computeReviewExportDerivedState(entries, firstEntryDate, preset, now),
-    [entries, firstEntryDate, preset, now],
+      computeReviewExportDerivedState(
+        entries,
+        firstEntryDate,
+        preset,
+        now,
+        effectiveLocale,
+      ),
+    [entries, firstEntryDate, preset, now, effectiveLocale],
   );
   const summary = derived.closingSummary;
   const exportRangeA11yLabel = useMemo(
-    () => `回顾时间范围：${formatDateChinese(summary.periodStartMs)} 到 ${formatDateChinese(summary.periodEndMs)}`,
-    [summary.periodEndMs, summary.periodStartMs],
+    () =>
+      t('a11y.exportRange', {
+        start: formatLocaleDate(summary.periodStartMs, effectiveLocale),
+        end: formatLocaleDate(summary.periodEndMs, effectiveLocale),
+      }),
+    [summary.periodEndMs, summary.periodStartMs, effectiveLocale, t],
   );
 
   const [closingLine, setClosingLine] = useState(() =>
-    getDefaultReviewExportClosingLine(summary),
+    getDefaultReviewExportClosingLine(summary, effectiveLocale),
   );
 
   const [aiStatus, setAiStatus] = useState<ReviewExportAiStatus>('idle');
@@ -125,7 +138,7 @@ export const ReviewExportScreen: React.FC = () => {
   const captureRootRef = useRef<View>(null);
 
   useEffect(() => {
-    const defaultLine = getDefaultReviewExportClosingLine(summary);
+    const defaultLine = getDefaultReviewExportClosingLine(summary, effectiveLocale);
     const id = ++closingRequestIdRef.current;
 
     if (!isGroqConfigured()) {
@@ -137,35 +150,34 @@ export const ReviewExportScreen: React.FC = () => {
     setClosingLine(defaultLine);
     setAiStatus('loading');
 
-    generateReviewExportClosingLine(summary, user?.id, user?.name)
+    generateReviewExportClosingLine(summary, user?.id, user?.name, effectiveLocale)
       .then((text) => {
         if (id !== closingRequestIdRef.current) return;
         setClosingLine(text);
         setAiStatus('ready');
       })
       .catch((error) => {
-        console.error('生成结束语失败:', error);
+        if (id !== closingRequestIdRef.current) return;
+        console.error('Review export closing line failed:', error);
         setAiStatus('fallback');
       });
-  }, [summary, user?.id, user?.name]);
+  }, [summary, user?.id, user?.name, effectiveLocale]);
 
   const captureReviewPngUri = useCallback(async (): Promise<string> => {
-    // 等待交互动画结束再截图，避免半帧布局；截图区域为 captureRootRef 包裹的画布。
-    // 使用 tmpfile 结果以控制内存；失败时向上抛错供 onPressSave 统一 Alert。
-
+    // Wait for interactions to finish before capture; failures bubble to onPressSave.
     await new Promise<void>((resolve) => {
       InteractionManager.runAfterInteractions(() => resolve());
     });
     const target = captureRootRef.current;
     if (!target) {
-      throw new Error('截图区域未就绪');
+      throw new Error('Capture area not ready');
     }
 
     const layout = await new Promise<{ width: number; height: number }>(
       (resolve, reject) => {
         target.measure((_x, _y, width, height) => {
           if (width <= 0 || height <= 0) {
-            reject(new Error('截图区域尺寸无效'));
+            reject(new Error('Invalid capture dimensions'));
             return;
           }
           resolve({ width, height });
@@ -186,29 +198,32 @@ export const ReviewExportScreen: React.FC = () => {
       width: captureWidth,
     });
     if (!uri || typeof uri !== 'string') {
-      throw new Error('截图失败，请稍后重试');
+      throw new Error('Capture failed, please try again');
     }
     return uri;
   }, []);
 
   const performCaptureAndSave = useCallback(async () => {
     if (Platform.OS === 'web') {
-      Alert.alert('暂不支持', '请在 iOS 或 Android 应用中保存回顾图到相册。');
+      Alert.alert(
+        t('alerts.webUnsupported.title'),
+        t('alerts.webUnsupported.message'),
+      );
       return;
     }
     const uri = await captureReviewPngUri();
     const perm = await MediaLibrary.requestPermissionsAsync();
     if (!perm.granted) {
       Alert.alert(
-        '需要相册权限',
-        '请在系统设置中允许心晴MO将回顾图保存到相册。',
+        t('alerts.permission.title'),
+        t('alerts.permission.message'),
         [
-          { text: '取消', style: 'cancel' },
+          { text: tCommon('actions.cancel'), style: 'cancel' },
           {
-            text: '去设置',
+            text: tSystem('audio.permission.openSettings'),
             onPress: () => {
               Linking.openSettings().catch((error) => {
-                console.error('打开设置失败:', error);
+                console.error('Open settings failed:', error);
               });
             },
           },
@@ -220,8 +235,11 @@ export const ReviewExportScreen: React.FC = () => {
     if (Platform.OS === 'ios') {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    Alert.alert('已保存', '回顾图已保存到系统相册。');
-  }, [captureReviewPngUri]);
+    Alert.alert(
+      t('alerts.saveSuccess.title'),
+      t('alerts.saveSuccess.message'),
+    );
+  }, [captureReviewPngUri, t, tCommon, tSystem]);
 
   const onPressSave = useCallback(async () => {
     if (isBusy) return;
@@ -235,7 +253,7 @@ export const ReviewExportScreen: React.FC = () => {
         await performCaptureAndSave();
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        Alert.alert('保存失败', msg);
+        Alert.alert(t('alerts.saveFail.title'), msg);
       } finally {
         setIsBusy(false);
       }
@@ -248,25 +266,25 @@ export const ReviewExportScreen: React.FC = () => {
     }
 
     Alert.alert(
-      '隐私提示',
-      '回顾图含你的情绪与记录信息；保存后可在系统相册中查看，请注意设备共用与他人翻看风险。',
+      t('alerts.privacy.title'),
+      t('alerts.privacy.message'),
       [
         {
-          text: '继续',
+          text: t('actions.continue'),
           onPress: () => {
             go(true).catch((error) => {
-              console.error('保存失败:', error);
+              console.error('Save failed:', error);
             });
           },
         },
       ],
     );
-  }, [isBusy, performCaptureAndSave]);
+  }, [isBusy, performCaptureAndSave, t]);
 
   return (
     <AppScreenShell
       edges={['top', 'left', 'right']}
-      title="情绪回顾图"
+      title={t('screen.title')}
       onBack={() => router.back()}
       titleColor={INSIGHTS_COLORS.text}
       titleFontFamily="Lato_700Bold"
@@ -299,7 +317,7 @@ export const ReviewExportScreen: React.FC = () => {
             ]}
             onPress={() => {
               onPressSave().catch((error) => {
-                console.error('保存失败:', error);
+                console.error('Save failed:', error);
               });
             }}
             disabled={isBusy}
@@ -308,7 +326,7 @@ export const ReviewExportScreen: React.FC = () => {
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
-                保存到相册
+                {t('actions.saveToAlbum')}
               </Text>
             )}
           </Pressable>

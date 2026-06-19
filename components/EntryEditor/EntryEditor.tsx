@@ -15,7 +15,9 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DEADLINE_CONFIG, PEOPLE_OPTIONS, TRIGGER_OPTIONS } from "../../constants";
+import { useTranslation } from "react-i18next";
+import { DEADLINE_CONFIG, PEOPLE_KEYS, TRIGGER_KEYS } from "../../constants";
+import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
 import { COLORS } from "../../constants/colors";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { createRecordStyles } from "../../styles/components/Record.styles";
@@ -66,6 +68,7 @@ export type EntryEditorEditProps = {
 export type EntryEditorProps = EntryEditorCreateProps | EntryEditorEditProps;
 
 export function EntryEditor(props: EntryEditorProps) {
+  const { t } = useTranslation("record");
   const isCreate = props.mode === "create";
   const editSyncKey =
     props.mode === "edit"
@@ -106,8 +109,8 @@ export function EntryEditor(props: EntryEditorProps) {
   const [customTriggerOptions, setCustomTriggerOptions] = useState<string[]>(
     [],
   );
-  const allPeople = [...PEOPLE_OPTIONS, ...customPeopleOptions];
-  const allTriggers = [...TRIGGER_OPTIONS, ...customTriggerOptions];
+  const allPeople = [...PEOPLE_KEYS, ...customPeopleOptions];
+  const allTriggers = [...TRIGGER_KEYS, ...customTriggerOptions];
 
   const [audios, setAudios] = useState<AudioData[]>([]);
 
@@ -247,8 +250,8 @@ export function EntryEditor(props: EntryEditorProps) {
   const handleSubmit = async () => {
     if (!content.trim() && audios.length === 0) {
       Alert.alert(
-        "提示",
-        "写点什么吧，哪怕只是一句话或一段语音",
+        t("submit.emptyValidation.title"),
+        t("submit.emptyValidation.body"),
       );
       triggerHaptic("warning");
       return;
@@ -267,7 +270,7 @@ export function EntryEditor(props: EntryEditorProps) {
         moodLevel,
         content,
         deadline: finalDeadline,
-        people: selectedPeople.length ? selectedPeople : ["其他"],
+        people: selectedPeople.length ? selectedPeople : ["other"],
         triggers: selectedTriggers,
         audios: audios.length > 0 ? audios : undefined,
       });
@@ -278,7 +281,7 @@ export function EntryEditor(props: EntryEditorProps) {
         moodLevel,
         content,
         deadline: finalDeadline,
-        people: selectedPeople.length ? selectedPeople : ["其他"],
+        people: selectedPeople.length ? selectedPeople : ["other"],
         triggers: selectedTriggers,
         audios,
       });
@@ -370,6 +373,10 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
         compactMode={isCreate}
+        getPeopleLabel={resolvePeopleLabel}
+        getTriggerLabel={resolveTriggerLabel}
+        peopleSectionTitle={t("sections.people.title")}
+        triggersSectionTitle={t("sections.triggers.title")}
       />
       <View
         style={
@@ -379,7 +386,9 @@ export function EntryEditor(props: EntryEditorProps) {
         }
       >
         {embedded ? (
-          <Text style={embeddedStyles.audioSectionTitle}>语音附件</Text>
+          <Text style={embeddedStyles.audioSectionTitle}>
+            {t("sections.audio.title")}
+          </Text>
         ) : null}
         <AudioRecorder
           audios={audios}
@@ -393,17 +402,19 @@ export function EntryEditor(props: EntryEditorProps) {
     </>
   );
 
-  const submitButtonLabel = isCreate ? "记录完成" : "保存修改";
+  const submitButtonLabel = isCreate
+    ? t("submit.createLabel")
+    : t("submit.editLabel");
   const submitAccessibilityLabel = isCreate
-    ? "提交情绪记录"
-    : "保存对这条情绪记录的修改";
+    ? t("submit.createA11y")
+    : t("submit.editA11y");
   const submitAccessibilityHint = isSubmitDisabled
     ? isCreate
-      ? "请先输入情绪内容或录制语音后才能提交"
-      : "请先输入文字或保留语音后再保存"
+      ? t("submit.createDisabledHint")
+      : t("submit.editDisabledHint")
     : isCreate
-      ? "点击保存这条情绪记录"
-      : "点击保存修改";
+      ? t("submit.createHint")
+      : t("submit.editHint");
 
   const submitButton = (
     <TouchableOpacity
@@ -483,9 +494,9 @@ export function EntryEditor(props: EntryEditorProps) {
       edges={["top", "left", "right"]}
       keyboardAware
       style={fullscreenStyles.container}
-      title="记录这一刻"
+      title={t("screen.title")}
       onBack={props.onClose}
-      backAccessibilityHint="点击返回上一页"
+      backAccessibilityHint={t("screen.backHint")}
       headerStyle={fullscreenStyles.stackHeader}
     >
       <View style={fullscreenStyles.body}>

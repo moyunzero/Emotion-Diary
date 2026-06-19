@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AddTagInput 组件
@@ -13,6 +14,7 @@ interface AddTagInputProps {
 }
 
 const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
+  const { t } = useTranslation('record');
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState('');
   const isSubmittingRef = useRef(false);
@@ -69,7 +71,7 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
           onSubmitEditing={handleAdd}
           returnKeyType="done"
           blurOnSubmit={true}
-          placeholder="添加新标签..."
+          placeholder={t('addTag.placeholder')}
           placeholderTextColor="#9CA3AF"
           style={styles.addTagInput}
           maxLength={20}
@@ -87,7 +89,7 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
       style={styles.addTagButton}
     >
       <Plus size={12} color="#6B7280" />
-      <Text style={styles.addTagText}>自定义</Text>
+      <Text style={styles.addTagText}>{t('addTag.custom')}</Text>
     </TouchableOpacity>
   );
 };

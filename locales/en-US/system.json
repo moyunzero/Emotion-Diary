@@ -1,0 +1,70 @@
+{
+  "sync": {
+    "operationIncomplete": "Operation incomplete. Please try again later.",
+    "operationFailed": "Operation failed. Please try again later.",
+    "audioUploadFailedSuffix_one": "{{count}} voice note failed to upload; retry from entries",
+    "audioUploadFailedSuffix_other": "{{count}} voice notes failed to upload; retry from entries"
+  },
+  "audio": {
+    "permission": {
+      "title": "Microphone access needed",
+      "message": "Enable microphone access in Settings to record voice notes.",
+      "cancel": "Cancel",
+      "openSettings": "Open Settings"
+    },
+    "recordFailed": {
+      "title": "Recording failed",
+      "message": "Could not start recording. Please try again."
+    },
+    "saveFailed": {
+      "title": "Save failed",
+      "message": "Could not save the recording. Please try again."
+    },
+    "playbackFailed": {
+      "title": "Playback failed",
+      "message": "Could not play the recording. Please try again."
+    },
+    "recordDisabled": "Recording unavailable",
+    "pendingUpload": "Pending cloud upload",
+    "uploadFailedRetry": "Upload failed · tap to retry",
+    "retryUploadA11y": "Retry voice upload",
+    "voiceSectionTitle": "Voice",
+    "voiceCount_one": "{{count}} voice note",
+    "voiceCount_other": "{{count}} voice notes",
+    "voicePlaySection": "Voice"
+  },
+  "alerts": {
+    "podcastGenerateFailed": {
+      "title": "Generation failed",
+      "message": "Something went wrong creating the emotion podcast. Please try again later."
+    }
+  },
+  "generic": {
+    "operationFailed": "Operation failed. Please try again later."
+  },
+  "errors": {
+    "networkConnectionFailed": "Network connection failed. Check your network settings.",
+    "invalidLoginCredentials": "Incorrect email or password. Please try again.",
+    "authFailedRelogin": "Authentication failed. Please sign in again.",
+    "emailRegistered": "This email is already registered.",
+    "rateLimited": "Too many requests. Please try again later.",
+    "dbTableMissing": "Database table missing. Please contact support.",
+    "recordExistsWillUpdate": "Record already exists. Will try to update.",
+    "rlsPolicyError": "Database permission error. Contact support to check row-level security.",
+    "permissionDenied": "Permission denied. Check your account status.",
+    "requestTimeout": "Request timed out. Check your network connection.",
+    "sessionVerifyFailed": "Session verification failed. Please sign in again.",
+    "identityVerifyFailed": "Identity verification failed. Please sign in again.",
+    "dbConstraintFailed": "Database constraint check failed. See console logs for details.",
+    "networkUnavailableAutoSync": "Network unavailable. Data will sync when you're back online.",
+    "validationFailed": "Please check your input.",
+    "sessionExpired": "Session expired. Please sign in again.",
+    "syncRetry": "Sync failed. Will retry automatically.",
+    "aiUnavailable": "AI service is temporarily unavailable. Please try again later.",
+    "aiUnavailableCached": "AI service unavailable. Showing previous analysis.",
+    "storageError": "Local storage error.",
+    "storageFull": "Storage full. Free up space on your device.",
+    "unexpectedError": "Something unexpected happened.",
+    "unexpectedErrorLogged": "Something unexpected happened. We've logged this issue."
+  }
+}

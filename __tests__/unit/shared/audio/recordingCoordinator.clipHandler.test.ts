@@ -2,6 +2,16 @@
  * recordingCoordinator — clipHandler 所有权（§2.3 回归）
  */
 
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'zh-Hans' }]),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
 jest.mock('expo-audio', () => ({
   requestRecordingPermissionsAsync: jest.fn(),
   setAudioModeAsync: jest.fn(),

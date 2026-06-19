@@ -1,0 +1,109 @@
+{
+  "prompts": {
+    "closing": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Write like a caring friend in English. No corporate tone, no medical promises. Use garden or weather metaphors, acknowledge {{userName}}'s effort, and offer one insightful sentence. Respond in English only. Output plain text only — no title, list, or markdown.",
+      "user": "Write a gentle one-sentence summary (~80–120 words) in second person, using garden or weather metaphors where natural. Do not invent numbers.\n\n- Period: {{presetLabel}}\n- Range: {{periodStart}} – {{periodEnd}}\n- Day {{companionDays}} with MoodMO\n- {{rateLine}}\n- {{deltaLine}}\n- {{totalEntries}} entries this period, {{resolvedEntries}} resolved\n- Top weather: {{topWeather}}\n- Top triggers: {{topTriggers}}\n\nRespond in English only. Output one paragraph of English text.",
+      "rateNoData": "Resolution rate this period: N/A",
+      "rateWithValue": "Resolution rate this period: {{pct}}%",
+      "deltaNoData": "Vs previous period: no comparison",
+      "deltaWithValue": "Vs previous period: {{arrow}}{{pct}}%",
+      "none": "None"
+    },
+    "podcast": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Use weather and garden metaphors with a gentle, healing tone. Respond in English only.",
+      "user": "Based on {{userName}}'s mood entries over the past {{periodLabel}}, write a ~200-word warm recap in English.\n\nStats:\n- {{totalCount}} entries\n- {{resolvedCount}} resolved ({{resolveRatePct}}%)\n- Average intensity: {{avgMoodLevel}}/5\n- Main trigger: {{topTrigger}}\n\nRequirements:\n1. Address the user as \"you\"\n2. Use weather and garden metaphors\n3. Acknowledge growth and effort\n4. Sound like a friend\n5. About 200 words\n\nRespond in English only.",
+      "periodWeek": "week",
+      "periodMonth": "month"
+    },
+    "prescription": {
+      "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Give practical, actionable advice like a friend. Respond in English only.",
+      "user": "{{userName}} needs help with \"{{trigger}}\" (intensity {{moodLevel}}/5).\n\n{{companionLine}}{{recurringLine}}\nGive 3 warm, specific suggestions:\n\n1. Urgent (do now, ≤30 words)\n2. Short-term (today, ≤30 words)\n3. Long-term (ongoing, ≤30 words)\n\nFormat: one line each, numbered 1. 2. 3.\nRespond in English only.",
+      "companionLine": "You've been with {{userName}} for {{companionDays}} days and know their patterns. ",
+      "recurringLine": "Recent triggers: {{triggers}}. "
+    }
+  },
+  "fallbacks": {
+    "closing": {
+      "empty": "No mood entries yet — start recording how you feel.",
+      "rateNoData": "No resolution rate for this period",
+      "rateWithValue": "Resolution rate is {{pct}}%",
+      "default": "In {{presetLabel}}, you logged {{totalEntries}} entries and resolved {{resolvedEntries}}. {{rateText}}. Every entry deserves kindness — MoodMO is here for you."
+    },
+    "podcast": {
+      "empty": "No mood entries yet — start recording how you feel.",
+      "periodWeek": "This week",
+      "periodMonth": "This month",
+      "rateHigh": "Your resolution rate is strong — your garden is thriving",
+      "rateMedium": "You're making progress with your moods — keep going",
+      "rateLow": "Remember to tend your feelings — water your inner garden",
+      "default": "{{periodText}}, you logged {{totalCount}} moods and resolved {{resolvedCount}}. {{rateText}}. Every entry helps you know yourself; every resolution is growth. Keep going — your garden will bloom."
+    },
+    "prescription": {
+      "urgentByLevel": {
+        "1": "Take 10 deep breaths and let yourself settle",
+        "2": "Step away for five quiet minutes",
+        "3": "Take 20 deep breaths or walk for ten minutes",
+        "4": "Leave the scene, breathe deeply, or play calming music",
+        "5": "Leave immediately, breathe slowly, or call someone you trust"
+      },
+      "shortTermByTrigger": {
+        "work": "Tonight, jot down how you feel; handle work tomorrow",
+        "study": "Rest first, do something relaxing, return later",
+        "family": "Tonight, share feelings with an \"I feel…\" sentence",
+        "friends": "Cool off today; talk properly tomorrow",
+        "communication": "Prepare what to say; talk when you're both calm",
+        "trust": "Give each other space; reconnect when emotions ease",
+        "privacy": "Respect boundaries; discuss after you both calm down"
+      },
+      "longTermByTrigger": {
+        "work": "Learn stress skills and balance work with rest",
+        "study": "Plan study time to avoid burnout",
+        "family": "Practice nonviolent communication at home",
+        "friends": "Check in regularly and deepen trust",
+        "communication": "Practice \"I\" statements instead of blame",
+        "trust": "Rebuild trust in small steps over time",
+        "privacy": "Discuss boundaries and find a comfortable balance"
+      },
+      "urgentDefault": "Breathe deeply and give yourself a moment",
+      "shortTermDefault": "Tonight, write down how you feel in a quiet moment",
+      "longTermDefault": "Keep learning emotional skills that work for you"
+    }
+  },
+  "forecast": {
+    "timeSlot": {
+      "morning": "morning",
+      "afternoon": "afternoon",
+      "evening": "evening"
+    },
+    "warningHigh": "{{date}} is a high-risk day — be extra patient with yourself",
+    "warningMedium": "{{date}} may feel bumpy — take time to regulate",
+    "summaryStable": "Your mood looks steady over the next {{days}} days. Keep up the good habits.",
+    "summaryRisky": "{{highCount}} high-risk day(s) in the next {{days}} days — plan ahead with care.",
+    "unavailable": "Forecast is temporarily unavailable",
+    "highRiskDescription": "Your moods often shift on {{dayOfWeek}} {{timeSlot}}",
+    "defaultTrigger": "life"
+  },
+  "prescription": {
+    "generating": {
+      "analyzing": "Analyzing your mood patterns…",
+      "generating": "Generating personalized suggestions…",
+      "default": "AI is generating suggestions…"
+    },
+    "errorPrefix": "Generation failed: "
+  },
+  "podcast": {
+    "ui": {
+      "title": "Mood Podcast",
+      "subtitle": "Let AI craft a warm recap of your moods",
+      "periodWeek": "This week",
+      "periodMonth": "This month",
+      "generating": "Generating…",
+      "generateButton": "Create {{period}} recap",
+      "periodReviewWeek": "This week recap",
+      "periodReviewMonth": "This month recap",
+      "shareTitle": "Mood recap",
+      "shareMessagePrefix": "My mood recap\n\n",
+      "shareMessageSuffix": "\n\nFrom MoodMO ❤️"
+    }
+  }
+}

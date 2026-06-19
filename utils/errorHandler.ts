@@ -7,6 +7,13 @@
 
 import { isDevelopment } from "./env";
 
+function systemT(key: string): string {
+  // Lazy require keeps isNetworkError etc. importable without initI18n in unit tests.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { i18n } = require("../i18n") as typeof import("../i18n");
+  return String(i18n.t(key as never, { ns: "system" }));
+}
+
 /**
  * 错误类型枚举
  * 定义应用中可能出现的所有错误类型
@@ -233,7 +240,7 @@ export class ErrorHandler {
       ) {
         return new AppError(
           ErrorType.NETWORK,
-          "网络连接不可用，数据将在恢复后自动同步",
+          systemT("errors.networkUnavailableAutoSync"),
           true,
           error,
         );
@@ -250,7 +257,7 @@ export class ErrorHandler {
       ) {
         return new AppError(
           ErrorType.AUTH,
-          "认证失败，请重新登录",
+          systemT("errors.authFailedRelogin"),
           false,
           error,
         );
@@ -270,7 +277,7 @@ export class ErrorHandler {
       if (message.includes("sync") || message.includes("conflict")) {
         return new AppError(
           ErrorType.SYNC,
-          "同步失败，将自动重试",
+          systemT("errors.syncRetry"),
           true,
           error,
         );
@@ -286,7 +293,7 @@ export class ErrorHandler {
       ) {
         return new AppError(
           ErrorType.AI,
-          "AI服务暂时不可用，请稍后重试",
+          systemT("errors.aiUnavailable"),
           true,
           error,
         );
@@ -301,17 +308,27 @@ export class ErrorHandler {
         message.includes("quota") ||
         message.includes("disk")
       ) {
-        return new AppError(ErrorType.STORAGE, "本地存储发生错误", true, error);
+        return new AppError(
+          ErrorType.STORAGE,
+          systemT("errors.storageError"),
+          true,
+          error,
+        );
       }
 
       // 未知错误
-      return new AppError(ErrorType.UNKNOWN, "发生了意外错误", true, error);
+      return new AppError(
+        ErrorType.UNKNOWN,
+        systemT("errors.unexpectedError"),
+        true,
+        error,
+      );
     }
 
     // 如果不是 Error 对象，创建一个未知错误
     return new AppError(
       ErrorType.UNKNOWN,
-      "发生了意外错误，我们已记录此问题",
+      systemT("errors.unexpectedErrorLogged"),
       false,
     );
   }
@@ -436,21 +453,21 @@ export class ErrorHandler {
     // 根据错误类型返回默认的用户友好消息
     switch (error.type) {
       case ErrorType.NETWORK:
-        return "网络连接不可用，数据将在恢复后自动同步";
+        return systemT("errors.networkUnavailableAutoSync");
       case ErrorType.VALIDATION:
-        return "请检查输入的数据是否正确";
+        return systemT("errors.validationFailed");
       case ErrorType.AUTH:
-        return "会话已过期，请重新登录";
+        return systemT("errors.sessionExpired");
       case ErrorType.SYNC:
-        return "同步失败，将自动重试";
+        return systemT("errors.syncRetry");
       case ErrorType.AI:
-        return "AI服务暂时不可用，显示历史分析";
+        return systemT("errors.aiUnavailableCached");
       case ErrorType.STORAGE:
-        return "存储空间不足，请清理设备空间";
+        return systemT("errors.storageFull");
       case ErrorType.UNKNOWN:
-        return "发生了意外错误，我们已记录此问题";
+        return systemT("errors.unexpectedErrorLogged");
       default:
-        return "发生了意外错误，我们已记录此问题";
+        return systemT("errors.unexpectedErrorLogged");
     }
   }
 }

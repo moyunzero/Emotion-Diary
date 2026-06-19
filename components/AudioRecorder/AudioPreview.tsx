@@ -21,6 +21,8 @@ import {
   Check,
   X,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { i18n } from "@/i18n";
 import { AudioData } from "../../types";
 
 interface AudioPreviewProps {
@@ -48,14 +50,23 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
   onDelete,
   onRename,
 }) => {
+  const { t } = useTranslation("record");
+  const { t: tCommon } = useTranslation("common");
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(audio.name || "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const displayName = audio.name || `录制于 ${new Date(audio.createdAt).toLocaleTimeString("zh-CN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })}`;
+  const formatAudioTime = (createdAt: number): string => {
+    const locale = i18n.language.startsWith("zh") ? "zh-CN" : "en-US";
+    return new Date(createdAt).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const displayName =
+    audio.name ||
+    t("audio.list.recordedAt", { time: formatAudioTime(audio.createdAt) });
 
   const currentPosition = isPlaying ? playbackPosition : 0;
   const progress = audio.duration > 0 ? Math.min(Math.max(currentPosition / audio.duration, 0), 1) : 0;
@@ -173,22 +184,24 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>删除语音</Text>
-            <Text style={styles.modalMessage}>
-              确定要删除这段语音吗？删除后无法恢复。
-            </Text>
+            <Text style={styles.modalTitle}>{t("audio.delete.title")}</Text>
+            <Text style={styles.modalMessage}>{t("audio.delete.message")}</Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowDeleteConfirm(false)}
               >
-                <Text style={styles.cancelButtonText}>取消</Text>
+                <Text style={styles.cancelButtonText}>
+                  {tCommon("actions.cancel")}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.deleteButton]}
                 onPress={confirmDelete}
               >
-                <Text style={styles.deleteButtonText}>删除</Text>
+                <Text style={styles.deleteButtonText}>
+                  {t("audio.delete.confirm")}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

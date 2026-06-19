@@ -24,6 +24,8 @@ interface ProfileMenuItemProps {
   readonly danger?: boolean;
   /** 是否禁用（置灰、不可点） */
   readonly disabled?: boolean;
+  /** E2E / Maestro 锚点 */
+  readonly testID?: string;
   readonly onPress: () => void;
 }
 
@@ -35,6 +37,7 @@ export function ProfileMenuItem({
   showChevron = true,
   danger = false,
   disabled = false,
+  testID,
   onPress,
 }: ProfileMenuItemProps) {
   const { width, height } = useWindowDimensions();
@@ -50,6 +53,7 @@ export function ProfileMenuItem({
       ]}
       onPress={onPress}
       disabled={disabled}
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={title}
     >

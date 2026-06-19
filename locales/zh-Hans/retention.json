@@ -1,0 +1,49 @@
+{
+  "dailyReminder": {
+    "title": "情绪记录提醒",
+    "subtextEnabled": "每天 {{hour}}:{{minute}} 温柔提醒记一笔",
+    "subtextDisabled": "默认关闭；仅本地通知，不含日记内容"
+  },
+  "weeklyReview": {
+    "toggleTitle": "周末回顾提醒",
+    "toggleSubtext": "周六 10:00 提示生成本周回顾图"
+  },
+  "enableConfirm": {
+    "title": "开启情绪提醒",
+    "message": "{{appName}} 会在你设定的时间发送本地通知，提醒你花一分钟记录心情。通知不含日记正文，也不会上传到云端。",
+    "ok": "开启",
+    "cancel": "暂不"
+  },
+  "permissionDenied": "未获得通知权限，无法在设定时间提醒你",
+  "webReminderUnsupported": "Web 端暂不支持本地通知，请使用 App",
+  "reminderUnavailable": "当前设备暂不支持本地通知",
+  "dailyNotification": {
+    "title": "心晴MO",
+    "body": "今天过得怎样？花一分钟记录心情吧"
+  },
+  "weeklyNotification": {
+    "title": "心晴MO · 周回顾",
+    "body": "本周的心情值得被看见，去生成回顾图吧"
+  },
+  "revisitBanner": {
+    "titleToday": "今天还没记录",
+    "titleDaysAgo": "上次记录是 {{days}} 天前",
+    "action": "去记一笔",
+    "dismiss": "今天先不提醒"
+  },
+  "weeklyBanner": {
+    "title": "本周回顾准备好了",
+    "body": "把这一周的心情收成一张回顾图",
+    "action": "生成上周回顾",
+    "dismiss": "本周不再提示"
+  },
+  "quickForm": {
+    "expand": "更多选项",
+    "collapse": "收起补充项"
+  },
+  "androidChannelName": "情绪提醒",
+  "toasts": {
+    "dailyEnabled": "已开启情绪记录提醒",
+    "enableDailyFirst": "请先开启情绪记录提醒"
+  }
+}

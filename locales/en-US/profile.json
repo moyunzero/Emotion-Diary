@@ -1,0 +1,57 @@
+{
+  "language": {
+    "sectionTitle": "Language",
+    "options": {
+      "followSystem": "Follow System",
+      "zhHans": "Simplified Chinese",
+      "english": "English"
+    }
+  },
+  "sections": {
+    "dataSecurity": "Data & security",
+    "retention": "Reminders & retention",
+    "account": "Other"
+  },
+  "recycleBin": {
+    "title": "Recycle bin",
+    "subtextEmpty": "No deleted entries",
+    "subtextCount": "{{count}} restorable"
+  },
+  "account": {
+    "logout": "Sign out",
+    "deleteAccount": "Delete account",
+    "deleteAccountSubtext": "Permanently deletes your cloud account and data; local entries stay on this device"
+  },
+  "stats": {
+    "entriesLabel": "Mood entries",
+    "weatherScoreLabel": "Mood index",
+    "companionDaysLabel": "Days together"
+  },
+  "companionDays": {
+    "modalTitle": "Days together",
+    "daysUnit": "days",
+    "startedAt": "Started on {{date}}",
+    "currentAchievement": "Current achievement",
+    "nextMilestone": "Next milestone",
+    "daysToNext_one": "{{count}} day to go",
+    "daysToNext_other": "{{count}} days to go",
+    "maxAchievement": "Congrats! You've reached the highest achievement!",
+    "milestones": {
+      "7": { "title": "First week together", "description": "Seven days of companionship" },
+      "30": { "title": "One-month mark", "description": "A month of showing up" },
+      "100": { "title": "Hundred-day promise", "description": "100 days of dedication" },
+      "365": { "title": "One-year anniversary", "description": "A full year together" },
+      "500": { "title": "Long companionship", "description": "500 days on your journey" },
+      "1000": { "title": "Thousand-day legend", "description": "1000 days of staying with yourself" }
+    }
+  },
+  "screen": {
+    "title": "Profile"
+  },
+  "userCard": {
+    "editProfile": "Edit profile",
+    "tapToLogin": "Tap to sign in",
+    "loginSubtitle": "Begin your healing journey",
+    "noName": "No nickname yet"
+  }
+}

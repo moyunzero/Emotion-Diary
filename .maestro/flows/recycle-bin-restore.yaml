@@ -5,11 +5,14 @@ appId: com.moyunzero.emotiondiary
     file: ../subflows/seed-recycle-bin.yaml
     env:
       ENTRY_CONTENT: "Maestro E2E 回收站恢复测试"
-- tapOn: "恢复这条记录"
+- tapOn:
+    id: recycle-restore-button
+# RN Alert 无 testID；cancel=index 0，confirm=index 1（恢复 / Restore）
 - extendedWaitUntil:
     visible: "取消"
     timeout: 5000
-- tapOn: "恢复"
+- tapOn:
+    index: 1
 - extendedWaitUntil:
     notVisible: "取消"
     timeout: 10000
@@ -18,7 +21,8 @@ appId: com.moyunzero.emotiondiary
     env:
       URL: emotiondiary://
 - extendedWaitUntil:
-    visible: "情绪气象站"
+    visible:
+      id: dashboard-header
     timeout: 30000
 - extendedWaitUntil:
     visible:
@@ -29,5 +33,6 @@ appId: com.moyunzero.emotiondiary
     env:
       URL: emotiondiary://recycle-bin
 - extendedWaitUntil:
-    visible: "回收站是空的"
+    visible:
+      id: recycle-bin-empty-state
     timeout: 10000

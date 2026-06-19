@@ -1,6 +1,7 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
@@ -12,6 +13,7 @@ interface WeeklyMoodWeatherProps {
 }
 
 const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -109,7 +111,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
     <View style={styles.container}>
       <View style={styles.header}>
         <Sun size={20} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.title}>本周情绪天气</Text>
+        <Text style={styles.title}>{t('weeklyWeather.title')}</Text>
       </View>
       <View style={styles.weekContainer}>
         {weekDates.map((date, index) => {
@@ -124,13 +126,13 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
               ]}
             >
               <Text style={[styles.weekday, today && styles.todayText]}>
-                {getWeekdayName(date)}
+                {getWeekdayName(date, t)}
               </Text>
               <View style={styles.iconContainer}>
                 {getMoodWeatherIcon(moodLevel, 28)}
               </View>
               <Text style={[styles.status, today && styles.todayText]}>
-                {getMoodFlowerStatus(moodLevel)}
+                {getMoodFlowerStatus(moodLevel, t)}
               </Text>
             </View>
           );

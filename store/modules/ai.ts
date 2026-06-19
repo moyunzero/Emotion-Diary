@@ -21,7 +21,7 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
    */
   generateForecast: async (days: number = 7): Promise<void> => {
     try {
-      const { entries } = get();
+      const { entries, effectiveLocale } = get();
       const visibleEntries = excludeSoftDeletedEntries(entries);
 
       if (visibleEntries.length < 3) {
@@ -30,7 +30,8 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
         return;
       }
 
-      const forecast = await predictEmotionTrend(entries, days);
+      const forecast = await predictEmotionTrend(entries, days, effectiveLocale);
+      if (get().effectiveLocale !== effectiveLocale) return;
       set({
         emotionForecast: {
           ...forecast,
@@ -48,11 +49,12 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
    */
   generatePodcast: async (period: 'week' | 'month' = 'week'): Promise<void> => {
     try {
-      const { entries, user } = get();
+      const { entries, user, effectiveLocale } = get();
 
       const userId = user?.id || 'anonymous';
       const userName = user?.name || '朋友';
-      const content = await generateEmotionPodcast(entries, period, userId, userName);
+      const content = await generateEmotionPodcast(entries, period, userId, userName, effectiveLocale);
+      if (get().effectiveLocale !== effectiveLocale) return;
 
       if (content) {
         set({

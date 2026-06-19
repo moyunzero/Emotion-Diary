@@ -13,6 +13,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { type Href, useRouter } from "expo-router";
 import { CloudRain, Sun } from "lucide-react-native";
 import { useCallback, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
     ActivityIndicator,
     Keyboard,
@@ -30,6 +31,7 @@ import { useProfileSyncHandlers } from "./hooks/useProfileSyncHandlers";
 
 export function ProfileScreen() {
   const router = useRouter();
+  const { t } = useTranslation("profile");
   const { width, height } = useWindowDimensions();
   const { profileContentPadding, profileStyles } = useMemo(
     () => createProfileStyles(width, height),
@@ -38,6 +40,10 @@ export function ProfileScreen() {
   const user = useAppStore((state) => state.user);
   const entries = useAppStore((state) => state.entries);
   const weather = useAppStore((state) => state.weather);
+  const localePreference = useAppStore((state) => state.localePreference);
+  const effectiveLocale = useAppStore((state) => state.effectiveLocale);
+  const setLocale = useAppStore((state) => state.setLocale);
+  const setLocaleMode = useAppStore((state) => state.setLocaleMode);
 
   const visibleEntryCount = useMemo(
     () => excludeSoftDeletedEntries(entries).length,
@@ -184,8 +190,7 @@ export function ProfileScreen() {
       <AppScreenShell
         edges={["top", "bottom"]}
         onBack={handleBack}
-        title="个人中心"
-        backAccessibilityLabel="返回上一页"
+        title={t("screen.title")}
         headerStyle={profileStyles.stackHeader}
         scrollable
         contentContainerStyle={profileContentPadding}
@@ -220,6 +225,10 @@ export function ProfileScreen() {
         />
 
         <ProfileSettingsSection
+          localePreference={localePreference}
+          effectiveLocale={effectiveLocale}
+          onSetLocale={setLocale}
+          onSetLocaleMode={setLocaleMode}
           user={user}
           syncStatus={state.syncStatus}
           syncProgress={state.syncProgress}

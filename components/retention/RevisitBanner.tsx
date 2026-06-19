@@ -2,12 +2,12 @@
  * 回访轻入口（A2）：距上次记录较久时展示。
  */
 
-import { RETENTION_COPY } from "@/constants/retentionCopy";
 import { shouldShowRevisitBanner } from "@/shared/retention/touchpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { PenLine, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Pressable,
   Text,
@@ -31,6 +31,7 @@ type RevisitBannerProps = {
 
 export function RevisitBanner({ entries }: RevisitBannerProps) {
   const router = useRouter();
+  const { t } = useTranslation("retention");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createRevisitBannerStyles(width, height),
@@ -59,17 +60,20 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
 
   if (!show) return null;
 
+  const title =
+    daysSince === 0
+      ? t("revisitBanner.titleToday")
+      : t("revisitBanner.titleDaysAgo", { days: daysSince });
+
   return (
     <View style={styles.banner}>
       <View style={styles.row}>
         <PenLine size={18} color="#EF4444" />
-        <Text style={styles.title}>
-          {RETENTION_COPY.revisitBannerTitle(daysSince)}
-        </Text>
+        <Text style={styles.title}>{title}</Text>
         <TouchableOpacity
           onPress={handleDismiss}
           accessibilityRole="button"
-          accessibilityLabel={RETENTION_COPY.revisitBannerDismiss}
+          accessibilityLabel={t("revisitBanner.dismiss")}
         >
           <X size={18} color="#9CA3AF" />
         </TouchableOpacity>
@@ -82,7 +86,7 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
         onPress={() => router.push("/record")}
         accessibilityRole="button"
       >
-        <Text style={styles.actionText}>{RETENTION_COPY.revisitBannerAction}</Text>
+        <Text style={styles.actionText}>{t("revisitBanner.action")}</Text>
       </Pressable>
     </View>
   );

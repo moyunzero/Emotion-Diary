@@ -1,0 +1,57 @@
+{
+  "language": {
+    "sectionTitle": "语言",
+    "options": {
+      "followSystem": "跟随系统",
+      "zhHans": "简体中文",
+      "english": "English"
+    }
+  },
+  "sections": {
+    "dataSecurity": "数据与安全",
+    "retention": "留存与提醒",
+    "account": "其他"
+  },
+  "recycleBin": {
+    "title": "回收站",
+    "subtextEmpty": "暂无已删除记录",
+    "subtextCount": "{{count}} 条可恢复"
+  },
+  "account": {
+    "logout": "退出登录",
+    "deleteAccount": "注销账号",
+    "deleteAccountSubtext": "永久删除云端账号及数据，本地记录保留"
+  },
+  "stats": {
+    "entriesLabel": "心事记录",
+    "weatherScoreLabel": "心情指数",
+    "companionDaysLabel": "陪伴天数"
+  },
+  "companionDays": {
+    "modalTitle": "陪伴天数",
+    "daysUnit": "天",
+    "startedAt": "开始于 {{date}}",
+    "currentAchievement": "当前成就",
+    "nextMilestone": "下一个里程碑",
+    "daysToNext_one": "还需 {{count}} 天",
+    "daysToNext_other": "还需 {{count}} 天",
+    "maxAchievement": "恭喜！您已达到最高成就！",
+    "milestones": {
+      "7": { "title": "初识七日", "description": "我们已经相伴7天了" },
+      "30": { "title": "满月之约", "description": "一个月的陪伴" },
+      "100": { "title": "百日之诺", "description": "100天的坚持" },
+      "365": { "title": "周年纪念", "description": "整整一年的陪伴" },
+      "500": { "title": "长久相伴", "description": "500天的情绪旅程" },
+      "1000": { "title": "千日传奇", "description": "1000天的不离不弃" }
+    }
+  },
+  "screen": {
+    "title": "个人中心"
+  },
+  "userCard": {
+    "editProfile": "编辑个人资料",
+    "tapToLogin": "点击登录",
+    "loginSubtitle": "开启您的情绪之旅",
+    "noName": "未设置昵称"
+  }
+}

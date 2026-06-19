@@ -30,8 +30,8 @@ test.describe("回收站主路径（Expo Web）", () => {
   test("Profile → 回收站 → 可见软删条目", async ({ page }) => {
     await seedGuestEntries(page, [createSoftDeletedEntry()]);
     await page.goto("/profile");
-    await expect(page.getByText("个人中心")).toBeVisible();
-    await page.getByText("回收站", { exact: true }).click();
+    await expect(page.getByTestId("profile-recycle-bin-item")).toBeVisible();
+    await page.getByTestId("profile-recycle-bin-item").click();
     await expect(page.getByText(E2E_ENTRY_CONTENT)).toBeVisible();
   });
 
@@ -39,7 +39,7 @@ test.describe("回收站主路径（Expo Web）", () => {
     await seedGuestEntries(page, [createSoftDeletedEntry()]);
     await page.goto("/recycle-bin");
     await expect(page.getByText(E2E_ENTRY_CONTENT)).toBeVisible();
-    await page.getByRole("button", { name: "恢复这条记录" }).click();
+    await page.getByTestId("recycle-restore-button").click();
     await page.waitForFunction(
       ({ key, id }) => {
         const raw = localStorage.getItem(key);
@@ -63,7 +63,7 @@ test.describe("回收站主路径（Expo Web）", () => {
     await seedGuestEntries(page, [createSoftDeletedEntry()]);
     await page.goto("/recycle-bin");
     await expect(page.getByText(E2E_ENTRY_CONTENT)).toBeVisible();
-    await page.getByRole("button", { name: "永久删除这条记录" }).click();
+    await page.getByTestId("recycle-purge-button").click();
     await page.waitForTimeout(800);
     await expect(page.getByText(E2E_ENTRY_CONTENT)).toHaveCount(0);
   });

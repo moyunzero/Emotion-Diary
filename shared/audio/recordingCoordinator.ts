@@ -17,6 +17,7 @@ import {
 import * as Haptics from "expo-haptics";
 import { md5 } from "js-md5";
 import { Alert, Linking } from "react-native";
+import { i18n } from "@/i18n";
 import type { AudioData, RecordingState } from "../../types";
 import { logger } from "../../utils/logger";
 import { audioCoordinator } from "./coordinator";
@@ -193,10 +194,20 @@ async function runArmSequence(): Promise<void> {
   try {
     const status = await requestRecordingPermissionsAsync();
     if (!status.granted) {
-      Alert.alert("需要录音权限", "请在设置中开启麦克风权限", [
-        { text: "取消", style: "cancel" },
-        { text: "去设置", onPress: () => void Linking.openSettings() },
-      ]);
+      Alert.alert(
+        i18n.t("audio.permission.title", { ns: "system" }),
+        i18n.t("audio.permission.message", { ns: "system" }),
+        [
+          {
+            text: i18n.t("actions.cancel", { ns: "common" }),
+            style: "cancel",
+          },
+          {
+            text: i18n.t("audio.permission.openSettings", { ns: "system" }),
+            onPress: () => void Linking.openSettings(),
+          },
+        ],
+      );
       applyIdle();
       return;
     }
@@ -249,7 +260,10 @@ async function runArmSequence(): Promise<void> {
     }
   } catch (e) {
     logger.warn("recordingCoordinator", "开始录音失败", e);
-    Alert.alert("录音失败", "无法开始录音，请重试");
+    Alert.alert(
+      i18n.t("audio.recordFailed.title", { ns: "system" }),
+      i18n.t("audio.recordFailed.message", { ns: "system" }),
+    );
     await cleanupNativeAfterStop({ resetMode: true }).catch(() => {});
     applyIdle();
   } finally {
@@ -319,7 +333,10 @@ async function commitStopInternal(): Promise<void> {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (e) {
     console.error("Failed to stop recording:", e);
-    Alert.alert("保存失败", "无法保存录音，请重试");
+    Alert.alert(
+      i18n.t("audio.saveFailed.title", { ns: "system" }),
+      i18n.t("audio.saveFailed.message", { ns: "system" }),
+    );
     await cleanupNativeAfterStop({ resetMode: true }).catch(() => {});
     applyIdle();
   }

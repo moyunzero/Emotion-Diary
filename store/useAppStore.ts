@@ -9,6 +9,7 @@ import { create } from "zustand";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
+import { i18n } from "../i18n";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
@@ -36,6 +37,7 @@ import {
 import { getStorageKey, saveToStorage } from "./modules/storage";
 import { AppState } from "./modules/types";
 import { createUserSlice, hydrateEntriesAfterGuestMigration } from "./modules/user";
+import { createLocaleModule } from "./modules/locale";
 import { createWeatherModule } from "./modules/weather";
 
 /** 全局音频协调器与 Zustand 的 one-shot 接线（避免 coordinator ↔ store 循环依赖） */
@@ -85,70 +87,68 @@ const processPendingSync = async (): Promise<void> => {
  * 获取用户友好的错误消息
  */
 const getErrorMessage = (error: unknown): string => {
-  if (!error) return "操作失败，请稍后重试";
+  if (!error) {
+    return i18n.t("generic.operationFailed", { ns: "system" });
+  }
 
   const errorMessage = error instanceof Error ? error.message : String(error);
 
-  // 使用统一的错误判断函数
+  if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+    return i18n.t("errors.requestTimeout", { ns: "system" });
+  }
+
   if (isNetworkError(error)) {
-    return "网络连接失败，请检查网络设置";
+    return i18n.t("errors.networkConnectionFailed", { ns: "system" });
   }
 
   if (isAuthError(error)) {
     if (errorMessage.includes("Invalid login credentials")) {
-      return "邮箱或密码错误，请重新输入";
+      return i18n.t("errors.invalidLoginCredentials", { ns: "system" });
     }
-    return "认证失败，请重新登录";
+    return i18n.t("errors.authFailedRelogin", { ns: "system" });
   }
 
   if (errorMessage.includes("User already registered")) {
-    return "该邮箱已被注册";
+    return i18n.t("errors.emailRegistered", { ns: "system" });
   }
 
   if (errorMessage.includes("Email rate limit")) {
-    return "请求过于频繁，请稍后再试";
+    return i18n.t("errors.rateLimited", { ns: "system" });
   }
 
-  // 数据库相关错误
   if (
     errorMessage.includes("relation") &&
     errorMessage.includes("does not exist")
   ) {
-    return "数据库表不存在，请联系管理员";
+    return i18n.t("errors.dbTableMissing", { ns: "system" });
   }
 
-  // 主键冲突错误
   if (
     errorMessage.includes("23505") ||
     errorMessage.includes("duplicate key") ||
     errorMessage.includes("unique constraint")
   ) {
-    return "记录已存在，将尝试更新";
+    return i18n.t("errors.recordExistsWillUpdate", { ns: "system" });
   }
 
-  // RLS 策略错误
   if (
     errorMessage.includes("42501") ||
     errorMessage.includes("row-level security") ||
     errorMessage.includes("violates row-level security policy")
   ) {
-    return "数据库权限配置错误，请联系管理员检查行级安全策略";
+    return i18n.t("errors.rlsPolicyError", { ns: "system" });
   }
 
   if (
     errorMessage.includes("permission denied") ||
     errorMessage.includes("PGRST")
   ) {
-    return "权限不足，请检查账号状态";
+    return i18n.t("errors.permissionDenied", { ns: "system" });
   }
 
-  // 超时错误
-  if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
-    return "请求超时，请检查网络连接";
-  }
-
-  // 默认错误消息
-  return errorMessage.length > 50 ? "操作失败，请稍后重试" : errorMessage;
+  return errorMessage.length > 50
+    ? i18n.t("generic.operationFailed", { ns: "system" })
+    : errorMessage;
 };
 
 /**
@@ -212,6 +212,7 @@ export const useAppStore = create<AppState>()((...args) => {
   return {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
+    ...createLocaleModule(set, get),
     ...createAIModule(set, get),
     ...createAudioSlice(set, get, store),
 
@@ -247,11 +248,15 @@ export const useAppStore = create<AppState>()((...args) => {
         } = await supabase.auth.getSession();
 
         if (sessionError || !session?.user) {
-          throw new Error("认证状态验证失败，请重新登录");
+          throw new Error(
+            i18n.t("errors.sessionVerifyFailed", { ns: "system" }),
+          );
         }
 
         if (session.user.id !== user.id) {
-          throw new Error("用户身份验证失败，请重新登录");
+          throw new Error(
+            i18n.t("errors.identityVerifyFailed", { ns: "system" }),
+          );
         }
 
         const currentUserId = session.user.id;
@@ -418,7 +423,9 @@ export const useAppStore = create<AppState>()((...args) => {
                 hint: e.hint,
               });
 
-              throw new Error("数据库约束检查失败。请查看控制台日志了解详情。");
+              throw new Error(
+                i18n.t("errors.dbConstraintFailed", { ns: "system" }),
+              );
             }
 
             throw error;
@@ -532,11 +539,15 @@ export const useAppStore = create<AppState>()((...args) => {
         } = await supabase.auth.getSession();
 
         if (sessionError || !session?.user) {
-          throw new Error("认证状态验证失败，请重新登录");
+          throw new Error(
+            i18n.t("errors.sessionVerifyFailed", { ns: "system" }),
+          );
         }
 
         if (session.user.id !== user.id) {
-          throw new Error("用户身份验证失败，请重新登录");
+          throw new Error(
+            i18n.t("errors.identityVerifyFailed", { ns: "system" }),
+          );
         }
 
         const currentUserId = session.user.id;

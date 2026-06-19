@@ -1,0 +1,158 @@
+{
+  "header": {
+    "title": "我的心灵花园",
+    "status": {
+      "empty": "种下第一颗种子吧",
+      "thriving": "茁壮成长",
+      "needsWater": "该浇水啦"
+    }
+  },
+  "empty": {
+    "title": "你的心灵花园",
+    "subtitle": "还在等待第一颗种子",
+    "tips": {
+      "record": {
+        "title": "记录情绪",
+        "text": "每一次表达都是种下种子"
+      },
+      "resolve": {
+        "title": "和解打卡",
+        "text": "让情绪之花绽放"
+      },
+      "growth": {
+        "title": "见证成长",
+        "text": "花园会记录你的每一步"
+      }
+    },
+    "encouragement": "点击下方「记录」开始 ✨"
+  },
+  "reviewCta": "生成回顾",
+  "weeklyWeather": {
+    "title": "本周情绪天气"
+  },
+  "healing": {
+    "title": "治愈进度",
+    "stats": {
+      "bloomed": "已和解",
+      "pending": "待处理"
+    },
+    "encouragement": "面对情绪，就是在浇灌自己"
+  },
+  "relationship": {
+    "title": "关系花园",
+    "subtitle": "需要你的关注",
+    "empty": {
+      "title": "还没有关系的种子",
+      "hint": "记录时添加相关的人吧"
+    },
+    "healedCount": "{{resolved}}/{{total}} 和解"
+  },
+  "triggers": {
+    "title": "情绪触发洞察",
+    "subtitle": "什么容易影响你的情绪",
+    "empty": {
+      "needMore": "再记 {{remaining}} 条可查看",
+      "noData": "数据还不够",
+      "hint": "多记录一些再来看看",
+      "progress": "{{current}}/{{min}}"
+    },
+    "countSuffix": "次",
+    "actionLoop": {
+      "title": "行动闭环",
+      "stepTrigger": "1. 触发：{{trigger}}",
+      "stepAction": "2. 试试：{{stepOne}}",
+      "stepRevisit": "3. {{date}} 再看变化"
+    },
+    "advice": {
+      "work": "给自己的花园放个假吧，休息也是成长的一部分",
+      "study": "学习的压力是暂时的，你的努力终会开花结果",
+      "family": "家人之间的摩擦是修剪枝叶，让关系更健康",
+      "friends": "友谊的花朵需要双向浇灌，试着主动表达关心",
+      "communication": "试试用\"我感到...\"开头表达感受，而非指责",
+      "trust": "信任是需要时间慢慢浇灌的，给彼此一些耐心",
+      "privacy": "每朵花都需要自己的空间，尊重边界很重要",
+      "other": "每一次情绪都是了解自己的机会"
+    },
+    "adviceShort": {
+      "work": "给花园放个假",
+      "study": "压力会过去，坚持就好",
+      "family": "摩擦也是修剪",
+      "friends": "主动表达关心",
+      "communication": "用「我感到…」开头",
+      "trust": "给彼此一点耐心",
+      "privacy": "尊重彼此空间",
+      "other": "了解自己的机会"
+    }
+  },
+  "prescription": {
+    "generate": "获取AI建议",
+    "expand": "展开",
+    "collapse": "收起",
+    "retry": "重试",
+    "header": "AI个性化建议",
+    "badges": {
+      "urgent": "紧急",
+      "shortTerm": "短期",
+      "longTerm": "长期"
+    }
+  },
+  "releaseArchive": {
+    "title": "情绪释放档案",
+    "subtitleEmpty": "焚烧后会留下温和的复盘线索",
+    "subtitleFilled": "释放情绪，留存成长痕迹",
+    "metrics": {
+      "releaseRate": "释放率",
+      "burnedCount": "已焚烧",
+      "burnedUnit": "条"
+    },
+    "empty": {
+      "text": "还没用过「气话焚烧」，下次试试把难受交给火焰。"
+    },
+    "reflectionWithTrigger": "「{{trigger}}」真正触动我的是什么？",
+    "reflectionGeneric": "这次最想被看见的是什么？",
+    "latestRelease": "最近：{{date}}"
+  },
+  "footer": {
+    "messages": {
+      "startRecording": "开始记录，让花园生根吧",
+      "thisMonthMore": "本月照料 {{count}} 次，比上月多 {{diff}} 次",
+      "thisMonthLess": "本月照料 {{count}} 次，常来看看哦",
+      "gardenBeautiful": "花园越来越美了"
+    },
+    "subMessages": {
+      "withResolved": "每一朵盛开，都是勇敢面对的证明",
+      "default": "每一次记录，都是照料心灵的开始"
+    }
+  },
+  "utils": {
+    "weekdays": {
+      "0": "周日",
+      "1": "周一",
+      "2": "周二",
+      "3": "周三",
+      "4": "周四",
+      "5": "周五",
+      "6": "周六"
+    },
+    "flowerStatus": {
+      "seed": "种子",
+      "1": "含苞",
+      "2": "微开",
+      "3": "需照料",
+      "4": "有点蔫",
+      "5": "需浇水"
+    },
+    "potStatus": {
+      "blooming": "盛开",
+      "growing": "生长中",
+      "needWater": "需浇水"
+    },
+    "growthStage": {
+      "seed": "种子",
+      "sprout": "发芽",
+      "seedling": "幼苗",
+      "bud": "花苞",
+      "bloom": "开花"
+    }
+  }
+}

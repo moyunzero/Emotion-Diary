@@ -1,0 +1,158 @@
+{
+  "header": {
+    "title": "My Mind Garden",
+    "status": {
+      "empty": "Plant your first seed",
+      "thriving": "Thriving",
+      "needsWater": "Needs a little water"
+    }
+  },
+  "empty": {
+    "title": "Your Mind Garden",
+    "subtitle": "Waiting for the first seed",
+    "tips": {
+      "record": {
+        "title": "Record feelings",
+        "text": "Every expression plants a seed"
+      },
+      "resolve": {
+        "title": "Make peace",
+        "text": "Let emotional flowers bloom"
+      },
+      "growth": {
+        "title": "Watch it grow",
+        "text": "Your garden remembers every step"
+      }
+    },
+    "encouragement": "Tap Record below to start ✨"
+  },
+  "reviewCta": "Create review",
+  "weeklyWeather": {
+    "title": "This week's mood weather"
+  },
+  "healing": {
+    "title": "Healing progress",
+    "stats": {
+      "bloomed": "resolved",
+      "pending": "open"
+    },
+    "encouragement": "Facing feelings waters your garden"
+  },
+  "relationship": {
+    "title": "Relationship garden",
+    "subtitle": "Needs your care",
+    "empty": {
+      "title": "No relationship seeds yet",
+      "hint": "Add people when you record"
+    },
+    "healedCount": "{{resolved}}/{{total}} done"
+  },
+  "triggers": {
+    "title": "Trigger insights",
+    "subtitle": "What shapes your moods most",
+    "empty": {
+      "needMore": "Record {{remaining}} more to unlock",
+      "noData": "Not enough data yet",
+      "hint": "Keep recording to reveal patterns",
+      "progress": "{{current}}/{{min}}"
+    },
+    "countSuffix": " times",
+    "actionLoop": {
+      "title": "Action loop",
+      "stepTrigger": "1. Trigger: {{trigger}}",
+      "stepAction": "2. Try: {{stepOne}}",
+      "stepRevisit": "3. Check back {{date}}"
+    },
+    "advice": {
+      "work": "Give your garden a rest day — rest is part of growth",
+      "study": "Study stress is seasonal; your effort will bloom in time",
+      "family": "Family friction is pruning — it can help relationships grow healthier",
+      "friends": "Friendship flowers need watering from both sides — reach out with care",
+      "communication": "Try starting with \"I feel…\" instead of blame",
+      "trust": "Trust grows slowly with steady watering — give each other patience",
+      "privacy": "Every flower needs its own space — boundaries matter",
+      "other": "Every feeling is a chance to know yourself better"
+    },
+    "adviceShort": {
+      "work": "Rest day for your garden",
+      "study": "Seasonal stress — keep going",
+      "family": "Prune to grow healthier",
+      "friends": "Reach out with care",
+      "communication": "Start with \"I feel…\"",
+      "trust": "Patience builds trust",
+      "privacy": "Space and boundaries matter",
+      "other": "A chance to know yourself"
+    }
+  },
+  "prescription": {
+    "generate": "Get AI suggestions",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "retry": "Retry",
+    "header": "Personalized AI suggestions",
+    "badges": {
+      "urgent": "Urgent",
+      "shortTerm": "Short-term",
+      "longTerm": "Long-term"
+    }
+  },
+  "releaseArchive": {
+    "title": "Emotion release archive",
+    "subtitleEmpty": "After burning, gentle clues remain",
+    "subtitleFilled": "Burned traces, growth kept",
+    "metrics": {
+      "releaseRate": "Release rate",
+      "burnedCount": "Burned",
+      "burnedUnit": " entries"
+    },
+    "empty": {
+      "text": "You haven't used Burn It Out yet — let the flame carry the hurt."
+    },
+    "reflectionWithTrigger": "What did \"{{trigger}}\" really touch?",
+    "reflectionGeneric": "What need wanted to be seen?",
+    "latestRelease": "Latest: {{date}}"
+  },
+  "footer": {
+    "messages": {
+      "startRecording": "Start recording — let your garden take root",
+      "thisMonthMore": "You tended your garden {{count}} times — {{diff}} more than last month",
+      "thisMonthLess": "You tended your garden {{count}} times — drop by when you can",
+      "gardenBeautiful": "Your garden is growing"
+    },
+    "subMessages": {
+      "withResolved": "Every bloom proves you met your feelings",
+      "default": "Every entry tends your inner garden"
+    }
+  },
+  "utils": {
+    "weekdays": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "flowerStatus": {
+      "seed": "Seed",
+      "1": "Bud waiting",
+      "2": "Bud opening",
+      "3": "Needs care",
+      "4": "A little wilted",
+      "5": "Needs water"
+    },
+    "potStatus": {
+      "blooming": "Blooming",
+      "growing": "Growing",
+      "needWater": "Needs water"
+    },
+    "growthStage": {
+      "seed": "Seed",
+      "sprout": "Sprout",
+      "seedling": "Seedling",
+      "bud": "Bud",
+      "bloom": "Bloom"
+    }
+  }
+}

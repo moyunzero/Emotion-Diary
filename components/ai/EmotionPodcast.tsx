@@ -1,14 +1,17 @@
 import { Loader2, Mic, RefreshCw, Share2 } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { formatLocaleDate } from '@/shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
 
 /**
- * 情绪播客组件
+ * Emotion podcast card — AI-generated mood recap
  * 生成并展示AI生成的情绪回顾文案
  */
 const EmotionPodcast: React.FC = () => {
+  const { t } = useTranslation('ai');
   const { padding, fontSize, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -131,9 +134,19 @@ const EmotionPodcast: React.FC = () => {
     [padding, fontSize, borderRadius]
   );
 
-  const { emotionPodcast, generatePodcast } = useAppStore();
+  const { emotionPodcast, generatePodcast, effectiveLocale } = useAppStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
+
+  const periodLabel =
+    selectedPeriod === 'week'
+      ? t('podcast.ui.periodWeek')
+      : t('podcast.ui.periodMonth');
+
+  const periodReviewLabel =
+    emotionPodcast?.period === 'week'
+      ? t('podcast.ui.periodReviewWeek')
+      : t('podcast.ui.periodReviewMonth');
 
   /**
    * 生成播客
@@ -143,7 +156,10 @@ const EmotionPodcast: React.FC = () => {
     try {
       await generatePodcast(selectedPeriod);
     } catch (error) {
-      Alert.alert('生成失败', '生成情绪播客时出现错误，请稍后重试');
+      Alert.alert(
+        t('alerts.podcastGenerateFailed.title', { ns: 'system' }),
+        t('alerts.podcastGenerateFailed.message', { ns: 'system' }),
+      );
       console.error('生成播客失败:', error);
     } finally {
       setIsGenerating(false);
@@ -158,8 +174,8 @@ const EmotionPodcast: React.FC = () => {
 
     try {
       await Share.share({
-        message: `我的情绪回顾\n\n${emotionPodcast.content}\n\n来自情绪日记 ❤️`,
-        title: '情绪回顾',
+        message: `${t('podcast.ui.shareMessagePrefix')}${emotionPodcast.content}${t('podcast.ui.shareMessageSuffix')}`,
+        title: t('podcast.ui.shareTitle'),
       });
     } catch (error) {
       console.error('分享失败:', error);
@@ -177,9 +193,9 @@ const EmotionPodcast: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Mic size={24} color="#FDA4AF" />
-        <Text style={styles.title}>情绪播客</Text>
+        <Text style={styles.title}>{t('podcast.ui.title')}</Text>
       </View>
-      <Text style={styles.subtitle}>让AI为你生成温暖的情绪回顾</Text>
+      <Text style={styles.subtitle}>{t('podcast.ui.subtitle')}</Text>
 
       {/* 时间选择 */}
       {!emotionPodcast && (
@@ -197,7 +213,7 @@ const EmotionPodcast: React.FC = () => {
                 selectedPeriod === 'week' && styles.periodButtonTextActive,
               ]}
             >
-              本周
+              {t('podcast.ui.periodWeek')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -213,7 +229,7 @@ const EmotionPodcast: React.FC = () => {
                 selectedPeriod === 'month' && styles.periodButtonTextActive,
               ]}
             >
-              本月
+              {t('podcast.ui.periodMonth')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -229,12 +245,14 @@ const EmotionPodcast: React.FC = () => {
           {isGenerating ? (
             <>
               <ActivityIndicator size="small" color="#FFFFFF" />
-              <Text style={styles.generateButtonText}>生成中...</Text>
+              <Text style={styles.generateButtonText}>{t('podcast.ui.generating')}</Text>
             </>
           ) : (
             <>
               <Mic size={20} color="#FFFFFF" />
-              <Text style={styles.generateButtonText}>生成{selectedPeriod === 'week' ? '本周' : '本月'}回顾</Text>
+              <Text style={styles.generateButtonText}>
+                {t('podcast.ui.generateButton', { period: periodLabel })}
+              </Text>
             </>
           )}
         </TouchableOpacity>
@@ -243,9 +261,7 @@ const EmotionPodcast: React.FC = () => {
           <View style={styles.podcastHeader}>
             <View style={styles.podcastHeaderLeft}>
               <Mic size={20} color="#FDA4AF" />
-              <Text style={styles.podcastPeriod}>
-                {emotionPodcast.period === 'week' ? '本周' : '本月'}回顾
-              </Text>
+              <Text style={styles.podcastPeriod}>{periodReviewLabel}</Text>
             </View>
             <View style={styles.podcastActions}>
               <TouchableOpacity
@@ -270,12 +286,7 @@ const EmotionPodcast: React.FC = () => {
           </ScrollView>
 
           <Text style={styles.podcastFooter}>
-            {new Date(emotionPodcast.generatedAt).toLocaleDateString('zh-CN', {
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {formatLocaleDate(emotionPodcast.generatedAt, effectiveLocale, 'medium')}
           </Text>
         </View>
       )}
@@ -284,5 +295,3 @@ const EmotionPodcast: React.FC = () => {
 };
 
 export default EmotionPodcast;
-
-

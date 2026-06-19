@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { BarChart2, CloudSun, PenLine } from 'lucide-react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const { t } = useTranslation('tabs');
   const insets = useSafeAreaInsets();
 
   // Note: Inline tabBarIcon functions are acceptable here per Expo Router conventions
@@ -40,7 +42,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: '气象站',
+            title: t('index'),
             tabBarButtonTestID: 'tab-dashboard',
             tabBarIcon: ({ color, size }) => (
               <CloudSun size={28} color={color} strokeWidth={2} />
@@ -50,7 +52,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="record"
           options={{
-            title: '记一笔',
+            title: t('record'),
             tabBarButtonTestID: 'tab-record',
             tabBarIcon: ({ color, size }) => (
               <PenLine size={28} color={color} strokeWidth={2} />
@@ -61,7 +63,7 @@ export default function TabLayout() {
           name="insights"
           options={{
             lazy: true,
-            title: '洞察',
+            title: t('insights'),
             tabBarButtonTestID: 'tab-insights',
             tabBarIcon: ({ color, size }) => (
               <BarChart2 size={28} color={color} strokeWidth={2} />

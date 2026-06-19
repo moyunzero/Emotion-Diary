@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import type { EditEntryModalProps } from '../../types/components';
 import { EntryEditor } from '../EntryEditor';
 import { StackScreenHeader } from '../StackScreenHeader';
@@ -24,6 +25,8 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
   onSuccess,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('record');
+  const editTitle = t('screen.editTitle');
 
   return (
     <Modal
@@ -40,10 +43,10 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
           headerCenter={
             <View style={styles.headerTitleContainer}>
               <AppIcon name={Edit} size={20} color="#1F2937" />
-              <Text style={styles.headerTitle}>编辑记录</Text>
+              <Text style={styles.headerTitle}>{editTitle}</Text>
             </View>
           }
-          titleAccessibilityLabel="编辑记录"
+          titleAccessibilityLabel={editTitle}
           style={[styles.modalStackHeader, { paddingTop: insets.top }]}
         />
 

@@ -1,0 +1,36 @@
+{
+  "sectionHint": "下列为两种云端操作，请按需要选择。",
+  "uploadTitle": "备份到云端",
+  "uploadSubtext": "上传本机记录到云端",
+  "upload": {
+    "progress": "正在备份到云端…",
+    "success": "已备份 {{count}} 条记录到云端"
+  },
+  "pullTitle": "从云端合并",
+  "pullSubtext": "下载并与本机合并；同一条以云端为准",
+  "pull": {
+    "progress": "正在从云端合并…",
+    "confirmTitle": "从云端合并",
+    "confirmMessage": "将把云端记录与本机合并。若同一条在两边都存在，以云端内容为准（可找回本机已删条目）。仅本机独有的记录会保留。确定继续？",
+    "confirmOk": "继续合并",
+    "success": "已合并 {{count}} 条记录"
+  },
+  "pendingMessage": "已有同步进行中，完成后将自动尝试备份",
+  "notLoggedIn": "请先登录后再操作",
+  "status": {
+    "syncing": "正在同步…",
+    "pending": "同步排队中…",
+    "error": "上次同步失败，请重试",
+    "lastSyncPrefix": "上次同步：{{time}}"
+  },
+  "neverSynced": "从未同步",
+  "justSynced": "刚刚同步",
+  "relative": {
+    "minutesAgo_one": "{{count}}分钟前",
+    "minutesAgo_other": "{{count}}分钟前",
+    "hoursAgo_one": "{{count}}小时前",
+    "hoursAgo_other": "{{count}}小时前",
+    "daysAgo_one": "{{count}}天前",
+    "daysAgo_other": "{{count}}天前"
+  }
+}

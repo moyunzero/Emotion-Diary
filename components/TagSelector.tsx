@@ -15,6 +15,7 @@ interface TagSelectorProps {
   prefix?: string; // 用于触发器标签的 '#' 前缀
   /** 是否作为表单最后一节，为 true 时去掉底部外边距，由上层操作栏统一控制间距 */
   isLastSection?: boolean;
+  getLabel?: (item: string) => string;
 }
 
 /**
@@ -31,6 +32,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   onDelete,
   prefix = "",
   isLastSection = false,
+  getLabel = (item) => item,
 }) => {
   return (
     <View style={[styles.section, isLastSection && styles.sectionLast]}>
@@ -52,7 +54,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
                   style={[styles.tagText, isSelected && styles.tagTextSelected]}
                 >
                   {prefix}
-                  {item}
+                  {getLabel(item)}
                 </Text>
               </TouchableOpacity>
               {isCustom && (

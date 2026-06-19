@@ -1,0 +1,149 @@
+{
+  "header": {
+    "title": "Emotion Weather Station"
+  },
+  "filter": {
+    "all": "All entries",
+    "active": "Open",
+    "resolved": "Resolved",
+    "burned": "Ashes",
+    "buttonA11y": "Filter, showing {{label}}",
+    "buttonHint": "Open the filter menu to view all, open, resolved, or burned entries",
+    "activeA11y": "Filter: Open",
+    "activeHint": "Show only open mood entries",
+    "resolvedA11y": "Filter: Resolved",
+    "resolvedHint": "Show only resolved entries",
+    "burnedA11y": "Filter: Ashes",
+    "burnedHint": "Show only burned entries",
+    "allA11y": "Filter: All entries",
+    "allHint": "Show all mood entries"
+  },
+  "empty": {
+    "active": {
+      "title": "Nothing waiting right now",
+      "desc": "Your inner garden is growing gently",
+      "cta": "Start recording",
+      "ctaA11y": "Record a mood",
+      "ctaHint": "Go to the record screen and capture your first entry"
+    },
+    "resolved": {
+      "title": "No resolved entries yet",
+      "desc": "Record your feelings and make peace with yourself",
+      "cta": "Start recording",
+      "ctaA11y": "Record a mood",
+      "ctaHint": "Go to the record screen and capture your first entry"
+    },
+    "burned": {
+      "title": "No burned words yet",
+      "desc": "Release heavy feelings through the burn ritual",
+      "cta": "Start recording",
+      "ctaA11y": "Record a mood",
+      "ctaHint": "Go to the record screen and capture your first entry"
+    },
+    "all": {
+      "title": "Start your first mood entry",
+      "desc": "Every expression is a way of tending to your heart",
+      "cta": "Start recording",
+      "ctaA11y": "Record a mood",
+      "ctaHint": "Go to the record screen and capture your first entry"
+    }
+  },
+  "weatherAdvice": {
+    "sunny": "A good day to feel light",
+    "cloudy": "A good day to talk it through"
+  },
+  "entryCard": {
+    "edit": "Edit",
+    "resolve": "Mark resolved",
+    "burn": "Burn it out",
+    "delete": "Delete",
+    "moveToRecycle": "Move to recycle bin",
+    "burnedTitle": "Turned to ash and carried away",
+    "burnedAt": "Burned on {{date}}",
+    "burnedContentLabel": "Original content (for reflection):",
+    "burnedMetaPeople": "People: {{people}}",
+    "burnedMetaTriggers": "Triggers: {{triggers}}",
+    "burnedAudioLabel": "Voice:",
+    "burnedHintExpanded": "Tap to collapse · long press to delete forever",
+    "burnedHintCollapsed": "Tap to view original · long press to delete forever",
+    "cardA11y": "Mood entry, {{content}}, about {{people}}, {{expanded}}",
+    "cardExpanded": "expanded",
+    "cardCollapsed": "tap to expand",
+    "cardExpandHint": "Expand to see full content and actions",
+    "cardCollapseHint": "Collapse card",
+    "editA11y": "Edit this mood entry",
+    "editHint": "Edit content, tags, or deadline",
+    "resolveA11y": "Mark as resolved",
+    "resolveHint": "Mark this entry resolved after you've talked it through or let it go",
+    "burnA11y": "Burn it out",
+    "burnHint": "Burn this entry to release the feeling — content cannot be restored",
+    "deleteA11y": "Delete this mood entry",
+    "deleteHint": "Delete this entry — it cannot be undone",
+    "relatedPersonFallback": "someone",
+    "peopleJoiner": " and "
+  },
+  "weatherStation": {
+    "title": "Relationship Weather",
+    "emotionIndex": "Mood index",
+    "conditionLabel": "Conditions",
+    "conditions": {
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rainy": "Rainy",
+      "stormy": "Stormy"
+    },
+    "descriptions": {
+      "sunny": "Things are going well~",
+      "cloudy": "Some small feelings need attention",
+      "rainy": "Consider scheduling a deeper conversation",
+      "stormy": "A stormy day — care for yourself first, talk when it settles"
+    },
+    "forecast": {
+      "title": "Emotion forecast",
+      "generate": "Generate forecast",
+      "trendTitle": "7-day outlook"
+    },
+    "risk": {
+      "high": "High risk",
+      "medium": "Medium risk",
+      "low": "Low risk"
+    },
+    "dates": {
+      "today": "Today",
+      "tomorrow": "Tomorrow"
+    },
+    "alerts": {
+      "minEntries": {
+        "title": "Heads up",
+        "message": "You need at least 3 mood entries to generate a forecast"
+      },
+      "generateFailed": {
+        "title": "Couldn't generate forecast",
+        "message": "Something went wrong while generating your forecast. Please try again."
+      }
+    }
+  },
+  "alerts": {
+    "playbackFailed": {
+      "title": "Playback failed",
+      "bodyMissing": "The recording file is missing",
+      "bodyRetry": "Couldn't play the recording — please try again"
+    },
+    "moveToRecycle": {
+      "title": "Move to recycle bin",
+      "message": "Move this entry to the recycle bin? You can restore it from Profile.\n\n\"{{excerpt}}\"",
+      "confirm": "Move to recycle bin"
+    },
+    "burn": {
+      "title": "Burn it out",
+      "message": "Burn this memory for good?\n\nYou'll keep an ash trace, but the words won't come back.",
+      "cancel": "Not yet",
+      "confirm": "Burn it"
+    },
+    "deleteAsh": {
+      "title": "Delete forever",
+      "message": "Delete this ash forever? You won't be able to recover it.",
+      "confirm": "Delete forever"
+    }
+  }
+}

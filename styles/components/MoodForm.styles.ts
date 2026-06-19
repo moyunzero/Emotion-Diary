@@ -24,10 +24,12 @@ export function createMoodFormStyles(width: number, height: number) {
     moodButton: {
       alignItems: 'center',
       opacity: 0.5,
+      flex: 1,
+      maxWidth: 72,
     },
     moodButtonSelected: {
       opacity: 1,
-      transform: [{ scale: 1.1 }],
+      transform: [{ scale: 1.05 }],
     },
     moodIconContainer: {
       marginBottom: DESIGN_TOKENS.spacing.sm,
@@ -40,6 +42,7 @@ export function createMoodFormStyles(width: number, height: number) {
       fontWeight: 'bold',
       color: COLORS.text.secondary,
       textAlign: 'center',
+      maxWidth: 64,
     },
     moodLabelSelected: {
       color: COLORS.text.primary,

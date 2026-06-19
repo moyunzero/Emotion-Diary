@@ -1,0 +1,109 @@
+{
+  "prompts": {
+    "closing": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友，用中文像朋友聊天一样书写。禁止客服腔、禁止医疗诊断承诺。结合{{userName}}分享的具体情绪和触发事件，用花园/天气的比喻共情，适度肯定{{userName}}的努力。给出简短但有洞察的一句话总结。只输出一段正文，不要标题、不要列表、不要 markdown。",
+      "user": "请根据以下统计摘要，写一段温柔的一句话总结（约 80～120 字），用第二人称「你」，可自然使用花园或天气作比喻，不要编造未给出的数字。\n\n- 所选周期：{{presetLabel}}\n- 区间：{{periodStart}}～{{periodEnd}}\n- 陪伴心晴MO第 {{companionDays}} 天\n- {{rateLine}}\n- {{deltaLine}}\n- 本期共记录 {{totalEntries}} 笔，已和解 {{resolvedEntries}} 笔\n- Top 天气：{{topWeather}}\n- Top 触发：{{topTriggers}}\n\n请严格只输出一段中文正文。",
+      "rateNoData": "本期情绪解决率：暂无",
+      "rateWithValue": "本期情绪解决率：{{pct}}%",
+      "deltaNoData": "环比上一期：暂无对比",
+      "deltaWithValue": "环比上一期：{{arrow}}{{pct}}%",
+      "none": "暂无"
+    },
+    "podcast": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友，擅长用天气和花园的比喻共情。结合{{userName}}具体的情绪记录数据，用温柔治愈的语气像朋友聊天一样回顾。适度发现{{userName}}的成长和进步，用中文回复。",
+      "user": "根据{{userName}}最近{{periodLabel}}的情绪记录，生成一段200字左右的温柔回顾：\n\n统计信息：\n- 共记录{{totalCount}}次情绪\n- 已解决{{resolvedCount}}次，解决率{{resolveRatePct}}%\n- 平均情绪强度：{{avgMoodLevel}}级\n- 主要触发因素：{{topTrigger}}\n\n要求：\n1. 用\"你\"称呼用户\n2. 使用天气和花园的比喻\n3. 肯定用户的成长和努力\n4. 像朋友一样亲切\n5. 200字左右",
+      "periodWeek": "一周",
+      "periodMonth": "一个月"
+    },
+    "prescription": {
+      "system": "你叫小晴，是{{userName}}温暖的情绪陪伴好友。擅长用朋友的角度给出具体实用、可立刻行动的建议。结合触发事件、情绪强度和用户习惯，用中文给出真正有帮助的回复。",
+      "user": "{{userName}}因为\"{{trigger}}\"（情绪强度{{moodLevel}}/5级）需要帮助。\n\n{{companionLine}}{{recurringLine}}\n请给出3条朋友般温暖且具体可执行的建议：\n\n1. 紧急建议（立即执行，不超过30字）\n2. 短期建议（今天内执行，不超过30字）\n3. 长期建议（持续改善，不超过30字）\n\n格式要求：\n- 每条建议独立一行\n- 格式：1. [建议内容]\n- 语气温暖实用，像朋友聊天",
+      "companionLine": "已陪伴{{userName}} {{companionDays}} 天，了解ta的情况。",
+      "recurringLine": "最近常见的触发因素：{{triggers}}。"
+    }
+  },
+  "fallbacks": {
+    "closing": {
+      "empty": "最近还没有情绪记录，开始记录你的情绪吧~",
+      "rateNoData": "本期情绪解决率暂无统计",
+      "rateWithValue": "情绪解决率为 {{pct}}%",
+      "default": "在{{presetLabel}}，你记录了{{totalEntries}}笔，已和解{{resolvedEntries}}笔。{{rateText}}。每一次记录都值得被温柔看见，心晴MO 会一直在。"
+    },
+    "podcast": {
+      "empty": "最近还没有情绪记录，开始记录你的情绪吧~",
+      "periodWeek": "这一周",
+      "periodMonth": "这一个月",
+      "rateHigh": "你的情绪解决率很高，花园正在茁壮成长",
+      "rateMedium": "你的情绪管理在进步，继续加油",
+      "rateLow": "记得及时处理情绪，给花园浇浇水",
+      "default": "{{periodText}}，你记录了{{totalCount}}次情绪，其中{{resolvedCount}}次已经解决。{{rateText}}。每一次记录都是了解自己的机会，每一次解决都是成长的见证。继续保持，你的心灵花园会越来越美丽~"
+    },
+    "prescription": {
+      "urgentByLevel": {
+        "1": "深呼吸10次，让自己冷静下来",
+        "2": "离开现场，找个安静的地方待5分钟",
+        "3": "深呼吸20次，或者去散步10分钟",
+        "4": "立即离开现场，深呼吸30次，或者听一首舒缓的音乐",
+        "5": "立即离开现场，深呼吸50次，或者给信任的朋友打电话"
+      },
+      "shortTermByTrigger": {
+        "work": "今晚找个安静的时间，写下你的感受，明天再处理",
+        "study": "先休息一下，做点放松的事情，晚点再继续",
+        "family": "今晚找个合适的时间，用\"我感到...\"的方式表达感受",
+        "friends": "今天先冷静，明天找个时间好好沟通",
+        "communication": "今晚准备一下想说的话，明天找个安静的时间聊聊",
+        "trust": "给彼此一些空间，等情绪平复后再沟通",
+        "privacy": "尊重彼此的边界，先冷静下来再讨论"
+      },
+      "longTermByTrigger": {
+        "work": "学习压力管理技巧，建立工作与生活的平衡",
+        "study": "制定合理的学习计划，避免过度压力",
+        "family": "学习非暴力沟通技巧，改善家庭关系",
+        "friends": "定期与朋友沟通，建立更深的信任",
+        "communication": "学习表达技巧，用\"我\"语句代替指责",
+        "trust": "通过小事情逐步建立信任，给彼此时间",
+        "privacy": "与对方讨论边界问题，找到双方都舒适的平衡点"
+      },
+      "urgentDefault": "深呼吸，让自己冷静下来",
+      "shortTermDefault": "今晚找个安静的时间，写下你的感受",
+      "longTermDefault": "持续关注情绪管理，学习相关技巧"
+    }
+  },
+  "forecast": {
+    "timeSlot": {
+      "morning": "上午",
+      "afternoon": "下午",
+      "evening": "晚上"
+    },
+    "warningHigh": "{{date}}是高风险日，记得多点耐心",
+    "warningMedium": "{{date}}情绪可能波动，注意调节",
+    "summaryStable": "未来{{days}}天情绪趋势平稳，继续保持良好的情绪管理习惯。",
+    "summaryRisky": "未来{{days}}天内有{{highCount}}个高风险日，建议提前做好准备。",
+    "unavailable": "预测功能暂时不可用",
+    "highRiskDescription": "你在{{dayOfWeek}}{{timeSlot}}情绪波动较大",
+    "defaultTrigger": "生活"
+  },
+  "prescription": {
+    "generating": {
+      "analyzing": "正在分析你的情绪模式...",
+      "generating": "正在生成个性化建议...",
+      "default": "AI正在生成建议..."
+    },
+    "errorPrefix": "生成失败："
+  },
+  "podcast": {
+    "ui": {
+      "title": "情绪播客",
+      "subtitle": "让AI为你生成温暖的情绪回顾",
+      "periodWeek": "本周",
+      "periodMonth": "本月",
+      "generating": "生成中...",
+      "generateButton": "生成{{period}}回顾",
+      "periodReviewWeek": "本周回顾",
+      "periodReviewMonth": "本月回顾",
+      "shareTitle": "情绪回顾",
+      "shareMessagePrefix": "我的情绪回顾\n\n",
+      "shareMessageSuffix": "\n\n来自心晴MO ❤️"
+    }
+  }
+}

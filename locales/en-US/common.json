@@ -1,0 +1,27 @@
+{
+  "appName": "MoodMO",
+  "actions": {
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "shell": {
+    "back": "Back",
+    "close": "Close",
+    "error": {
+      "title": "Oops, something went wrong",
+      "message": "The app hit an unexpected snag, but your data is safe",
+      "retry": "Try again",
+      "devDetailsTitle": "Error details (dev mode):"
+    }
+  },
+  "relative": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "daysLater_one": "In {{count}} day",
+    "daysLater_other": "In {{count}} days",
+    "unknown": "Unknown time"
+  }
+}

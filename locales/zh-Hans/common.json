@@ -1,0 +1,27 @@
+{
+  "appName": "心晴MO",
+  "actions": {
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "shell": {
+    "back": "返回",
+    "close": "关闭",
+    "error": {
+      "title": "哎呀，出了点小问题",
+      "message": "应用遇到了一个意外错误，但你的数据是安全的",
+      "retry": "重新加载",
+      "devDetailsTitle": "错误详情（开发模式）："
+    }
+  },
+  "relative": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "tomorrow": "明天",
+    "daysAgo_one": "{{count}}天前",
+    "daysAgo_other": "{{count}}天前",
+    "daysLater_one": "{{count}}天后",
+    "daysLater_other": "{{count}}天后",
+    "unknown": "未知时间"
+  }
+}

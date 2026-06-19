@@ -4,9 +4,11 @@
  */
 
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
-import { formatDateChinese } from '@/shared/formatting/date';
+import { formatLocaleDate } from '@/shared/formatting/date';
+import { useAppStore } from '@/store/useAppStore';
 import { PartyPopper, X } from 'lucide-react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
     calculateDays,
@@ -23,6 +25,8 @@ interface CompanionDaysModalProps {
 }
 
 export default function CompanionDaysModal({ visible, onClose }: CompanionDaysModalProps) {
+  const { t } = useTranslation('profile');
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const firstEntryDate = useCompanionFirstEntryDate();
 
   const days = calculateDays(firstEntryDate);
@@ -47,22 +51,24 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            <Text style={styles.title}>陪伴天数</Text>
+            <Text style={styles.title}>{t('companionDays.modalTitle')}</Text>
             
             <View style={styles.daysContainer}>
               <Text style={styles.daysValue}>{days}</Text>
-              <Text style={styles.daysLabel}>天</Text>
+              <Text style={styles.daysLabel}>{t('companionDays.daysUnit')}</Text>
             </View>
             
             {firstEntryDate != null && firstEntryDate > 0 && (
               <Text style={styles.startDate}>
-                开始于 {formatDateChinese(firstEntryDate)}
+                {t('companionDays.startedAt', {
+                  date: formatLocaleDate(firstEntryDate, effectiveLocale),
+                })}
               </Text>
             )}
             
             {milestone && (
               <View style={styles.milestoneSection}>
-                <Text style={styles.sectionTitle}>当前成就</Text>
+                <Text style={styles.sectionTitle}>{t('companionDays.currentAchievement')}</Text>
                 <View style={[styles.milestoneCard, { borderColor: milestone.color }]}>
                   <MilestoneIcon 
                     emoji={milestone.icon} 
@@ -70,15 +76,19 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                     color={milestone.color}
                     testID="current-milestone-icon"
                   />
-                  <Text style={styles.milestoneTitle}>{milestone.title}</Text>
-                  <Text style={styles.milestoneDesc}>{milestone.description}</Text>
+                  <Text style={styles.milestoneTitle}>
+                    {t(`companionDays.milestones.${milestone.days}.title` as 'companionDays.milestones.7.title')}
+                  </Text>
+                  <Text style={styles.milestoneDesc}>
+                    {t(`companionDays.milestones.${milestone.days}.description` as 'companionDays.milestones.7.description')}
+                  </Text>
                 </View>
               </View>
             )}
             
             {nextMilestone ? (
               <View style={styles.nextSection}>
-                <Text style={styles.sectionTitle}>下一个里程碑</Text>
+                <Text style={styles.sectionTitle}>{t('companionDays.nextMilestone')}</Text>
                 <View style={styles.nextCard}>
                   <MilestoneIcon 
                     emoji={nextMilestone.icon} 
@@ -86,15 +96,17 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                     color="#6B7280"
                     testID="next-milestone-icon"
                   />
-                  <Text style={styles.nextTitle}>{nextMilestone.title}</Text>
-                  <Text style={styles.nextDays}>还需 {daysToNext} 天</Text>
+                  <Text style={styles.nextTitle}>
+                    {t(`companionDays.milestones.${nextMilestone.days}.title` as 'companionDays.milestones.7.title')}
+                  </Text>
+                  <Text style={styles.nextDays}>{t('companionDays.daysToNext', { count: daysToNext })}</Text>
                 </View>
               </View>
             ) : (
               <View style={styles.maxSection}>
                 <View style={styles.maxContent}>
                   <AppIcon name={PartyPopper} size={20} color="#EF4444" testID="max-achievement-icon" />
-                  <Text style={styles.maxText}>恭喜！您已达到最高成就！</Text>
+                  <Text style={styles.maxText}>{t('companionDays.maxAchievement')}</Text>
                 </View>
               </View>
             )}

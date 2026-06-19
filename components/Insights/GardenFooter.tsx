@@ -1,5 +1,6 @@
 import { Flower2, Leaf } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
@@ -15,6 +16,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
   lastMonthCount,
   resolvedCount,
 }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -53,24 +55,24 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
 
   const getMessage = () => {
     if (thisMonthCount === 0) {
-      return '开始记录，让你的心灵花园生根发芽吧';
+      return t('footer.messages.startRecording');
     }
     
     const diff = thisMonthCount - lastMonthCount;
     if (diff > 0) {
-      return `本月你认真照料了花园 ${thisMonthCount} 次，比上月多了 ${diff} 次`;
+      return t('footer.messages.thisMonthMore', { count: thisMonthCount, diff });
     } else if (diff < 0) {
-      return `本月你照料了花园 ${thisMonthCount} 次，记得常来看看哦`;
+      return t('footer.messages.thisMonthLess', { count: thisMonthCount });
     } else {
-      return `你的花园正在变得越来越美丽`;
+      return t('footer.messages.gardenBeautiful');
     }
   };
 
   const getSubMessage = () => {
     if (resolvedCount > 0) {
-      return `每一朵盛开的花，都是你勇敢面对情绪的证明`;
+      return t('footer.subMessages.withResolved');
     }
-    return '每一次记录，都是照料心灵的开始';
+    return t('footer.subMessages.default');
   };
 
   return (

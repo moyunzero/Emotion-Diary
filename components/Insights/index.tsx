@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { useAppStore } from '../../store/useAppStore';
@@ -16,6 +17,7 @@ import { INSIGHTS_COLORS } from './constants';
 
 const InsightsComponent: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation('insights');
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
 
@@ -98,7 +100,7 @@ const InsightsComponent: React.FC = () => {
             ]}
             onPress={() => router.push('/review-export')}
           >
-            <Text style={styles.reviewCtaText}>生成情绪回顾图</Text>
+            <Text style={styles.reviewCtaText}>{t('reviewCta')}</Text>
           </Pressable>
         </View>
 

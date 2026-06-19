@@ -5,7 +5,7 @@
 
 import { Platform } from "react-native";
 
-import { RETENTION_COPY } from "@/constants/retentionCopy";
+import { i18n } from "@/i18n";
 import { logger } from "@/utils/logger";
 import {
   type EmotionReminderSettings,
@@ -59,7 +59,7 @@ export async function ensureAndroidNotificationChannel(): Promise<void> {
   const Notifications = getNotifications();
   if (!Notifications || Platform.OS !== "android") return;
   await Notifications.setNotificationChannelAsync("emotion-reminders", {
-    name: "情绪提醒",
+    name: i18n.t("androidChannelName", { ns: "retention" }),
     importance: Notifications.AndroidImportance.DEFAULT,
   });
 }
@@ -70,12 +70,20 @@ export type ReminderPermissionResult =
 
 export async function requestReminderPermissions(): Promise<ReminderPermissionResult> {
   if (Platform.OS === "web") {
-    return { ok: false, reason: "web", message: RETENTION_COPY.webReminderUnsupported };
+    return {
+      ok: false,
+      reason: "web",
+      message: i18n.t("webReminderUnsupported", { ns: "retention" }),
+    };
   }
 
   const Notifications = getNotifications();
   if (!Notifications) {
-    return { ok: false, reason: "unavailable", message: RETENTION_COPY.webReminderUnsupported };
+    return {
+      ok: false,
+      reason: "unavailable",
+      message: i18n.t("reminderUnavailable", { ns: "retention" }),
+    };
   }
 
   configureNotificationHandler();
@@ -88,7 +96,11 @@ export async function requestReminderPermissions(): Promise<ReminderPermissionRe
 
   const requested = await Notifications.requestPermissionsAsync();
   if (!requested.granted) {
-    return { ok: false, reason: "denied", message: RETENTION_COPY.permissionDenied };
+    return {
+      ok: false,
+      reason: "denied",
+      message: i18n.t("permissionDenied", { ns: "retention" }),
+    };
   }
 
   return { ok: true };
@@ -116,8 +128,8 @@ export async function applyEmotionReminderSchedule(
   await Notifications.scheduleNotificationAsync({
     identifier: DAILY_NOTIFICATION_ID,
     content: {
-      title: RETENTION_COPY.dailyNotificationTitle,
-      body: RETENTION_COPY.dailyNotificationBody,
+      title: i18n.t("dailyNotification.title", { ns: "retention" }),
+      body: i18n.t("dailyNotification.body", { ns: "retention" }),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -130,8 +142,8 @@ export async function applyEmotionReminderSchedule(
     await Notifications.scheduleNotificationAsync({
       identifier: WEEKLY_NOTIFICATION_ID,
       content: {
-        title: RETENTION_COPY.weeklyNotificationTitle,
-        body: RETENTION_COPY.weeklyNotificationBody,
+        title: i18n.t("weeklyNotification.title", { ns: "retention" }),
+        body: i18n.t("weeklyNotification.body", { ns: "retention" }),
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,

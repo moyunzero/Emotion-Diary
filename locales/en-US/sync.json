@@ -1,0 +1,36 @@
+{
+  "sectionHint": "Choose one of two cloud actions below when you need them.",
+  "uploadTitle": "Back up to cloud",
+  "uploadSubtext": "Upload entries from this device to the cloud",
+  "upload": {
+    "progress": "Backing up to cloud…",
+    "success": "Backed up {{count}} entries to the cloud"
+  },
+  "pullTitle": "Merge from cloud",
+  "pullSubtext": "Download and merge with this device; cloud wins on conflicts",
+  "pull": {
+    "progress": "Merging from cloud…",
+    "confirmTitle": "Merge from cloud",
+    "confirmMessage": "Cloud entries will merge with this device. If the same entry exists on both sides, the cloud version wins (you can recover entries deleted on this device). Entries only on this device stay. Continue?",
+    "confirmOk": "Merge",
+    "success": "Merged {{count}} entries"
+  },
+  "pendingMessage": "A sync is already in progress; backup will retry when it finishes",
+  "notLoggedIn": "Please sign in first",
+  "status": {
+    "syncing": "Syncing…",
+    "pending": "Sync queued…",
+    "error": "Last sync failed — please try again",
+    "lastSyncPrefix": "Last sync: {{time}}"
+  },
+  "neverSynced": "Never synced",
+  "justSynced": "Just synced",
+  "relative": {
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  }
+}

@@ -3,6 +3,11 @@
  * 将 Store 拆分为多个模块以提高可维护性；实现见 `store/modules/*.ts`。
  */
 
+import type { AppLocale } from "../../i18n/mapDeviceLocale";
+import type {
+  LocaleMode,
+  LocalePreference,
+} from "../../services/localeSettings";
 import type {
   AudioData,
   EmotionForecast,
@@ -66,8 +71,10 @@ export interface UserModule {
  * 同步管理模块接口
  * 负责本地数据与云端的双向同步
  */
+export type StoreSyncStatus = "idle" | "syncing" | "pending" | "error";
+
 export interface SyncModule {
-  syncStatus: "idle" | "syncing" | "pending" | "error";
+  syncStatus: StoreSyncStatus;
   syncToCloud: () => Promise<boolean>;
   syncFromCloud: () => Promise<boolean>;
   recoverFromCloud: () => Promise<boolean>;
@@ -81,6 +88,20 @@ export interface WeatherModule {
   weather: WeatherState;
   _setWeather: (weather: WeatherState) => void;
   _calculateWeather: () => void;
+}
+
+/**
+ * 语言 locale 模块接口
+ */
+export interface LocaleModule {
+  localePreference: LocalePreference;
+  effectiveLocale: AppLocale;
+  _hydrateLocale: (
+    preference: LocalePreference,
+    effectiveLocale: AppLocale,
+  ) => void;
+  setLocaleMode: (mode: LocaleMode) => Promise<void>;
+  setLocale: (locale: AppLocale) => Promise<void>;
 }
 
 /**
@@ -141,6 +162,7 @@ export interface AppState
     UserModule,
     SyncModule,
     WeatherModule,
+    LocaleModule,
     AIModule,
     AudioModule {}
 

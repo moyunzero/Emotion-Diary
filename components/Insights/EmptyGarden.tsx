@@ -1,10 +1,12 @@
 import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
 const EmptyGardenComponent: React.FC = () => {
+  const { t } = useTranslation('insights');
   const { fontSize, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -94,8 +96,8 @@ const EmptyGardenComponent: React.FC = () => {
         </View>
       </View>
       
-      <Text style={styles.title}>你的心灵花园</Text>
-      <Text style={styles.subtitle}>还在等待第一颗种子</Text>
+      <Text style={styles.title}>{t('empty.title')}</Text>
+      <Text style={styles.subtitle}>{t('empty.subtitle')}</Text>
       
       <View style={styles.tipContainer}>
         <View style={styles.tipItem}>
@@ -103,8 +105,8 @@ const EmptyGardenComponent: React.FC = () => {
             <Sprout size={20} color={INSIGHTS_COLORS.secondary} />
           </View>
           <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>记录情绪</Text>
-            <Text style={styles.tipText}>每一次表达都是种下种子</Text>
+            <Text style={styles.tipTitle}>{t('empty.tips.record.title')}</Text>
+            <Text style={styles.tipText}>{t('empty.tips.record.text')}</Text>
           </View>
         </View>
         
@@ -113,8 +115,8 @@ const EmptyGardenComponent: React.FC = () => {
             <Heart size={20} color={INSIGHTS_COLORS.accent} />
           </View>
           <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>和解打卡</Text>
-            <Text style={styles.tipText}>让情绪之花绽放</Text>
+            <Text style={styles.tipTitle}>{t('empty.tips.resolve.title')}</Text>
+            <Text style={styles.tipText}>{t('empty.tips.resolve.text')}</Text>
           </View>
         </View>
         
@@ -123,14 +125,14 @@ const EmptyGardenComponent: React.FC = () => {
             <Leaf size={20} color={INSIGHTS_COLORS.growingColor} />
           </View>
           <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>见证成长</Text>
-            <Text style={styles.tipText}>花园会记录你的每一步</Text>
+            <Text style={styles.tipTitle}>{t('empty.tips.growth.title')}</Text>
+            <Text style={styles.tipText}>{t('empty.tips.growth.text')}</Text>
           </View>
         </View>
       </View>
       
       <Text style={styles.encouragement}>
-        点击下方「记录」开始你的治愈之旅 ✨
+        {t('empty.encouragement')}
       </Text>
     </View>
   );

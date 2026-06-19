@@ -1,6 +1,8 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { resolvePeopleLabel } from '@/i18n/resolvePresetLabel';
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { MoodEntry, Status } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
@@ -23,6 +25,7 @@ const renderPotIcon = (status: string, color: string) => {
 };
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -59,12 +62,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           flexDirection: 'row',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
-          gap: layout.gridGap,
+          rowGap: layout.gridGap + 4,
         },
         potItem: {
           alignItems: 'center',
-          width: layout.gridItemWidth,
-          minWidth: 80,
+          width: '48%',
+          minWidth: 120,
         },
         pot: {
           width: 56,
@@ -82,14 +85,18 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           textAlign: 'center',
         },
         statusBadge: {
-          paddingHorizontal: 8,
+          paddingHorizontal: 6,
           paddingVertical: 2,
           borderRadius: 10,
           marginBottom: 3,
+          maxWidth: '100%',
+          alignSelf: 'stretch',
+          alignItems: 'center',
         },
         statusText: {
-          fontSize: fontSize.small,
+          fontSize: fontSize.small - 1,
           fontWeight: 'bold',
+          textAlign: 'center',
         },
         statsText: {
           fontSize: fontSize.small,
@@ -145,12 +152,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
       <View style={styles.container}>
         <View style={styles.header}>
           <Droplets size={20} color={INSIGHTS_COLORS.accent} />
-          <Text style={styles.title}>关系花园</Text>
+          <Text style={styles.title}>{t('relationship.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
           <Sprout size={40} color="#D1D5DB" />
-          <Text style={styles.emptyText}>还没有种下关系的种子</Text>
-          <Text style={styles.emptySubtext}>记录情绪时添加相关的人吧</Text>
+          <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
+          <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
         </View>
       </View>
     );
@@ -160,9 +167,9 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
     <View style={styles.container}>
       <View style={styles.header}>
         <Droplets size={20} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.title}>关系花园</Text>
+        <Text style={styles.title}>{t('relationship.title')}</Text>
       </View>
-      <Text style={styles.subtitle}>这些关系需要你的关注</Text>
+      <Text style={styles.subtitle}>{t('relationship.subtitle')}</Text>
       
       <View style={styles.potsContainer}>
         {relationshipData.map((person) => {
@@ -170,7 +177,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             bloomingColor: INSIGHTS_COLORS.bloomingColor,
             growingColor: INSIGHTS_COLORS.growingColor,
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
-          });
+          }, t);
           return (
             <View key={person.name} style={styles.potItem}>
               {/* 花盆图标 */}
@@ -179,17 +186,25 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               </View>
               {/* 人名 */}
               <Text style={styles.personName} numberOfLines={1}>
-                {person.name}
+                {resolvePeopleLabel(person.name)}
               </Text>
               {/* 状态标签 */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
-                <Text style={[styles.statusText, { color: potStatus.color }]}>
+                <Text
+                  style={[styles.statusText, { color: potStatus.color }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
                   {potStatus.label}
                 </Text>
               </View>
               {/* 统计 */}
-              <Text style={styles.statsText}>
-                {person.resolved}/{person.total} 已治愈
+              <Text style={styles.statsText} numberOfLines={1}>
+                {t('relationship.healedCount', {
+                  resolved: person.resolved,
+                  total: person.total,
+                })}
               </Text>
             </View>
           );

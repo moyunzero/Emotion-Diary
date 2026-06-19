@@ -1,5 +1,6 @@
 import { Flower2, Heart, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
@@ -12,6 +13,7 @@ interface HealingProgressProps {
 }
 
 const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, resolvedCount }) => {
+  const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -62,13 +64,17 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         },
         stats: {
           flex: 1,
-          marginLeft: 20,
-          gap: 16,
+          marginLeft: 16,
+          gap: 12,
         },
         statItem: {
+          alignItems: 'flex-start',
+          gap: 2,
+        },
+        statRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
         },
         statNumber: {
           fontSize: fontSize.title,
@@ -78,6 +84,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         statLabel: {
           fontSize: fontSize.small,
           color: INSIGHTS_COLORS.textSecondary,
+          flexShrink: 1,
         },
         encouragement: {
           flexDirection: 'row',
@@ -99,7 +106,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
   );
   const rate = totalCount > 0 ? resolvedCount / totalCount : 0;
   const pendingCount = totalCount - resolvedCount;
-  const growthStage = getGrowthStage(rate);
+  const growthStage = useMemo(() => getGrowthStage(rate, t), [rate, t]);
   const GrowthIcon = growthStage.icon;
   
   // 环形进度条参数
@@ -113,7 +120,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
     <View style={styles.container}>
       <View style={styles.header}>
         <Heart size={20} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.title}>治愈进度</Text>
+        <Text style={styles.title}>{t('healing.title')}</Text>
       </View>
       
       <View style={styles.content}>
@@ -154,14 +161,22 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         {/* 统计信息 */}
         <View style={styles.stats}>
           <View style={styles.statItem}>
-            <Flower2 size={18} color={INSIGHTS_COLORS.secondary} />
-            <Text style={styles.statNumber}>{resolvedCount}</Text>
-            <Text style={styles.statLabel}>朵情绪小花绽放</Text>
+            <View style={styles.statRow}>
+              <Flower2 size={18} color={INSIGHTS_COLORS.secondary} />
+              <Text style={styles.statNumber}>{resolvedCount}</Text>
+            </View>
+            <Text style={styles.statLabel} numberOfLines={2}>
+              {t('healing.stats.bloomed')}
+            </Text>
           </View>
           <View style={styles.statItem}>
-            <Sprout size={18} color={INSIGHTS_COLORS.textSecondary} />
-            <Text style={styles.statNumber}>{pendingCount}</Text>
-            <Text style={styles.statLabel}>颗种子等待发芽</Text>
+            <View style={styles.statRow}>
+              <Sprout size={18} color={INSIGHTS_COLORS.textSecondary} />
+              <Text style={styles.statNumber}>{pendingCount}</Text>
+            </View>
+            <Text style={styles.statLabel} numberOfLines={2}>
+              {t('healing.stats.pending')}
+            </Text>
           </View>
         </View>
       </View>
@@ -169,8 +184,8 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
       {/* 鼓励文案 */}
       <View style={styles.encouragement}>
         <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
-        <Text style={styles.encouragementText}>
-          每一次面对情绪，都是在浇灌自己的心灵
+        <Text style={styles.encouragementText} numberOfLines={2}>
+          {t('healing.encouragement')}
         </Text>
       </View>
     </View>

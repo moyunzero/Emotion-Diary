@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { Milestone } from '../types/companionDays';
 
@@ -12,11 +13,13 @@ interface MilestoneBadgeProps {
 }
 
 export default function MilestoneBadge({ milestone }: MilestoneBadgeProps) {
+  const { t } = useTranslation('profile');
+
   return (
     <View style={[styles.badge, { backgroundColor: milestone.color + '20' }]}>
       <Text style={styles.icon}>{milestone.icon}</Text>
       <Text style={[styles.title, { color: milestone.color }]}>
-        {milestone.title}
+        {t(`companionDays.milestones.${milestone.days}.title` as 'companionDays.milestones.7.title')}
       </Text>
     </View>
   );

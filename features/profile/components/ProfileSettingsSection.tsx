@@ -4,6 +4,7 @@
 
 import {
   Archive,
+  Check,
   CheckCircle,
   CloudDownload,
   CloudUpload,
@@ -22,6 +23,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   Switch,
   Text,
@@ -32,6 +34,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ProfileMenuItem,
@@ -42,14 +45,14 @@ import {
   ScreenFootnote,
 } from "@/components/settings";
 import { createSettingsStyles } from "@/components/settings/settings.styles";
-import { RETENTION_COPY } from "@/constants/retentionCopy";
 import { COLORS } from "@/constants/colors";
+import type { AppLocale } from "@/i18n/mapDeviceLocale";
+import type {
+  LocaleMode,
+  LocalePreference,
+} from "@/services/localeSettings";
 import type { EmotionReminderSettings } from "@/services/reminderSettings";
-import {
-  SYNC_DATA_OPS,
-  formatStoreSyncStatusLabel,
-  type StoreSyncStatus,
-} from "@/constants/syncDataOps";
+import type { StoreSyncStatus } from "@/store/modules/types";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import {
   AVATAR_PRESETS,
@@ -60,6 +63,10 @@ import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
 const AVATARS = AVATAR_PRESETS;
 
 export type ProfileSettingsSectionProps = {
+  localePreference: LocalePreference;
+  effectiveLocale: AppLocale;
+  onSetLocale: (locale: AppLocale) => Promise<void>;
+  onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
   syncStatus: "idle" | "syncing" | "success" | "error";
   storeSyncStatus: StoreSyncStatus;
@@ -128,6 +135,10 @@ export type ProfileSettingsSectionProps = {
 export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
   const insets = useSafeAreaInsets();
   const {
+    localePreference,
+    effectiveLocale,
+    onSetLocale,
+    onSetLocaleMode,
     user,
     syncStatus,
     storeSyncStatus,
@@ -193,6 +204,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     globalErrorOpacity,
   } = props;
 
+  const { t: tProfile } = useTranslation("profile");
+  const { t: tSync } = useTranslation("sync");
+  const { t: tRetention } = useTranslation("retention");
+  const { t: tAuth } = useTranslation("auth");
+
   const { width, height } = useWindowDimensions();
   const { profileStyles } = useMemo(
     () => createProfileStyles(width, height),
@@ -203,18 +219,21 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     [width, height],
   );
 
-  const tError = (key: string): string => {
-    const map: Record<string, string> = {
-      username_required: "昵称不能为空，请输入 2-20 个字符",
-      email_required: "邮箱不能为空，请输入有效的邮箱地址",
-      email_invalid: "邮箱格式不正确，请检查后重新输入",
-      password_required: "密码不能为空",
-      password_weak: "密码需为 6-20 位，包含字母和数字",
-      confirm_required: "请再次输入密码进行确认",
-      confirm_mismatch: "两次输入的密码不一致，请重新确认",
-    };
-    return map[key] || key;
-  };
+  const tError = (key: string): string =>
+    tAuth(`errors.${key}`, { defaultValue: key });
+
+  const lastSyncLabel = tSync("status.lastSyncPrefix", {
+    time: formatLastSyncTime(lastSyncTime),
+  });
+  const statusText =
+    syncProgress ||
+    (storeSyncStatus === "syncing"
+      ? tSync("status.syncing")
+      : storeSyncStatus === "pending"
+        ? tSync("status.pending")
+        : storeSyncStatus === "error"
+          ? tSync("status.error")
+          : lastSyncLabel);
 
   const closeLoginAndReset = () => {
     Keyboard.dismiss();
@@ -233,10 +252,57 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
 
   return (
     <View style={profileStyles.menuContainer}>
-      <ProfileSectionHeader title="数据与安全" />
+      <ProfileSectionHeader title={tProfile("language.sectionTitle")} />
+      <GroupedSettingsCard>
+        <Pressable
+          style={profileStyles.menuItem}
+          onPress={() => void onSetLocaleMode("system")}
+        >
+          <View style={profileStyles.menuTextContainer}>
+            <Text style={profileStyles.menuText}>
+              {tProfile("language.options.followSystem")}
+            </Text>
+          </View>
+          {localePreference.mode === "system" ? (
+            <Check size={20} color="#3B82F6" />
+          ) : null}
+        </Pressable>
+        <View style={profileStyles.menuDivider} />
+        <Pressable
+          style={profileStyles.menuItem}
+          onPress={() => void onSetLocale("zh-Hans")}
+        >
+          <View style={profileStyles.menuTextContainer}>
+            <Text style={profileStyles.menuText}>
+              {tProfile("language.options.zhHans")}
+            </Text>
+          </View>
+          {localePreference.mode === "manual" &&
+          effectiveLocale === "zh-Hans" ? (
+            <Check size={20} color="#3B82F6" />
+          ) : null}
+        </Pressable>
+        <View style={profileStyles.menuDivider} />
+        <Pressable
+          style={profileStyles.menuItem}
+          onPress={() => void onSetLocale("en-US")}
+        >
+          <View style={profileStyles.menuTextContainer}>
+            <Text style={profileStyles.menuText}>
+              {tProfile("language.options.english")}
+            </Text>
+          </View>
+          {localePreference.mode === "manual" &&
+          effectiveLocale === "en-US" ? (
+            <Check size={20} color="#3B82F6" />
+          ) : null}
+        </Pressable>
+      </GroupedSettingsCard>
+
+      <ProfileSectionHeader title={tProfile("sections.dataSecurity")} />
 
       {user ? (
-        <ScreenFootnote>{SYNC_DATA_OPS.sectionHint}</ScreenFootnote>
+        <ScreenFootnote>{tSync("sectionHint")}</ScreenFootnote>
       ) : null}
 
       <GroupedSettingsCard
@@ -260,13 +326,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               {(syncStatus === "error" || storeSyncStatus === "error") && (
                 <X size={16} color="#EF4444" style={settingsStyles.statusIcon} />
               )}
-              <Text style={settingsStyles.statusText}>
-                {syncProgress ||
-                  formatStoreSyncStatusLabel(
-                    storeSyncStatus,
-                    `最后同步：${formatLastSyncTime(lastSyncTime)}`,
-                  )}
-              </Text>
+              <Text style={settingsStyles.statusText}>{statusText}</Text>
             </View>
           ) : undefined
         }
@@ -274,11 +334,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         <ProfileMenuItem
           icon={<CloudUpload size={20} color="#EF4444" />}
           iconBgColor="#FEF2F2"
-          title={SYNC_DATA_OPS.uploadTitle}
+          title={tSync("uploadTitle")}
           subtext={
             syncStatus === "syncing"
-              ? SYNC_DATA_OPS.uploadProgress
-              : SYNC_DATA_OPS.uploadSubtext
+              ? tSync("upload.progress")
+              : tSync("uploadSubtext")
           }
           showChevron={syncStatus !== "syncing"}
           disabled={isLoading}
@@ -288,11 +348,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         <ProfileMenuItem
           icon={<CloudDownload size={20} color="#3B82F6" />}
           iconBgColor="#EFF6FF"
-          title={SYNC_DATA_OPS.pullTitle}
+          title={tSync("pullTitle")}
           subtext={
             syncStatus === "syncing"
-              ? SYNC_DATA_OPS.pullProgress
-              : SYNC_DATA_OPS.pullSubtext
+              ? tSync("pull.progress")
+              : tSync("pullSubtext")
           }
           showChevron={syncStatus !== "syncing"}
           disabled={isLoading}
@@ -300,13 +360,14 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
+          testID="profile-recycle-bin-item"
           icon={<Archive size={20} color="#6B7280" />}
           iconBgColor={COLORS.gray[50]}
-          title="回收站"
+          title={tProfile("recycleBin.title")}
           subtext={
             recycleBinCount > 0
-              ? `${recycleBinCount} 条可恢复`
-              : "暂无已删除记录"
+              ? tProfile("recycleBin.subtextCount", { count: recycleBinCount })
+              : tProfile("recycleBin.subtextEmpty")
           }
           showChevron={true}
           disabled={isLoading}
@@ -314,7 +375,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         />
       </GroupedSettingsCard>
 
-      <ProfileSectionHeader title="留存与提醒" />
+      <ProfileSectionHeader title={tProfile("sections.retention")} />
       <GroupedSettingsCard>
         <View style={profileStyles.menuItem}>
           <View
@@ -327,17 +388,22 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           </View>
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
-              {RETENTION_COPY.dailyReminderTitle}
+              {tRetention("dailyReminder.title")}
             </Text>
             <Text style={profileStyles.menuSubtext}>
               {reminderSupported
                 ? reminderSettings.dailyReminderEnabled
-                  ? RETENTION_COPY.dailyReminderSubtextEnabled(
-                      reminderSettings.dailyReminderHour,
-                      reminderSettings.dailyReminderMinute,
-                    )
-                  : RETENTION_COPY.dailyReminderSubtextDisabled
-                : RETENTION_COPY.webReminderUnsupported}
+                  ? tRetention("dailyReminder.subtextEnabled", {
+                      hour: String(reminderSettings.dailyReminderHour).padStart(
+                        2,
+                        "0",
+                      ),
+                      minute: String(
+                        reminderSettings.dailyReminderMinute,
+                      ).padStart(2, "0"),
+                    })
+                  : tRetention("dailyReminder.subtextDisabled")
+                : tRetention("webReminderUnsupported")}
             </Text>
           </View>
           {reminderSupported ? (
@@ -366,10 +432,10 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               </View>
               <View style={profileStyles.menuTextContainer}>
                 <Text style={profileStyles.menuText}>
-                  {RETENTION_COPY.weeklyReviewToggleTitle}
+                  {tRetention("weeklyReview.toggleTitle")}
                 </Text>
                 <Text style={profileStyles.menuSubtext}>
-                  {RETENTION_COPY.weeklyReviewToggleSubtext}
+                  {tRetention("weeklyReview.toggleSubtext")}
                 </Text>
               </View>
               <Switch
@@ -390,12 +456,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
 
       {user && (
         <>
-          <ProfileSectionHeader title="其他" />
+          <ProfileSectionHeader title={tProfile("sections.account")} />
           <GroupedSettingsCard>
             <ProfileMenuItem
               icon={<LogOut size={20} color="#EF4444" />}
               iconBgColor="#FEF2F2"
-              title="退出登录"
+              title={tProfile("account.logout")}
               showChevron={false}
               danger
               onPress={onLogout}
@@ -404,8 +470,8 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             <ProfileMenuItem
               icon={<UserX size={20} color="#EF4444" />}
               iconBgColor="#FEF2F2"
-              title="注销账号"
-              subtext="永久删除云端账号及数据，本地记录保留"
+              title={tProfile("account.deleteAccount")}
+              subtext={tProfile("account.deleteAccountSubtext")}
               showChevron={false}
               danger
               onPress={onDeleteAccount}
@@ -495,19 +561,21 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     <UserIcon size={32} color="#EF4444" />
                   </View>
                   <Text style={ms.modalTitle}>
-                    {isRegisterMode ? "创建账号" : "开启云端守护"}
+                    {isRegisterMode
+                      ? tAuth("register.modalTitle")
+                      : tAuth("login.modalTitle")}
                   </Text>
                   <Text style={ms.modalSubtitle}>
                     {isRegisterMode
-                      ? "注册账号，让情绪记录永久保存"
-                      : "登录后，您的情绪记录将安全地存储在云端，随时随地找回。"}
+                      ? tAuth("register.modalSubtitle")
+                      : tAuth("login.modalSubtitle")}
                   </Text>
                 </View>
 
                 {!isRegisterMode ? (
                   <View style={ms.formContainer} key="login-form">
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>邮箱</Text>
+                      <Text style={ms.inputLabel}>{tAuth("login.emailLabel")}</Text>
                       <TextInput
                         key="login-email-input"
                         ref={emailInputRef}
@@ -517,7 +585,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                           setEmail(v);
                           setLoginEmailError(validateEmail(v));
                         }}
-                        placeholder="输入你的邮箱地址"
+                        placeholder={tAuth("login.emailPlaceholder")}
                         keyboardType="email-address"
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -537,7 +605,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                       />
                     </View>
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>密码</Text>
+                      <Text style={ms.inputLabel}>{tAuth("login.passwordLabel")}</Text>
                       <TextInput
                         style={ms.input}
                         value={password}
@@ -545,7 +613,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                           setPassword(v);
                           setLoginPasswordError(validatePassword(v, false));
                         }}
-                        placeholder="输入你的密码"
+                        placeholder={tAuth("login.passwordPlaceholder")}
                         secureTextEntry
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -574,7 +642,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 ) : (
                   <View style={ms.formContainer}>
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>昵称</Text>
+                      <Text style={ms.inputLabel}>{tAuth("register.nameLabel")}</Text>
                       <TextInput
                         ref={registerNameInputRef}
                         style={ms.input}
@@ -585,7 +653,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                             v.trim() ? "" : tError("username_required"),
                           );
                         }}
-                        placeholder="给自己起个好听的名字吧~"
+                        placeholder={tAuth("register.namePlaceholder")}
                         autoCapitalize="words"
                         autoCorrect={false}
                         autoComplete="name"
@@ -603,7 +671,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     ) : null}
 
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>邮箱</Text>
+                      <Text style={ms.inputLabel}>{tAuth("login.emailLabel")}</Text>
                       <TextInput
                         ref={registerEmailInputRef}
                         style={ms.input}
@@ -612,7 +680,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                           setEmail(v);
                           setRegisterEmailError(validateEmail(v));
                         }}
-                        placeholder="输入你的邮箱地址"
+                        placeholder={tAuth("login.emailPlaceholder")}
                         keyboardType="email-address"
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -630,7 +698,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     ) : null}
 
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>密码</Text>
+                      <Text style={ms.inputLabel}>{tAuth("register.passwordLabel")}</Text>
                       <TextInput
                         ref={registerPasswordInputRef}
                         style={ms.input}
@@ -651,7 +719,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                             );
                           }
                         }}
-                        placeholder="设置密码（至少6位）"
+                        placeholder={tAuth("register.passwordPlaceholder")}
                         secureTextEntry
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -678,7 +746,9 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     ) : null}
 
                     <View style={ms.inputContainer}>
-                      <Text style={ms.inputLabel}>确认密码</Text>
+                      <Text style={ms.inputLabel}>
+                        {tAuth("register.confirmPasswordLabel")}
+                      </Text>
                       <TextInput
                         ref={registerConfirmPasswordInputRef}
                         style={ms.input}
@@ -695,7 +765,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                             );
                           else setRegisterConfirmPasswordError("");
                         }}
-                        placeholder="请再次输入密码"
+                        placeholder={tAuth("register.confirmPasswordPlaceholder")}
                         secureTextEntry
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -770,18 +840,24 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                     <ActivityIndicator color="#FFFFFF" />
                   ) : (
                     <Text style={ms.primaryButtonText}>
-                      {isRegisterMode ? "注册账号" : "登录"}
+                      {isRegisterMode
+                        ? tAuth("register.submit")
+                        : tAuth("login.submit")}
                     </Text>
                   )}
                 </TouchableOpacity>
 
                 <View style={ms.switchModeContainer}>
                   <Text style={ms.switchModeText}>
-                    {isRegisterMode ? "已有账号？" : "还没有账号？"}
+                    {isRegisterMode
+                      ? tAuth("register.switchPrompt")
+                      : tAuth("login.switchPrompt")}
                   </Text>
                   <TouchableOpacity onPress={onSwitchMode}>
                     <Text style={ms.switchModeLink}>
-                      {isRegisterMode ? "立即登录" : "立即注册"}
+                      {isRegisterMode
+                        ? tAuth("register.switchLink")
+                        : tAuth("login.switchLink")}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -838,7 +914,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   <X size={24} color="#9CA3AF" />
                 </TouchableOpacity>
 
-                <Text style={ms.modalTitle}>修改资料</Text>
+                <Text style={ms.modalTitle}>{tAuth("editProfile.modalTitle")}</Text>
 
                 <View style={ms.avatarSelection}>
                   <Image
@@ -883,12 +959,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 </View>
 
                 <View style={ms.inputContainer}>
-                  <Text style={ms.inputLabel}>昵称</Text>
+                  <Text style={ms.inputLabel}>{tAuth("editProfile.nameLabel")}</Text>
                   <TextInput
                     style={ms.input}
                     value={editName}
                     onChangeText={setEditName}
-                    placeholder="给自己起个好听的名字吧"
+                    placeholder={tAuth("editProfile.namePlaceholder")}
                     maxLength={20}
                     returnKeyType="done"
                     onSubmitEditing={onSaveProfile}
@@ -904,7 +980,9 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   {isLoading ? (
                     <ActivityIndicator color="#FFFFFF" />
                   ) : (
-                    <Text style={ms.primaryButtonText}>保存修改</Text>
+                    <Text style={ms.primaryButtonText}>
+                      {tAuth("editProfile.save")}
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>

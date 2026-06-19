@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { recordingCoordinator } from "../../shared/audio/recordingCoordinator";
 import { useAppStore } from "../../store/useAppStore";
 
@@ -21,10 +22,30 @@ interface RecordButtonProps {
   readonly compact?: boolean;
 }
 
+function RecordButtonLabel({
+  children,
+  style,
+}: {
+  children: string;
+  style: React.ComponentProps<typeof Text>["style"];
+}) {
+  return (
+    <Text
+      style={style}
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      minimumFontScale={0.72}
+    >
+      {children}
+    </Text>
+  );
+}
+
 export const RecordButton: React.FC<RecordButtonProps> = ({
   disabled = false,
   compact = false,
 }) => {
+  const { t } = useTranslation("record");
   const recordingState = useAppStore((s) => s.recordingState);
   const slideOffsetY = React.useRef(new Animated.Value(0)).current;
   const iconSize = compact ? 20 : 24;
@@ -49,14 +70,14 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       return (
         <View style={styles.buttonContent}>
           <MicOff size={iconSize} color="#999" />
-          <Text
+          <RecordButtonLabel
             style={[
               styles.buttonTextDisabled,
               compact && styles.buttonTextDisabledCompact,
             ]}
           >
-            录音不可用
-          </Text>
+            {t("audio.recordButton.disabled")}
+          </RecordButtonLabel>
         </View>
       );
     }
@@ -66,7 +87,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <StopCircle size={iconSize} color="#fff" />
-            <Text style={textStyle}>松开结束</Text>
+            <RecordButtonLabel style={textStyle}>
+              {t("audio.recordButton.releaseToStop")}
+            </RecordButtonLabel>
           </View>
         );
 
@@ -74,7 +97,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <View style={styles.processingIndicator} />
-            <Text style={textStyle}>准备中...</Text>
+            <RecordButtonLabel style={textStyle}>
+              {t("audio.recordButton.preparing")}
+            </RecordButtonLabel>
           </View>
         );
 
@@ -82,7 +107,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#fff" />
-            <Text style={[...textStyle, styles.cancelText]}>松开取消</Text>
+            <RecordButtonLabel style={[...textStyle, styles.cancelText]}>
+              {t("audio.recordButton.releaseToCancel")}
+            </RecordButtonLabel>
           </View>
         );
 
@@ -90,7 +117,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <View style={styles.processingIndicator} />
-            <Text style={textStyle}>处理中...</Text>
+            <RecordButtonLabel style={textStyle}>
+              {t("audio.recordButton.processing")}
+            </RecordButtonLabel>
           </View>
         );
 
@@ -98,7 +127,9 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#4CAF50" />
-            <Text style={[...textStyle, styles.previewText]}>添加语音</Text>
+            <RecordButtonLabel style={[...textStyle, styles.previewText]}>
+              {t("audio.recordButton.addVoice")}
+            </RecordButtonLabel>
           </View>
         );
 
@@ -107,19 +138,34 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
         return (
           <View style={styles.buttonContent}>
             <Mic size={iconSize} color="#fff" />
-            <Text style={textStyle}>按住说话</Text>
+            <RecordButtonLabel style={textStyle}>
+              {t("audio.recordButton.holdToTalk")}
+            </RecordButtonLabel>
           </View>
         );
     }
   };
 
+  const needsWideButton =
+    disabled ||
+    recordingState === "recording" ||
+    recordingState === "canceling";
+
   const getButtonStyle = () => {
     const base = compact ? styles.buttonCompact : styles.button;
+    const wide = needsWideButton
+      ? compact
+        ? styles.buttonCompactWide
+        : styles.buttonWide
+      : null;
     if (disabled) {
-      return [base, styles.buttonDisabled];
+      return [base, wide, styles.buttonDisabled];
     }
     if (recordingState === "recording") {
-      return [base, styles.buttonRecording];
+      return [base, wide, styles.buttonRecording];
+    }
+    if (recordingState === "canceling") {
+      return [base, wide, styles.buttonRecording];
     }
     if (recordingState === "preview") {
       return [base, styles.buttonPreview];
@@ -152,22 +198,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: 140,
+    minWidth: 132,
+    maxWidth: 248,
     height: 50,
+    paddingHorizontal: 16,
     backgroundColor: "#6C63FF",
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    alignSelf: "center",
+  },
+  buttonWide: {
+    minWidth: 176,
+    paddingHorizontal: 18,
   },
   buttonCompact: {
-    width: 118,
+    minWidth: 108,
+    maxWidth: 210,
     height: 42,
+    paddingHorizontal: 12,
     borderRadius: 21,
     backgroundColor: "#6C63FF",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    alignSelf: "center",
+  },
+  buttonCompactWide: {
+    minWidth: 156,
+    paddingHorizontal: 14,
   },
   buttonRecording: {
     backgroundColor: "#FF5252",
@@ -181,15 +241,19 @@ const styles = StyleSheet.create({
   buttonContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
+    flexShrink: 1,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
+    flexShrink: 1,
+    maxWidth: 188,
   },
   buttonTextCompact: {
-    fontSize: 14,
+    fontSize: 13,
+    maxWidth: 132,
   },
   buttonTextDisabled: {
     color: "#999",

@@ -2,17 +2,29 @@
 
 /**
  * iOS 权限配置验证脚本
- * 
+ *
  * 此脚本检查：
- * 1. Info.plist 中配置的权限
- * 2. 权限说明是否清晰
- * 3. 是否有不必要的权限
- * 4. 权限说明是否使用中文
+ * 1. locales/native/en.json 与 zh.json 双语 NS* 键 parity（NAT-01）
+ * 2. Info.plist 中配置的权限（prebuild 后可选）
+ * 3. 权限说明是否清晰
+ * 4. 是否有不必要的权限
  */
 
 const fs = require('fs');
 const path = require('path');
 const { getNativeAppFile } = require('./ios-project-paths');
+
+const REQUIRED_IOS_KEYS = [
+  'NSMicrophoneUsageDescription',
+  'NSPhotoLibraryUsageDescription',
+  'NSPhotoLibraryAddUsageDescription',
+  'NSFaceIDUsageDescription',
+];
+
+const NATIVE_LOCALE_PATHS = {
+  en: path.join(process.cwd(), 'locales/native/en.json'),
+  zh: path.join(process.cwd(), 'locales/native/zh.json'),
+};
 
 // ANSI 颜色代码
 const colors = {
@@ -26,6 +38,72 @@ const colors = {
 
 function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+function readNativeLocale(relativePath) {
+  try {
+    const content = fs.readFileSync(relativePath, 'utf8');
+    return JSON.parse(content);
+  } catch (error) {
+    log(`❌ 无法读取 ${relativePath}: ${error.message}`, 'red');
+    return null;
+  }
+}
+
+function getIosBlock(locale) {
+  return locale?.ios ?? locale ?? {};
+}
+
+function validateNativeLocales() {
+  log('1. 检查 locales/native 双语权限 JSON...\n', 'blue');
+
+  let hasIssues = false;
+
+  for (const [lang, filePath] of Object.entries(NATIVE_LOCALE_PATHS)) {
+    const locale = readNativeLocale(filePath);
+    if (!locale) {
+      hasIssues = true;
+      continue;
+    }
+
+    const ios = getIosBlock(locale);
+    log(`   📄 ${path.relative(process.cwd(), filePath)}`, 'bold');
+
+    for (const key of REQUIRED_IOS_KEYS) {
+      const value = ios[key];
+      if (!value || String(value).trim() === '') {
+        hasIssues = true;
+        log(`      ❌ 缺少或为空: ${key}`, 'red');
+        continue;
+      }
+
+      if (lang === 'en') {
+        if (!/[A-Za-z]/.test(value)) {
+          hasIssues = true;
+          log(`      ❌ ${key} 应为英文说明`, 'red');
+        } else {
+          log(`      ✅ ${key}`, 'green');
+        }
+      } else {
+        const hasCjk = /[\u4e00-\u9fff]/.test(value);
+        const hasPurpose =
+          /以便|用于|保护|仅在你|仅在您/.test(value);
+        if (!hasCjk || !value.includes('心晴MO')) {
+          hasIssues = true;
+          log(`      ❌ ${key} 应含 心晴MO 与中文用途说明`, 'red');
+        } else if (!hasPurpose) {
+          hasIssues = true;
+          log(`      ❌ ${key} 建议说明具体用途（以便/用于/保护等）`, 'red');
+        } else {
+          log(`      ✅ ${key}`, 'green');
+        }
+      }
+    }
+
+    log('');
+  }
+
+  return hasIssues;
 }
 
 function readInfoPlist() {
@@ -105,26 +183,18 @@ function getPermissionName(key) {
   return names[key] || key;
 }
 
-function checkDescriptionQuality(description) {
+function checkDescriptionQuality(description, { expectChinese = true } = {}) {
   const issues = [];
-  
-  // 检查是否为空
+
   if (!description || description.trim() === '') {
     issues.push('说明为空');
     return issues;
   }
 
-  // 检查是否使用了占位符
   if (description.includes('$(PRODUCT_NAME)')) {
     issues.push('包含占位符 $(PRODUCT_NAME)，建议使用应用名称');
   }
 
-  // 检查是否使用英文
-  if (/^[a-zA-Z\s.,!?]+$/.test(description)) {
-    issues.push('使用英文说明，建议使用中文');
-  }
-
-  // 检查长度
   if (description.length < 10) {
     issues.push('说明过短，建议提供更详细的说明');
   }
@@ -133,16 +203,27 @@ function checkDescriptionQuality(description) {
     issues.push('说明过长，建议简化为1-2句话');
   }
 
-  // 检查是否说明了具体用途
-  const hasSpecificPurpose = 
-    description.includes('以便') ||
-    description.includes('用于') ||
-    description.includes('帮助') ||
-    description.includes('让您') ||
-    description.includes('为您');
+  const isEnglishOnly = /^[a-zA-Z0-9\s.,!?()'"-]+$/.test(description);
+  const hasCjk = /[\u4e00-\u9fff]/.test(description);
 
-  if (!hasSpecificPurpose) {
-    issues.push('建议说明具体用途（使用"以便"、"用于"等词）');
+  if (expectChinese && !hasCjk && isEnglishOnly) {
+    issues.push('中文设备 plist 建议使用中文说明（英文由 locales/native/en.json 覆盖）');
+  }
+
+  if (expectChinese && hasCjk) {
+    const hasSpecificPurpose =
+      description.includes('以便') ||
+      description.includes('用于') ||
+      description.includes('帮助') ||
+      description.includes('让您') ||
+      description.includes('为您') ||
+      description.includes('保护') ||
+      description.includes('仅在你') ||
+      description.includes('仅在您');
+
+    if (!hasSpecificPurpose) {
+      issues.push('建议说明具体用途（使用"以便"、"用于"等词）');
+    }
   }
 
   return issues;
@@ -154,32 +235,41 @@ function main() {
   let hasIssues = false;
   let hasWarnings = false;
 
-  // 读取 Info.plist
+  if (validateNativeLocales()) {
+    hasIssues = true;
+  }
+
   const plistContent = readInfoPlist();
-  
+
   if (!plistContent) {
-    log('⚠️  无法读取 Info.plist 文件', 'yellow');
+    if (hasIssues) {
+      log('\n❌ locales/native 校验失败', 'red');
+      process.exit(1);
+    }
+    log('ℹ️  Info.plist 未生成（可运行 expo prebuild）；locales/native 校验已通过', 'blue');
     process.exit(0);
   }
 
-  // 提取权限
   const permissions = extractPermissions(plistContent);
 
   if (Object.keys(permissions).length === 0) {
-    log('ℹ️  未找到任何权限配置', 'blue');
-    log('   这是正常的，如果应用不需要特殊权限', 'blue');
+    if (hasIssues) {
+      log('\n❌ locales/native 校验失败', 'red');
+      process.exit(1);
+    }
+    log('ℹ️  Info.plist 中未找到权限键；locales/native 校验已通过', 'blue');
     process.exit(0);
   }
 
-  // 检查每个权限
-  log('1. 检查已配置的权限...\n', 'blue');
+  log('2. 检查 Info.plist 已配置的权限...\n', 'blue');
 
   for (const [key, description] of Object.entries(permissions)) {
     const permissionName = getPermissionName(key);
     log(`   📱 ${permissionName}`, 'bold');
     log(`      说明: ${description}`, 'reset');
 
-    const issues = checkDescriptionQuality(description);
+    const expectChinese = /[\u4e00-\u9fff]/.test(description);
+    const issues = checkDescriptionQuality(description, { expectChinese });
     
     if (issues.length === 0) {
       log(`      ✅ 说明质量良好`, 'green');
@@ -193,8 +283,7 @@ function main() {
     log('');
   }
 
-  // 检查常见不必要的权限
-  log('2. 检查可能不必要的权限...\n', 'blue');
+  log('3. 检查可能不必要的权限...\n', 'blue');
 
   const potentiallyUnnecessary = {
     'NSMicrophoneUsageDescription': '应用是否真的需要麦克风？（语音输入、录音等）',
@@ -222,9 +311,9 @@ function main() {
     log('   如果不需要，请从 Info.plist 中移除', 'yellow');
   }
 
-  // 权限最佳实践提示
-  log('\n3. 权限最佳实践...\n', 'blue');
-  log('   ✓ 使用用户母语（中文）', 'green');
+  log('\n4. 权限最佳实践...\n', 'blue');
+  log('   ✓ locales/native 双语 NS* 键 parity（NAT-01）', 'green');
+  log('   ✓ 英文设备由 en.json 覆盖系统弹窗文案', 'green');
   log('   ✓ 说明具体用途', 'green');
   log('   ✓ 强调用户利益', 'green');
   log('   ✓ 简洁明了（1-2句话）', 'green');
