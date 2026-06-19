@@ -7,7 +7,7 @@ import { AppScreenShell } from "@/components/AppScreenShell";
 import { ScreenFootnote } from "@/components/settings";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { onlySoftDeletedEntries } from "@/shared/entries/visibility";
-import { formatDateChinese } from "@/shared/formatting";
+import { formatLocaleDate } from "@/shared/formatting";
 import { useAppStore } from "@/store/useAppStore";
 import { MoodEntry } from "@/types";
 import { FlashList } from "@shopify/flash-list";
@@ -15,14 +15,13 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { ArchiveRestore } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { Alert, Text, View, useWindowDimensions } from "react-native";
-import { PURGE_ENTRY_COPY } from "@/constants/purgeEntry";
+import { useTranslation } from "react-i18next";
 import { createRecycleBinStyles } from "./recycleBin.styles";
-
-const RECYCLE_BIN_FOOTNOTE =
-  "这里是你从主列表移出的记录。可恢复至首页，或永久删除（不可从回收站找回）。";
 
 export function RecycleBinScreen() {
   const router = useRouter();
+  const { t } = useTranslation("recycle");
+  const { t: tCommon } = useTranslation("common");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createRecycleBinStyles(width, height),
@@ -30,6 +29,7 @@ export function RecycleBinScreen() {
   );
 
   const entries = useAppStore((s) => s.entries);
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const restoreEntry = useAppStore((s) => s.restoreEntry);
   const purgeEntryForever = useAppStore((s) => s.purgeEntryForever);
 
@@ -52,14 +52,15 @@ export function RecycleBinScreen() {
 
   const handleRestore = (entry: MoodEntry) => {
     const trimmed = entry.content.trim();
-    const preview = trimmed.length > 0 ? trimmed.slice(0, 40) : "这条记录";
+    const preview =
+      trimmed.length > 0 ? trimmed.slice(0, 40) : t("restore.emptyPreview");
     Alert.alert(
-      "恢复记录",
-      `将「${preview}${trimmed.length > 40 ? "…" : ""}」移回主列表？`,
+      t("restore.title"),
+      `${t("restore.messagePrefix")}${preview}${trimmed.length > 40 ? "…" : ""}${t("restore.messageSuffix")}`,
       [
-        { text: "取消", style: "cancel" },
+        { text: tCommon("actions.cancel"), style: "cancel" },
         {
-          text: "恢复",
+          text: t("restore.confirm"),
           onPress: async () => {
             setRestoringId(entry.id);
             try {
@@ -75,14 +76,15 @@ export function RecycleBinScreen() {
 
   const handlePurge = (entry: MoodEntry) => {
     const trimmed = entry.content.trim();
-    const preview = trimmed.length > 0 ? trimmed.slice(0, 40) : "这条记录";
+    const preview =
+      trimmed.length > 0 ? trimmed.slice(0, 40) : t("restore.emptyPreview");
     Alert.alert(
-      PURGE_ENTRY_COPY.confirmTitle,
-      `${PURGE_ENTRY_COPY.confirmMessage}\n\n「${preview}${trimmed.length > 40 ? "…" : ""}」`,
+      t("purge.confirmTitle"),
+      `${t("purge.confirmMessage")}\n\n「${preview}${trimmed.length > 40 ? "…" : ""}」`,
       [
-        { text: PURGE_ENTRY_COPY.confirmCancel, style: "cancel" },
+        { text: tCommon("actions.cancel"), style: "cancel" },
         {
-          text: PURGE_ENTRY_COPY.confirmOk,
+          text: t("purge.confirmOk"),
           style: "destructive",
           onPress: async () => {
             setPurgingId(entry.id);
@@ -100,8 +102,8 @@ export function RecycleBinScreen() {
   const renderItem = ({ item }: { item: MoodEntry }) => {
     const deletedLabel =
       typeof item.deletedAt === "number"
-        ? formatDateChinese(item.deletedAt)
-        : formatDateChinese(item.timestamp);
+        ? formatLocaleDate(item.deletedAt, effectiveLocale)
+        : formatLocaleDate(item.timestamp, effectiveLocale);
 
     return (
       <RecycleBinEntryCard
@@ -117,23 +119,19 @@ export function RecycleBinScreen() {
 
   return (
     <AppScreenShell
-      title="回收站"
+      title={t("screen.title")}
       onBack={() => router.back()}
       headerStyle={styles.stackHeader}
       scrollable={false}
     >
       <View style={styles.screenContent}>
-        <ScreenFootnote style={styles.footnote}>
-          {RECYCLE_BIN_FOOTNOTE}
-        </ScreenFootnote>
+        <ScreenFootnote style={styles.footnote}>{t("footnote")}</ScreenFootnote>
 
         {deletedEntries.length === 0 ? (
           <View style={styles.empty}>
             <ArchiveRestore size={40} color="#D1D5DB" />
-            <Text style={styles.emptyTitle}>回收站是空的</Text>
-            <Text style={styles.emptyDesc}>
-              删除记录时会暂存在这里，方便你误删后找回
-            </Text>
+            <Text style={styles.emptyTitle}>{t("emptyState.title")}</Text>
+            <Text style={styles.emptyDesc}>{t("emptyState.body")}</Text>
           </View>
         ) : (
           <View style={styles.listWrap}>

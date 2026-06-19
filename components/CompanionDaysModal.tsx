@@ -4,9 +4,11 @@
  */
 
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
-import { formatDateChinese } from '@/shared/formatting/date';
+import { formatLocaleDate } from '@/shared/formatting/date';
+import { useAppStore } from '@/store/useAppStore';
 import { PartyPopper, X } from 'lucide-react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
     calculateDays,
@@ -23,6 +25,8 @@ interface CompanionDaysModalProps {
 }
 
 export default function CompanionDaysModal({ visible, onClose }: CompanionDaysModalProps) {
+  const { t } = useTranslation('profile');
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const firstEntryDate = useCompanionFirstEntryDate();
 
   const days = calculateDays(firstEntryDate);
@@ -47,16 +51,18 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            <Text style={styles.title}>陪伴天数</Text>
+            <Text style={styles.title}>{t('companionDays.modalTitle')}</Text>
             
             <View style={styles.daysContainer}>
               <Text style={styles.daysValue}>{days}</Text>
-              <Text style={styles.daysLabel}>天</Text>
+              <Text style={styles.daysLabel}>{t('companionDays.daysUnit')}</Text>
             </View>
             
             {firstEntryDate != null && firstEntryDate > 0 && (
               <Text style={styles.startDate}>
-                开始于 {formatDateChinese(firstEntryDate)}
+                {t('companionDays.startedAt', {
+                  date: formatLocaleDate(firstEntryDate, effectiveLocale),
+                })}
               </Text>
             )}
             

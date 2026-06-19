@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
-import { formatDateChinese } from "@/shared/formatting";
+import { formatLocaleDate } from "@/shared/formatting";
+import { useAppStore } from "@/store/useAppStore";
 import { INSIGHTS_COLORS } from "./constants";
 
 interface EmotionReleaseArchiveProps {
@@ -16,6 +17,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
   entries,
 }) => {
   const { t } = useTranslation("insights");
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const responsive = useResponsiveStyles();
   const releaseData = useMemo(() => {
     const burnedEntries = entries
@@ -51,7 +53,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
             {t("releaseArchive.title")}
           </Text>
         </View>
-        <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
+        <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]} numberOfLines={2}>
           {t("releaseArchive.subtitleEmpty")}
         </Text>
         <View style={styles.emptyCard}>
@@ -96,7 +98,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           {t("releaseArchive.title")}
         </Text>
       </View>
-      <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]}>
+      <Text style={[styles.subtitle, { fontSize: responsive.fontSize.small }]} numberOfLines={2}>
         {t("releaseArchive.subtitleFilled")}
       </Text>
 
@@ -123,7 +125,10 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       <View style={styles.recordCard}>
         <Text style={[styles.recordDate, { fontSize: responsive.fontSize.small - 1 }]}>
           {t("releaseArchive.latestRelease", {
-            date: formatDateChinese(latest.burnedAt || latest.timestamp),
+            date: formatLocaleDate(
+              latest.burnedAt || latest.timestamp,
+              effectiveLocale,
+            ),
           })}
         </Text>
         <Text
@@ -148,6 +153,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
                 lineHeight: responsive.fontSize.small + 6,
               },
             ]}
+            numberOfLines={3}
           >
             {reflectionQuestion}
           </Text>

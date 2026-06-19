@@ -1,0 +1,38 @@
+{
+  "language": {
+    "sectionTitle": "Language",
+    "options": {
+      "followSystem": "Follow System",
+      "zhHans": "Simplified Chinese",
+      "english": "English"
+    }
+  },
+  "sections": {
+    "dataSecurity": "Data & security",
+    "retention": "Reminders & retention",
+    "account": "Other"
+  },
+  "recycleBin": {
+    "title": "Recycle bin",
+    "subtextEmpty": "No deleted entries",
+    "subtextCount": "{{count}} restorable"
+  },
+  "account": {
+    "logout": "Sign out",
+    "deleteAccount": "Delete account",
+    "deleteAccountSubtext": "Permanently deletes your cloud account and data; local entries stay on this device"
+  },
+  "stats": {
+    "entriesLabel": "Mood entries",
+    "weatherScoreLabel": "Mood index",
+    "companionDaysLabel": "Days together"
+  },
+  "companionDays": {
+    "modalTitle": "Days together",
+    "daysUnit": "days",
+    "startedAt": "Started on {{date}}"
+  },
+  "screen": {
+    "title": "Profile"
+  }
+}

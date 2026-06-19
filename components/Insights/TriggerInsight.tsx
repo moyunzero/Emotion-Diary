@@ -1,10 +1,11 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
-import { resolveTriggerAdvice, resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
+import { resolveTriggerAdviceShort, resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
 import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { formatMonthDay } from '../../shared/formatting';
+import { formatLocaleDate } from '../../shared/formatting';
+import { useAppStore } from '../../store/useAppStore';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
@@ -15,6 +16,7 @@ interface TriggerInsightProps {
 
 const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => {
   const { t } = useTranslation('insights');
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -186,13 +188,13 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
     if (!latestEntry) return null;
 
     const revisitTime = latestEntry.timestamp + 48 * 60 * 60 * 1000;
-    const revisitText = formatMonthDay(revisitTime);
+    const revisitText = formatLocaleDate(revisitTime, effectiveLocale, 'short');
 
     return {
       trigger: topTrigger.name,
       revisitText,
     };
-  }, [entries, triggerData]);
+  }, [entries, triggerData, effectiveLocale]);
 
   if (triggerData.length === 0) {
     const minEntries = 3;
@@ -255,8 +257,8 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
             </View>
             <View style={styles.adviceContainer}>
               <Sparkles size={14} color={INSIGHTS_COLORS.secondary} />
-              <Text style={styles.adviceText}>
-                {resolveTriggerAdvice(trigger.name)}
+              <Text style={styles.adviceText} numberOfLines={3}>
+                {resolveTriggerAdviceShort(trigger.name)}
               </Text>
             </View>
             <PrescriptionCard
@@ -276,9 +278,9 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
               trigger: resolveTriggerLabel(actionLoop.trigger),
             })}
           </Text>
-          <Text style={styles.loopText}>
+          <Text style={styles.loopText} numberOfLines={2}>
             {t('triggers.actionLoop.stepAction', {
-              stepOne: resolveTriggerAdvice(actionLoop.trigger),
+              stepOne: resolveTriggerAdviceShort(actionLoop.trigger),
             })}
           </Text>
           <Text style={styles.loopText}>

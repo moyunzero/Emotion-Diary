@@ -1,4 +1,4 @@
-import { formatDateChinese } from "@/shared/formatting";
+import { formatLocaleDate } from "@/shared/formatting";
 import {
   filterDashboardEntries,
   getDashboardEntryItemType,
@@ -94,11 +94,12 @@ const Dashboard: React.FC = () => {
   const dropdownHeight = 200; // Fixed height for dropdown
 
   // 优化：使用单个 selector 减少多次渲染，使用 useShallow 避免无限循环
-  const { entries, weather, user } = useAppStore(
+  const { entries, weather, user, effectiveLocale } = useAppStore(
     useShallow((state) => ({
       entries: state.entries,
       weather: state.weather,
       user: state.user,
+      effectiveLocale: state.effectiveLocale,
     }))
   );
   const { colors } = useThemeStyles();
@@ -226,7 +227,7 @@ const Dashboard: React.FC = () => {
             {t("header.title")}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {formatDateChinese(Date.now())} · {weatherAdvice}
+            {formatLocaleDate(Date.now(), effectiveLocale)} · {weatherAdvice}
           </Text>
         </View>
         <Avatar

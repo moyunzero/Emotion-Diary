@@ -5,6 +5,7 @@
 
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { calculateDays } from '../services/companionDaysService';
 
@@ -13,6 +14,7 @@ interface CompanionDaysCardProps {
 }
 
 export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
+  const { t } = useTranslation('profile');
   const firstEntryDate = useCompanionFirstEntryDate();
 
   // 计算陪伴天数
@@ -59,7 +61,7 @@ export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.content}>
         <Text style={styles.value}>{displayDays}</Text>
-        <Text style={styles.label}>陪伴天数</Text>
+        <Text style={styles.label}>{t('stats.companionDaysLabel')}</Text>
       </View>
     </TouchableOpacity>
   );

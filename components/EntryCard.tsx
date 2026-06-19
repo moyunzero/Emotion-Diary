@@ -1,5 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
-import { formatDateChinese } from "@/shared/formatting";
+import { formatLocaleDate } from "@/shared/formatting";
 import { audioCoordinator } from "@/shared/audio/coordinator";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
@@ -122,6 +122,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     () => createEntryCardStyles(width, height),
     [width, height]
   );
+  const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const resolveEntry = useAppStore((state) => state.resolveEntry);
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);
@@ -433,10 +434,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     }
   };
 
-  // 使用统一的时间戳格式化函数
-  const formatEntryDate = (timestamp: number) => {
-    return formatDateChinese(timestamp);
-  };
+  const formatEntryDate = (timestamp: number) =>
+    formatLocaleDate(timestamp, effectiveLocale);
 
   const handleBurnComplete = () => {
     burnEntry(entry.id);
