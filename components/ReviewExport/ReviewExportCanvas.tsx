@@ -1,6 +1,9 @@
-import { formatDateChinese } from "@/shared/formatting";
+import { formatLocaleDate } from "@/shared/formatting";
+import { resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
+import { useAppStore } from "@/store/useAppStore";
 import { MessageCircle } from "lucide-react-native";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { MOOD_CONFIG } from "../../constants";
 import { MoodLevel } from "../../types";
@@ -16,7 +19,7 @@ const BUCKET_TO_MOOD: Record<ExportWeatherBucket, MoodLevel> = {
   stormy: MoodLevel.FURIOUS,
 };
 
-/** 回顾图纵向节奏：8 的倍数，区块略松、图表区内略紧，偏「治愈花园」呼吸感 */
+/** Vertical rhythm for review canvas: multiples of 8, airy section spacing */
 const GAP = {
   xs: 6,
   sm: 10,
@@ -28,21 +31,26 @@ const GAP = {
 export type ReviewExportAiStatus = "idle" | "loading" | "ready" | "fallback";
 
 export interface ReviewExportCanvasProps {
-  /** 与 AI 摘要同源的派生统计（画布不再重复计算） */
+  /** Derived stats shared with AI summary (canvas does not recompute) */
   derived: ReviewExportDerivedState;
-  /** 底部温柔一句（由 Screen 调用 Groq 后传入） */
+  /** Closing line from Groq, passed by Screen */
   closingLine: string;
   aiStatus: ReviewExportAiStatus;
 }
 
 /**
- * 解决率 null 时展示「—」（与 2-UI-SPEC 一致）
+ * Shows em dash when resolution rate is null (per 2-UI-SPEC)
  */
 export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   derived,
   closingLine,
   aiStatus,
 }) => {
+  const { t } = useTranslation("review");
+  const { t: tCommon } = useTranslation("common");
+  const { t: tDashboard } = useTranslation("dashboard");
+  const effectiveLocale = useAppStore((s) => s.effectiveLocale);
+
   const {
     current,
     compare,
@@ -63,7 +71,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   const { width: windowWidth } = useWindowDimensions();
   const chartW = Math.min(320, Math.max(200, windowWidth - 72));
   const chartH = 100;
-  /** 与旧版 SVG 公式一致：柱宽 ≈ (可用宽 − 间距) / n，在 flex 列内用百分比还原 */
+  /** Bar width formula matches legacy SVG: (chartW - margins - gaps) / n */
   const n = Math.max(1, monthlySeries.length);
   const MARGIN_H = 24;
   const BAR_GAP = 12;
@@ -76,35 +84,43 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
   return (
     <View style={styles.root} collapsable={false}>
       <Text style={styles.rangeTitle}>
-        {formatDateChinese(current.startMs)}～{formatDateChinese(current.endMs)}
+        {formatLocaleDate(current.startMs, effectiveLocale)}
+        {t("canvas.dateRangeSeparator")}
+        {formatLocaleDate(current.endMs, effectiveLocale)}
       </Text>
-      <Text style={styles.companionLine}>陪伴心晴MO第 {companionDays} 天</Text>
+      <Text style={styles.companionLine}>
+        {t("canvas.companionLine", {
+          days: companionDays,
+          appName: tCommon("appName"),
+        })}
+      </Text>
 
       <View style={styles.section}>
-        <Text style={styles.rateLabel}>本期情绪解决率</Text>
+        <Text style={styles.rateLabel}>{t("canvas.rateLabel")}</Text>
         <Text style={styles.bigRate}>
           {ratePct === null ? "—" : `${ratePct}%`}
         </Text>
         <Text style={styles.deltaLine}>
           {deltaPct === null
-            ? "本期暂无环比对比"
-            : `${deltaPct >= 0 ? "↑" : "↓"}${Math.abs(deltaPct)}% vs 上一期`}
+            ? t("canvas.deltaNoCompare")
+            : t("canvas.deltaVsPrevious", {
+                arrow: deltaPct >= 0 ? "↑" : "↓",
+                pct: Math.abs(deltaPct),
+              })}
         </Text>
         <Text style={styles.smallCount}>
-          本期共记录 {compare.current.total} 笔，已和解{" "}
-          {compare.current.resolved} 笔
+          {t("canvas.periodStats", {
+            total: compare.current.total,
+            resolved: compare.current.resolved,
+          })}
         </Text>
       </View>
 
       <View style={styles.trendBlock}>
-        <Text style={styles.trendBlockTitle}>解决率趋势（近 6 个月）</Text>
-        <Text style={styles.trendCaption}>
-          柱高代表当月已和解占比，月份从左到右由旧到新
-        </Text>
+        <Text style={styles.trendBlockTitle}>{t("canvas.trendTitle")}</Text>
+        <Text style={styles.trendCaption}>{t("canvas.trendCaption")}</Text>
         {hasMonthlyData ? null : (
-          <Text style={styles.trendEmptyHint}>
-            最近 6 个月暂无记录，先从一条小情绪开始。
-          </Text>
+          <Text style={styles.trendEmptyHint}>{t("canvas.trendEmpty")}</Text>
         )}
         <View style={[styles.svgWrap, { width: chartW }]}>
           <View style={styles.trendChartRow}>
@@ -132,7 +148,7 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
                   <Text
                     style={[styles.monthLabel, styles.trendMonthLabelSpacing]}
                   >
-                    {pt.monthIndex0 + 1}月
+                    {t("canvas.monthShort", { month: pt.monthIndex0 + 1 })}
                   </Text>
                 </View>
               );
@@ -142,10 +158,10 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       </View>
 
       <Text style={[styles.sectionTitle, styles.sectionAfterBlock]}>
-        本期情绪气象站
+        {t("canvas.weatherSection")}
       </Text>
       {topWeather.length === 0 ? (
-        <Text style={styles.muted}>本期暂无天气分布数据</Text>
+        <Text style={styles.muted}>{t("canvas.weatherEmpty")}</Text>
       ) : (
         topWeather.map((w) => {
           const mood = BUCKET_TO_MOOD[w.bucket];
@@ -155,7 +171,8 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
             <View key={w.bucket} style={styles.weatherRow}>
               {getMoodIcon(iconName, iconColor, 22)}
               <Text style={styles.weatherText}>
-                {w.labelZh} {w.days} 天
+                {tDashboard(`weatherStation.conditions.${w.bucket}`)}{" "}
+                {t("canvas.weatherDays", { days: w.days })}
               </Text>
             </View>
           );
@@ -163,17 +180,18 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
       )}
 
       <Text style={[styles.sectionTitle, styles.sectionAfterBlock]}>
-        Top 情绪触发
+        {t("canvas.triggersSection")}
       </Text>
       {topTriggers.length === 0 ? (
-        <Text style={styles.muted}>本期暂无触发器统计</Text>
+        <Text style={styles.muted}>{t("canvas.triggersEmpty")}</Text>
       ) : (
-        topTriggers.map((t) => (
-          <View key={t.name} style={styles.triggerBlock}>
+        topTriggers.map((trow) => (
+          <View key={trow.name} style={styles.triggerBlock}>
             <Text style={styles.triggerName}>
-              {t.name} · {t.count} 次
+              {resolveTriggerLabel(trow.name)} ·{" "}
+              {t("canvas.triggerCount", { count: trow.count })}
             </Text>
-            <Text style={styles.triggerAdvice}>{t.advice}</Text>
+            <Text style={styles.triggerAdvice}>{trow.advice}</Text>
           </View>
         ))
       )}
@@ -183,17 +201,19 @@ export const ReviewExportCanvas: React.FC<ReviewExportCanvasProps> = ({
           <MessageCircle size={20} color={INSIGHTS_COLORS.textSecondary} />
         </View>
         {aiStatus === "loading" && (
-          <Text style={styles.aiLoading}>正在写一句话…</Text>
+          <Text style={styles.aiLoading}>{t("canvas.aiLoading")}</Text>
         )}
         <Text style={styles.aiText}>{closingLine}</Text>
         {(aiStatus === "fallback" || aiStatus === "ready") && (
           <Text style={styles.aiHint}>
-            {aiStatus === "fallback" ? "当前为默认文案" : "由 AI 生成"}
+            {aiStatus === "fallback"
+              ? t("canvas.aiHintFallback")
+              : t("canvas.aiHintReady")}
           </Text>
         )}
       </View>
 
-      <Text style={styles.footerBrand}>心晴MO · 情绪回顾</Text>
+      <Text style={styles.footerBrand}>{t("canvas.footerBrand")}</Text>
     </View>
   );
 };
