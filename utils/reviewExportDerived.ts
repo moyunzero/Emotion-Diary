@@ -2,8 +2,16 @@
  * 回顾导出单一派生状态：统计只算一次，供画布与 AI 摘要共用。
  */
 
+import { i18n } from '@/i18n';
+import type { AppLocale } from '@/i18n/mapDeviceLocale';
+import { resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
+import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { calculateDaysAsOf } from '../services/companionDaysService';
 import type { MoodEntry } from '../types';
+import {
+  getReviewExportPeriods,
+  type ReviewExportPreset,
+} from '../shared/time-range';
 import {
   compareResolutionToPreviousPeriod,
   getMonthlyResolutionRateSeries,
@@ -12,12 +20,6 @@ import {
 } from './reviewStats';
 import { getTopThreeWeatherBucketsByDays } from './reviewStatsWeather';
 import { getTopTriggersWithAdvice } from './reviewStatsTriggers';
-import {
-  getReviewExportPeriods,
-  REVIEW_PRESET_LABEL,
-  type ReviewExportPreset,
-} from '../shared/time-range';
-import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 /** 与 AI 服务、画布数字同源的结构化摘要（无日记正文） */
 export interface ReviewExportClosingSummary {
@@ -52,7 +54,11 @@ function buildClosingSummary(
   companionDays: number,
   topWeather: ReturnType<typeof getTopThreeWeatherBucketsByDays>,
   topTriggers: ReturnType<typeof getTopTriggersWithAdvice>,
+  locale: AppLocale,
 ): ReviewExportClosingSummary {
+  const t = i18n.getFixedT(locale, 'review');
+  const tDash = i18n.getFixedT(locale, 'dashboard');
+
   const resolutionRatePct =
     compare.current.resolutionRate === null
       ? null
@@ -62,7 +68,7 @@ function buildClosingSummary(
     compare.deltaRate === null ? null : Math.round(compare.deltaRate * 100);
 
   return {
-    presetLabel: REVIEW_PRESET_LABEL[preset],
+    presetLabel: t(`presets.${preset}`),
     periodStartMs: current.startMs,
     periodEndMs: current.endMs,
     companionDays,
@@ -70,8 +76,18 @@ function buildClosingSummary(
     deltaPct,
     totalEntries: compare.current.total,
     resolvedEntries: compare.current.resolved,
-    topWeatherLines: topWeather.map((w) => `${w.labelZh} ${w.days} 天`),
-    topTriggerLines: topTriggers.map((t) => `${t.name} · ${t.count} 次`),
+    topWeatherLines: topWeather.map((w) =>
+      t('canvas.weatherLine', {
+        label: tDash(`weatherStation.conditions.${w.bucket}`),
+        days: w.days,
+      }),
+    ),
+    topTriggerLines: topTriggers.map((trow) =>
+      t('canvas.triggerLine', {
+        name: resolveTriggerLabel(trow.name),
+        count: trow.count,
+      }),
+    ),
   };
 }
 
@@ -80,6 +96,7 @@ export function computeReviewExportDerivedState(
   firstEntryDate: number | null,
   preset: ReviewExportPreset,
   now: Date,
+  locale: AppLocale = i18n.language as AppLocale,
 ): ReviewExportDerivedState {
   const visible = excludeSoftDeletedEntries(entries);
   const { current, previous } = getReviewExportPeriods(now, preset);
@@ -109,6 +126,7 @@ export function computeReviewExportDerivedState(
     companionDays,
     topWeather,
     topTriggers,
+    locale,
   );
 
   return {
