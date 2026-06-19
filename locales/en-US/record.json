@@ -96,7 +96,8 @@
     },
     "list": {
       "headerTitle": "Voice notes",
-      "countA11y": "{{count}} voice note(s)",
+      "countA11y_one": "{{count}} voice note",
+      "countA11y_other": "{{count}} voice notes",
       "countShort": "{{count}}",
       "recordedAt": "Recorded at {{time}}",
       "playA11y": "Play recording: {{label}}"

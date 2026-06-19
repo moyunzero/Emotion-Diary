@@ -104,7 +104,7 @@ export function useProfileSyncHandlers(state: StateRef) {
             : i18n.t("pull.success", { ns: "sync", count: visibleCount });
         setSyncProgress(
           failedAudioCount > 0
-            ? `${baseMsg}；${i18n.t("sync.audioUploadFailedSuffix", {
+            ? `${baseMsg} ${i18n.t("sync.audioUploadFailedSuffix", {
                 ns: "system",
                 count: failedAudioCount,
               })}`

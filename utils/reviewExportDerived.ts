@@ -84,7 +84,7 @@ function buildClosingSummary(
     ),
     topTriggerLines: topTriggers.map((trow) =>
       t('canvas.triggerLine', {
-        name: resolveTriggerLabel(trow.name),
+        name: resolveTriggerLabel(trow.name, locale),
         count: trow.count,
       }),
     ),
@@ -118,6 +118,8 @@ export function computeReviewExportDerivedState(
     visible,
     current.startMs,
     current.endMs,
+    3,
+    locale,
   );
   const closingSummary = buildClosingSummary(
     preset,

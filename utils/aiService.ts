@@ -740,7 +740,7 @@ export const generateEmotionPodcast = async (
       }, {} as Record<string, number>);
     const topTriggerRaw = Object.entries(topTriggers)
       .sort(([, a], [, b]) => b - a)[0]?.[0] || t('forecast.defaultTrigger');
-    const topTrigger = resolveTriggerLabel(topTriggerRaw);
+    const topTrigger = resolveTriggerLabel(topTriggerRaw, locale);
 
     const periodLabel =
       period === 'week' ? t('prompts.podcast.periodWeek') : t('prompts.podcast.periodMonth');
@@ -865,14 +865,14 @@ export const generateEmotionPrescription = async (
   const topRecurringTriggers = Object.entries(recentTriggers)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 3)
-    .map(([raw]) => resolveTriggerLabel(raw));
+    .map(([raw]) => resolveTriggerLabel(raw, locale));
 
   try {
     if (!isApiKeyValid()) {
       return getDefaultPrescription(trigger, moodLevel, locale);
     }
 
-    const triggerLabel = resolveTriggerLabel(trigger);
+    const triggerLabel = resolveTriggerLabel(trigger, locale);
     const companionLine =
       companionDays > 0
         ? t('prompts.prescription.companionLine', { userName, companionDays })

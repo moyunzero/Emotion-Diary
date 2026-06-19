@@ -215,7 +215,7 @@ export function RecycleBinEntryCard({
     [entry.deadline, effectiveLocale],
   );
   const resolvedTriggers = useMemo(
-    () => (entry.triggers?.filter(Boolean) ?? []).map(resolveTriggerLabel),
+    () => (entry.triggers?.filter(Boolean) ?? []).map((raw) => resolveTriggerLabel(raw)),
     [entry.triggers, effectiveLocale],
   );
 

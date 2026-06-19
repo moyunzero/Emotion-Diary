@@ -68,7 +68,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             
             {milestone && (
               <View style={styles.milestoneSection}>
-                <Text style={styles.sectionTitle}>当前成就</Text>
+                <Text style={styles.sectionTitle}>{t('companionDays.currentAchievement')}</Text>
                 <View style={[styles.milestoneCard, { borderColor: milestone.color }]}>
                   <MilestoneIcon 
                     emoji={milestone.icon} 
@@ -84,7 +84,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             
             {nextMilestone ? (
               <View style={styles.nextSection}>
-                <Text style={styles.sectionTitle}>下一个里程碑</Text>
+                <Text style={styles.sectionTitle}>{t('companionDays.nextMilestone')}</Text>
                 <View style={styles.nextCard}>
                   <MilestoneIcon 
                     emoji={nextMilestone.icon} 
@@ -93,14 +93,14 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                     testID="next-milestone-icon"
                   />
                   <Text style={styles.nextTitle}>{nextMilestone.title}</Text>
-                  <Text style={styles.nextDays}>还需 {daysToNext} 天</Text>
+                  <Text style={styles.nextDays}>{t('companionDays.daysToNext', { count: daysToNext })}</Text>
                 </View>
               </View>
             ) : (
               <View style={styles.maxSection}>
                 <View style={styles.maxContent}>
                   <AppIcon name={PartyPopper} size={20} color="#EF4444" testID="max-achievement-icon" />
-                  <Text style={styles.maxText}>恭喜！您已达到最高成就！</Text>
+                  <Text style={styles.maxText}>{t('companionDays.maxAchievement')}</Text>
                 </View>
               </View>
             )}

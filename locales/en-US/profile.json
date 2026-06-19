@@ -30,7 +30,12 @@
   "companionDays": {
     "modalTitle": "Days together",
     "daysUnit": "days",
-    "startedAt": "Started on {{date}}"
+    "startedAt": "Started on {{date}}",
+    "currentAchievement": "Current achievement",
+    "nextMilestone": "Next milestone",
+    "daysToNext_one": "{{count}} day to go",
+    "daysToNext_other": "{{count}} days to go",
+    "maxAchievement": "Congrats! You've reached the highest achievement!"
   },
   "screen": {
     "title": "Profile"

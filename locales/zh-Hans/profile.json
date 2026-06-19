@@ -30,7 +30,12 @@
   "companionDays": {
     "modalTitle": "陪伴天数",
     "daysUnit": "天",
-    "startedAt": "开始于 {{date}}"
+    "startedAt": "开始于 {{date}}",
+    "currentAchievement": "当前成就",
+    "nextMilestone": "下一个里程碑",
+    "daysToNext_one": "还需 {{count}} 天",
+    "daysToNext_other": "还需 {{count}} 天",
+    "maxAchievement": "恭喜！您已达到最高成就！"
   },
   "screen": {
     "title": "个人中心"

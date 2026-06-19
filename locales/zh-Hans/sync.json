@@ -26,8 +26,11 @@
   "neverSynced": "从未同步",
   "justSynced": "刚刚同步",
   "relative": {
-    "minutesAgo": "{{count}}分钟前",
-    "hoursAgo": "{{count}}小时前",
-    "daysAgo": "{{count}}天前"
+    "minutesAgo_one": "{{count}}分钟前",
+    "minutesAgo_other": "{{count}}分钟前",
+    "hoursAgo_one": "{{count}}小时前",
+    "hoursAgo_other": "{{count}}小时前",
+    "daysAgo_one": "{{count}}天前",
+    "daysAgo_other": "{{count}}天前"
   }
 }

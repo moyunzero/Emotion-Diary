@@ -93,6 +93,10 @@ const getErrorMessage = (error: unknown): string => {
 
   const errorMessage = error instanceof Error ? error.message : String(error);
 
+  if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+    return i18n.t("errors.requestTimeout", { ns: "system" });
+  }
+
   if (isNetworkError(error)) {
     return i18n.t("errors.networkConnectionFailed", { ns: "system" });
   }
@@ -140,10 +144,6 @@ const getErrorMessage = (error: unknown): string => {
     errorMessage.includes("PGRST")
   ) {
     return i18n.t("errors.permissionDenied", { ns: "system" });
-  }
-
-  if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
-    return i18n.t("errors.requestTimeout", { ns: "system" });
   }
 
   return errorMessage.length > 50

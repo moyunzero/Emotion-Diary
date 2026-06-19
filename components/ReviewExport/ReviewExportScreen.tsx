@@ -157,6 +157,7 @@ export const ReviewExportScreen: React.FC = () => {
         setAiStatus('ready');
       })
       .catch((error) => {
+        if (id !== closingRequestIdRef.current) return;
         console.error('Review export closing line failed:', error);
         setAiStatus('fallback');
       });

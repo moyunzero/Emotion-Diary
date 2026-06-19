@@ -82,7 +82,7 @@ export async function requestReminderPermissions(): Promise<ReminderPermissionRe
     return {
       ok: false,
       reason: "unavailable",
-      message: i18n.t("webReminderUnsupported", { ns: "retention" }),
+      message: i18n.t("reminderUnavailable", { ns: "retention" }),
     };
   }
 

@@ -16,6 +16,7 @@
   },
   "permissionDenied": "Notification permission was denied — we can't remind you at the scheduled time",
   "webReminderUnsupported": "Local notifications aren't supported on web — please use the app",
+  "reminderUnavailable": "Local notifications aren't available on this device",
   "dailyNotification": {
     "title": "MoodMO",
     "body": "How was your day? Take a minute to check in with yourself"

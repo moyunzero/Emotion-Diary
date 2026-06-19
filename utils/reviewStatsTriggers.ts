@@ -2,6 +2,7 @@
  * 周期内 Top 触发器 + 园艺建议（与 `TriggerInsight` 计数一致）。
  */
 
+import type { AppLocale } from '@/i18n/mapDeviceLocale';
 import { resolveTriggerAdvice } from '@/i18n/resolvePresetLabel';
 import { MoodEntry } from '../types';
 import { filterEntriesInRange } from './reviewStats';
@@ -28,11 +29,12 @@ export function getTopTriggersWithAdvice(
   startMs: number,
   endMs: number,
   limit = 3,
+  locale?: AppLocale,
 ): { name: string; count: number; advice: string }[] {
   const ranked = aggregateTriggerCounts(entries, startMs, endMs);
   return ranked.slice(0, limit).map(({ name, count }) => ({
     name,
     count,
-    advice: resolveTriggerAdvice(name),
+    advice: resolveTriggerAdvice(name, locale),
   }));
 }

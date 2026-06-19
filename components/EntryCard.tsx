@@ -144,7 +144,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     [entry.people, effectiveLocale],
   );
   const resolvedTriggerLabels = useMemo(
-    () => (entry.triggers ?? []).map(resolveTriggerLabel),
+    () => (entry.triggers ?? []).map((raw) => resolveTriggerLabel(raw)),
     [entry.triggers, effectiveLocale],
   );
   const peopleDisplay = resolvedPeopleLabels.join(", ");

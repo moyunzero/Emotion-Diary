@@ -19,7 +19,8 @@
   "card": {
     "deletedAtPrefix": "删除于",
     "noTextContent": "（无文字内容）",
-    "audioCount": "{{count}}条语音"
+    "audioCount_one": "{{count}}条语音",
+    "audioCount_other": "{{count}}条语音"
   },
   "screen": {
     "title": "回收站"

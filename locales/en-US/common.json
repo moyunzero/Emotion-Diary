@@ -18,8 +18,10 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
-    "daysAgo": "{{count}} days ago",
-    "daysLater": "In {{count}} days",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "daysLater_one": "In {{count}} day",
+    "daysLater_other": "In {{count}} days",
     "unknown": "Unknown time"
   }
 }

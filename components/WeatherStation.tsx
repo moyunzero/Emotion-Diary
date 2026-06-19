@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, Touch
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
+import { formatLocaleDate } from '@/shared/formatting/date';
 
 const WeatherStationComponent: React.FC = () => {
   const { t } = useTranslation('dashboard');
@@ -126,9 +127,8 @@ const WeatherStationComponent: React.FC = () => {
       return t('weatherStation.dates.today');
     } else if (date.toDateString() === tomorrow.toDateString()) {
       return t('weatherStation.dates.tomorrow');
-    } else {
-      return `${date.getMonth() + 1}/${date.getDate()}`;
     }
+    return formatLocaleDate(date, effectiveLocale, 'short');
   };
 
   const conditionLabel = useMemo(() => {

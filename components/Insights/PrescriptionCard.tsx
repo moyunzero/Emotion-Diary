@@ -177,7 +177,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         moodLevel,
         entries,
         'anonymous',
-        '朋友',
+        effectiveLocale === 'en-US' ? 'friend' : '朋友',
         undefined,
         effectiveLocale,
       );

@@ -96,7 +96,8 @@
     },
     "list": {
       "headerTitle": "语音列表",
-      "countA11y": "{{count}} 条语音",
+      "countA11y_one": "{{count}} 条语音",
+      "countA11y_other": "{{count}} 条语音",
       "countShort": "{{count}} 条",
       "recordedAt": "录制于 {{time}}",
       "playA11y": "播放录音：{{label}}"

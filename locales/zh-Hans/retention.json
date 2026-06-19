@@ -5,7 +5,7 @@
     "subtextDisabled": "默认关闭；仅本地通知，不含日记内容"
   },
   "weeklyReview": {
-    "toggleTitle": "周末周回顾提醒",
+    "toggleTitle": "周末回顾提醒",
     "toggleSubtext": "周六 10:00 提示生成本周回顾图"
   },
   "enableConfirm": {
@@ -16,6 +16,7 @@
   },
   "permissionDenied": "未获得通知权限，无法在设定时间提醒你",
   "webReminderUnsupported": "Web 端暂不支持本地通知，请使用 App",
+  "reminderUnavailable": "当前设备暂不支持本地通知",
   "dailyNotification": {
     "title": "心晴MO",
     "body": "今天过得怎样？花一分钟记录心情吧"

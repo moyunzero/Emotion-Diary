@@ -18,8 +18,10 @@
     "today": "今天",
     "yesterday": "昨天",
     "tomorrow": "明天",
-    "daysAgo": "{{count}}天前",
-    "daysLater": "{{count}}天后",
+    "daysAgo_one": "{{count}}天前",
+    "daysAgo_other": "{{count}}天前",
+    "daysLater_one": "{{count}}天后",
+    "daysLater_other": "{{count}}天后",
     "unknown": "未知时间"
   }
 }

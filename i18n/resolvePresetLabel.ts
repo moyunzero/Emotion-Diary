@@ -2,6 +2,7 @@ import { PEOPLE_KEYS, TRIGGER_KEYS } from "../constants";
 import enRecord from "../locales/en-US/record.json";
 import zhRecord from "../locales/zh-Hans/record.json";
 import { i18n } from "./index";
+import type { AppLocale } from "./mapDeviceLocale";
 
 const PEOPLE_KEY_SET = new Set<string>(PEOPLE_KEYS);
 const TRIGGER_KEY_SET = new Set<string>(TRIGGER_KEYS);
@@ -56,7 +57,7 @@ export function resolvePeopleLabel(raw: string): string {
   return raw;
 }
 
-export function resolveTriggerLabel(raw: string): string {
+export function resolveTriggerLabel(raw: string, locale?: AppLocale): string {
   const key = resolvePresetKey(
     raw,
     TRIGGER_KEY_SET,
@@ -64,9 +65,10 @@ export function resolveTriggerLabel(raw: string): string {
     LEGACY_TRIGGER_EN,
   );
   if (key) {
-    return i18n.t(`presets.triggers.${key}` as "presets.triggers.work", {
-      ns: "record",
-    });
+    const tk = `presets.triggers.${key}` as "presets.triggers.work";
+    return locale
+      ? i18n.getFixedT(locale, "record")(tk)
+      : i18n.t(tk, { ns: "record" });
   }
   return raw;
 }
@@ -80,13 +82,14 @@ function resolveTriggerKey(raw: string): (typeof TRIGGER_KEYS)[number] | null {
   ) as (typeof TRIGGER_KEYS)[number] | null;
 }
 
-export function resolveTriggerAdvice(raw: string): string {
+export function resolveTriggerAdvice(raw: string, locale?: AppLocale): string {
   const key = resolveTriggerKey(raw);
   const adviceKey = (key ?? "other") as (typeof TRIGGER_KEYS)[number];
-  return i18n.t(
-    `triggers.advice.${adviceKey}` as `triggers.advice.${(typeof TRIGGER_KEYS)[number]}`,
-    { ns: "insights" },
-  );
+  const tk =
+    `triggers.advice.${adviceKey}` as `triggers.advice.${(typeof TRIGGER_KEYS)[number]}`;
+  return locale
+    ? i18n.getFixedT(locale, "insights")(tk)
+    : i18n.t(tk, { ns: "insights" });
 }
 
 /** Compact advice for cards and action-loop UI (INS-02 / adviceShort). */

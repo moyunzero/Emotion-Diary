@@ -19,7 +19,8 @@
   "card": {
     "deletedAtPrefix": "Deleted on",
     "noTextContent": "(No text content)",
-    "audioCount": "{{count}} voice note(s)"
+    "audioCount_one": "{{count}} voice note",
+    "audioCount_other": "{{count}} voice notes"
   },
   "screen": {
     "title": "Recycle bin"

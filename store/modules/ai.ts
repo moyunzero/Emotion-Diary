@@ -31,6 +31,7 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
       }
 
       const forecast = await predictEmotionTrend(entries, days, effectiveLocale);
+      if (get().effectiveLocale !== effectiveLocale) return;
       set({
         emotionForecast: {
           ...forecast,
@@ -53,6 +54,7 @@ export const createAIModule: ModuleCreator<AIModule> = (set, get) => ({
       const userId = user?.id || 'anonymous';
       const userName = user?.name || '朋友';
       const content = await generateEmotionPodcast(entries, period, userId, userName, effectiveLocale);
+      if (get().effectiveLocale !== effectiveLocale) return;
 
       if (content) {
         set({
