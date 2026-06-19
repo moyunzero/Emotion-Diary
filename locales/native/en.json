@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "NSMicrophoneUsageDescription": "Mood Diary needs microphone access to record voice notes when you use that feature.",
+    "NSPhotoLibraryUsageDescription": "Mood Diary accesses your photo library only when you save an emotion review image.",
+    "NSPhotoLibraryAddUsageDescription": "Mood Diary saves your emotion review image to your photo library when you tap Save.",
+    "NSFaceIDUsageDescription": "Mood Diary uses Face ID to protect your emotion diary and private data."
+  }
+}

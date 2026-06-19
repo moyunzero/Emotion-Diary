@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "NSMicrophoneUsageDescription": "心晴MO需要访问麦克风以录制语音日记（仅在你使用该功能时）",
+    "NSPhotoLibraryUsageDescription": "心晴MO仅在你保存情绪回顾图时访问相册以完成写入。",
+    "NSPhotoLibraryAddUsageDescription": "心晴MO需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。",
+    "NSFaceIDUsageDescription": "心晴MO需要使用 Face ID 以保护你的情绪日记与隐私数据"
+  }
+}

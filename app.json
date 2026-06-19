@@ -20,10 +20,7 @@
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSFaceIDUsageDescription": "心晴MO需要使用 Face ID 以保护你的情绪日记与隐私数据",
-        "NSMicrophoneUsageDescription": "心晴MO需要访问麦克风以录制语音日记（仅在你使用该功能时）",
-        "NSPhotoLibraryUsageDescription": "心晴MO仅在你保存情绪回顾图时访问相册以完成写入。",
-        "NSPhotoLibraryAddUsageDescription": "心晴MO需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。"
+        "CFBundleAllowMixedLocalizations": true
       }
     },
     "android": {
@@ -45,6 +42,10 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "locales": {
+      "en": "./locales/native/en.json",
+      "zh": "./locales/native/zh.json"
+    },
     "plugins": [
       "expo-router",
       [
@@ -65,9 +66,11 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "心晴MO仅在你保存情绪回顾图时访问相册以完成写入。",
-          "savePhotosPermission": "心晴MO需要将你的情绪回顾图保存到相册，仅在您点击保存时写入。",
-          "granularPermissions": ["photo"]
+          "photosPermission": "Mood Diary accesses your photo library only when you save an emotion review image.",
+          "savePhotosPermission": "Mood Diary saves your emotion review image to your photo library when you tap Save.",
+          "granularPermissions": [
+            "photo"
+          ]
         }
       ],
       "expo-audio",
@@ -75,6 +78,15 @@
         "expo-notifications",
         {
           "color": "#EF4444"
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["zh", "en"],
+            "android": ["zh", "en"]
+          }
         }
       ]
     ],
