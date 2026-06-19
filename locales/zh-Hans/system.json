@@ -2,7 +2,8 @@
   "sync": {
     "operationIncomplete": "操作未完成，请稍后重试",
     "operationFailed": "操作失败，请稍后重试",
-    "audioUploadFailedSuffix": "{{count}} 条语音上传失败，可在条目中重试"
+    "audioUploadFailedSuffix_one": "{{count}} 条语音上传失败，可在条目中重试",
+    "audioUploadFailedSuffix_other": "{{count}} 条语音上传失败，可在条目中重试"
   },
   "audio": {
     "permission": {
@@ -28,7 +29,8 @@
     "uploadFailedRetry": "上传失败 · 点击重试",
     "retryUploadA11y": "重试上传语音",
     "voiceSectionTitle": "语音",
-    "voiceCount": "{{count}}条语音",
+    "voiceCount_one": "{{count}}条语音",
+    "voiceCount_other": "{{count}}条语音",
     "voicePlaySection": "语音"
   },
   "alerts": {

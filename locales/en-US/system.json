@@ -2,7 +2,8 @@
   "sync": {
     "operationIncomplete": "Operation incomplete. Please try again later.",
     "operationFailed": "Operation failed. Please try again later.",
-    "audioUploadFailedSuffix": "{{count}} voice note(s) failed to upload; retry from entries"
+    "audioUploadFailedSuffix_one": "{{count}} voice note failed to upload; retry from entries",
+    "audioUploadFailedSuffix_other": "{{count}} voice notes failed to upload; retry from entries"
   },
   "audio": {
     "permission": {
@@ -28,7 +29,8 @@
     "uploadFailedRetry": "Upload failed · tap to retry",
     "retryUploadA11y": "Retry voice upload",
     "voiceSectionTitle": "Voice",
-    "voiceCount": "{{count}} voice note(s)",
+    "voiceCount_one": "{{count}} voice note",
+    "voiceCount_other": "{{count}} voice notes",
     "voicePlaySection": "Voice"
   },
   "alerts": {
