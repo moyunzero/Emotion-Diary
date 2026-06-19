@@ -56,6 +56,13 @@
 - 各任务 `VERIFICATION.md` — 169 tests + E2E 结果（2026-06 复验）
 - 根 `README.md` — CI/E2E 说明；**[1.2.0]** 版本历史（Keep a Changelog）
 
+## Phase 7 QA（v1.3）
+
+- **NAT-01**：`locales/native/en.json` + `zh.json`；`yarn test __tests__/unit/config/nativeLocales.test.ts`
+- **QA-02 自动化**：`yarn test __tests__/unit/i18n/bilingualSmokeCopy.test.ts`
+- **QA-02 人工**：`.planning/phases/07-native-strings-qa-gates/07-UAT.md`（`/gsd-verify-work 7`）
+- **CI**：PR 仍仅 `typecheck` / `lint` / `test`（E2E 本地）
+
 ## 验证命令（合入前）
 
 ```bash

@@ -28,6 +28,10 @@
 
 **Git**：分支 `YYMMDD-(feat|fix|chore|refactor)-描述`；Conventional Commits；PR 小步、附验证说明。
 
+**iOS 原生权限文案（NAT-01）**：系统弹窗走 `app.json` 的 `expo.locales` → `locales/native/{en,zh}.json`（`NS*UsageDescription`）；与 runtime `i18next` 独立。改 native JSON 或 `CFBundleAllowMixedLocalizations` 后须 `expo prebuild --clean` 并重装 dev build 再验 en 设备权限对话框。
+
+**E2E 选择器（QA-01）**：关键控件用稳定 `testID`（见 `openspec/changes/WORKTREE-2026-06.md` E2E testID 表）；Maestro 用深链 `emotiondiary://…` + `id:` 选择器，勿依赖 Tab 文案 tap。React Native `Alert.alert` 按钮无 `testID` — Maestro 确认用 `tapOn index: 1`（cancel=0），Playwright Web 用 `page.on('dialog', accept)`。
+
 **依赖边界**（`eslint-plugin-boundaries`）：`app` → `components`/`features`/`store`/`hooks`/`services`/`utils`；`store` 禁引 `components`；`services` 禁引 `components`/`store`；`utils` 仅纯函数与类型。
 
 ---
@@ -46,7 +50,7 @@
 | H2 | 音频失败 | `uploadAudioWithRetry` 指数退避（`shared/audio/uploadRetry.ts`）；耗尽标 `failed`；备份含 pending+failed；条目内可重试（`retryAudioUpload`） |
 | H3 | 大列表 | `getItemType` + `filterDashboardEntries`（008）；播放进度仅活跃卡片订阅 |
 | H4 | SecureStore | Token 过大可能失败；已压缩 session |
-| H5 | AI 成本/可用性 | Groq 限流；缓存 TTL 见 `store/modules/ai.ts` |
+| H5 | AI 成本/可用性 | Groq 限流；缓存 TTL 见 `store/modules/ai.ts`。**i18n v1.3**：AI 内存缓存 key 须 `loc:{AppLocale}:` 前缀（`utils/aiService.buildAiCacheKey`）；`setLocale` / `setLocaleMode` 须调用 `clearAiCache()` 并清空 forecast/podcast store 态（D-103–D-104） |
 | H6 | 天气 | 缓存偏旧；错误降级静态文案 |
 | H7 | 依赖升级 | Expo 大版本需对照官方迁移 |
 
