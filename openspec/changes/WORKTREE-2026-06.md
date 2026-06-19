@@ -29,7 +29,22 @@
 
 **Maestro 导航**：深链 `emotiondiary://…`，勿依赖 Tab `testID` 点击。
 
-**E2E testID**：`mood-content-input`、`mood-submit-button`、`mood-entry-card`、`entry-delete-button`、`recycle-bin-entry-card`。
+**E2E testID**（Wave 2–3，QA-01 locale-agnostic 选择器）：
+
+| testID | 组件 / 用途 |
+| --- | --- |
+| `dashboard-header` | 气象站页头；Maestro 首页 wait |
+| `mood-content-input` | 记一笔正文输入 |
+| `mood-submit-button` | 提交情绪记录 |
+| `mood-entry-card` | 气象站条目卡片 |
+| `entry-delete-button` | 条目软删入口 |
+| `profile-recycle-bin-item` | Profile → 回收站导航（Playwright） |
+| `recycle-bin-entry-card` | 回收站列表卡片 |
+| `recycle-restore-button` | 回收站恢复 |
+| `recycle-purge-button` | 回收站永久删除 |
+| `recycle-bin-empty-state` | 回收站空状态 |
+
+**Known gap — RN Alert 确认**：`Alert.alert` 按钮无 `testID`；Maestro 用 `tapOn index: 1`（cancel=0、destructive confirm=1），Playwright Web 用 `page.on('dialog', accept)`。勿依赖「恢复」「永久删除」等 locale 文案 tap。
 
 ## 工程文档已同步
 
