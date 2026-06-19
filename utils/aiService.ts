@@ -1,7 +1,9 @@
-import { formatDateChinese } from '@/shared/formatting';
+import { formatLocaleDate } from '@/shared/formatting';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { i18n } from '@/i18n';
 import type { AppLocale } from '@/i18n/mapDeviceLocale';
+import { resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
+import { TRIGGER_KEYS } from '../constants';
 import { MoodEntry, MoodLevel } from '../types';
 import { isAuthError, isNetworkError } from './errorHandler';
 import type { ReviewExportClosingSummary } from './reviewExportClosingInput';
@@ -36,8 +38,50 @@ interface CacheEntry<T = unknown> {
 
 const cache = new Map<string, CacheEntry>();
 
-function getActiveLocale(): AppLocale {
+type TimeSlotKey = 'morning' | 'afternoon' | 'evening';
+
+const TRIGGER_KEY_SET = new Set<string>(TRIGGER_KEYS);
+
+const LEGACY_TRIGGER_ZH: Record<string, (typeof TRIGGER_KEYS)[number]> = {
+  工作: 'work',
+  学习: 'study',
+  家庭: 'family',
+  朋友: 'friends',
+  沟通: 'communication',
+  信任: 'trust',
+  隐私: 'privacy',
+  其他: 'other',
+};
+
+function defaultLocale(): AppLocale {
   return i18n.language === 'en-US' ? 'en-US' : 'zh-Hans';
+}
+
+function tAi(locale: AppLocale) {
+  return i18n.getFixedT(locale, 'ai');
+}
+
+function tInsights(locale: AppLocale) {
+  return i18n.getFixedT(locale, 'insights');
+}
+
+function getTimeSlotKey(hour: number): TimeSlotKey {
+  if (hour < 12) return 'morning';
+  if (hour < 18) return 'afternoon';
+  return 'evening';
+}
+
+function normalizeTriggerKey(raw: string): string {
+  if (TRIGGER_KEY_SET.has(raw)) return raw;
+  return LEGACY_TRIGGER_ZH[raw] ?? raw;
+}
+
+function weekdayLabel(locale: AppLocale, dayIndex: number): string {
+  return tInsights(locale)(`utils.weekdays.${dayIndex}` as 'utils.weekdays.0');
+}
+
+function timeSlotLabel(locale: AppLocale, slot: TimeSlotKey): string {
+  return tAi(locale)(`forecast.timeSlot.${slot}`);
 }
 
 export function buildAiCacheKey(
@@ -324,11 +368,12 @@ export interface EmotionPrescription {
  * 基于历史数据识别周期性模式和触发因素
  */
 export const analyzeEmotionCycle = async (
-  entries: MoodEntry[]
+  entries: MoodEntry[],
+  locale: AppLocale = defaultLocale(),
 ): Promise<EmotionCycleAnalysis> => {
   const data = excludeSoftDeletedEntries(entries);
   const cacheKey = buildAiCacheKey(
-    getActiveLocale(),
+    locale,
     'cycle',
     data.length,
     data[0]?.timestamp || 0,
@@ -348,14 +393,17 @@ export const analyzeEmotionCycle = async (
     }
 
     const dayOfWeekCounts: Record<number, number> = {};
-    const timeOfDayCounts: Record<string, number> = {};
+    const timeOfDayCounts: Record<TimeSlotKey, number> = {
+      morning: 0,
+      afternoon: 0,
+      evening: 0,
+    };
     const triggerCounts: Record<string, { count: number; totalLevel: number }> = {};
 
     data.forEach(entry => {
       const date = new Date(entry.timestamp);
       const dayOfWeek = date.getDay();
-      const hour = date.getHours();
-      const timeSlot = hour < 12 ? '上午' : hour < 18 ? '下午' : '晚上';
+      const timeSlot = getTimeSlotKey(date.getHours());
 
       dayOfWeekCounts[dayOfWeek] = (dayOfWeekCounts[dayOfWeek] || 0) + 1;
       timeOfDayCounts[timeSlot] = (timeOfDayCounts[timeSlot] || 0) + 1;
@@ -369,18 +417,20 @@ export const analyzeEmotionCycle = async (
       });
     });
 
-    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     const patterns = Object.entries(dayOfWeekCounts)
       .map(([day, freq]) => ({
-        dayOfWeek: weekdays[Number.parseInt(day)],
+        dayOfWeek: weekdayLabel(locale, Number.parseInt(day, 10)),
         frequency: freq,
       }))
       .sort((a, b) => b.frequency - a.frequency)
       .slice(0, 2)
       .map(p => ({
         ...p,
-        timeOfDay: Object.entries(timeOfDayCounts)
-          .sort(([, a], [, b]) => b - a)[0]?.[0],
+        timeOfDay: timeSlotLabel(
+          locale,
+          (Object.entries(timeOfDayCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ??
+            'morning') as TimeSlotKey,
+        ),
       }));
 
     const highRiskPeriods: EmotionCycleAnalysis['highRiskPeriods'] = patterns
@@ -388,7 +438,10 @@ export const analyzeEmotionCycle = async (
       .map(p => ({
         period: `${p.dayOfWeek}${p.timeOfDay}`,
         riskLevel: (p.frequency >= data.length * 0.3 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
-        description: `你在${p.dayOfWeek}${p.timeOfDay}情绪波动较大`,
+        description: tAi(locale)('forecast.highRiskDescription', {
+          dayOfWeek: p.dayOfWeek,
+          timeSlot: p.timeOfDay,
+        }),
       }));
 
     const triggerFactors = Object.entries(triggerCounts)
@@ -424,14 +477,14 @@ export const analyzeEmotionCycle = async (
  */
 export const predictEmotionTrend = async (
   entries: MoodEntry[],
-  days: number = 7
+  days: number = 7,
+  locale: AppLocale = defaultLocale(),
 ): Promise<EmotionForecast> => {
   const data = excludeSoftDeletedEntries(entries);
-  // 修复：移除 Date.now()，使用基于数据的缓存键，避免每次调用都生成新缓存
-  // 使用最近一条记录的时间戳作为缓存键的一部分，这样数据变化时缓存会失效
+  const t = tAi(locale);
   const latestTimestamp = data.length > 0 ? data[0].timestamp : 0;
   const cacheKey = buildAiCacheKey(
-    getActiveLocale(),
+    locale,
     'forecast',
     data.length,
     days,
@@ -441,7 +494,7 @@ export const predictEmotionTrend = async (
   if (cached) return cached;
 
   try {
-    const cycleAnalysis = await analyzeEmotionCycle(data);
+    const cycleAnalysis = await analyzeEmotionCycle(data, locale);
     const avgMoodLevel = data.length > 0
       ? data.reduce((sum, e) => sum + e.moodLevel, 0) / data.length
       : 2.5;
@@ -454,9 +507,10 @@ export const predictEmotionTrend = async (
       futureDate.setDate(futureDate.getDate() + i);
       const dayOfWeek = futureDate.getDay();
       const dateStr = futureDate.toISOString().split('T')[0];
+      const weekdayName = weekdayLabel(locale, dayOfWeek);
 
       const highRiskPeriod = cycleAnalysis.highRiskPeriods.find(
-        p => p.period.includes(['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dayOfWeek])
+        p => p.period.includes(weekdayName),
       );
 
       let predictedMoodLevel = avgMoodLevel;
@@ -477,21 +531,22 @@ export const predictEmotionTrend = async (
       if (riskLevel === 'high') {
         warnings.push({
           date: dateStr,
-          message: `${dateStr}是高风险日，记得多点耐心`,
+          message: t('forecast.warningHigh', { date: dateStr }),
           severity: 'high',
         });
       } else if (riskLevel === 'medium') {
         warnings.push({
           date: dateStr,
-          message: `${dateStr}情绪可能波动，注意调节`,
+          message: t('forecast.warningMedium', { date: dateStr }),
           severity: 'medium',
         });
       }
     }
 
+    const highCount = warnings.filter(w => w.severity === 'high').length;
     const summary = warnings.length > 0
-      ? `未来${days}天内有${warnings.filter(w => w.severity === 'high').length}个高风险日，建议提前做好准备。`
-      : `未来${days}天情绪趋势平稳，继续保持良好的情绪管理习惯。`;
+      ? t('forecast.summaryRisky', { days, highCount })
+      : t('forecast.summaryStable', { days });
 
     const forecast: EmotionForecast = {
       predictions,
@@ -506,7 +561,7 @@ export const predictEmotionTrend = async (
     const defaultForecast: EmotionForecast = {
       predictions: [],
       warnings: [],
-      summary: '预测功能暂时不可用',
+      summary: t('forecast.unavailable'),
     };
     return defaultForecast;
   }
@@ -524,15 +579,22 @@ export function isGroqConfigured(): boolean {
  */
 export function getDefaultReviewExportClosingLine(
   summary: ReviewExportClosingSummary,
+  locale: AppLocale = defaultLocale(),
 ): string {
+  const t = tAi(locale);
   if (summary.totalEntries === 0) {
-    return '最近还没有情绪记录，开始记录你的情绪吧~';
+    return t('fallbacks.closing.empty');
   }
   const rateText =
     summary.resolutionRatePct === null
-      ? '本期情绪解决率暂无统计'
-      : `情绪解决率为 ${summary.resolutionRatePct}%`;
-  return `在${summary.presetLabel}，你记录了${summary.totalEntries}笔，已和解${summary.resolvedEntries}笔。${rateText}。每一次记录都值得被温柔看见，心晴MO 会一直在。`;
+      ? t('fallbacks.closing.rateNoData')
+      : t('fallbacks.closing.rateWithValue', { pct: summary.resolutionRatePct });
+  return t('fallbacks.closing.default', {
+    presetLabel: summary.presetLabel,
+    totalEntries: summary.totalEntries,
+    resolvedEntries: summary.resolvedEntries,
+    rateText,
+  });
 }
 
 /**
@@ -546,9 +608,11 @@ export async function generateReviewExportClosingLine(
   summary: ReviewExportClosingSummary,
   userId: string = 'anonymous',
   userName: string = '朋友',
+  locale: AppLocale = defaultLocale(),
 ): Promise<string> {
+  const t = tAi(locale);
   const cacheKey = buildAiCacheKey(
-    getActiveLocale(),
+    locale,
     'rx_closing',
     userId,
     JSON.stringify({
@@ -568,35 +632,40 @@ export async function generateReviewExportClosingLine(
   if (cached) return cached;
 
   if (!isApiKeyValid()) {
-    const fallback = getDefaultReviewExportClosingLine(summary);
+    const fallback = getDefaultReviewExportClosingLine(summary, locale);
     setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
     return fallback;
   }
 
-  const systemPrompt =
-    `你叫小晴，是${userName}温暖的情绪陪伴好友，用中文像朋友聊天一样书写。禁止客服腔、禁止医疗诊断承诺。结合${userName}分享的具体情绪和触发事件，用花园/天气的比喻共情，适度肯定${userName}的努力。给出简短但有洞察的一句话总结。只输出一段正文，不要标题、不要列表、不要 markdown。`;
-
   const rateLine =
     summary.resolutionRatePct === null
-      ? '本期情绪解决率：暂无'
-      : `本期情绪解决率：${summary.resolutionRatePct}%`;
+      ? t('prompts.closing.rateNoData')
+      : t('prompts.closing.rateWithValue', { pct: summary.resolutionRatePct });
   const deltaLine =
     summary.deltaPct === null
-      ? '环比上一期：暂无对比'
-      : `环比上一期：${summary.deltaPct >= 0 ? '↑' : '↓'}${Math.abs(summary.deltaPct)}%`;
+      ? t('prompts.closing.deltaNoData')
+      : t('prompts.closing.deltaWithValue', {
+          arrow: summary.deltaPct >= 0 ? '↑' : '↓',
+          pct: Math.abs(summary.deltaPct),
+        });
 
-  const userPrompt = `请根据以下统计摘要，写一段温柔的一句话总结（约 80～120 字），用第二人称「你」，可自然使用花园或天气作比喻，不要编造未给出的数字。
-
-- 所选周期：${summary.presetLabel}
-- 区间：${formatDateChinese(summary.periodStartMs)}～${formatDateChinese(summary.periodEndMs)}
-- 陪伴心晴MO第 ${summary.companionDays} 天
-- ${rateLine}
-- ${deltaLine}
-- 本期共记录 ${summary.totalEntries} 笔，已和解 ${summary.resolvedEntries} 笔
-- Top 天气：${summary.topWeatherLines.length ? summary.topWeatherLines.join('；') : '暂无'}
-- Top 触发：${summary.topTriggerLines.length ? summary.topTriggerLines.join('；') : '暂无'}
-
-请严格只输出一段中文正文。`;
+  const systemPrompt = t('prompts.closing.system', { userName });
+  const userPrompt = t('prompts.closing.user', {
+    presetLabel: summary.presetLabel,
+    periodStart: formatLocaleDate(summary.periodStartMs, locale),
+    periodEnd: formatLocaleDate(summary.periodEndMs, locale),
+    companionDays: summary.companionDays,
+    rateLine,
+    deltaLine,
+    totalEntries: summary.totalEntries,
+    resolvedEntries: summary.resolvedEntries,
+    topWeather: summary.topWeatherLines.length
+      ? summary.topWeatherLines.join('；')
+      : t('prompts.closing.none'),
+    topTriggers: summary.topTriggerLines.length
+      ? summary.topTriggerLines.join('；')
+      : t('prompts.closing.none'),
+  });
 
   try {
     const result = await withRetry(async () => {
@@ -604,7 +673,7 @@ export async function generateReviewExportClosingLine(
       return raw.trim().substring(0, 200);
     });
     if (result.length < 15) {
-      const fallback = getDefaultReviewExportClosingLine(summary);
+      const fallback = getDefaultReviewExportClosingLine(summary, locale);
       setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
       return fallback;
     }
@@ -612,7 +681,7 @@ export async function generateReviewExportClosingLine(
     return result;
   } catch (error) {
     console.warn('生成回顾一句失败，使用默认文案:', error);
-    const fallback = getDefaultReviewExportClosingLine(summary);
+    const fallback = getDefaultReviewExportClosingLine(summary, locale);
     setCache(cacheKey, fallback, 24 * 60 * 60 * 1000);
     return fallback;
   }
@@ -630,10 +699,12 @@ export const generateEmotionPodcast = async (
   period: 'week' | 'month' = 'week',
   userId: string = 'anonymous',
   userName: string = '朋友',
+  locale: AppLocale = defaultLocale(),
 ): Promise<string | null> => {
   const data = excludeSoftDeletedEntries(entries);
+  const t = tAi(locale);
   const cacheKey = buildAiCacheKey(
-    getActiveLocale(),
+    locale,
     'rx_podcast',
     userId,
     period,
@@ -645,7 +716,7 @@ export const generateEmotionPodcast = async (
 
   try {
     if (!isApiKeyValid()) {
-      return getDefaultPodcast(entries, period);
+      return getDefaultPodcast(entries, period, locale);
     }
 
     const now = Date.now();
@@ -655,8 +726,7 @@ export const generateEmotionPodcast = async (
       .slice(-30);
 
     if (recentEntries.length === 0) {
-      const defaultMessage = '最近还没有情绪记录，开始记录你的情绪吧~';
-      return defaultMessage;
+      return t('fallbacks.podcast.empty');
     }
 
     const totalCount = recentEntries.length;
@@ -664,37 +734,35 @@ export const generateEmotionPodcast = async (
     const avgMoodLevel = recentEntries.reduce((sum, e) => sum + e.moodLevel, 0) / totalCount;
     const topTriggers = recentEntries
       .flatMap(e => e.triggers || [])
-      .reduce((acc, t) => {
-        acc[t] = (acc[t] || 0) + 1;
+      .reduce((acc, triggerKey) => {
+        acc[triggerKey] = (acc[triggerKey] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-    const topTrigger = Object.entries(topTriggers)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || '生活';
+    const topTriggerRaw = Object.entries(topTriggers)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || t('forecast.defaultTrigger');
+    const topTrigger = resolveTriggerLabel(topTriggerRaw);
 
-    const systemPrompt = `你叫小晴，是${userName}温暖的情绪陪伴好友，擅长用天气和花园的比喻共情。结合${userName}具体的情绪记录数据，用温柔治愈的语气像朋友聊天一样回顾。适度发现${userName}的成长和进步，用中文回复。`;
+    const periodLabel =
+      period === 'week' ? t('prompts.podcast.periodWeek') : t('prompts.podcast.periodMonth');
 
-    const userPrompt = `根据${userName}最近${period === 'week' ? '一周' : '一个月'}的情绪记录，生成一段200字左右的温柔回顾：
-
-统计信息：
-- 共记录${totalCount}次情绪
-- 已解决${resolvedCount}次，解决率${Math.round((resolvedCount / totalCount) * 100)}%
-- 平均情绪强度：${avgMoodLevel.toFixed(1)}级
-- 主要触发因素：${topTrigger}
-
-要求：
-1. 用"你"称呼用户
-2. 使用天气和花园的比喻
-3. 肯定用户的成长和努力
-4. 像朋友一样亲切
-5. 200字左右`;
+    const systemPrompt = t('prompts.podcast.system', { userName });
+    const userPrompt = t('prompts.podcast.user', {
+      userName,
+      periodLabel,
+      totalCount,
+      resolvedCount,
+      resolveRatePct: Math.round((resolvedCount / totalCount) * 100),
+      avgMoodLevel: avgMoodLevel.toFixed(1),
+      topTrigger,
+    });
 
     try {
       const result = await withRetry(async () => {
         const generated = await callGroqAPI(systemPrompt, userPrompt, 400);
         const cleaned = generated.trim().substring(0, 500);
-        
+
         if (cleaned.length < 50) {
-          return getDefaultPodcast(entries, period);
+          return getDefaultPodcast(entries, period, locale);
         }
         return cleaned;
       });
@@ -706,18 +774,23 @@ export const generateEmotionPodcast = async (
       if (errorType === AIErrorType.UNKNOWN) {
         console.warn('文本生成失败，使用默认文案:', error);
       }
-      return getDefaultPodcast(entries, period);
+      return getDefaultPodcast(entries, period, locale);
     }
   } catch (error) {
     console.error('生成情绪播客失败:', error);
-    return getDefaultPodcast(entries, period);
+    return getDefaultPodcast(entries, period, locale);
   }
 };
 
 /**
  * 生成默认播客文案（降级策略）
  */
-const getDefaultPodcast = (entries: MoodEntry[], period: 'week' | 'month'): string => {
+const getDefaultPodcast = (
+  entries: MoodEntry[],
+  period: 'week' | 'month',
+  locale: AppLocale = defaultLocale(),
+): string => {
+  const t = tAi(locale);
   const data = excludeSoftDeletedEntries(entries);
   const now = Date.now();
   const periodMs = period === 'week' ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
@@ -729,17 +802,24 @@ const getDefaultPodcast = (entries: MoodEntry[], period: 'week' | 'month'): stri
   const resolveRate = totalCount > 0 ? (resolvedCount / totalCount) * 100 : 0;
 
   if (totalCount === 0) {
-    return '最近还没有情绪记录，开始记录你的情绪吧~';
+    return t('fallbacks.podcast.empty');
   }
 
-  const periodText = period === 'week' ? '这一周' : '这一个月';
-  const rateText = resolveRate >= 70
-    ? '你的情绪解决率很高，花园正在茁壮成长'
-    : resolveRate >= 40
-    ? '你的情绪管理在进步，继续加油'
-    : '记得及时处理情绪，给花园浇浇水';
+  const periodText =
+    period === 'week' ? t('fallbacks.podcast.periodWeek') : t('fallbacks.podcast.periodMonth');
+  const rateText =
+    resolveRate >= 70
+      ? t('fallbacks.podcast.rateHigh')
+      : resolveRate >= 40
+        ? t('fallbacks.podcast.rateMedium')
+        : t('fallbacks.podcast.rateLow');
 
-  return `${periodText}，你记录了${totalCount}次情绪，其中${resolvedCount}次已经解决。${rateText}。每一次记录都是了解自己的机会，每一次解决都是成长的见证。继续保持，你的心灵花园会越来越美丽~`;
+  return t('fallbacks.podcast.default', {
+    periodText,
+    totalCount,
+    resolvedCount,
+    rateText,
+  });
 };
 
 /**
@@ -758,9 +838,11 @@ export const generateEmotionPrescription = async (
   userId: string = 'anonymous',
   userName: string = '朋友',
   firstEntryDate?: number,
+  locale: AppLocale = defaultLocale(),
 ): Promise<EmotionPrescription> => {
+  const t = tAi(locale);
   const cacheKey = buildAiCacheKey(
-    getActiveLocale(),
+    locale,
     'rx',
     userId,
     trigger,
@@ -776,34 +858,40 @@ export const generateEmotionPrescription = async (
   const recentTriggers = excludeSoftDeletedEntries(entries)
     .slice(-10)
     .flatMap(e => e.triggers || [])
-    .reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {} as Record<string, number>);
+    .reduce((acc, triggerKey) => {
+      acc[triggerKey] = (acc[triggerKey] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
   const topRecurringTriggers = Object.entries(recentTriggers)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 3)
-    .map(([t]) => t);
+    .map(([raw]) => resolveTriggerLabel(raw));
 
   try {
     if (!isApiKeyValid()) {
-      return getDefaultPrescription(trigger, moodLevel);
+      return getDefaultPrescription(trigger, moodLevel, locale);
     }
 
-    const systemPrompt = `你叫小晴，是${userName}温暖的情绪陪伴好友。擅长用朋友的角度给出具体实用、可立刻行动的建议。结合触发事件、情绪强度和用户习惯，用中文给出真正有帮助的回复。`;
+    const triggerLabel = resolveTriggerLabel(trigger);
+    const companionLine =
+      companionDays > 0
+        ? t('prompts.prescription.companionLine', { userName, companionDays })
+        : '';
+    const recurringLine =
+      topRecurringTriggers.length > 0
+        ? t('prompts.prescription.recurringLine', {
+            triggers: topRecurringTriggers.join(locale === 'en-US' ? ', ' : '、'),
+          })
+        : '';
 
-    const userPrompt = `${userName}因为"${trigger}"（情绪强度${moodLevel}/5级）需要帮助。
-
-${companionDays > 0 ? `已陪伴${userName} ${companionDays} 天，了解ta的情况。` : ''}
-${topRecurringTriggers.length > 0 ? `最近常见的触发因素：${topRecurringTriggers.join('、')}。` : ''}
-
-请给出3条朋友般温暖且具体可执行的建议：
-
-1. 紧急建议（立即执行，不超过30字）
-2. 短期建议（今天内执行，不超过30字）
-3. 长期建议（持续改善，不超过30字）
-
-格式要求：
-- 每条建议独立一行
-- 格式：1. [建议内容]
-- 语气温暖实用，像朋友聊天`;
+    const systemPrompt = t('prompts.prescription.system', { userName });
+    const userPrompt = t('prompts.prescription.user', {
+      userName,
+      trigger: triggerLabel,
+      moodLevel,
+      companionLine,
+      recurringLine,
+    });
 
     try {
       const response = await withRetry(async () => {
@@ -820,9 +908,8 @@ ${topRecurringTriggers.length > 0 ? `最近常见的触发因素：${topRecurrin
         setCache(cacheKey, prescription, 7 * 24 * 60 * 60 * 1000);
         return prescription;
       }
-      
-      // 如果解析失败，返回默认处方
-      return getDefaultPrescription(trigger, moodLevel);
+
+      return getDefaultPrescription(trigger, moodLevel, locale);
     } catch (error) {
       const errorType = classifyError(error);
       if (errorType === AIErrorType.UNKNOWN) {
@@ -830,48 +917,44 @@ ${topRecurringTriggers.length > 0 ? `最近常见的触发因素：${topRecurrin
       }
     }
 
-    return getDefaultPrescription(trigger, moodLevel);
+    return getDefaultPrescription(trigger, moodLevel, locale);
   } catch (error) {
     console.error('生成情绪处方失败:', error);
-    return getDefaultPrescription(trigger, moodLevel);
+    return getDefaultPrescription(trigger, moodLevel, locale);
   }
 };
 
 /**
  * 生成默认情绪处方（降级策略）
  */
-const getDefaultPrescription = (trigger: string, moodLevel: MoodLevel): EmotionPrescription => {
-  const urgentActions: Record<number, string> = {
-    1: '深呼吸10次，让自己冷静下来',
-    2: '离开现场，找个安静的地方待5分钟',
-    3: '深呼吸20次，或者去散步10分钟',
-    4: '立即离开现场，深呼吸30次，或者听一首舒缓的音乐',
-    5: '立即离开现场，深呼吸50次，或者给信任的朋友打电话',
-  };
+const getDefaultPrescription = (
+  trigger: string,
+  moodLevel: MoodLevel,
+  locale: AppLocale = defaultLocale(),
+): EmotionPrescription => {
+  const t = tAi(locale);
+  const triggerKey = normalizeTriggerKey(trigger);
+  const levelKey = String(moodLevel) as '1' | '2' | '3' | '4' | '5';
+  const triggerFallbackKey = TRIGGER_KEY_SET.has(triggerKey)
+    ? (triggerKey as (typeof TRIGGER_KEYS)[number])
+    : null;
 
-  const shortTermActions: Record<string, string> = {
-    工作: '今晚找个安静的时间，写下你的感受，明天再处理',
-    学习: '先休息一下，做点放松的事情，晚点再继续',
-    家庭: '今晚找个合适的时间，用"我感到..."的方式表达感受',
-    朋友: '今天先冷静，明天找个时间好好沟通',
-    沟通: '今晚准备一下想说的话，明天找个安静的时间聊聊',
-    信任: '给彼此一些空间，等情绪平复后再沟通',
-    隐私: '尊重彼此的边界，先冷静下来再讨论',
-  };
+  const urgent =
+    t(`fallbacks.prescription.urgentByLevel.${levelKey}` as 'fallbacks.prescription.urgentByLevel.1', {
+      defaultValue: t('fallbacks.prescription.urgentDefault'),
+    });
+  const shortTerm = triggerFallbackKey
+    ? t(
+        `fallbacks.prescription.shortTermByTrigger.${triggerFallbackKey}` as 'fallbacks.prescription.shortTermByTrigger.work',
+        { defaultValue: t('fallbacks.prescription.shortTermDefault') },
+      )
+    : t('fallbacks.prescription.shortTermDefault');
+  const longTerm = triggerFallbackKey
+    ? t(
+        `fallbacks.prescription.longTermByTrigger.${triggerFallbackKey}` as 'fallbacks.prescription.longTermByTrigger.work',
+        { defaultValue: t('fallbacks.prescription.longTermDefault') },
+      )
+    : t('fallbacks.prescription.longTermDefault');
 
-  const longTermActions: Record<string, string> = {
-    工作: '学习压力管理技巧，建立工作与生活的平衡',
-    学习: '制定合理的学习计划，避免过度压力',
-    家庭: '学习非暴力沟通技巧，改善家庭关系',
-    朋友: '定期与朋友沟通，建立更深的信任',
-    沟通: '学习表达技巧，用"我"语句代替指责',
-    信任: '通过小事情逐步建立信任，给彼此时间',
-    隐私: '与对方讨论边界问题，找到双方都舒适的平衡点',
-  };
-
-  return {
-    urgent: urgentActions[moodLevel] || '深呼吸，让自己冷静下来',
-    shortTerm: shortTermActions[trigger] || '今晚找个安静的时间，写下你的感受',
-    longTerm: longTermActions[trigger] || '持续关注情绪管理，学习相关技巧',
-  };
+  return { urgent, shortTerm, longTerm };
 };
