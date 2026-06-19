@@ -222,7 +222,7 @@ const Dashboard: React.FC = () => {
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
       {/* Header - 固定在顶部 */}
       <View style={styles.header}>
-        <View>
+        <View testID="dashboard-header">
           <Text style={[styles.title, { color: colors.text.primary }]}>
             {t("header.title")}
           </Text>

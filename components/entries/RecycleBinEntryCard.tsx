@@ -2,14 +2,16 @@
  * 回收站只读条目卡片（视觉对齐 EntryCard + 全宽双操作栏）
  */
 
-import { DEADLINE_CONFIG, MOOD_CONFIG } from "@/constants";
+import { MOOD_CONFIG } from "@/constants";
+import { getDeadlineLabel, getMoodLabel } from "@/i18n/moodLabels";
+import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
-import { PURGE_ENTRY_COPY } from "@/constants/purgeEntry";
 import { createResponsiveMetrics } from "@/shared/responsive";
 import { MoodEntry, MoodLevel } from "@/types";
 import { getMoodIcon } from "@/utils/moodIconUtils";
 import { Mic } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Pressable,
@@ -190,6 +192,7 @@ export function RecycleBinEntryCard({
   onRestore,
   onPurge,
 }: RecycleBinEntryCardProps) {
+  const { t } = useTranslation("recycle");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createRecycleBinEntryCardStyles(width, height),
@@ -200,11 +203,9 @@ export function RecycleBinEntryCard({
   const trimmed = entry.content.trim();
   const hasAudio = (entry.audios?.length ?? 0) > 0;
   const isBusy = isRestoring || isPurging;
-  const peopleLabel = entry.people?.filter(Boolean).join(", ");
-  const titleText = peopleLabel || mood.label;
-  const deadlineLabel =
-    DEADLINE_CONFIG[entry.deadline as keyof typeof DEADLINE_CONFIG]?.label ??
-    entry.deadline;
+  const peopleLabel = entry.people?.filter(Boolean).map(resolvePeopleLabel).join(", ");
+  const titleText = peopleLabel || getMoodLabel(entry.moodLevel);
+  const deadlineLabel = getDeadlineLabel(entry.deadline);
   const triggers = entry.triggers?.filter(Boolean) ?? [];
 
   return (
@@ -225,10 +226,12 @@ export function RecycleBinEntryCard({
                 <Text style={styles.titleText} numberOfLines={1}>
                   {titleText}
                 </Text>
-                <Text style={styles.dateText}>删除于 {deletedLabel}</Text>
+                <Text style={styles.dateText}>
+                  {t("card.deletedAtPrefix")} {deletedLabel}
+                </Text>
               </View>
               <Text style={styles.contentText} numberOfLines={3} accessibilityLabel={entry.content}>
-                {trimmed || "（无文字内容）"}
+                {trimmed || t("card.noTextContent")}
               </Text>
               {deadlineLabel || triggers.length > 0 || hasAudio ? (
                 <View style={styles.tagsContainer}>
@@ -246,7 +249,7 @@ export function RecycleBinEntryCard({
                     <View style={styles.audioTag}>
                       <Mic size={12} color="#6C63FF" />
                       <Text style={styles.audioTagText}>
-                        {entry.audios!.length}条语音
+                        {t("card.audioCount", { count: entry.audios!.length })}
                       </Text>
                     </View>
                   ) : null}
@@ -258,6 +261,7 @@ export function RecycleBinEntryCard({
 
         <View style={styles.actionBar}>
           <Pressable
+            testID="recycle-restore-button"
             style={({ pressed }) => [
               styles.actionButton,
               pressed && !isBusy && styles.actionButtonPressed,
@@ -266,19 +270,20 @@ export function RecycleBinEntryCard({
             onPress={onRestore}
             disabled={isBusy}
             accessibilityRole="button"
-            accessibilityLabel="恢复这条记录"
+            accessibilityLabel={t("restore.accessibilityLabel")}
             accessibilityState={{ disabled: isBusy, busy: isRestoring }}
           >
             {isRestoring ? (
               <ActivityIndicator size="small" color={COLORS.primaryDark} />
             ) : (
-              <Text style={styles.restoreText}>恢复</Text>
+              <Text style={styles.restoreText}>{t("restore.buttonLabel")}</Text>
             )}
           </Pressable>
 
           <View style={styles.actionDivider} />
 
           <Pressable
+            testID="recycle-purge-button"
             style={({ pressed }) => [
               styles.actionButton,
               pressed && !isBusy && styles.actionButtonPressed,
@@ -287,14 +292,14 @@ export function RecycleBinEntryCard({
             onPress={onPurge}
             disabled={isBusy}
             accessibilityRole="button"
-            accessibilityLabel={PURGE_ENTRY_COPY.accessibilityLabel}
+            accessibilityLabel={t("purge.accessibilityLabel")}
             accessibilityState={{ disabled: isBusy, busy: isPurging }}
           >
             {isPurging ? (
               <ActivityIndicator size="small" color={COLORS.error} />
             ) : (
               <Text style={styles.purgeText}>
-                {PURGE_ENTRY_COPY.buttonLabel}
+                {t("purge.buttonLabel")}
               </Text>
             )}
           </Pressable>

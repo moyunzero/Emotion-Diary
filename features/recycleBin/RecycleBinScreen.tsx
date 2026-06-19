@@ -128,7 +128,7 @@ export function RecycleBinScreen() {
         <ScreenFootnote style={styles.footnote}>{t("footnote")}</ScreenFootnote>
 
         {deletedEntries.length === 0 ? (
-          <View style={styles.empty}>
+          <View style={styles.empty} testID="recycle-bin-empty-state">
             <ArchiveRestore size={40} color="#D1D5DB" />
             <Text style={styles.emptyTitle}>{t("emptyState.title")}</Text>
             <Text style={styles.emptyDesc}>{t("emptyState.body")}</Text>
