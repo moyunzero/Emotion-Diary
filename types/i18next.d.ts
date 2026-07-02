@@ -13,6 +13,7 @@ import type zhRecycle from "../locales/zh-Hans/recycle.json";
 import type zhRetention from "../locales/zh-Hans/retention.json";
 import type zhReview from "../locales/zh-Hans/review.json";
 import type zhRituals from "../locales/zh-Hans/rituals.json";
+import type zhShare from "../locales/zh-Hans/share.json";
 import type zhSync from "../locales/zh-Hans/sync.json";
 import type zhTabs from "../locales/zh-Hans/tabs.json";
 
@@ -28,6 +29,7 @@ declare module "i18next" {
       recycle: typeof zhRecycle;
       tabs: typeof zhTabs;
       review: typeof zhReview;
+      share: typeof zhShare;
       mood: typeof zhMood;
       onboarding: typeof zhOnboarding;
       record: typeof zhRecord;
