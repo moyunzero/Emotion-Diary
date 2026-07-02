@@ -1,9 +1,16 @@
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useRouter } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
+import {
+  clearPendingMilestone,
+  loadPendingMilestone,
+  markStageSeen,
+  type GrowthStageId,
+} from "../../services/gardenMilestone";
 import { useAppStore } from "../../store/useAppStore";
 import { Status } from "../../types";
 import { AppScreenShell } from "../AppScreenShell";
@@ -20,6 +27,22 @@ const InsightsComponent: React.FC = () => {
   const { t } = useTranslation("insights");
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
+  const { trigger } = useHapticFeedback();
+  const [pendingStage, setPendingStage] = useState<GrowthStageId | null>(null);
+
+  useEffect(() => {
+    void loadPendingMilestone().then((pending) => {
+      if (pending?.stage && pending.stage !== "seed") {
+        setPendingStage(pending.stage);
+      }
+    });
+  }, []);
+
+  const handleMilestoneShown = useCallback(async (stage: GrowthStageId) => {
+    trigger("success");
+    await markStageSeen(stage);
+    await clearPendingMilestone();
+  }, [trigger]);
 
   const visibleEntries = useMemo(
     () => excludeSoftDeletedEntries(entries),
@@ -128,6 +151,8 @@ const InsightsComponent: React.FC = () => {
           <HealingProgress
             totalCount={stats.total}
             resolvedCount={stats.resolved}
+            pendingStage={pendingStage}
+            onMilestoneShown={handleMilestoneShown}
           />
 
           <InsightsDeferredSections

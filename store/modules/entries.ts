@@ -18,6 +18,7 @@ import {
   generateEntryId,
   isSoftDeleted,
 } from '../../shared/entries/visibility';
+import { maybeSetPendingAfterResolve } from '../../services/gardenMilestone';
 import { MoodEntry, Status } from '../../types';
 import {
   getStorageKey,
@@ -128,6 +129,7 @@ export const createEntriesSlice: StateCreator<
    */
   resolveEntry: (id): void => {
     const { entries } = get();
+    const beforeEntries = entries;
     const updatedEntries = entries.map((e) =>
       e.id === id
         ? { ...e, status: Status.RESOLVED, resolvedAt: Date.now() }
@@ -138,6 +140,7 @@ export const createEntriesSlice: StateCreator<
     // 保存到本地并重新计算天气
     get()._saveEntries();
     get()._calculateWeather();
+    void maybeSetPendingAfterResolve(beforeEntries, updatedEntries);
   },
 
   /**

@@ -1,18 +1,34 @@
 import { Flower2, Heart, Sparkles, Sprout } from 'lucide-react-native';
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import type { GrowthStageId } from '@/services/gardenMilestone';
 import { INSIGHTS_COLORS } from './constants';
 import { getGrowthStage } from './utils';
+
+const STAGE_RATE_FOR_ICON: Record<GrowthStageId, number> = {
+  seed: 0,
+  sprout: 0.2,
+  seedling: 0.4,
+  bud: 0.6,
+  bloom: 0.8,
+};
 
 interface HealingProgressProps {
   totalCount: number;
   resolvedCount: number;
+  pendingStage?: GrowthStageId | null;
+  onMilestoneShown?: (stage: GrowthStageId) => void;
 }
 
-const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, resolvedCount }) => {
+const HealingProgressComponent: React.FC<HealingProgressProps> = ({
+  totalCount,
+  resolvedCount,
+  pendingStage,
+  onMilestoneShown,
+}) => {
   const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
   const styles = useMemo(
@@ -101,13 +117,55 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
           color: INSIGHTS_COLORS.accent,
           fontStyle: 'italic',
         },
+        milestoneBanner: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: spacing.component,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderRadius: 12,
+          backgroundColor: INSIGHTS_COLORS.accent + '14',
+          borderLeftWidth: 4,
+          borderLeftColor: INSIGHTS_COLORS.accent,
+        },
+        milestoneTextWrap: {
+          flex: 1,
+          gap: 2,
+        },
+        milestoneTitle: {
+          fontSize: 16,
+          fontWeight: '600',
+          color: INSIGHTS_COLORS.text,
+        },
+        milestoneBody: {
+          fontSize: 14,
+          fontWeight: '400',
+          color: INSIGHTS_COLORS.textSecondary,
+        },
       }),
     [padding, fontSize, spacing, borderRadius]
   );
+  const milestoneHandledRef = useRef(false);
+  useEffect(() => {
+    if (pendingStage && onMilestoneShown && !milestoneHandledRef.current) {
+      milestoneHandledRef.current = true;
+      onMilestoneShown(pendingStage);
+    }
+  }, [pendingStage, onMilestoneShown]);
+
   const rate = totalCount > 0 ? resolvedCount / totalCount : 0;
   const pendingCount = totalCount - resolvedCount;
   const growthStage = useMemo(() => getGrowthStage(rate, t), [rate, t]);
   const GrowthIcon = growthStage.icon;
+  const pendingStageMeta = useMemo(
+    () =>
+      pendingStage
+        ? getGrowthStage(STAGE_RATE_FOR_ICON[pendingStage], t)
+        : null,
+    [pendingStage, t],
+  );
+  const PendingMilestoneIcon = pendingStageMeta?.icon;
   
   // 环形进度条参数
   const size = 120;
@@ -122,7 +180,25 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         <Heart size={20} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>{t('healing.title')}</Text>
       </View>
-      
+
+      {pendingStage && PendingMilestoneIcon ? (
+        <View
+          style={styles.milestoneBanner}
+          testID="garden-milestone-banner"
+          accessibilityLiveRegion="polite"
+        >
+          <PendingMilestoneIcon size={24} color={INSIGHTS_COLORS.accent} />
+          <View style={styles.milestoneTextWrap}>
+            <Text style={styles.milestoneTitle}>
+              {t(`milestone.${pendingStage}.title` as never)}
+            </Text>
+            <Text style={styles.milestoneBody} numberOfLines={1}>
+              {t(`milestone.${pendingStage}.body` as never)}
+            </Text>
+          </View>
+        </View>
+      ) : null}
+
       <View style={styles.content}>
         {/* 环形进度条 */}
         <View style={styles.progressContainer}>
