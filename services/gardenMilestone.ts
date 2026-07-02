@@ -27,6 +27,21 @@ const STAGE_RANK: Record<GrowthStageId, number> = {
 
 const noopT = ((key: string) => key) as TFunction<'insights'>;
 
+function milestoneUserSuffix(userId: string | null): string {
+  return userId ?? 'guest';
+}
+
+export function getMilestoneSeenKey(
+  userId: string | null,
+  stage: GrowthStageId,
+): string {
+  return `${GARDEN_MILESTONE_V1_SEEN_PREFIX}${milestoneUserSuffix(userId)}_${stage}`;
+}
+
+export function getMilestonePendingKey(userId: string | null): string {
+  return `${GARDEN_MILESTONE_V1_PENDING}_${milestoneUserSuffix(userId)}`;
+}
+
 export function getGrowthStageRank(stage: GrowthStageId): number {
   return STAGE_RANK[stage];
 }
@@ -60,23 +75,24 @@ export function detectStageCrossing(
   return null;
 }
 
-export async function isStageSeen(stage: GrowthStageId): Promise<boolean> {
+export async function isStageSeen(
+  userId: string | null,
+  stage: GrowthStageId,
+): Promise<boolean> {
   try {
-    const raw = await AsyncStorage.getItem(
-      `${GARDEN_MILESTONE_V1_SEEN_PREFIX}${stage}`,
-    );
+    const raw = await AsyncStorage.getItem(getMilestoneSeenKey(userId, stage));
     return raw === 'true';
   } catch {
     return false;
   }
 }
 
-export async function markStageSeen(stage: GrowthStageId): Promise<boolean> {
+export async function markStageSeen(
+  userId: string | null,
+  stage: GrowthStageId,
+): Promise<boolean> {
   try {
-    await AsyncStorage.setItem(
-      `${GARDEN_MILESTONE_V1_SEEN_PREFIX}${stage}`,
-      'true',
-    );
+    await AsyncStorage.setItem(getMilestoneSeenKey(userId, stage), 'true');
     return true;
   } catch {
     return false;
@@ -84,12 +100,13 @@ export async function markStageSeen(stage: GrowthStageId): Promise<boolean> {
 }
 
 export async function setPendingMilestone(
+  userId: string | null,
   stage: GrowthStageId,
 ): Promise<boolean> {
   try {
     const payload: PendingMilestone = { stage };
     await AsyncStorage.setItem(
-      GARDEN_MILESTONE_V1_PENDING,
+      getMilestonePendingKey(userId),
       JSON.stringify(payload),
     );
     return true;
@@ -98,9 +115,11 @@ export async function setPendingMilestone(
   }
 }
 
-export async function loadPendingMilestone(): Promise<PendingMilestone | null> {
+export async function loadPendingMilestone(
+  userId: string | null,
+): Promise<PendingMilestone | null> {
   try {
-    const raw = await AsyncStorage.getItem(GARDEN_MILESTONE_V1_PENDING);
+    const raw = await AsyncStorage.getItem(getMilestonePendingKey(userId));
     if (!raw) {
       return null;
     }
@@ -110,9 +129,11 @@ export async function loadPendingMilestone(): Promise<PendingMilestone | null> {
   }
 }
 
-export async function clearPendingMilestone(): Promise<boolean> {
+export async function clearPendingMilestone(
+  userId: string | null,
+): Promise<boolean> {
   try {
-    await AsyncStorage.removeItem(GARDEN_MILESTONE_V1_PENDING);
+    await AsyncStorage.removeItem(getMilestonePendingKey(userId));
     return true;
   } catch {
     return false;
@@ -120,6 +141,7 @@ export async function clearPendingMilestone(): Promise<boolean> {
 }
 
 export async function maybeSetPendingAfterResolve(
+  userId: string | null,
   entriesBefore: readonly MoodEntry[],
   entriesAfter: readonly MoodEntry[],
 ): Promise<boolean> {
@@ -129,8 +151,8 @@ export async function maybeSetPendingAfterResolve(
   if (!newStage) {
     return false;
   }
-  if (await isStageSeen(newStage)) {
+  if (await isStageSeen(userId, newStage)) {
     return false;
   }
-  return setPendingMilestone(newStage);
+  return setPendingMilestone(userId, newStage);
 }

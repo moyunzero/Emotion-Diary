@@ -144,7 +144,7 @@ extends: openspec/changes/011-metaphor-activation/UI-SPEC.md
 **命名空间**：`dashboard`  
 **键前缀**：`weatherNarrative.{condition}.{moodMix}.{deadlinePressure}`
 
-共 4×3×3 = **36 键**；fallback 链：`具体组合` → `weatherNarrative.{condition}.default` → `weatherStation.descriptions.{condition}`（现有）。
+共 4×3×3 = **36 键**；fallback 链：`具体组合` → `weatherStation.descriptions.{condition}` → `weatherStation.descriptions.sunny`（现有实现）。
 
 **示例 copy（zh，tone 参考）**：
 

@@ -29,20 +29,22 @@ const InsightsComponent: React.FC = () => {
   const responsive = useResponsiveStyles();
   const { trigger } = useHapticFeedback();
   const [pendingStage, setPendingStage] = useState<GrowthStageId | null>(null);
+  const userId = useAppStore((state) => state.user?.id ?? null);
 
   useEffect(() => {
-    void loadPendingMilestone().then((pending) => {
+    void loadPendingMilestone(userId).then((pending) => {
       if (pending?.stage && pending.stage !== "seed") {
         setPendingStage(pending.stage);
       }
     });
-  }, []);
+  }, [userId]);
 
   const handleMilestoneShown = useCallback(async (stage: GrowthStageId) => {
     trigger("success");
-    await markStageSeen(stage);
-    await clearPendingMilestone();
-  }, [trigger]);
+    await markStageSeen(userId, stage);
+    await clearPendingMilestone(userId);
+    setPendingStage(null);
+  }, [trigger, userId]);
 
   const visibleEntries = useMemo(
     () => excludeSoftDeletedEntries(entries),

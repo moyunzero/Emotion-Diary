@@ -356,7 +356,11 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsExpanded(false);
   };
 
-  const showBurnCompleteOverlay = useCallback(() => {
+  const handleBurnComplete = () => {
+    setIsBurning(false);
+    setSnapshot(null);
+    setUseSimpleAnimation(false);
+    triggerHaptic("success");
     setShowBurnCompleteMessage(true);
     burnMessageOpacity.setValue(1);
     Animated.sequence([
@@ -367,11 +371,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         useNativeDriver: true,
       }),
     ]).start(({ finished }) => {
+      setShowBurnCompleteMessage(false);
       if (finished) {
-        setShowBurnCompleteMessage(false);
+        burnEntry(entry.id);
+        onBurn?.(entry.id);
       }
     });
-  }, [burnMessageOpacity]);
+  };
 
   const handleDelete = () => {
     Alert.alert(
@@ -498,16 +504,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const formatEntryDate = (timestamp: number) =>
     formatLocaleDate(timestamp, effectiveLocale);
 
-  const handleBurnComplete = () => {
-    burnEntry(entry.id);
-    setIsBurning(false);
-    setSnapshot(null);
-    setUseSimpleAnimation(false);
-    triggerHaptic("success");
-    showBurnCompleteOverlay();
-    onBurn?.(entry.id);
-  };
-
   if (isBurning && useSimpleAnimation) {
     return (
       <SimpleBurnAnimation onComplete={handleBurnComplete}>
@@ -555,10 +551,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsEditModalVisible(true);
   };
 
-  // 如果是灰烬状态，渲染灰烬卡片
-  if (isBurned) {
+  // 如果是灰烬状态，渲染灰烬卡片（焚烧完成 toast 期间仍走主卡片路径）
+  if (isBurned && !showBurnCompleteMessage) {
     return (
-      <View style={styles.wrapper}>
+      <View style={styles.wrapper} testID="mood-entry-card">
         <TouchableOpacity
           onPress={() => {
             ensureLayoutAnimationEnabled();
@@ -733,7 +729,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           </TouchableOpacity>
 
           {/* Expanded Actions */}
-          {isExpanded && !isResolved && (
+          {isExpanded && !isResolved && !isBurned && !showBurnCompleteMessage && (
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -766,6 +762,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
                 onPress={handleBurnPress}
                 disabled={isPreparing}
+                testID="entry-burn-button"
                 accessibilityRole="button"
                 accessibilityLabel={t("entryCard.burnA11y")}
                 accessibilityHint={t("entryCard.burnHint")}

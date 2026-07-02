@@ -140,7 +140,8 @@ export const createEntriesSlice: StateCreator<
     // 保存到本地并重新计算天气
     get()._saveEntries();
     get()._calculateWeather();
-    void maybeSetPendingAfterResolve(beforeEntries, updatedEntries);
+    const userId = get().user?.id ?? null;
+    void maybeSetPendingAfterResolve(userId, beforeEntries, updatedEntries);
   },
 
   /**

@@ -23,11 +23,11 @@ jest.mock('@/components/Insights/utils', () => ({
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MoodLevel, Status, type MoodEntry } from '@/types';
 import {
-  GARDEN_MILESTONE_V1_PENDING,
-  GARDEN_MILESTONE_V1_SEEN_PREFIX,
   clearPendingMilestone,
   computeResolveRate,
   detectStageCrossing,
+  getMilestonePendingKey,
+  getMilestoneSeenKey,
   isStageSeen,
   loadPendingMilestone,
   markStageSeen,
@@ -42,6 +42,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 const mockStorage = AsyncStorage as jest.Mocked<typeof AsyncStorage>;
+const TEST_USER_ID = 'user-test-123';
 
 function makeEntry(
   partial: Partial<MoodEntry> & { id: string },
@@ -102,47 +103,55 @@ describe('gardenMilestone', () => {
   });
 
   describe('isStageSeen / markStageSeen', () => {
-    it('round-trips seen flag per stage key', async () => {
+    it('round-trips seen flag per user-scoped stage key', async () => {
       mockStorage.getItem.mockResolvedValueOnce('true');
-      await expect(isStageSeen('sprout')).resolves.toBe(true);
+      await expect(isStageSeen(TEST_USER_ID, 'sprout')).resolves.toBe(true);
 
-      await markStageSeen('sprout');
+      await markStageSeen(TEST_USER_ID, 'sprout');
       expect(mockStorage.setItem).toHaveBeenCalledWith(
-        `${GARDEN_MILESTONE_V1_SEEN_PREFIX}sprout`,
+        getMilestoneSeenKey(TEST_USER_ID, 'sprout'),
+        'true',
+      );
+    });
+
+    it('scopes guest keys separately from logged-in user', async () => {
+      await markStageSeen(null, 'bud');
+      expect(mockStorage.setItem).toHaveBeenCalledWith(
+        getMilestoneSeenKey(null, 'bud'),
         'true',
       );
     });
 
     it('returns false when AsyncStorage read fails', async () => {
       mockStorage.getItem.mockRejectedValueOnce(new Error('fail'));
-      await expect(isStageSeen('bud')).resolves.toBe(false);
+      await expect(isStageSeen(TEST_USER_ID, 'bud')).resolves.toBe(false);
     });
   });
 
   describe('pending milestone blob', () => {
     it('loadPendingMilestone / setPendingMilestone round-trip JSON', async () => {
-      await setPendingMilestone('seedling');
+      await setPendingMilestone(TEST_USER_ID, 'seedling');
       expect(mockStorage.setItem).toHaveBeenCalledWith(
-        GARDEN_MILESTONE_V1_PENDING,
+        getMilestonePendingKey(TEST_USER_ID),
         JSON.stringify({ stage: 'seedling' }),
       );
 
       mockStorage.getItem.mockResolvedValueOnce(
         JSON.stringify({ stage: 'seedling' }),
       );
-      await expect(loadPendingMilestone()).resolves.toEqual({
+      await expect(loadPendingMilestone(TEST_USER_ID)).resolves.toEqual({
         stage: 'seedling',
       });
 
-      await clearPendingMilestone();
+      await clearPendingMilestone(TEST_USER_ID);
       expect(mockStorage.removeItem).toHaveBeenCalledWith(
-        GARDEN_MILESTONE_V1_PENDING,
+        getMilestonePendingKey(TEST_USER_ID),
       );
     });
 
     it('returns null when AsyncStorage read fails', async () => {
       mockStorage.getItem.mockRejectedValueOnce(new Error('fail'));
-      await expect(loadPendingMilestone()).resolves.toBeNull();
+      await expect(loadPendingMilestone(TEST_USER_ID)).resolves.toBeNull();
     });
   });
 
@@ -152,18 +161,23 @@ describe('gardenMilestone', () => {
       const before = entriesAtRate(1, 10);
       const after = entriesAtRate(2, 10);
 
-      const result = await maybeSetPendingAfterResolve(before, after);
+      const result = await maybeSetPendingAfterResolve(
+        TEST_USER_ID,
+        before,
+        after,
+      );
 
       expect(result).toBe(true);
       expect(mockStorage.setItem).toHaveBeenCalledWith(
-        GARDEN_MILESTONE_V1_PENDING,
+        getMilestonePendingKey(TEST_USER_ID),
         JSON.stringify({ stage: 'sprout' }),
       );
     });
 
     it('does not set pending when stage already seen', async () => {
+      const seenKey = getMilestoneSeenKey(TEST_USER_ID, 'sprout');
       mockStorage.getItem.mockImplementation(async (key: string) => {
-        if (key === `${GARDEN_MILESTONE_V1_SEEN_PREFIX}sprout`) {
+        if (key === seenKey) {
           return 'true';
         }
         return null;
@@ -172,11 +186,15 @@ describe('gardenMilestone', () => {
       const before = entriesAtRate(1, 10);
       const after = entriesAtRate(2, 10);
 
-      const result = await maybeSetPendingAfterResolve(before, after);
+      const result = await maybeSetPendingAfterResolve(
+        TEST_USER_ID,
+        before,
+        after,
+      );
 
       expect(result).toBe(false);
       expect(mockStorage.setItem).not.toHaveBeenCalledWith(
-        GARDEN_MILESTONE_V1_PENDING,
+        getMilestonePendingKey(TEST_USER_ID),
         expect.anything(),
       );
     });

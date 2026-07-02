@@ -1,7 +1,7 @@
 import { COLORS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { Sprout } from "lucide-react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Animated,
@@ -27,15 +27,17 @@ export default function ResolveCeremonyHost({
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.8)).current;
   const onCompleteRef = useRef(onComplete);
+  const triggerHapticRef = useRef(triggerHaptic);
   const completedRef = useRef(false);
   onCompleteRef.current = onComplete;
+  triggerHapticRef.current = triggerHaptic;
 
-  const finishCeremony = () => {
+  const finishCeremony = useCallback(() => {
     if (completedRef.current) return;
     completedRef.current = true;
-    triggerHaptic("success");
+    triggerHapticRef.current("success");
     onCompleteRef.current();
-  };
+  }, []);
 
   useEffect(() => {
     if (!visible) {
@@ -46,7 +48,7 @@ export default function ResolveCeremonyHost({
     }
 
     completedRef.current = false;
-    triggerHaptic("light");
+    triggerHapticRef.current("light");
 
     const animation = Animated.parallel([
       Animated.timing(opacity, {
@@ -77,14 +79,14 @@ export default function ResolveCeremonyHost({
     return () => {
       animation.stop();
     };
-  }, [visible, opacity, scale, triggerHaptic]);
+  }, [visible, opacity, scale, finishCeremony]);
 
   if (!visible) {
     return null;
   }
 
   return (
-    <View style={styles.host} testID="resolve-ceremony-root" pointerEvents="box-none">
+    <View style={styles.host} testID="resolve-ceremony-root">
       <Animated.View
         style={[styles.content, { opacity, transform: [{ scale }] }]}
       >

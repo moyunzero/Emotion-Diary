@@ -187,7 +187,16 @@ const Dashboard: React.FC = () => {
   const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
   const weatherAdvice = useMemo((): string => {
     const { adviceKey } = computeWeatherNarrative(entries, weather.condition);
-    return String(t(adviceKey as never));
+    const translated = String(t(adviceKey as never));
+    if (translated !== adviceKey) {
+      return translated;
+    }
+    const fallbackKey =
+      `weatherStation.descriptions.${weather.condition}` as const;
+    const fallback = t(fallbackKey);
+    return fallback === fallbackKey
+      ? t("weatherStation.descriptions.sunny")
+      : fallback;
   }, [entries, weather.condition, t]);
   const emptyStateContent = useMemo(
     () => ({
