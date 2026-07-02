@@ -1,5 +1,6 @@
 import { AlertCircle, AlertTriangle, CheckCircle, Info, LucideIcon } from 'lucide-react-native';
 import React from 'react';
+import { COLORS } from '@/constants/colors';
 import AppIcon from './AppIcon';
 
 export type MessageType = 'success' | 'error' | 'info' | 'warning';
@@ -33,19 +34,19 @@ export interface MessageIconProps {
 const MESSAGE_ICON_MAP: Record<MessageType, { icon: LucideIcon; color: string }> = {
   success: {
     icon: CheckCircle,
-    color: '#10B981', // green
+    color: COLORS.success,
   },
   error: {
     icon: AlertCircle,
-    color: '#EF4444', // red
+    color: COLORS.error,
   },
   info: {
     icon: Info,
-    color: '#3B82F6', // blue
+    color: COLORS.primaryDark,
   },
   warning: {
     icon: AlertTriangle,
-    color: '#F59E0B', // amber
+    color: COLORS.warning,
   },
 };
 

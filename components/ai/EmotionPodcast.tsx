@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { formatLocaleDate } from '@/shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
+import { COLORS } from '@/constants/colors';
 
 /**
  * Emotion podcast card — AI-generated mood recap
@@ -17,11 +18,11 @@ const EmotionPodcast: React.FC = () => {
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: COLORS.background.primary,
           borderRadius: borderRadius.large,
           padding: padding.card,
           marginBottom: 16,
-          shadowColor: '#000',
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -36,11 +37,11 @@ const EmotionPodcast: React.FC = () => {
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: '#1F2937',
+          color: COLORS.text.primary,
         },
         subtitle: {
           fontSize: fontSize.small,
-          color: '#6B7280',
+          color: COLORS.text.secondary,
           marginBottom: 16,
           marginLeft: 34,
         },
@@ -54,19 +55,19 @@ const EmotionPodcast: React.FC = () => {
           paddingVertical: 10,
           paddingHorizontal: 16,
           borderRadius: 12,
-          backgroundColor: '#F3F4F6',
+          backgroundColor: COLORS.gray[100],
           alignItems: 'center',
         },
         periodButtonActive: {
-          backgroundColor: '#FDA4AF',
+          backgroundColor: COLORS.primary,
         },
         periodButtonText: {
           fontSize: fontSize.body,
           fontWeight: '500',
-          color: '#6B7280',
+          color: COLORS.text.secondary,
         },
         periodButtonTextActive: {
-          color: '#FFFFFF',
+          color: COLORS.text.inverse,
         },
         generateButton: {
           flexDirection: 'row',
@@ -76,7 +77,7 @@ const EmotionPodcast: React.FC = () => {
           paddingVertical: padding.vertical,
           paddingHorizontal: padding.horizontal,
           borderRadius: borderRadius.card,
-          backgroundColor: '#FDA4AF',
+          backgroundColor: COLORS.primaryDark,
         },
         generateButtonDisabled: {
           opacity: 0.6,
@@ -84,10 +85,10 @@ const EmotionPodcast: React.FC = () => {
         generateButtonText: {
           fontSize: fontSize.cardTitle,
           fontWeight: '600',
-          color: '#FFFFFF',
+          color: COLORS.text.inverse,
         },
         podcastCard: {
-          backgroundColor: '#FAFAFA',
+          backgroundColor: COLORS.background.secondary,
           borderRadius: 16,
           padding: 16,
         },
@@ -105,7 +106,7 @@ const EmotionPodcast: React.FC = () => {
         podcastPeriod: {
           fontSize: fontSize.body,
           fontWeight: '600',
-          color: '#1F2937',
+          color: COLORS.text.primary,
         },
         podcastActions: {
           flexDirection: 'row',
@@ -114,7 +115,7 @@ const EmotionPodcast: React.FC = () => {
         actionButton: {
           padding: 6,
           borderRadius: 8,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: COLORS.background.primary,
         },
         podcastContent: {
           maxHeight: 200,
@@ -123,11 +124,11 @@ const EmotionPodcast: React.FC = () => {
         podcastText: {
           fontSize: fontSize.body,
           lineHeight: 24,
-          color: '#374151',
+          color: COLORS.text.secondary,
         },
         podcastFooter: {
           fontSize: fontSize.small,
-          color: '#9CA3AF',
+          color: COLORS.text.tertiary,
           textAlign: 'right',
         },
       }),
@@ -192,7 +193,7 @@ const EmotionPodcast: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Mic size={24} color="#FDA4AF" />
+        <Mic size={24} color={COLORS.primary} />
         <Text style={styles.title}>{t('podcast.ui.title')}</Text>
       </View>
       <Text style={styles.subtitle}>{t('podcast.ui.subtitle')}</Text>
@@ -244,12 +245,12 @@ const EmotionPodcast: React.FC = () => {
         >
           {isGenerating ? (
             <>
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={COLORS.text.inverse} />
               <Text style={styles.generateButtonText}>{t('podcast.ui.generating')}</Text>
             </>
           ) : (
             <>
-              <Mic size={20} color="#FFFFFF" />
+              <Mic size={20} color={COLORS.text.inverse} />
               <Text style={styles.generateButtonText}>
                 {t('podcast.ui.generateButton', { period: periodLabel })}
               </Text>
@@ -260,7 +261,7 @@ const EmotionPodcast: React.FC = () => {
         <View style={styles.podcastCard}>
           <View style={styles.podcastHeader}>
             <View style={styles.podcastHeaderLeft}>
-              <Mic size={20} color="#FDA4AF" />
+              <Mic size={20} color={COLORS.primary} />
               <Text style={styles.podcastPeriod}>{periodReviewLabel}</Text>
             </View>
             <View style={styles.podcastActions}>
@@ -270,13 +271,13 @@ const EmotionPodcast: React.FC = () => {
                 disabled={isGenerating}
               >
                 {isGenerating ? (
-                  <Loader2 size={18} color="#6B7280" />
+                  <Loader2 size={18} color={COLORS.text.secondary} />
                 ) : (
-                  <RefreshCw size={18} color="#6B7280" />
+                  <RefreshCw size={18} color={COLORS.text.secondary} />
                 )}
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-                <Share2 size={18} color="#6B7280" />
+                <Share2 size={18} color={COLORS.text.secondary} />
               </TouchableOpacity>
             </View>
           </View>

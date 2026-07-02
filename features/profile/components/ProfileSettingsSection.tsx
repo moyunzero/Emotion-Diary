@@ -7,7 +7,6 @@ import {
   Check,
   CheckCircle,
   CloudDownload,
-  CloudSun,
   CloudUpload,
   History,
   LogOut,
@@ -73,7 +72,6 @@ export type ProfileSettingsSectionProps = {
   storeSyncStatus: StoreSyncStatus;
   recycleBinCount: number;
   onOpenRecycleBin: () => void;
-  onReplayIntro: () => void;
   reminderSettings: EmotionReminderSettings;
   reminderLoading: boolean;
   reminderSupported: boolean;
@@ -146,7 +144,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     storeSyncStatus,
     recycleBinCount,
     onOpenRecycleBin,
-    onReplayIntro,
     reminderSettings,
     reminderLoading,
     reminderSupported,
@@ -300,17 +297,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             <Check size={20} color={COLORS.primaryDark} />
           ) : null}
         </Pressable>
-      </GroupedSettingsCard>
-
-      <GroupedSettingsCard>
-        <ProfileMenuItem
-          testID="profile-replay-intro-item"
-          icon={<CloudSun size={20} color={COLORS.primaryDark} />}
-          iconBgColor={COLORS.gray[50]}
-          title={tProfile("onboarding.replayIntro")}
-          showChevron={true}
-          onPress={onReplayIntro}
-        />
       </GroupedSettingsCard>
 
       <ProfileSectionHeader title={tProfile("sections.dataSecurity")} />

@@ -11,8 +11,6 @@ const LEGACY_ENTRIES_KEY = "mood_entries";
 const GUEST_ENTRIES_KEY = "mood_entries_guest";
 const USER_SESSION_KEY = "user_session";
 
-let replayListener: (() => void) | null = null;
-
 export async function loadOnboardingMetaphorSeen(): Promise<boolean> {
   try {
     const raw = await AsyncStorage.getItem(ONBOARDING_METAPHOR_SEEN_KEY);
@@ -27,14 +25,6 @@ export async function setOnboardingMetaphorSeen(seen: boolean): Promise<void> {
     ONBOARDING_METAPHOR_SEEN_KEY,
     seen ? "true" : "false",
   );
-}
-
-export function registerOnboardingReplayListener(fn: () => void): void {
-  replayListener = fn;
-}
-
-export function openOnboardingReplay(): void {
-  replayListener?.();
 }
 
 /**

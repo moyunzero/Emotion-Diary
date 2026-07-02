@@ -1,9 +1,31 @@
 import { EditEntryModal } from "@/components/entries";
-import { formatLocaleDate } from "@/shared/formatting";
+import { COLORS } from "@/constants/colors";
+import { i18n } from "@/i18n";
+import { getDeadlineLabel } from "@/i18n/moodLabels";
+import {
+    resolvePeopleLabel,
+    resolveTriggerLabel,
+} from "@/i18n/resolvePresetLabel";
 import { audioCoordinator } from "@/shared/audio/coordinator";
+import { formatLocaleDate } from "@/shared/formatting";
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import { CheckCircle, Edit, Flame, Mic, Pause, Play, Trash2 } from "lucide-react-native";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    CheckCircle,
+    Edit,
+    Flame,
+    Mic,
+    Pause,
+    Play,
+    Trash2,
+} from "lucide-react-native";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { useTranslation } from "react-i18next";
 import {
     ActivityIndicator,
     Alert,
@@ -17,19 +39,15 @@ import {
     useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
-import { useTranslation } from "react-i18next";
 import { MOOD_CONFIG } from "../constants";
-import { i18n } from "@/i18n";
-import { getDeadlineLabel } from "@/i18n/moodLabels";
-import {
-  resolvePeopleLabel,
-  resolveTriggerLabel,
-} from "@/i18n/resolvePresetLabel";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
 import { useAppStore } from "../store/useAppStore";
 import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
 import { AudioData, MoodEntry, MoodLevel, Status } from "../types";
-import { areAudioDataArraysEqual, areOrderedStringArraysEqual } from "../utils/arrayEquality";
+import {
+    areAudioDataArraysEqual,
+    areOrderedStringArraysEqual,
+} from "../utils/arrayEquality";
 import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
@@ -120,7 +138,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
-    [width, height]
+    [width, height],
   );
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const resolveEntry = useAppStore((state) => state.resolveEntry);
@@ -244,7 +262,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           })}
         >
           {isAudioRowActive(audio) && isPlayingGlobal ? (
-            <Pause size={16} color="#6C63FF" />
+            <Pause size={16} color={COLORS.audio.primary} />
           ) : (
             <Play size={16} color="#9CA3AF" />
           )}
@@ -423,17 +441,17 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const getMoodColor = () => {
     switch (entry.moodLevel) {
       case MoodLevel.ANNOYED:
-        return "#FEF3C7";
+        return COLORS.mood.level1;
       case MoodLevel.UPSET:
-        return "#FED7AA";
+        return COLORS.mood.level2;
       case MoodLevel.ANGRY:
-        return "#FEE2E2";
+        return COLORS.mood.level3;
       case MoodLevel.FURIOUS:
-        return "#FECACA";
+        return COLORS.mood.level4;
       case MoodLevel.EXPLOSIVE:
-        return "#FCA5A5";
+        return COLORS.mood.level5;
       default:
-        return "#FEF3C7";
+        return COLORS.mood.level1;
     }
   };
 
@@ -518,7 +536,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
             {/* 灰烬内容 */}
             <View style={styles.textContainer}>
-              <Text style={styles.burnedTitle}>{t("entryCard.burnedTitle")}</Text>
+              <Text style={styles.burnedTitle}>
+                {t("entryCard.burnedTitle")}
+              </Text>
               <Text style={styles.burnedDate}>
                 {t("entryCard.burnedAt", {
                   date: formatEntryDate(entry.burnedAt || entry.timestamp),
@@ -646,7 +666,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   ))}
                   {entry.audios && entry.audios.length > 0 && (
                     <View style={styles.audioTag}>
-                      <Mic size={12} color="#6C63FF" />
+                      <Mic size={12} color={COLORS.audio.primary} />
                       <Text style={styles.audioTagText}>
                         {tSystem("audio.voiceCount", {
                           count: entry.audios.length,
@@ -680,7 +700,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint={t("entryCard.editHint")}
               >
                 <View style={styles.actionIcon}>
-                  <Edit size={20} color="#3B82F6" />
+                  <Edit size={20} color={COLORS.primaryDark} />
                 </View>
                 <Text style={styles.actionText}>{t("entryCard.edit")}</Text>
               </TouchableOpacity>
@@ -693,17 +713,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint={t("entryCard.resolveHint")}
               >
                 <View style={styles.actionIcon}>
-                  <CheckCircle size={20} color="#10B981" />
+                  <CheckCircle size={20} color={COLORS.mood.icon.level4} />
                 </View>
                 <Text style={styles.actionText}>{t("entryCard.resolve")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  styles.burnActionButton,
-                  isPreparing && { opacity: 0.5 },
-                ]}
+                style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
                 onPress={handleBurn}
                 disabled={isPreparing}
                 accessibilityRole="button"
@@ -712,15 +728,16 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityState={{ disabled: isPreparing }}
               >
                 {isPreparing ? (
-                  <ActivityIndicator size="small" color="#FF4500" />
+                  <ActivityIndicator
+                    size="small"
+                    color={COLORS.mood.icon.level5}
+                  />
                 ) : (
                   <>
-                    <View style={[styles.actionIcon, styles.burnActionIcon]}>
-                      <Flame size={22} color="#FF4500" />
+                    <View style={styles.actionIcon}>
+                      <Flame size={22} color={COLORS.mood.icon.level5} />
                     </View>
-                    <Text style={[styles.actionText, styles.burnActionText]}>
-                      {t("entryCard.burn")}
-                    </Text>
+                    <Text style={styles.actionText}>{t("entryCard.burn")}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -734,7 +751,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 accessibilityHint={t("entryCard.deleteHint")}
               >
                 <View style={styles.actionIcon}>
-                  <Trash2 size={18} color="#9CA3AF" />
+                  <Trash2 size={18} color={COLORS.text.tertiary} />
                 </View>
                 <Text style={[styles.actionText, styles.deleteActionText]}>
                   {t("entryCard.delete")}
@@ -761,12 +778,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
 /**
  * Custom comparison function for React.memo optimization.
- * 
+ *
  * Performs a deep comparison of EntryCard props to prevent unnecessary re-renders.
  * Specifically handles:
  * - Basic prop comparison (id, status, content, etc.)
  * - Deep equality check for arrays (people, triggers) to handle different references with same content
- * 
+ *
  * @param prevProps - Previous props
  * @param nextProps - Next props
  * @returns true if props are equal (no re-render needed), false otherwise
@@ -792,7 +809,10 @@ export const areEntryCardPropsEqual = (
     }
 
     if (
-      !areOrderedStringArraysEqual(prevProps.entry.people, nextProps.entry.people)
+      !areOrderedStringArraysEqual(
+        prevProps.entry.people,
+        nextProps.entry.people,
+      )
     ) {
       return false;
     }
@@ -807,10 +827,7 @@ export const areEntryCardPropsEqual = (
     }
 
     if (
-      !areAudioDataArraysEqual(
-        prevProps.entry.audios,
-        nextProps.entry.audios,
-      )
+      !areAudioDataArraysEqual(prevProps.entry.audios, nextProps.entry.audios)
     ) {
       return false;
     }

@@ -36,21 +36,25 @@ components/                 # 可复用组件
 **文件路径**：`components/Dashboard.tsx`
 
 **功能说明**：
+
 - 显示情绪记录列表
 - 显示情绪气象站
 - 提供记录筛选功能
 - 支持删除记录（气话焚烧）
 
 **Props**：
+
 - 无（使用 Zustand Store 获取状态）
 
 **状态管理**：
+
 - `entries`：从 `useAppStore` 获取所有记录
 - `weather`：从 `useAppStore` 获取天气状态
 - `user`：从 `useAppStore` 获取用户信息
 - `deleteEntry`：从 `useAppStore` 获取删除方法
 
 **本地状态**：
+
 - `filter`：筛选类型（'all' | 'active' | 'resolved'）
 - `avatarError`：头像加载错误状态
 - `isFilterOpen`：筛选菜单是否打开
@@ -78,6 +82,7 @@ components/                 # 可复用组件
    - 删除操作立即生效并保存
 
 **交互逻辑**：
+
 - 点击筛选按钮：打开/关闭筛选菜单
 - 选择筛选选项：更新筛选状态并保存偏好
 - 点击记录卡片：跳转到详情（如需要）
@@ -88,6 +93,7 @@ components/                 # 可复用组件
 **文件路径**：`components/Record.tsx`
 
 **功能说明**：
+
 - 创建新的情绪记录
 - 编辑情绪内容
 - 选择情绪等级
@@ -96,6 +102,7 @@ components/                 # 可复用组件
 - 自动保存草稿
 
 **Props**：
+
 ```typescript
 interface Props {
   onClose: () => void;
@@ -104,9 +111,11 @@ interface Props {
 ```
 
 **状态管理**：
+
 - `addEntry`：从 `useAppStore` 获取添加方法
 
 **本地状态**：
+
 - `moodLevel`：情绪等级
 - `content`：情绪内容
 - `deadline`：处理期限
@@ -147,6 +156,7 @@ interface Props {
    - 提交后清除草稿
 
 **交互逻辑**：
+
 - 选择情绪等级：更新等级并显示提示
 - 输入内容：自动保存草稿
 - 选择标签：添加到选中列表
@@ -158,6 +168,7 @@ interface Props {
 **文件路径**：`components/Insights.tsx`
 
 **功能说明**：
+
 - 显示本周情绪天气
 - 显示治愈进度（情绪解决率）
 - 显示关系花盆（关系健康度）
@@ -165,9 +176,11 @@ interface Props {
 - 显示 AI 情绪播客
 
 **Props**：
+
 - 无（使用 Zustand Store 获取状态）
 
 **状态管理**：
+
 - `entries`：从 `useAppStore` 获取所有记录
 - `generatePodcast`：从 `useAppStore` 获取生成播客方法
 
@@ -198,6 +211,7 @@ interface Props {
    - 支持生成本周或本月的播客
 
 **交互逻辑**：
+
 - 点击情绪触发洞察：显示 AI 情绪处方
 - 生成播客：调用 AI 服务生成内容
 - 查看详情：跳转到相关记录（如需要）
@@ -209,21 +223,25 @@ interface Props {
 **文件路径**：`components/WeatherStation.tsx`
 
 **功能说明**：
+
 - 显示当前关系天气状态
 - 显示情绪指数
 - 显示情绪预测
 - 支持生成情绪预测
 
 **Props**：
+
 - 无（使用 Zustand Store 获取状态）
 
 **状态管理**：
+
 - `weather`：从 `useAppStore` 获取天气状态
 - `emotionForecast`：从 `useAppStore` 获取预测数据
 - `entries`：从 `useAppStore` 获取所有记录
 - `generateForecast`：从 `useAppStore` 获取生成预测方法
 
 **本地状态**：
+
 - `isForecastExpanded`：预测是否展开
 - `isGenerating`：是否正在生成预测
 
@@ -245,6 +263,7 @@ interface Props {
    - 调用 AI 服务生成
 
 **交互逻辑**：
+
 - 点击预测标题：展开/折叠预测内容
 - 点击生成按钮：调用 AI 服务生成预测
 - 显示加载状态：生成过程中显示加载指示器
@@ -254,12 +273,14 @@ interface Props {
 **文件路径**：`components/EntryCard.tsx`
 
 **功能说明**：
+
 - 显示情绪记录信息
 - 支持编辑记录
 - 支持删除记录（气话焚烧）
 - 支持标记为已解决
 
 **Props**：
+
 ```typescript
 interface Props {
   entry: MoodEntry;
@@ -268,10 +289,12 @@ interface Props {
 ```
 
 **状态管理**：
+
 - `updateEntry`：从 `useAppStore` 获取更新方法
 - `resolveEntry`：从 `useAppStore` 获取解决方法
 
 **本地状态**：
+
 - `isEditing`：是否正在编辑
 - `isBurning`：是否正在焚烧
 - `showEditModal`：是否显示编辑模态框
@@ -300,6 +323,7 @@ interface Props {
    - 更新状态和解决时间
 
 **交互逻辑**：
+
 - 点击编辑按钮：打开编辑模态框
 - 点击删除按钮：触发焚烧动画
 - 点击解决按钮：标记为已解决
@@ -310,11 +334,13 @@ interface Props {
 **文件路径**：`components/EditEntryModal.tsx`
 
 **功能说明**：
+
 - 编辑现有情绪记录
 - 支持修改所有字段
 - 保存编辑历史
 
 **Props**：
+
 ```typescript
 interface Props {
   entry: MoodEntry;
@@ -325,12 +351,15 @@ interface Props {
 ```
 
 **状态管理**：
+
 - 无（通过 Props 传递数据和方法）
 
 **本地状态**：
+
 - 表单字段状态（与 Record 组件类似）
 
 **主要功能**：
+
 - 与 Record 组件类似，但用于编辑现有记录
 - 支持修改所有字段
 - 保存时会创建编辑历史记录
@@ -340,15 +369,17 @@ interface Props {
 **文件路径**：`components/Toast.tsx`
 
 **功能说明**：
+
 - 显示提示消息
 - 支持成功、错误、警告等类型
 - 自动消失
 
 **Props**：
+
 ```typescript
 interface Props {
   message: string;
-  type?: 'success' | 'error' | 'warning' | 'info';
+  type?: "success" | "error" | "warning" | "info";
   duration?: number;
   visible: boolean;
   onHide: () => void;
@@ -360,11 +391,13 @@ interface Props {
 **文件路径**：`components/AddTagInput.tsx`
 
 **功能说明**：
+
 - 输入和选择标签
 - 支持预设选项和自定义标签
 - 显示选中标签
 
 **Props**：
+
 ```typescript
 interface Props {
   label: string;
@@ -383,14 +416,17 @@ interface Props {
 **文件路径**：`components/ai/EmotionPodcast.tsx`
 
 **功能说明**：
+
 - 显示 AI 生成的情绪播客内容
 - 支持生成本周或本月的播客
 - 显示加载状态
 
 **Props**：
+
 - 无（使用 Zustand Store 获取状态）
 
 **状态管理**：
+
 - `emotionPodcast`：从 `useAppStore` 获取播客数据
 - `generatePodcast`：从 `useAppStore` 获取生成方法
 
@@ -399,7 +435,8 @@ interface Props {
 ### 配色方案
 
 - **主色调**：粉绿渐变（`#FDA4AF` → `#86EFAC`）
-- **背景色**：浅粉绿渐变（`#FFF5F5` → `#F0FDF4`）
+- **背景色**：粉色疗愈渐变（`#FFF5F7` → `#FFE4E6`）；记一笔/Profile 单色 `#FFF5F7`
+- **强调色**：`primaryDark` `#FB7185`（Tab、主 CTA、选中态）；`submit`/`error` 红仅 destructive
 - **文字色**：深灰（`#1F2937`）、中灰（`#6B7280`）
 - **卡片背景**：白色（`#FFFFFF`）
 
@@ -463,4 +500,3 @@ interface Props {
 - 支持 Tab 键导航
 - 支持回车键提交
 - 支持 Esc 键关闭
-

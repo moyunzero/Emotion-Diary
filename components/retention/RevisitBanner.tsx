@@ -4,6 +4,7 @@
 
 import { shouldShowRevisitBanner } from "@/shared/retention/touchpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { PenLine, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -68,7 +69,7 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
   return (
     <View style={styles.banner}>
       <View style={styles.row}>
-        <PenLine size={18} color="#EF4444" />
+        <PenLine size={18} color={COLORS.tab.active} />
         <Text style={styles.title}>{title}</Text>
         <TouchableOpacity
           onPress={handleDismiss}

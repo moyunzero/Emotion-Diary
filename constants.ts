@@ -1,31 +1,32 @@
 import { Deadline, MoodLevel } from './types';
+import { COLORS } from './constants/colors';
 
 // 情绪图标配置 - 使用天气主题图标，符合"情绪气象站"定位
 export const MOOD_CONFIG = {
   [MoodLevel.ANNOYED]: {
     level: 1,
     iconName: 'Droplet',
-    iconColor: '#F59E0B',
+    iconColor: COLORS.mood.icon.level1,
   },
   [MoodLevel.UPSET]: {
     level: 2,
     iconName: 'Cloud',
-    iconColor: '#F97316',
+    iconColor: COLORS.mood.icon.level2,
   },
   [MoodLevel.ANGRY]: {
     level: 3,
     iconName: 'CloudRain',
-    iconColor: '#EF4444',
+    iconColor: COLORS.mood.icon.level3,
   },
   [MoodLevel.FURIOUS]: {
     level: 4,
     iconName: 'CloudLightning',
-    iconColor: '#DC2626',
+    iconColor: COLORS.mood.icon.level4,
   },
   [MoodLevel.EXPLOSIVE]: {
     level: 5,
     iconName: 'Zap',
-    iconColor: '#991B1B',
+    iconColor: COLORS.mood.icon.level5,
   },
 } as const;
 

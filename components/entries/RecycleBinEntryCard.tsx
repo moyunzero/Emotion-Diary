@@ -34,17 +34,17 @@ export type RecycleBinEntryCardProps = {
 function getMoodBadgeColor(level: MoodLevel): string {
   switch (level) {
     case MoodLevel.ANNOYED:
-      return "#FEF3C7";
+      return COLORS.mood.level1;
     case MoodLevel.UPSET:
-      return "#FED7AA";
+      return COLORS.mood.level2;
     case MoodLevel.ANGRY:
-      return "#FEE2E2";
+      return COLORS.mood.level3;
     case MoodLevel.FURIOUS:
-      return "#FECACA";
+      return COLORS.mood.level4;
     case MoodLevel.EXPLOSIVE:
-      return "#FCA5A5";
+      return COLORS.mood.level5;
     default:
-      return "#FEF3C7";
+      return COLORS.mood.level1;
   }
 }
 
@@ -125,18 +125,18 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       fontWeight: "600",
     },
     triggerTag: {
-      backgroundColor: "#FDF2F8",
+      backgroundColor: COLORS.background.page,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
       borderRadius: 10,
     },
     triggerText: {
       fontSize: fontSize.xs,
-      color: "#F472B6",
+      color: COLORS.primaryDark,
       fontWeight: "600",
     },
     audioTag: {
-      backgroundColor: "#EEF2FF",
+      backgroundColor: COLORS.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
       borderRadius: 10,
@@ -146,7 +146,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
     },
     audioTagText: {
       fontSize: fontSize.xs,
-      color: "#6C63FF",
+      color: COLORS.audio.primary,
       fontWeight: "600",
     },
     actionBar: {
@@ -261,7 +261,7 @@ export function RecycleBinEntryCard({
                   ))}
                   {hasAudio ? (
                     <View style={styles.audioTag}>
-                      <Mic size={12} color="#6C63FF" />
+                      <Mic size={12} color={COLORS.audio.primary} />
                       <Text style={styles.audioTagText}>
                         {t("card.audioCount", { count: entry.audios!.length })}
                       </Text>

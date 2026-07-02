@@ -12,9 +12,9 @@ export function createRevisitBannerStyles(width: number, height: number) {
       marginBottom: spacing.sm,
       padding: spacing.md,
       borderRadius: borderRadius.large,
-      backgroundColor: "#FEF2F2",
+      backgroundColor: COLORS.background.page,
       borderWidth: 1,
-      borderColor: "#FECACA",
+      borderColor: COLORS.primaryLight,
     },
     row: {
       flexDirection: "row",
@@ -33,7 +33,7 @@ export function createRevisitBannerStyles(width: number, height: number) {
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.md,
       borderRadius: borderRadius.medium,
-      backgroundColor: "#EF4444",
+      backgroundColor: COLORS.tab.active,
     },
     actionPressed: {
       opacity: 0.9,
@@ -54,9 +54,9 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
       marginBottom: spacing.md,
       padding: spacing.md,
       borderRadius: borderRadius.large,
-      backgroundColor: "#EFF6FF",
+      backgroundColor: COLORS.background.page,
       borderWidth: 1,
-      borderColor: "#BFDBFE",
+      borderColor: COLORS.primaryLight,
     },
     row: {
       flexDirection: "row",
@@ -83,7 +83,7 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.md,
       borderRadius: borderRadius.medium,
-      backgroundColor: "#3B82F6",
+      backgroundColor: COLORS.tab.active,
     },
     actionPressed: {
       opacity: 0.9,

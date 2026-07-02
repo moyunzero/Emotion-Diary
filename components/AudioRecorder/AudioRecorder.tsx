@@ -182,7 +182,6 @@ export const AudioRecorder = React.forwardRef<
       {showWaveform ? (
         <WaveformView
           isActive={recordingState === "recording"}
-          color="#6C63FF"
         />
       ) : null}
 

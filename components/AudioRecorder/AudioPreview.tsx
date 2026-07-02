@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { COLORS } from "@/constants/colors";
 import {
   Play,
   Pause,
@@ -105,9 +106,9 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
       <Pressable style={styles.mainContent} onPress={handlePlayPause}>
         <View style={styles.playButton}>
           {isPlaying ? (
-            <Pause size={20} color="#6C63FF" />
+            <Pause size={20} color={COLORS.audio.primary} />
           ) : (
-            <Play size={20} color="#6C63FF" />
+            <Play size={20} color={COLORS.audio.primary} />
           )}
         </View>
 
@@ -135,13 +136,13 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
                     onPress={handleSaveEdit}
                     style={styles.actionButton}
                   >
-                    <Check size={16} color="#4CAF50" />
+                    <Check size={16} color={COLORS.accent} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleCancelEdit}
                     style={styles.actionButton}
                   >
-                    <X size={16} color="#FF5252" />
+                    <X size={16} color={COLORS.error} />
                   </TouchableOpacity>
                 </>
               ) : (
@@ -156,7 +157,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
                     onPress={handleDelete}
                     style={styles.actionButton}
                   >
-                    <Trash2 size={14} color="#FF5252" />
+                    <Trash2 size={14} color={COLORS.error} />
                   </TouchableOpacity>
                 </>
               )}
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     borderBottomWidth: 1,
-    borderBottomColor: "#6C63FF",
+    borderBottomColor: COLORS.audio.primary,
     paddingVertical: 2,
     marginRight: 8,
   },
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#6C63FF",
+    backgroundColor: COLORS.audio.primary,
     borderRadius: 2,
   },
   duration: {
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   deleteButton: {
-    backgroundColor: "#FF5252",
+    backgroundColor: COLORS.error,
   },
   deleteButtonText: {
     fontSize: 14,

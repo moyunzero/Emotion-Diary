@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { recordingCoordinator } from "../../shared/audio/recordingCoordinator";
+import { COLORS } from "@/constants/colors";
 import { useAppStore } from "../../store/useAppStore";
 
 interface RecordButtonProps {
@@ -126,7 +127,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "preview":
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color="#4CAF50" />
+            <Mic size={iconSize} color={COLORS.accent} />
             <RecordButtonLabel style={[...textStyle, styles.previewText]}>
               {t("audio.recordButton.addVoice")}
             </RecordButtonLabel>
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     maxWidth: 248,
     height: 50,
     paddingHorizontal: 16,
-    backgroundColor: "#6C63FF",
+    backgroundColor: COLORS.audio.primary,
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
     height: 42,
     paddingHorizontal: 12,
     borderRadius: 21,
-    backgroundColor: "#6C63FF",
+    backgroundColor: COLORS.audio.primary,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -230,10 +231,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   buttonRecording: {
-    backgroundColor: "#FF5252",
+    backgroundColor: COLORS.error,
   },
   buttonPreview: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: COLORS.accent,
   },
   buttonDisabled: {
     backgroundColor: "#ccc",

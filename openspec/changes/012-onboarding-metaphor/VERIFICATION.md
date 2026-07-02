@@ -15,27 +15,27 @@
 | 单元测试 | `yarn test __tests__/unit/services/onboardingMetaphor.test.ts --bail` | ✅ 8/8 pass |
 | i18n parity | `yarn test __tests__/unit/i18n/namespaceKeys.test.ts --bail` | ✅ 15/15 namespace pairs pass |
 | 全量测试 | `yarn test` | ✅ 307/307 pass |
-| Maestro E2E | `yarn test:maestro:012` | 未执行（需模拟器 + dev build） |
-| Web E2E | `yarn test:e2e e2e/onboarding-metaphor.spec.ts` | 未执行（需 Playwright + Metro Web） |
+| Maestro E2E | `yarn test:maestro:012` | ✅ pass（Path A/B，2026-07-02 validate） |
+| Web E2E | `yarn test:e2e e2e/onboarding-metaphor.spec.ts` | ✅ 2/2 pass（2026-07-02 validate） |
 | 治理规则 | `yarn verify:governance` | 未执行 |
-| 手工 UAT | 新用户 3 屏 + Profile 重看 + 首记 hint | 未执行 |
-| 手工 UAT — 双语 | Profile 切换 zh/en 时 intro / replay 文案随 i18next 更新（ROADMAP #3） | 未执行 |
+| 手工 UAT | 新用户 3 屏 + 首记 hint | Maestro Path B ✅ |
+| 手工 UAT — 双语 | 切换语言后 intro 文案 | 见 Manual-Only（无 Profile 重看入口） |
 
 ## 行为验证
 
-- [ ] 正常路径：新用户 3 屏 → 开始记录 → Record tab + 首记 hint
-- [ ] Skip 路径：Skip → seen 持久化 → relaunch 无 auto-show
-- [ ] 重看路径：Profile replay → Modal 从 slide 1；有条目时不显示首记 hint
-- [ ] 升级路径：预置 mood_entries / user_session → migration 后无 intro
-- [ ] 双语：zh/en 切换后 intro 与 hint 文案更新
-- [ ] Web / iOS / Android：Modal 可见；Web localStorage seen 与 native 语义一致
+- [x] 正常路径：新用户 3 屏 → 开始记录 → Record tab + 首记 hint（Maestro Path B）
+- [x] Skip 路径：Skip → seen 持久化 → relaunch 无 auto-show（Maestro Path A）
+- [ ] 重看路径：~~Profile replay~~（ONB-02 已撤销，2026-07-02）
+- [ ] 升级路径：预置 mood_entries / user_session → migration 后无 intro（单元 ✅；Path D 手工）
+- [ ] 双语：zh/en 切换后 intro 与 hint 文案更新（Manual-Only）
+- [x] Web / iOS：Modal 可见；Web localStorage seen 与 native 语义一致（Playwright + Maestro）
 
 ## E2E 映射
 
 | 需求 | 自动化 | 说明 |
 | --- | --- | --- |
 | ONB-01 | Maestro Path A/B、Playwright fresh storage | `onboarding-modal-root` |
-| ONB-02 | Maestro Path C | `emotiondiary://profile` + `profile-replay-intro-item` |
+| ONB-02 | **已撤销** — 个人中心不提供重看入口 | — |
 | ONB-03 | `namespaceKeys.test.ts` onboarding pair | zh/en 键结构 parity |
 | ONB-04 | Maestro Path B | `tab-record` + `record-first-entry-hint` |
 | ONB-05 | 单元 migration matrix；Maestro Path A persistence | Path D migration 预置见下方 |
@@ -63,16 +63,15 @@ Maestro flow 约束：`grep -v '^#' .maestro/flows/012-onboarding-metaphor.yaml 
 
 ## 未验证项
 
-- Maestro 012 全路径（需 iOS/Android 模拟器 + dev build）
-- Playwright Web smoke（需本地 Metro Web）
-- 双语 Profile 切换 UAT（ROADMAP success criterion #3）
-- Path D 原生 migration 预置 smoke（见上表）
+- Path D 原生 migration 预置 smoke（Maestro 无法预置 AsyncStorage；单元测试已覆盖）
+- 双语 Profile 切换 UAT（ROADMAP success criterion #3；无 Profile 重看入口）
+- Android Maestro（当前仅 iOS 模拟器验证）
 
 ## 剩余风险
 
 - `useSegments()` auto-show 时序（A1）：需 Maestro `clearState: true` 验证
 - Web localStorage key 前缀（A4）：Playwright 使用与 AsyncStorage 同名 key `onboarding_metaphor_v1_seen`
-- `seed-active-entry.yaml` 在 intro 启用后可能需先 dismiss intro — 011 流程独立，012 Path B 自包含
+- ~~`seed-active-entry.yaml` intro 冲突~~ — **已修复**（2026-07-02）：subflow 先 tap `onboarding-skip-button`，Skip 后 landing Record 再造数
 
 ## 文档更新记录
 

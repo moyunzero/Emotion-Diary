@@ -54,7 +54,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         loopContainer: {
           marginTop: 14,
-          backgroundColor: '#EFF6FF',
+          backgroundColor: INSIGHTS_COLORS.bgEnd,
           borderRadius: 10,
           padding: 12,
           gap: 6,
@@ -62,15 +62,15 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         loopTitle: {
           fontSize: fontSize.body,
           fontWeight: '700',
-          color: '#1D4ED8',
+          color: INSIGHTS_COLORS.accent,
         },
         loopText: {
           fontSize: fontSize.small,
           lineHeight: 18,
-          color: '#1E3A8A',
+          color: INSIGHTS_COLORS.text,
         },
         card: {
-          backgroundColor: '#FAFAFA',
+          backgroundColor: INSIGHTS_COLORS.bgStart,
           borderRadius: 12,
           padding: 14,
         },
@@ -105,14 +105,14 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           flexDirection: 'row',
           alignItems: 'flex-start',
           gap: 8,
-          backgroundColor: '#F0FDF4',
+          backgroundColor: INSIGHTS_COLORS.bgEnd,
           padding: padding.vertical,
           borderRadius: 8,
         },
         adviceText: {
           flex: 1,
           fontSize: fontSize.small,
-          color: '#166534',
+          color: INSIGHTS_COLORS.text,
           lineHeight: 18,
         },
         emptyContainer: {
@@ -126,7 +126,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         emptySubtext: {
           fontSize: 12,
-          color: '#9CA3AF',
+          color: INSIGHTS_COLORS.textSecondary,
           marginTop: 4,
         },
         progressContainer: {
@@ -144,7 +144,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         progressFill: {
           height: '100%',
-          backgroundColor: INSIGHTS_COLORS.secondary,
+          backgroundColor: INSIGHTS_COLORS.accent,
           borderRadius: 4,
         },
         progressText: {
@@ -256,7 +256,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
               </Text>
             </View>
             <View style={styles.adviceContainer}>
-              <Sparkles size={14} color={INSIGHTS_COLORS.secondary} />
+              <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
               <Text style={styles.adviceText} numberOfLines={3}>
                 {resolveTriggerAdviceShort(trigger.name)}
               </Text>

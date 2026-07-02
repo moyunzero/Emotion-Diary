@@ -6,6 +6,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { COLORS } from "@/constants/colors";
 
 const BAR_COUNT = 20;
 const BAR_WIDTH = 4;
@@ -50,7 +51,7 @@ const updateRealtimeWave = (prevBars: number[]): number[] => {
 export const WaveformView: React.FC<WaveformViewProps> = ({
   isActive,
   waveformType = "realtime-wave",
-  color = "#6C63FF",
+  color = COLORS.audio.primary,
 }) => {
   const [bars, setBars] = useState<number[]>(
     Array.from({ length: BAR_COUNT }, () => MIN_BAR_HEIGHT)

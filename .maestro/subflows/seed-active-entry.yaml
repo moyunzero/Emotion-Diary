@@ -1,0 +1,38 @@
+appId: com.moyunzero.emotiondiary
+---
+# 造数：记一笔 → 气象站可见 active 条目（供 011 验收）
+# 环境变量 ENTRY_CONTENT
+# 012 intro：clearState 冷启动会先出现 onboarding；Skip 后 Host 会 landing 到记一笔 Tab
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 45000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 30000
+- tapOn:
+    id: mood-content-input
+- inputText: ${ENTRY_CONTENT}
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 15000
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 15000

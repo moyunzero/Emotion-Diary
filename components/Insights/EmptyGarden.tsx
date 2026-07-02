@@ -92,7 +92,7 @@ const EmptyGardenComponent: React.FC = () => {
       <View style={styles.iconContainer}>
         <Flower2 size={64} color={INSIGHTS_COLORS.primary} style={{ opacity: 0.3 }} />
         <View style={styles.sparkleContainer}>
-          <Sparkles size={24} color={INSIGHTS_COLORS.secondary} />
+          <Sparkles size={24} color={INSIGHTS_COLORS.accent} />
         </View>
       </View>
       
@@ -102,7 +102,7 @@ const EmptyGardenComponent: React.FC = () => {
       <View style={styles.tipContainer}>
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Sprout size={20} color={INSIGHTS_COLORS.secondary} />
+            <Sprout size={20} color={INSIGHTS_COLORS.primary} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>{t('empty.tips.record.title')}</Text>

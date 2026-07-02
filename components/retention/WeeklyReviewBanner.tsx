@@ -7,6 +7,7 @@ import {
   shouldShowWeeklyReviewBanner,
 } from "@/shared/retention/touchpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { ImageIcon, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -65,7 +66,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
   return (
     <View style={styles.banner}>
       <View style={styles.row}>
-        <ImageIcon size={18} color="#3B82F6" />
+        <ImageIcon size={18} color={COLORS.primaryDark} />
         <View style={styles.textCol}>
           <Text style={styles.title}>{t("weeklyBanner.title")}</Text>
           <Text style={styles.body}>{t("weeklyBanner.body")}</Text>

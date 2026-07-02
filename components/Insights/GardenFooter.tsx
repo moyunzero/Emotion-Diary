@@ -79,7 +79,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
     <View style={styles.container}>
       <View style={styles.iconRow}>
         <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
-        <Leaf size={16} color={INSIGHTS_COLORS.secondary} />
+        <Leaf size={16} color={INSIGHTS_COLORS.accent} />
         <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
       </View>
       <Text style={styles.mainText}>{getMessage()}</Text>

@@ -7,6 +7,7 @@ import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
 import { formatLocaleDate } from "@/shared/formatting";
 import { useAppStore } from "@/store/useAppStore";
+import { COLORS } from "@/constants/colors";
 import { INSIGHTS_COLORS } from "./constants";
 
 interface EmotionReleaseArchiveProps {
@@ -48,7 +49,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         ]}
       >
         <View style={styles.header}>
-          <Flame size={20} color="#EA580C" />
+          <Flame size={20} color={COLORS.ritual.burn} />
           <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
             {t("releaseArchive.title")}
           </Text>
@@ -93,7 +94,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       ]}
     >
       <View style={styles.header}>
-        <Flame size={20} color="#EA580C" />
+        <Flame size={20} color={COLORS.ritual.burn} />
         <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
           {t("releaseArchive.title")}
         </Text>
@@ -144,7 +145,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           &ldquo;{latest.content}&rdquo;
         </Text>
         <View style={styles.questionRow}>
-          <NotebookPen size={14} color="#16A34A" />
+          <NotebookPen size={14} color={COLORS.ritual.resolve} />
           <Text
             style={[
               styles.questionText,
@@ -194,21 +195,21 @@ const styles = StyleSheet.create({
   },
   metricPill: {
     flex: 1,
-    backgroundColor: "#FFF7ED",
+    backgroundColor: '#FFF7ED',
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 10,
   },
   metricLabel: {
-    color: "#9A3412",
+    color: COLORS.ritual.burn,
   },
   metricValue: {
     marginTop: 2,
     fontWeight: "700",
-    color: "#C2410C",
+    color: COLORS.ritual.burn,
   },
   recordCard: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: COLORS.background.secondary,
     borderRadius: 10,
     padding: 12,
   },
@@ -224,18 +225,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 6,
-    backgroundColor: "#F0FDF4",
+    backgroundColor: INSIGHTS_COLORS.bgEnd,
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 10,
   },
   questionText: {
     flex: 1,
-    color: "#166534",
+    color: INSIGHTS_COLORS.text,
   },
   emptyCard: {
     marginTop: 4,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: COLORS.background.secondary,
     borderRadius: 10,
     padding: 16,
     alignItems: "center",

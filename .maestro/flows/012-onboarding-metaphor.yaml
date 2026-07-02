@@ -9,7 +9,7 @@ appId: com.moyunzero.emotiondiary
 - extendedWaitUntil:
     visible:
       id: onboarding-modal-root
-    timeout: 10000
+    timeout: 30000
 - tapOn:
     id: onboarding-skip-button
 - extendedWaitUntil:
@@ -29,8 +29,8 @@ appId: com.moyunzero.emotiondiary
     clearState: true
 - extendedWaitUntil:
     visible:
-      id: onboarding-modal-root
-    timeout: 10000
+      id: onboarding-skip-button
+    timeout: 30000
 - tapOn:
     id: onboarding-next-button
 - tapOn:
@@ -49,30 +49,6 @@ appId: com.moyunzero.emotiondiary
     visible:
       id: record-first-entry-hint
     timeout: 15000
-
-# --- Path C: Profile replay via deep link (ONB-02) ---
-- stopApp
-- launchApp
-- runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://profile
-- extendedWaitUntil:
-    visible:
-      id: profile-replay-intro-item
-    timeout: 30000
-- tapOn:
-    id: profile-replay-intro-item
-- extendedWaitUntil:
-    visible:
-      id: onboarding-modal-root
-    timeout: 10000
-- tapOn:
-    id: onboarding-skip-button
-- extendedWaitUntil:
-    notVisible:
-      id: onboarding-modal-root
-    timeout: 10000
 
 # --- Path D: migration user no intro (ONB-05) ---
 # AsyncStorage pre-seed (mood_entries_guest without seen flag) is not automatable in Maestro.

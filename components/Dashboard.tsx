@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/shallow";
+import { COLORS } from "@/constants/colors";
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
@@ -241,17 +242,19 @@ const Dashboard: React.FC = () => {
 
       {/* 筛选条 - sticky 在 header 下方，不随列表滚动（避免按钮 measure 坐标随滚动漂移导致下拉错位） */}
       <View style={styles.listHeader}>
-        <Text style={[styles.listTitle, { color: colors.text.primary }]}>
-          {filterLabel}
-          <Text style={[styles.count, { color: colors.text.tertiary }]}>
-            {" "}
-            ({filteredEntries.length})
+        <View style={styles.listTitleRow}>
+          <Text style={[styles.listTitle, { color: colors.text.primary }]}>
+            {filterLabel}
           </Text>
-        </Text>
+          <Text style={[styles.count, { color: colors.text.tertiary }]}>
+            {" "}({filteredEntries.length})
+          </Text>
+        </View>
 
         <TouchableOpacity
           ref={filterButtonRef}
           onPress={handleFilterButtonPress}
+          testID="dashboard-filter-button"
           onLayout={() => {
             // 抽到 FlashList 外后按钮位置基本稳定，这里仍保留以覆盖旋转/字号变更等极端场景
             measureFilterButton();
@@ -259,7 +262,6 @@ const Dashboard: React.FC = () => {
           style={[
             styles.filterButton,
             isFilterOpen && styles.filterButtonActive,
-            { backgroundColor: colors.background.primary },
           ]}
           accessibilityRole="button"
           accessibilityLabel={t("filter.buttonA11y", { label: filterLabel })}
@@ -268,7 +270,7 @@ const Dashboard: React.FC = () => {
         >
           <Filter
             size={18}
-            color={isFilterOpen ? colors.submit : colors.text.secondary}
+            color={isFilterOpen ? COLORS.primaryDark : colors.text.secondary}
           />
         </TouchableOpacity>
       </View>
@@ -288,7 +290,7 @@ const Dashboard: React.FC = () => {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <View style={styles.emptyIconContainer}>
-              <PenLine size={48} color="#D1D5DB" />
+              <PenLine size={48} color={COLORS.primaryLight} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
               {emptyStateContent.title}
@@ -298,7 +300,7 @@ const Dashboard: React.FC = () => {
             </Text>
             {emptyStateContent.showButton && (
               <TouchableOpacity
-                style={[styles.emptyButton, { backgroundColor: colors.submit }]}
+                style={[styles.emptyButton, { backgroundColor: COLORS.primaryDark }]}
                 onPress={() => router.push("/record")}
                 accessibilityRole="button"
                 accessibilityLabel={emptyStateContent.ctaA11y}
@@ -355,6 +357,7 @@ const Dashboard: React.FC = () => {
                   <TouchableOpacity
                     key={option}
                     onPress={() => handleFilterChange(option)}
+                    testID={`dashboard-filter-${option}`}
                     style={[
                       styles.filterOption,
                       filter === option && {
@@ -371,7 +374,7 @@ const Dashboard: React.FC = () => {
                         styles.filterOptionText,
                         { color: colors.text.secondary },
                         filter === option && {
-                          color: colors.submit,
+                          color: COLORS.primaryDark,
                           fontWeight: "700",
                         },
                       ]}

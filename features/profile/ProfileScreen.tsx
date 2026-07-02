@@ -29,7 +29,6 @@ import { useProfileAuthHandlers } from "./hooks/useProfileAuthHandlers";
 import { useProfileScreenState } from "./hooks/useProfileScreenState";
 import { useProfileRetentionHandlers } from "./hooks/useProfileRetentionHandlers";
 import { useProfileSyncHandlers } from "./hooks/useProfileSyncHandlers";
-import { openOnboardingReplay } from "@/services/onboardingMetaphor";
 
 export function ProfileScreen() {
   const router = useRouter();
@@ -166,7 +165,13 @@ export function ProfileScreen() {
     }
   }, [state.isLoginModalOpen, state.isRegisterMode, state.emailInputRef]);
 
-  const handleBack = () => router.back();
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/");
+    }
+  };
 
   const closeLoginModal = () => {
     state.setIsLoginModalOpen(false);
@@ -240,7 +245,6 @@ export function ProfileScreen() {
           storeSyncStatus={syncHandlers.storeSyncStatus}
           recycleBinCount={recycleBinCount}
           onOpenRecycleBin={() => router.push("/recycle-bin" as Href)}
-          onReplayIntro={() => openOnboardingReplay()}
           reminderSettings={retentionHandlers.reminderSettings}
           reminderLoading={retentionHandlers.reminderLoading}
           reminderSupported={retentionHandlers.reminderSupported}

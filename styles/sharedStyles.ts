@@ -53,7 +53,7 @@ export function createSharedStyles(width: number, height: number) {
       submitButton: {
         width: '100%',
         paddingVertical: DESIGN_TOKENS.spacing.lg,
-        backgroundColor: COLORS.submit,
+        backgroundColor: COLORS.primaryDark,
         borderRadius: DESIGN_TOKENS.borderRadius.large,
         alignItems: 'center',
         ...DESIGN_TOKENS.shadow.xl,

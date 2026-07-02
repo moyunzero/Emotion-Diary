@@ -4,6 +4,7 @@
  */
 
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
+import { COLORS } from '@/constants/colors';
 import { formatLocaleDate } from '@/shared/formatting/date';
 import { useAppStore } from '@/store/useAppStore';
 import { PartyPopper, X } from 'lucide-react-native';
@@ -105,7 +106,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
             ) : (
               <View style={styles.maxSection}>
                 <View style={styles.maxContent}>
-                  <AppIcon name={PartyPopper} size={20} color="#EF4444" testID="max-achievement-icon" />
+                  <AppIcon name={PartyPopper} size={20} color={COLORS.primaryDark} testID="max-achievement-icon" />
                   <Text style={styles.maxText}>{t('companionDays.maxAchievement')}</Text>
                 </View>
               </View>
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   daysValue: {
     fontSize: 48,
     fontWeight: '700',
-    color: '#EF4444',
+    color: COLORS.primaryDark,
   },
   daysLabel: {
     fontSize: 24,
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
   maxSection: {
     marginTop: 20,
     padding: 16,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: COLORS.background.page,
     borderRadius: 12,
   },
   maxContent: {
@@ -235,6 +236,6 @@ const styles = StyleSheet.create({
   maxText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#EF4444',
+    color: COLORS.primaryDark,
   },
 });

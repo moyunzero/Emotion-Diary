@@ -3,6 +3,7 @@ import { BarChart2, CloudSun, PenLine } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
 
 export default function TabLayout() {
   const { t } = useTranslation('tabs');
@@ -35,8 +36,8 @@ export default function TabLayout() {
             fontWeight: 'bold',
             marginTop: 4,
           },
-          tabBarActiveTintColor: '#EF4444', // 激活颜色：红色/粉色系
-          tabBarInactiveTintColor: '#9CA3AF', // 未激活颜色：灰色
+          tabBarActiveTintColor: COLORS.tab.active,
+          tabBarInactiveTintColor: COLORS.tab.inactive,
         }}
       >
         <Tabs.Screen

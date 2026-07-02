@@ -142,8 +142,8 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tagSelected: {
-    backgroundColor: COLORS.background.page,
-    borderColor: '#FCA5A5',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primary,
   },
   tagMain: {
     paddingHorizontal: 12,
@@ -155,7 +155,7 @@ export const styles = StyleSheet.create({
     color: COLORS.text.tertiary,
   },
   tagTextSelected: {
-    color: COLORS.submit,
+    color: COLORS.primaryDark,
   },
   tagDelete: {
     paddingHorizontal: 8,
@@ -189,7 +189,7 @@ export const styles = StyleSheet.create({
   submitButton: {
     width: '100%',
     paddingVertical: 16,
-    backgroundColor: COLORS.submit,
+    backgroundColor: COLORS.primaryDark,
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: COLORS.shadow.submit,

@@ -2,6 +2,7 @@ import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { COLORS } from '@/constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { formatLocaleDate } from '@/shared/formatting/date';
@@ -42,27 +43,27 @@ const WeatherStationComponent: React.FC = () => {
     }
   }, [effectiveLocale, generateForecast, visibleEntries.length]);
 
-  // 天气配置对象，统一管理图标、背景色和文字颜色（使用 useMemo 缓存）
+  // 天气配置：统一引用 COLORS.weatherCard 粉系 token
   const weatherConfig = useMemo(() => ({
     sunny: {
-      icon: <Sun size={48} color="#F59E0B" />,
-      bgColor: '#FEF3C7',
-      textColor: '#92400E',
+      icon: <Sun size={48} color={COLORS.weatherCard.sunny.icon} />,
+      bgColor: COLORS.weatherCard.sunny.bg,
+      textColor: COLORS.weatherCard.sunny.text,
     },
     cloudy: {
-      icon: <Cloud size={48} color="#6B7280" />,
-      bgColor: '#F3F4F6',
-      textColor: '#374151',
+      icon: <Cloud size={48} color={COLORS.weatherCard.cloudy.icon} />,
+      bgColor: COLORS.weatherCard.cloudy.bg,
+      textColor: COLORS.weatherCard.cloudy.text,
     },
     rainy: {
-      icon: <CloudRain size={48} color="#3B82F6" />,
-      bgColor: '#DBEAFE',
-      textColor: '#1E40AF',
+      icon: <CloudRain size={48} color={COLORS.weatherCard.rainy.icon} />,
+      bgColor: COLORS.weatherCard.rainy.bg,
+      textColor: COLORS.weatherCard.rainy.text,
     },
     stormy: {
-      icon: <CloudSnow size={48} color="#EF4444" />,
-      bgColor: '#FEE2E2',
-      textColor: '#991B1B',
+      icon: <CloudSnow size={48} color={COLORS.weatherCard.stormy.icon} />,
+      bgColor: COLORS.weatherCard.stormy.bg,
+      textColor: COLORS.weatherCard.stormy.text,
     },
   }), []);
 
@@ -104,13 +105,13 @@ const WeatherStationComponent: React.FC = () => {
   const getRiskColor = (riskLevel: 'high' | 'medium' | 'low') => {
     switch (riskLevel) {
       case 'high':
-        return '#EF4444';
+        return COLORS.primaryDark;
       case 'medium':
-        return '#F59E0B';
+        return COLORS.primary;
       case 'low':
-        return '#10B981';
+        return COLORS.accent;
       default:
-        return '#6B7280';
+        return COLORS.gray[500];
     }
   };
 
@@ -197,7 +198,7 @@ const WeatherStationComponent: React.FC = () => {
           disabled={isGenerating}
         >
           <View style={styles.forecastHeaderLeft}>
-            <TrendingUp size={20} color="#FDA4AF" />
+            <TrendingUp size={20} color={COLORS.primary} />
             <Text style={styles.forecastTitle}>{t('weatherStation.forecast.title')}</Text>
             {emotionForecast && emotionForecast.warnings.length > 0 && (
               <View style={styles.warningBadge}>
@@ -209,12 +210,12 @@ const WeatherStationComponent: React.FC = () => {
             )}
           </View>
           {isGenerating ? (
-            <ActivityIndicator size="small" color="#FDA4AF" />
+            <ActivityIndicator size="small" color={COLORS.primary} />
           ) : emotionForecast ? (
             isForecastExpanded ? (
-              <ChevronUp size={20} color="#6B7280" />
+              <ChevronUp size={20} color={COLORS.gray[500]} />
             ) : (
-              <ChevronDown size={20} color="#6B7280" />
+              <ChevronDown size={20} color={COLORS.gray[500]} />
             )
           ) : (
             <Text style={styles.generateForecastText}>{t('weatherStation.forecast.generate')}</Text>
@@ -289,11 +290,10 @@ const WeatherStationComponent: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FEF3C7',
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 16,
-    shadowColor: '#000',
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -308,12 +308,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#92400E',
   },
   score: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#92400E',
   },
   iconContainer: {
     alignItems: 'center',
@@ -331,28 +329,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
   },
   detailItem: {
     alignItems: 'center',
   },
   detailLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
     marginBottom: 4,
   },
   detailValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#92400E',
   },
   forecastContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background.primary,
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
     marginTop: 12,
-    shadowColor: '#000',
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -371,13 +368,13 @@ const styles = StyleSheet.create({
   forecastTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: COLORS.text.primary,
   },
   warningBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#EF4444',
+    backgroundColor: COLORS.primaryDark,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
@@ -385,11 +382,11 @@ const styles = StyleSheet.create({
   warningBadgeText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.text.inverse,
   },
   generateForecastText: {
     fontSize: 14,
-    color: '#FDA4AF',
+    color: COLORS.primaryDark,
     fontWeight: '500',
   },
   forecastContent: {
@@ -398,7 +395,7 @@ const styles = StyleSheet.create({
   forecastSummary: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#374151',
+    color: COLORS.text.secondary,
     marginBottom: 16,
   },
   warningsContainer: {
@@ -407,19 +404,19 @@ const styles = StyleSheet.create({
   },
   warningItem: {
     padding: 12,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: COLORS.background.page,
     borderRadius: 8,
     borderLeftWidth: 3,
   },
   warningDate: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#991B1B',
+    color: COLORS.primaryDark,
     marginBottom: 4,
   },
   warningMessage: {
     fontSize: 13,
-    color: '#374151',
+    color: COLORS.text.secondary,
     lineHeight: 18,
   },
   predictionsContainer: {
@@ -428,7 +425,7 @@ const styles = StyleSheet.create({
   predictionsTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: COLORS.text.primary,
     marginBottom: 12,
   },
   predictionsList: {
@@ -441,7 +438,7 @@ const styles = StyleSheet.create({
   },
   predictionDate: {
     fontSize: 11,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
     marginBottom: 8,
   },
   predictionIndicator: {

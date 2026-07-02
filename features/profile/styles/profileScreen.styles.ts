@@ -3,6 +3,7 @@
  */
 
 import { StyleSheet } from "react-native";
+import { COLORS } from "@/constants/colors";
 
 export const profileScreenModalStyles = StyleSheet.create({
   modalOverlay: {
@@ -102,11 +103,11 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   primaryButton: {
     width: "100%",
-    backgroundColor: "#EF4444",
+    backgroundColor: COLORS.primaryDark,
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
-    shadowColor: "#EF4444",
+    shadowColor: COLORS.primaryDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -135,7 +136,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   switchModeLink: {
     fontSize: 14,
-    color: "#EF4444",
+    color: COLORS.primaryDark,
     fontWeight: "500",
     marginLeft: 4,
   },
@@ -197,13 +198,13 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: "#EF4444",
+    color: COLORS.error,
     marginTop: -24,
     marginBottom: 24,
   },
   globalErrorText: {
     fontSize: 13,
-    color: "#EF4444",
+    color: COLORS.error,
     textAlign: "center",
     marginBottom: 12,
   },

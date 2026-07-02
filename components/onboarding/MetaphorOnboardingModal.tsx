@@ -73,13 +73,13 @@ export function MetaphorOnboardingModal({
       animationType="fade"
       presentationStyle={Platform.OS === "ios" ? "fullScreen" : undefined}
       onRequestClose={() => {}}
-      testID="onboarding-modal-root"
     >
       <View
         style={[
           styles.root,
           { paddingTop: insets.top, paddingBottom: insets.bottom },
         ]}
+        testID="onboarding-modal-root"
         pointerEvents="box-none"
       >
         <View style={styles.content} pointerEvents="box-none">

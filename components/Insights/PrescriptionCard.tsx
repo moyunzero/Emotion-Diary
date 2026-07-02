@@ -6,6 +6,7 @@ import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useAppStore } from '@/store/useAppStore';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
+import { COLORS } from '@/constants/colors';
 import { INSIGHTS_COLORS } from './constants';
 
 interface PrescriptionCardProps {
@@ -51,14 +52,14 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         errorContainer: {
           marginTop: 12,
           padding: 12,
-          backgroundColor: '#FEF2F2',
+          backgroundColor: COLORS.background.page,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: '#FEE2E2',
+          borderColor: COLORS.primaryLight,
         },
         errorText: {
           fontSize: 12,
-          color: '#991B1B',
+          color: COLORS.primaryDark,
           marginBottom: 8,
         },
         retryButton: {
@@ -262,8 +263,8 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
       {isExpanded && (
         <View style={styles.content}>
           <View style={styles.prescriptionItem}>
-            <View style={[styles.prescriptionBadge, { backgroundColor: '#FEE2E2' }]}>
-              <Text style={[styles.prescriptionBadgeText, { color: '#991B1B' }]}>
+            <View style={[styles.prescriptionBadge, { backgroundColor: COLORS.deadline.today.bg }]}>
+              <Text style={[styles.prescriptionBadgeText, { color: COLORS.deadline.today.text }]}>
                 {t('prescription.badges.urgent')}
               </Text>
             </View>
@@ -271,8 +272,8 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           </View>
 
           <View style={styles.prescriptionItem}>
-            <View style={[styles.prescriptionBadge, { backgroundColor: '#FEF3C7' }]}>
-              <Text style={[styles.prescriptionBadgeText, { color: '#92400E' }]}>
+            <View style={[styles.prescriptionBadge, { backgroundColor: COLORS.background.tertiary }]}>
+              <Text style={[styles.prescriptionBadgeText, { color: COLORS.primaryDark }]}>
                 {t('prescription.badges.shortTerm')}
               </Text>
             </View>
@@ -280,8 +281,8 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           </View>
 
           <View style={styles.prescriptionItem}>
-            <View style={[styles.prescriptionBadge, { backgroundColor: '#D1FAE5' }]}>
-              <Text style={[styles.prescriptionBadgeText, { color: '#065F46' }]}>
+            <View style={[styles.prescriptionBadge, { backgroundColor: COLORS.primaryLight }]}>
+              <Text style={[styles.prescriptionBadgeText, { color: COLORS.primaryDark }]}>
                 {t('prescription.badges.longTerm')}
               </Text>
             </View>

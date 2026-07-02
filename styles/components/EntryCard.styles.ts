@@ -90,14 +90,6 @@ export function createEntryCardStyles(width: number, height: number) {
       fontWeight: '600',
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
-    burnActionButton: {},
-    burnActionIcon: {
-      backgroundColor: '#FEF3F2',
-    },
-    burnActionText: {
-      color: '#DC2626',
-      fontWeight: '700',
-    },
     deleteActionText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.text.tertiary,
@@ -111,7 +103,7 @@ export function createEntryCardStyles(width: number, height: number) {
       width: 44,
       height: 44,
       borderRadius: 14,
-      backgroundColor: '#FEF3C7',
+      backgroundColor: COLORS.background.tertiary,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -168,11 +160,11 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     triggerText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: '#F472B6',
+      color: COLORS.primaryDark,
       fontWeight: '600',
     },
     audioTag: {
-      backgroundColor: '#EEF2FF',
+      backgroundColor: COLORS.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
       borderRadius: 10,
@@ -182,7 +174,7 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     audioTagText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: '#6C63FF',
+      color: COLORS.audio.primary,
       fontWeight: '600',
     },
     audioPlaySection: {
@@ -206,7 +198,7 @@ export function createEntryCardStyles(width: number, height: number) {
       marginBottom: 4,
     },
     audioPlayItemActive: {
-      backgroundColor: '#F5F3FF',
+      backgroundColor: COLORS.audio.surface,
     },
     audioPlayName: {
       flex: 1,
@@ -215,12 +207,12 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.secondary,
     },
     audioPlayNameActive: {
-      color: '#6C63FF',
+      color: COLORS.audio.primary,
       fontWeight: '500',
     },
     audioPlayDuration: {
       fontSize: 11,
-      color: '#6C63FF',
+      color: COLORS.audio.primary,
       marginLeft: DESIGN_TOKENS.spacing.xs,
     },
     audioPlayRow: {
@@ -236,7 +228,7 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     audioSyncFailed: {
       fontSize: 11,
-      color: '#EF4444',
+      color: COLORS.error,
       fontWeight: '600',
     },
     actionsContainer: {

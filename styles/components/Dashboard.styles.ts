@@ -49,7 +49,7 @@ export function createDashboardStyles(width: number, height: number) {
       resizeMode: 'cover',
     },
     avatarPlaceholder: {
-      backgroundColor: COLORS.submit,
+      backgroundColor: COLORS.primaryDark,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -59,23 +59,28 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: 'bold',
     },
     weatherSection: {
-      marginBottom: DESIGN_TOKENS.spacing.lg,
+      marginTop: DESIGN_TOKENS.spacing.xl,
+      marginBottom: DESIGN_TOKENS.spacing.md,
     },
     listHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: m.padding.horizontal,
-      paddingBottom: DESIGN_TOKENS.spacing.lg,
-      // 抽出 FlashList 后位于 header 与列表之间，需要不透明背景避免列表内容滚动到顶时透出
-      backgroundColor: COLORS.background.page,
+      paddingVertical: DESIGN_TOKENS.spacing.sm,
+      minHeight: 44,
+      backgroundColor: 'transparent',
       zIndex: 20,
+    },
+    listTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexShrink: 1,
     },
     listTitle: {
       fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.cardTitle,
       fontWeight: '600',
-      lineHeight: 25.2,
       letterSpacing: 0,
       color: COLORS.text.primary,
     },
@@ -83,18 +88,19 @@ export function createDashboardStyles(width: number, height: number) {
       fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.small,
       fontWeight: '400',
-      lineHeight: 16.8,
       letterSpacing: 0,
       color: COLORS.text.tertiary,
     },
     filterButton: {
-      padding: DESIGN_TOKENS.spacing.sm,
+      width: 44,
+      height: 44,
       borderRadius: DESIGN_TOKENS.borderRadius.small,
-      backgroundColor: COLORS.background.primary,
-      ...DESIGN_TOKENS.shadow.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'transparent',
     },
     filterButtonActive: {
-      backgroundColor: COLORS.background.page,
+      backgroundColor: 'transparent',
     },
     filterBackdrop: {
       position: 'absolute',
@@ -135,7 +141,7 @@ export function createDashboardStyles(width: number, height: number) {
     filterOptionTextActive: {
       fontFamily: 'Lato_700Bold',
       fontWeight: '700',
-      color: COLORS.submit,
+      color: COLORS.primaryDark,
     },
     flashListContent: {
       paddingHorizontal: DESIGN_TOKENS.spacing.sm,
@@ -176,7 +182,7 @@ export function createDashboardStyles(width: number, height: number) {
       marginBottom: DESIGN_TOKENS.spacing.xxxl,
     },
     emptyButton: {
-      backgroundColor: COLORS.submit,
+      backgroundColor: COLORS.primaryDark,
       paddingHorizontal: DESIGN_TOKENS.spacing.xxl,
       paddingVertical: DESIGN_TOKENS.spacing.md,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,

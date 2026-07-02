@@ -9,13 +9,21 @@ export const COLORS = {
   primaryDark: '#FB7185',
   primaryLight: '#FECDD3',
   
-  // 情绪等级颜色
+  // 情绪等级颜色（粉系递进，与疗愈基调一致）
   mood: {
-    level1: '#F59E0B', // 黄色 - 轻微委屈
-    level2: '#F97316', // 橙色 - 心情低落
-    level3: '#EF4444', // 红色 - 感到生气
-    level4: '#DC2626', // 深红色 - 非常愤怒
-    level5: '#991B1B', // 最深红色 - 情绪爆发
+    level1: '#FFF1F2',
+    level2: '#FECDD3',
+    level3: '#FDA4AF',
+    level4: '#FB7185',
+    level5: '#E11D48',
+    /** 记一笔 / 卡片图标色：同一玫瑰色相由浅到深，勿混用紫/蓝 */
+    icon: {
+      level1: '#FDA4AF',
+      level2: '#F9A8B4',
+      level3: '#FB7185',
+      level4: '#F43F5E',
+      level5: '#E11D48',
+    },
   },
   
   // 状态颜色
@@ -24,9 +32,15 @@ export const COLORS = {
   error: '#EF4444',
   info: '#3B82F6',
   
-  // 功能性颜色
+  // 功能性颜色（submit 仅 destructive，品牌 CTA 用 primaryDark）
   submit: '#EF4444',
   accent: '#86EFAC',
+
+  // 录音 UI（映射粉系，替代旧 #6C63FF）
+  audio: {
+    primary: '#FB7185',
+    surface: '#F5F3FF',
+  },
   
   // 中性色
   gray: {
@@ -42,12 +56,58 @@ export const COLORS = {
     900: '#111827',
   },
   
-  // 背景色
+  // 背景色（粉色疗愈基调）
   background: {
     primary: '#FFFFFF',
-    secondary: '#F9FAFB',
-    tertiary: '#F3F4F6',
-    page: '#FEF2F2',
+    secondary: '#FFF5F7',
+    tertiary: '#FFE4E6',
+    page: '#FFF5F7',
+    gradientStart: '#FFF5F7',
+    gradientEnd: '#FFE4E6',
+  },
+
+  // Tab 导航
+  tab: {
+    active: '#FB7185',
+    inactive: '#9CA3AF',
+  },
+
+  // 页面氛围叠层（气象站 / 花园，粉系柔光）
+  atmosphere: {
+    sunny: '#FFF1F2',
+    cloudy: '#FAF5FF',
+    rainy: '#F5F3FF',
+    stormy: '#FFE4E6',
+  },
+
+  // 关系天气卡片（内层卡片，与页面粉调一致）
+  weatherCard: {
+    sunny: {
+      bg: '#FFF1F2',
+      text: '#9F1239',
+      icon: '#FB7185',
+    },
+    cloudy: {
+      bg: '#FAF5FF',
+      text: '#6B21A8',
+      icon: '#C084FC',
+    },
+    rainy: {
+      bg: '#EDE9FE',
+      text: '#5B21B6',
+      icon: '#A78BFA',
+    },
+    stormy: {
+      bg: '#FFE4E6',
+      text: '#BE123C',
+      icon: '#FB7185',
+    },
+  },
+
+  // 仪式语义色
+  ritual: {
+    resolve: '#86EFAC',
+    burn: '#F97316',
   },
   
   // 文本颜色
@@ -68,15 +128,15 @@ export const COLORS = {
   // 阴影颜色
   shadow: {
     primary: '#000000',
-    submit: '#EF4444',
+    submit: '#FB7185',
   },
   
-  // 天气状态颜色
+  // 天气图标 / 光斑（粉紫柔色，避免黄绿跳色）
   weather: {
-    sunny: '#FCD34D',
-    cloudy: '#9CA3AF',
-    rainy: '#60A5FA',
-    stormy: '#DC2626',
+    sunny: '#FDA4AF',
+    cloudy: '#C084FC',
+    rainy: '#A78BFA',
+    stormy: '#FB7185',
   },
   
   // 截止日期颜色
@@ -90,12 +150,12 @@ export const COLORS = {
       text: '#9A3412',
     },
     month: {
-      bg: '#FEF3C7',
-      text: '#92400E',
+      bg: '#FFE4E6',
+      text: '#BE123C',
     },
     later: {
-      bg: '#DBEAFE',
-      text: '#1E40AF',
+      bg: '#FAF5FF',
+      text: '#6B21A8',
     },
     self: {
       bg: '#F3F4F6',

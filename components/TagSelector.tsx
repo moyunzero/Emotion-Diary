@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   tagSelected: {
-    backgroundColor: "#FEF2F2",
-    borderColor: "#FCA5A5",
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primary,
   },
   tagMain: {
     paddingHorizontal: DESIGN_TOKENS.spacing.md,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.tertiary,
   },
   tagTextSelected: {
-    color: COLORS.error,
+    color: COLORS.primaryDark,
   },
   tagDelete: {
     paddingHorizontal: DESIGN_TOKENS.spacing.sm,

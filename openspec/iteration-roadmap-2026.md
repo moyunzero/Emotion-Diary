@@ -214,8 +214,49 @@
 
 **003–010 状态**：路线图 003–010 代码与文档已对齐（2026-06）；E2E：Web `yarn test:e2e`（3）、iOS Maestro `yarn test:maestro`（2）。
 
-**建议下一任务**：真机回归清单 S1–S3、R1 收尾；或按发布节奏打 tag / PR 分批合入。
+**003–010 状态**：路线图 003–010 代码与文档已对齐（2026-06）；E2E：Web `yarn test:e2e`（3）、iOS Maestro `yarn test:maestro`（2）。
 
 ---
 
-*文档版本：2026-06 · 来源：竞品分析 + brainstorming 确认*
+## 11. v1.4.0 迭代（竞品重估 · 隐喻体验优先）
+
+> **状态**：已确认（brainstorming 2026-07）  
+> **GSD**：`.planning/ROADMAP.md` · `.planning/REQUIREMENTS.md`  
+> **Supersede 范围**：本周期产品重心从「工程/i18n」转为「隐喻体验与关系表达」；003–010 与 v1.3 为已交付基座。
+
+### 11.1 战略一句话
+
+**先统一粉色疗愈视觉（011），再教用户读懂隐喻（onboarding），让隐喻会讲故事（narrative），给仪式一张可分享的卡片（share），最后用花园状态驱动回访（retention）。**
+
+### 11.2 聚焦赛道（竞品 2026-07）
+
+| 赛道 | 心晴MO 策略 |
+|------|-------------|
+| 关系私人日记 | 加深人物/触发器/花盆；**不做** Connected 双人共写 |
+| 隐喻 + 仪式 | **主战场** — 011 + onboarding + 叙事 |
+| 批处理 AI | 维持形态；叙事 Phase 可轻量加深 |
+| 泛情绪打卡 (Daylio) | 仅借鉴可视化；不改成 30 秒打卡 |
+| 回顾/分享 | Phase 4 竖版卡片；无应用内 social feed |
+
+### 11.3 SSD 任务包（011–015）
+
+| 编号 | 目录 | v1.4 Phase | 核心交付 |
+|------|------|------------|----------|
+| **011** | `011-metaphor-activation` | 1 | 全站 pink-healing token；Maestro 验收 |
+| **012** | `012-onboarding-metaphor` | 2 | ≤3 屏 intro；Profile 重看 |
+| **013** | `013-metaphor-narrative` | 3 | 气象叙事、花园里程碑、仪式抛光 |
+| **014** | `014-shareable-ritual-cards` | 4 | 周回顾/仪式 share card |
+| **015** | `015-retention-garden-loop` | 5 | Revisit/WeeklyReview 与 garden 联动 |
+
+### 11.4 非目标（v1.4 延续）
+
+- 对话 AI 教练、情侣共写、虚拟宠物、CBT/危机干预、Sentry、主题皮肤
+- **Defer v2**：关系时间线、On This Day、Year-in-pixels 关系天气图、Widget
+
+### 11.5 建议下一任务
+
+**011-metaphor-activation** 合入（Phase 1 收尾）→ `/gsd-plan-phase 2` 创建 012 SPEC。
+
+---
+
+*文档版本：2026-07-01 · v1.4 节追加自竞品重估 brainstorming*

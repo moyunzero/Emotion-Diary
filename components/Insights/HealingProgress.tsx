@@ -58,7 +58,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         },
         stageLabel: {
           fontSize: 12,
-          color: INSIGHTS_COLORS.secondary,
+          color: INSIGHTS_COLORS.accent,
           fontWeight: 'bold',
           marginTop: 4,
         },
@@ -141,7 +141,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke={INSIGHTS_COLORS.secondary}
+              stroke={INSIGHTS_COLORS.accent}
               strokeWidth={strokeWidth}
               fill="none"
               strokeLinecap="round"
@@ -153,7 +153,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
           </Svg>
           {/* 中心图标 */}
           <View style={styles.centerIcon}>
-            <GrowthIcon size={36} color={INSIGHTS_COLORS.secondary} />
+            <GrowthIcon size={36} color={INSIGHTS_COLORS.accent} />
             <Text style={styles.stageLabel}>{growthStage.label}</Text>
           </View>
         </View>
@@ -162,7 +162,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({ totalCount, 
         <View style={styles.stats}>
           <View style={styles.statItem}>
             <View style={styles.statRow}>
-              <Flower2 size={18} color={INSIGHTS_COLORS.secondary} />
+              <Flower2 size={18} color={INSIGHTS_COLORS.accent} />
               <Text style={styles.statNumber}>{resolvedCount}</Text>
             </View>
             <Text style={styles.statLabel} numberOfLines={2}>

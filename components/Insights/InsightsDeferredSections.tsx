@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, InteractionManager, View } from "react-native";
+import { COLORS } from "@/constants/colors";
 
 import type { MoodEntry } from "../../types";
 import EmotionPodcast from "../ai/EmotionPodcast";
@@ -36,7 +37,7 @@ export function InsightsDeferredSections({
   if (!ready) {
     return (
       <View style={{ paddingVertical: 28, alignItems: "center" }}>
-        <ActivityIndicator color="#EF4444" />
+        <ActivityIndicator color={COLORS.primaryDark} />
       </View>
     );
   }

@@ -102,6 +102,9 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+# Maestro 验收截图（takeScreenshot 产出，仅本地存档；flow 保留在 .maestro/flows/）
+acceptance/
+.maestro/acceptance/
 
 # 本地代码智能索引（不入库）
 .codegraph/
@@ -117,6 +120,11 @@ playwright/.cache/
 .expo/
 expo-env.d.ts
 .metro-health-check*
+.eas/
+
+# Expo prebuild 原生工程（CNG 按需本地生成，见 openspec/changes/WORKTREE-2026-06.md）
+/ios/
+/android/
 
 # ==============================================
 # Mobile - Android
@@ -225,6 +233,8 @@ debug.keystore
 # Database
 # ==============================================
 *.sql
+!supabase/migrations/
+!supabase/migrations/**
 *.sqlite
 *.db
 *.dump
@@ -265,6 +275,7 @@ cleanup.sh
 # Kiro IDE
 .kiro/
 .kilo/
+.kilocode/
 .codex/
 
 # Documentation folder
