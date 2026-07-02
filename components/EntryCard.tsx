@@ -1,5 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
@@ -52,6 +52,10 @@ import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
+import ResolveCeremonyHost from "./rituals/ResolveCeremonyHost";
+import ResolveConfirmOverlay from "./rituals/ResolveConfirmOverlay";
+
+type ResolvePhase = "idle" | "confirm" | "ceremony";
 
 export interface EntryCardProps {
   entry: MoodEntry;
@@ -135,6 +139,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
   const { t: tSystem } = useTranslation("system");
   const { t: tRecord } = useTranslation("record");
+  const { t: tRituals } = useTranslation("rituals");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -182,6 +187,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isBurning, setIsBurning] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
+  const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
+  const [showBurnCompleteMessage, setShowBurnCompleteMessage] = useState(false);
+  const burnMessageOpacity = useRef(new Animated.Value(0)).current;
 
   const currentAudioId = useAppStore((s) =>
     s.playbackEntryId === entry.id ? s.currentAudioId : null,
@@ -327,11 +335,41 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     }
   }, [isExpanded, isActivePlaybackEntry, entry.id]);
 
-  const handleResolve = () => {
-    triggerHaptic("success");
-    resolveEntry(entry.id);
-    setIsExpanded(false); // 操作完成后折叠卡片
+  const handleResolvePress = () => {
+    triggerHaptic("light");
+    setResolvePhase("confirm");
   };
+
+  const handleResolveConfirm = () => {
+    setResolvePhase("ceremony");
+  };
+
+  const handleResolveCancel = () => {
+    setResolvePhase("idle");
+  };
+
+  const handleResolveCeremonyComplete = () => {
+    resolveEntry(entry.id);
+    setResolvePhase("idle");
+    setIsExpanded(false);
+  };
+
+  const showBurnCompleteOverlay = useCallback(() => {
+    setShowBurnCompleteMessage(true);
+    burnMessageOpacity.setValue(1);
+    Animated.sequence([
+      Animated.delay(2500),
+      Animated.timing(burnMessageOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        setShowBurnCompleteMessage(false);
+      }
+    });
+  }, [burnMessageOpacity]);
 
   const handleDelete = () => {
     Alert.alert(
@@ -381,6 +419,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             if (isLowEnd) {
               setUseSimpleAnimation(true);
               setIsBurning(true);
+              triggerHaptic("light");
               setIsPreparing(false);
               return;
             }
@@ -398,10 +437,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 if (image) {
                   setSnapshot(image);
                   setIsBurning(true);
+                  triggerHaptic("light");
                   setIsPreparing(false);
                 } else {
                   setUseSimpleAnimation(true);
                   setIsBurning(true);
+                  triggerHaptic("light");
                   setIsPreparing(false);
                 }
               } catch (e) {
@@ -463,6 +504,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsBurning(false);
     setSnapshot(null);
     setUseSimpleAnimation(false);
+    triggerHaptic("success");
+    showBurnCompleteOverlay();
+    onBurn?.(entry.id);
   };
 
   if (isBurning && useSimpleAnimation) {
@@ -589,7 +633,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   return (
     <>
       <View
-        style={styles.wrapper}
+        style={[styles.wrapper, { position: "relative" }]}
         ref={viewRef}
         collapsable={false}
         testID="mood-entry-card"
@@ -707,7 +751,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={handleResolve}
+                onPress={handleResolvePress}
+                testID="entry-resolve-button"
                 accessibilityRole="button"
                 accessibilityLabel={t("entryCard.resolveA11y")}
                 accessibilityHint={t("entryCard.resolveHint")}
@@ -760,7 +805,41 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             </View>
           )}
         </Animated.View>
+
+        {showBurnCompleteMessage && (
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                padding: 12,
+                backgroundColor: "rgba(249,115,22,0.12)",
+                borderBottomLeftRadius: DESIGN_TOKENS.borderRadius.xl,
+                borderBottomRightRadius: DESIGN_TOKENS.borderRadius.xl,
+                opacity: burnMessageOpacity,
+              },
+            ]}
+            testID="burn-complete-message"
+          >
+            <Text style={{ fontSize: 14, color: COLORS.text.secondary, textAlign: "center" }}>
+              {tRituals("burn.complete.message")}
+            </Text>
+          </Animated.View>
+        )}
+
+        <ResolveCeremonyHost
+          visible={resolvePhase === "ceremony"}
+          onComplete={handleResolveCeremonyComplete}
+        />
       </View>
+
+      <ResolveConfirmOverlay
+        visible={resolvePhase === "confirm"}
+        onConfirm={handleResolveConfirm}
+        onCancel={handleResolveCancel}
+      />
 
       {/* 编辑模态框 */}
       <EditEntryModal
