@@ -126,7 +126,7 @@ export const ReviewExportScreen: React.FC = () => {
   const dateRangeLabel = useMemo(
     () =>
       `${formatLocaleDate(derived.current.startMs, effectiveLocale)}${t('canvas.dateRangeSeparator')}${formatLocaleDate(derived.current.endMs, effectiveLocale)}`,
-    [derived.current.endMs, derived.current.startMs, effectiveLocale, t],
+    [derived, effectiveLocale, t],
   );
   const exportRangeA11yLabel = useMemo(
     () =>

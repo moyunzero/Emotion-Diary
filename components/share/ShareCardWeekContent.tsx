@@ -103,7 +103,9 @@ export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
         ) : null}
         <Text style={styles.closingLine}>{model.closingOrRitualLine}</Text>
         {model.userSnippet ? (
-          <Text style={styles.userSnippet}>"{model.userSnippet}"</Text>
+          <View style={styles.snippetWrap}>
+            <Text style={styles.userSnippet}>{model.userSnippet}</Text>
+          </View>
         ) : null}
       </View>
     </View>
@@ -183,8 +185,13 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: INSIGHTS_COLORS.text,
   },
-  userSnippet: {
+  snippetWrap: {
     marginTop: DESIGN_TOKENS.spacing.md,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.primaryLight,
+    paddingLeft: DESIGN_TOKENS.spacing.md,
+  },
+  userSnippet: {
     fontFamily: "Lato_400Regular",
     fontSize: 14,
     lineHeight: 21,
