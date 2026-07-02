@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { RecordingSessionHost } from '../components/AudioRecorder/RecordingSessionHost';
+import { MetaphorOnboardingHost } from '../components/onboarding/MetaphorOnboardingHost';
 import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
@@ -155,6 +156,7 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
           </Stack>
+          <MetaphorOnboardingHost />
         </SafeAreaProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>

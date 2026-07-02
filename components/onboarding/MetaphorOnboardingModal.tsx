@@ -27,6 +27,12 @@ const SLIDES: SlideConfig[] = [
   { key: "garden", icon: Flower2, slideTestId: "onboarding-slide-3" },
 ];
 
+const DOT_TEST_IDS = [
+  "onboarding-dot-1",
+  "onboarding-dot-2",
+  "onboarding-dot-3",
+] as const;
+
 export interface MetaphorOnboardingModalProps {
   visible: boolean;
   onNext?: () => void;
@@ -88,10 +94,10 @@ export function MetaphorOnboardingModal({
 
         <View style={styles.footer}>
           <View style={styles.dotsRow}>
-            {SLIDES.map((_, index) => (
+            {DOT_TEST_IDS.map((dotTestId, index) => (
               <View
-                key={SLIDES[index].key}
-                testID={`onboarding-dot-${index + 1}`}
+                key={dotTestId}
+                testID={dotTestId}
                 style={[
                   styles.dot,
                   index === slideIndex && styles.dotActive,
