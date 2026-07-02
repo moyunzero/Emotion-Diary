@@ -7,6 +7,7 @@ import {
   Check,
   CheckCircle,
   CloudDownload,
+  CloudSun,
   CloudUpload,
   History,
   LogOut,
@@ -72,6 +73,7 @@ export type ProfileSettingsSectionProps = {
   storeSyncStatus: StoreSyncStatus;
   recycleBinCount: number;
   onOpenRecycleBin: () => void;
+  onReplayIntro: () => void;
   reminderSettings: EmotionReminderSettings;
   reminderLoading: boolean;
   reminderSupported: boolean;
@@ -144,6 +146,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     storeSyncStatus,
     recycleBinCount,
     onOpenRecycleBin,
+    onReplayIntro,
     reminderSettings,
     reminderLoading,
     reminderSupported,
@@ -264,7 +267,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             </Text>
           </View>
           {localePreference.mode === "system" ? (
-            <Check size={20} color="#3B82F6" />
+            <Check size={20} color={COLORS.primaryDark} />
           ) : null}
         </Pressable>
         <View style={profileStyles.menuDivider} />
@@ -279,7 +282,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           </View>
           {localePreference.mode === "manual" &&
           effectiveLocale === "zh-Hans" ? (
-            <Check size={20} color="#3B82F6" />
+            <Check size={20} color={COLORS.primaryDark} />
           ) : null}
         </Pressable>
         <View style={profileStyles.menuDivider} />
@@ -294,9 +297,20 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           </View>
           {localePreference.mode === "manual" &&
           effectiveLocale === "en-US" ? (
-            <Check size={20} color="#3B82F6" />
+            <Check size={20} color={COLORS.primaryDark} />
           ) : null}
         </Pressable>
+      </GroupedSettingsCard>
+
+      <GroupedSettingsCard>
+        <ProfileMenuItem
+          testID="profile-replay-intro-item"
+          icon={<CloudSun size={20} color={COLORS.primaryDark} />}
+          iconBgColor={COLORS.gray[50]}
+          title={tProfile("onboarding.replayIntro")}
+          showChevron={true}
+          onPress={onReplayIntro}
+        />
       </GroupedSettingsCard>
 
       <ProfileSectionHeader title={tProfile("sections.dataSecurity")} />
@@ -312,19 +326,19 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               {(syncStatus === "syncing" || storeSyncStatus === "syncing") && (
                 <ActivityIndicator
                   size="small"
-                  color="#3B82F6"
+                  color={COLORS.primaryDark}
                   style={settingsStyles.statusIcon}
                 />
               )}
               {syncStatus === "success" && storeSyncStatus === "idle" && (
                 <CheckCircle
                   size={16}
-                  color="#10B981"
+                  color={COLORS.success}
                   style={settingsStyles.statusIcon}
                 />
               )}
               {(syncStatus === "error" || storeSyncStatus === "error") && (
-                <X size={16} color="#EF4444" style={settingsStyles.statusIcon} />
+                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
               )}
               <Text style={settingsStyles.statusText}>{statusText}</Text>
             </View>
@@ -332,7 +346,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         }
       >
         <ProfileMenuItem
-          icon={<CloudUpload size={20} color="#EF4444" />}
+          icon={<CloudUpload size={20} color={COLORS.primaryDark} />}
           iconBgColor="#FEF2F2"
           title={tSync("uploadTitle")}
           subtext={
@@ -346,7 +360,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
-          icon={<CloudDownload size={20} color="#3B82F6" />}
+          icon={<CloudDownload size={20} color={COLORS.primaryDark} />}
           iconBgColor="#EFF6FF"
           title={tSync("pullTitle")}
           subtext={
@@ -384,7 +398,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               { backgroundColor: "#FEF2F2" },
             ]}
           >
-            <Bell size={20} color="#EF4444" />
+            <Bell size={20} color={COLORS.primaryDark} />
           </View>
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
@@ -411,9 +425,9 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               value={reminderSettings.dailyReminderEnabled}
               onValueChange={() => onToggleDailyReminder()}
               disabled={isLoading || reminderLoading}
-              trackColor={{ false: COLORS.gray[200], true: "#FECACA" }}
+              trackColor={{ false: COLORS.gray[200], true: COLORS.primaryLight }}
               thumbColor={
-                reminderSettings.dailyReminderEnabled ? "#EF4444" : "#f4f3f4"
+                reminderSettings.dailyReminderEnabled ? COLORS.primaryDark : "#f4f3f4"
               }
             />
           ) : null}
@@ -428,7 +442,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                   { backgroundColor: "#EFF6FF" },
                 ]}
               >
-                <History size={20} color="#3B82F6" />
+                <History size={20} color={COLORS.primaryDark} />
               </View>
               <View style={profileStyles.menuTextContainer}>
                 <Text style={profileStyles.menuText}>
@@ -442,10 +456,10 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 value={reminderSettings.weeklyReviewNotificationEnabled}
                 onValueChange={() => onToggleWeeklyReviewNotification()}
                 disabled={isLoading || reminderLoading}
-                trackColor={{ false: COLORS.gray[200], true: "#BFDBFE" }}
+                trackColor={{ false: COLORS.gray[200], true: COLORS.primaryLight }}
                 thumbColor={
                   reminderSettings.weeklyReviewNotificationEnabled
-                    ? "#3B82F6"
+                    ? COLORS.primaryDark
                     : "#f4f3f4"
                 }
               />
@@ -459,7 +473,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           <ProfileSectionHeader title={tProfile("sections.account")} />
           <GroupedSettingsCard>
             <ProfileMenuItem
-              icon={<LogOut size={20} color="#EF4444" />}
+              icon={<LogOut size={20} color={COLORS.error} />}
               iconBgColor="#FEF2F2"
               title={tProfile("account.logout")}
               showChevron={false}
@@ -468,7 +482,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             />
             <View style={profileStyles.menuDivider} />
             <ProfileMenuItem
-              icon={<UserX size={20} color="#EF4444" />}
+              icon={<UserX size={20} color={COLORS.error} />}
               iconBgColor="#FEF2F2"
               title={tProfile("account.deleteAccount")}
               subtext={tProfile("account.deleteAccountSubtext")}
@@ -558,7 +572,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               >
                 <View style={ms.modalHeader}>
                   <View style={ms.loginIconBox}>
-                    <UserIcon size={32} color="#EF4444" />
+                    <UserIcon size={32} color={COLORS.primaryDark} />
                   </View>
                   <Text style={ms.modalTitle}>
                     {isRegisterMode

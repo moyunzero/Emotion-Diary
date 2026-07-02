@@ -2,6 +2,7 @@ import { AppScreenShell } from "@/components/AppScreenShell";
 import CompanionDaysModal from "@/components/CompanionDaysModal";
 import { Toast } from "@/components/Toast";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
+import { COLORS } from "@/constants/colors";
 import { useAppStore } from "@/store/useAppStore";
 import {
   excludeSoftDeletedEntries,
@@ -28,6 +29,7 @@ import { useProfileAuthHandlers } from "./hooks/useProfileAuthHandlers";
 import { useProfileScreenState } from "./hooks/useProfileScreenState";
 import { useProfileRetentionHandlers } from "./hooks/useProfileRetentionHandlers";
 import { useProfileSyncHandlers } from "./hooks/useProfileSyncHandlers";
+import { openOnboardingReplay } from "@/services/onboardingMetaphor";
 
 export function ProfileScreen() {
   const router = useRouter();
@@ -238,6 +240,7 @@ export function ProfileScreen() {
           storeSyncStatus={syncHandlers.storeSyncStatus}
           recycleBinCount={recycleBinCount}
           onOpenRecycleBin={() => router.push("/recycle-bin" as Href)}
+          onReplayIntro={() => openOnboardingReplay()}
           reminderSettings={retentionHandlers.reminderSettings}
           reminderLoading={retentionHandlers.reminderLoading}
           reminderSupported={retentionHandlers.reminderSupported}
@@ -301,7 +304,7 @@ export function ProfileScreen() {
 
       {state.isLoading && (
         <View style={profileStyles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#EF4444" />
+          <ActivityIndicator size="large" color={COLORS.primaryDark} />
         </View>
       )}
 
