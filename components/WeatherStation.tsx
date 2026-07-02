@@ -6,6 +6,7 @@ import { COLORS } from '@/constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { formatLocaleDate } from '@/shared/formatting/date';
+import { computeWeatherNarrative } from '@/shared/weather/weatherNarrative';
 
 const WeatherStationComponent: React.FC = () => {
   const { t } = useTranslation('dashboard');
@@ -140,13 +141,18 @@ const WeatherStationComponent: React.FC = () => {
       : translated;
   }, [weather.condition, t]);
 
-  const descriptionLabel = useMemo(() => {
-    const key = `weatherStation.descriptions.${weather.condition}` as const;
-    const translated = t(key);
-    return translated === key
+  const narrativeLabel = useMemo((): string => {
+    const { narrativeKey } = computeWeatherNarrative(entries, weather.condition);
+    const translated = String(t(narrativeKey as never));
+    if (translated !== narrativeKey) {
+      return translated;
+    }
+    const fallbackKey = `weatherStation.descriptions.${weather.condition}` as const;
+    const fallback = t(fallbackKey);
+    return fallback === fallbackKey
       ? t('weatherStation.descriptions.sunny')
-      : translated;
-  }, [weather.condition, t]);
+      : fallback;
+  }, [entries, weather.condition, t]);
 
   return (
     <View>
@@ -155,17 +161,14 @@ const WeatherStationComponent: React.FC = () => {
           <Text style={[styles.title, { color: currentWeather.textColor }]}>
             {t('weatherStation.title')}
           </Text>
-          <Text style={[styles.score, { color: currentWeather.textColor }]}>
-            {weather.score}°
-          </Text>
         </View>
         
         <View style={styles.iconContainer}>
           {currentWeather.icon}
         </View>
         
-        <Text style={[styles.description, { color: currentWeather.textColor }]}>
-          {descriptionLabel}
+        <Text style={[styles.narrative, { color: currentWeather.textColor }]}>
+          {narrativeLabel}
         </Text>
         
         <View style={styles.details}>
@@ -309,19 +312,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  score: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
   iconContainer: {
     alignItems: 'center',
     marginVertical: 16,
   },
-  description: {
+  narrative: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
     textAlign: 'center',
-    marginBottom: 16,
+    marginVertical: 8,
     lineHeight: 22,
   },
   details: {
