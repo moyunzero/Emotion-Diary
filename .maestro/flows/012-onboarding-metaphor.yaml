@@ -1,0 +1,80 @@
+appId: com.moyunzero.emotiondiary
+---
+# 012 首次理解路径 Maestro E2E — testID only（ROADMAP #5）
+# 运行：yarn test:maestro:preflight && yarn start & yarn test:maestro:012
+
+# --- Path A: Skip + seen persistence (ONB-01, ONB-05) ---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-modal-root
+    timeout: 10000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    notVisible:
+      id: onboarding-modal-root
+    timeout: 10000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    notVisible:
+      id: onboarding-modal-root
+    timeout: 15000
+
+# --- Path B: Complete flow + first-entry hint (ONB-04) ---
+- stopApp
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-modal-root
+    timeout: 10000
+- tapOn:
+    id: onboarding-next-button
+- tapOn:
+    id: onboarding-next-button
+- extendedWaitUntil:
+    visible:
+      id: onboarding-start-button
+    timeout: 5000
+- tapOn:
+    id: onboarding-start-button
+- extendedWaitUntil:
+    visible:
+      id: tab-record
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: record-first-entry-hint
+    timeout: 15000
+
+# --- Path C: Profile replay via deep link (ONB-02) ---
+- stopApp
+- launchApp
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://profile
+- extendedWaitUntil:
+    visible:
+      id: profile-replay-intro-item
+    timeout: 30000
+- tapOn:
+    id: profile-replay-intro-item
+- extendedWaitUntil:
+    visible:
+      id: onboarding-modal-root
+    timeout: 10000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    notVisible:
+      id: onboarding-modal-root
+    timeout: 10000
+
+# --- Path D: migration user no intro (ONB-05) ---
+# AsyncStorage pre-seed (mood_entries_guest without seen flag) is not automatable in Maestro.
+# Migration matrix: __tests__/unit/services/onboardingMetaphor.test.ts
+# Manual UAT: pre-seed guest entries → launchApp clearState → assert notVisible onboarding-modal-root
