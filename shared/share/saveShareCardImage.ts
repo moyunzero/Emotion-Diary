@@ -1,0 +1,63 @@
+import * as Haptics from "expo-haptics";
+import * as MediaLibrary from "expo-media-library";
+import { Linking, Platform } from "react-native";
+
+export type SaveShareCardCopy = {
+  permissionTitle: string;
+  permissionMessage: string;
+  cancelLabel: string;
+  openSettingsLabel: string;
+  successTitle: string;
+  successMessage: string;
+};
+
+function triggerWebDownload(dataUri: string): void {
+  const timestamp = Date.now();
+  const filename = `xinqingmo-share-${timestamp}.png`;
+  const anchor = document.createElement("a");
+  anchor.href = dataUri;
+  anchor.download = filename;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
+/**
+ * Saves a captured share card PNG. Native: photo library; Web: anchor download.
+ * Does not invoke Share.share (D-16).
+ */
+export async function saveShareCardImage(
+  uri: string,
+  copy: SaveShareCardCopy,
+): Promise<void> {
+  if (Platform.OS === "web") {
+    triggerWebDownload(uri);
+    return;
+  }
+
+  const perm = await MediaLibrary.requestPermissionsAsync();
+  if (!perm.granted) {
+    const { Alert } = await import("react-native");
+    Alert.alert(copy.permissionTitle, copy.permissionMessage, [
+      { text: copy.cancelLabel, style: "cancel" },
+      {
+        text: copy.openSettingsLabel,
+        onPress: () => {
+          Linking.openSettings().catch((error) => {
+            console.error("Open settings failed:", error);
+          });
+        },
+      },
+    ]);
+    throw new Error("Media library permission denied");
+  }
+
+  await MediaLibrary.saveToLibraryAsync(uri);
+  if (Platform.OS === "ios") {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }
+
+  const { Alert } = await import("react-native");
+  Alert.alert(copy.successTitle, copy.successMessage);
+}
