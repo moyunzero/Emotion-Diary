@@ -13,6 +13,12 @@
     }
   },
   "burn": {
+    "confirm": {
+      "title": "Burn it out",
+      "message": "Burn this memory for good? You'll keep an ash trace, but the words won't come back.",
+      "confirm": "Burn it",
+      "cancel": "Not yet"
+    },
     "complete": {
       "message": "The words turned to smoke — breathe a little easier"
     }

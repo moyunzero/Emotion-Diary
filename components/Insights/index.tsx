@@ -101,7 +101,9 @@ const InsightsComponent: React.FC = () => {
   if (visibleEntries.length === 0) {
     return (
       <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
-        <EmptyGarden />
+        <View testID="insights-screen" style={{ flex: 1 }}>
+          <EmptyGarden />
+        </View>
       </AppScreenShell>
     );
   }
@@ -113,6 +115,7 @@ const InsightsComponent: React.FC = () => {
       scrollable
       removeClippedSubviews
     >
+      <View testID="insights-screen" style={{ flex: 1 }}>
       {/* 内容包装器 - 在大屏设备上居中显示 */}
       <View style={[styles.contentWrapper, { maxWidth }]}>
         {/* 花园主题头部 */}
@@ -162,6 +165,7 @@ const InsightsComponent: React.FC = () => {
             resolvedCount={stats.resolved}
           />
         </View>
+      </View>
       </View>
     </AppScreenShell>
   );

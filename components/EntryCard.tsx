@@ -54,6 +54,7 @@ import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
 import ResolveCeremonyHost from "./rituals/ResolveCeremonyHost";
 import ResolveConfirmOverlay from "./rituals/ResolveConfirmOverlay";
+import BurnConfirmOverlay from "./rituals/BurnConfirmOverlay";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
@@ -188,6 +189,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
+  const [showBurnConfirm, setShowBurnConfirm] = useState(false);
   const [showBurnCompleteMessage, setShowBurnCompleteMessage] = useState(false);
   const burnMessageOpacity = useRef(new Animated.Value(0)).current;
 
@@ -396,65 +398,62 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     );
   };
 
-  const handleBurn = async () => {
+  const startBurnAnimation = async () => {
+    setIsPreparing(true);
+    triggerHaptic("medium");
+
+    const isLowEnd = await isLowEndDevice();
+
+    if (isLowEnd) {
+      setUseSimpleAnimation(true);
+      setIsBurning(true);
+      triggerHaptic("light");
+      setIsPreparing(false);
+      return;
+    }
+
+    setTimeout(async () => {
+      try {
+        let image: SkImage | null = null;
+        try {
+          image = await makeImageFromView(viewRef);
+        } catch (captureError) {
+          console.error("Screenshot capture failed:", captureError);
+          image = null;
+        }
+
+        if (image) {
+          setSnapshot(image);
+          setIsBurning(true);
+          triggerHaptic("light");
+          setIsPreparing(false);
+        } else {
+          setUseSimpleAnimation(true);
+          setIsBurning(true);
+          triggerHaptic("light");
+          setIsPreparing(false);
+        }
+      } catch (e) {
+        console.error("Burn effect failed:", e);
+        burnEntry(entry.id);
+        setIsPreparing(false);
+      }
+    }, 50);
+  };
+
+  const handleBurnPress = () => {
     if (isPreparing) return;
+    triggerHaptic("light");
+    setShowBurnConfirm(true);
+  };
 
-    Alert.alert(
-      i18n.t("alerts.burn.title", { ns: "dashboard" }),
-      i18n.t("alerts.burn.message", { ns: "dashboard" }),
-      [
-        {
-          text: i18n.t("alerts.burn.cancel", { ns: "dashboard" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.burn.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: async () => {
-            setIsPreparing(true);
-            triggerHaptic("medium");
+  const handleBurnConfirm = () => {
+    setShowBurnConfirm(false);
+    void startBurnAnimation();
+  };
 
-            const isLowEnd = await isLowEndDevice();
-
-            if (isLowEnd) {
-              setUseSimpleAnimation(true);
-              setIsBurning(true);
-              triggerHaptic("light");
-              setIsPreparing(false);
-              return;
-            }
-
-            setTimeout(async () => {
-              try {
-                let image: SkImage | null = null;
-                try {
-                  image = await makeImageFromView(viewRef);
-                } catch (captureError) {
-                  console.error("Screenshot capture failed:", captureError);
-                  image = null;
-                }
-
-                if (image) {
-                  setSnapshot(image);
-                  setIsBurning(true);
-                  triggerHaptic("light");
-                  setIsPreparing(false);
-                } else {
-                  setUseSimpleAnimation(true);
-                  setIsBurning(true);
-                  triggerHaptic("light");
-                  setIsPreparing(false);
-                }
-              } catch (e) {
-                console.error("Burn effect failed:", e);
-                burnEntry(entry.id);
-                setIsPreparing(false);
-              }
-            }, 50);
-          },
-        },
-      ],
-    );
+  const handleBurnCancel = () => {
+    setShowBurnConfirm(false);
   };
 
   // 彻底删除灰烬（只对已焚烧的卡片显示）
@@ -765,7 +764,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
               <TouchableOpacity
                 style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
-                onPress={handleBurn}
+                onPress={handleBurnPress}
                 disabled={isPreparing}
                 accessibilityRole="button"
                 accessibilityLabel={t("entryCard.burnA11y")}
@@ -839,6 +838,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         visible={resolvePhase === "confirm"}
         onConfirm={handleResolveConfirm}
         onCancel={handleResolveCancel}
+      />
+
+      <BurnConfirmOverlay
+        visible={showBurnConfirm}
+        onConfirm={handleBurnConfirm}
+        onCancel={handleBurnCancel}
       />
 
       {/* 编辑模态框 */}
