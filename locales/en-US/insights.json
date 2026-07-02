@@ -38,6 +38,24 @@
     },
     "encouragement": "Facing feelings waters your garden"
   },
+  "milestone": {
+    "sprout": {
+      "title": "A new sprout",
+      "body": "Each resolve helps your garden grow"
+    },
+    "seedling": {
+      "title": "Seedlings rising",
+      "body": "You're learning to tend your feelings"
+    },
+    "bud": {
+      "title": "Buds are forming",
+      "body": "Your weather is clearing"
+    },
+    "bloom": {
+      "title": "Your garden is blooming",
+      "body": "Most of your entries have found peace"
+    }
+  },
   "relationship": {
     "title": "Relationship garden",
     "subtitle": "Needs your care",
@@ -143,9 +161,9 @@
       "5": "Needs water"
     },
     "potStatus": {
-      "blooming": "Blooming",
-      "growing": "Growing",
-      "needWater": "Needs water"
+      "blooming": "In full bloom",
+      "growing": "Still growing",
+      "needWater": "Needs watering"
     },
     "growthStage": {
       "seed": "Seed",

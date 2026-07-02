@@ -50,7 +50,79 @@
   },
   "weatherAdvice": {
     "sunny": "A good day to feel light",
-    "cloudy": "A good day to talk it through"
+    "cloudy": "A good day to talk it through",
+    "rainy": "Take it slow — talk when ready",
+    "stormy": "Care for yourself first"
+  },
+  "weatherNarrative": {
+    "sunny": {
+      "calm": {
+        "low": "Clear skies today — enjoy this gentle ease",
+        "medium": "Mostly sunny — leave room to talk this week",
+        "high": "Still bright out — take today one step at a time"
+      },
+      "mixed": {
+        "low": "Sun is out — light clouds will pass",
+        "medium": "Bright day, small ripples — align gently this week",
+        "high": "Sunshine with tension — say the urgent things first"
+      },
+      "heavy": {
+        "low": "Sun outside, weight inside — give yourself space",
+        "medium": "Fair weather, heavy heart — don't carry it alone",
+        "high": "A lot on your plate — breathe before you speak"
+      }
+    },
+    "cloudy": {
+      "calm": {
+        "low": "Soft clouds — your connection feels steady",
+        "medium": "Light clouds — a calm chat fits this week",
+        "high": "Cloudy but mild — pace yourself today"
+      },
+      "mixed": {
+        "low": "Small shifts behind the clouds — that's okay",
+        "medium": "Words still waiting — find time to talk this week",
+        "high": "Clouds gathering — name what matters today"
+      },
+      "heavy": {
+        "low": "Gray skies — go easy on yourself",
+        "medium": "Heavy mood — slower conversations help this week",
+        "high": "Clouds feel low — care for yourself first today"
+      }
+    },
+    "rainy": {
+      "calm": {
+        "low": "Rain outside — you're mostly at peace inside",
+        "medium": "Steady rain — quiet talks suit this week",
+        "high": "Rain falling — take today's tasks gently"
+      },
+      "mixed": {
+        "low": "Light rain — some feelings still drying",
+        "medium": "Rain on the window — make space to share",
+        "high": "Heavier rain — clear the stuck thing first"
+      },
+      "heavy": {
+        "low": "Rain feels heavy — keep your umbrella close",
+        "medium": "Rain won't lift yet — reach out this week",
+        "high": "Rain is dense — care for you, then communicate"
+      }
+    },
+    "stormy": {
+      "calm": {
+        "low": "Storm nearby — you can still steady your breath",
+        "medium": "Winds rising — guard your boundaries this week",
+        "high": "Thunder far off — keep your pace today"
+      },
+      "mixed": {
+        "low": "Storm brewing — feelings are stirring too",
+        "medium": "Storm weather — grab your umbrella first",
+        "high": "Wind and rain — put safety first today"
+      },
+      "heavy": {
+        "low": "Thunder day — step under your own roof",
+        "medium": "Storm still here — don't face it alone",
+        "high": "Storm weather — shelter yourself first"
+      }
+    }
   },
   "entryCard": {
     "edit": "Edit",

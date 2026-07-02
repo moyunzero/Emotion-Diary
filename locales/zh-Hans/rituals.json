@@ -1,0 +1,20 @@
+{
+  "resolve": {
+    "confirm": {
+      "title": "和解打卡",
+      "message": "标记和解，就像给这段关系浇一次水。确定吗？",
+      "confirm": "开始和解",
+      "cancel": "再想想"
+    },
+    "ceremony": {
+      "title": "种下和解",
+      "body": "让这段情绪慢慢放晴…",
+      "skip": "跳过"
+    }
+  },
+  "burn": {
+    "complete": {
+      "message": "气话已化作青烟，心里轻松些了吧"
+    }
+  }
+}

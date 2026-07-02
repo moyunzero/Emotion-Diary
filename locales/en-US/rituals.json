@@ -1,0 +1,20 @@
+{
+  "resolve": {
+    "confirm": {
+      "title": "Mark resolved",
+      "message": "Marking peace is like watering this connection. Ready?",
+      "confirm": "Begin resolve",
+      "cancel": "Not yet"
+    },
+    "ceremony": {
+      "title": "Planting peace",
+      "body": "Let this feeling slowly clear…",
+      "skip": "Skip"
+    }
+  },
+  "burn": {
+    "complete": {
+      "message": "The words turned to smoke — breathe a little easier"
+    }
+  }
+}

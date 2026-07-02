@@ -4,6 +4,7 @@ import * as Localization from "expo-localization";
 
 import enAi from "../locales/en-US/ai.json";
 import enOnboarding from "../locales/en-US/onboarding.json";
+import enRituals from "../locales/en-US/rituals.json";
 import enAuth from "../locales/en-US/auth.json";
 import enCommon from "../locales/en-US/common.json";
 import enDashboard from "../locales/en-US/dashboard.json";
@@ -19,6 +20,7 @@ import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
 import zhAi from "../locales/zh-Hans/ai.json";
 import zhOnboarding from "../locales/zh-Hans/onboarding.json";
+import zhRituals from "../locales/zh-Hans/rituals.json";
 import zhAuth from "../locales/zh-Hans/auth.json";
 import zhCommon from "../locales/zh-Hans/common.json";
 import zhDashboard from "../locales/zh-Hans/dashboard.json";
@@ -78,6 +80,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           system: zhSystem,
           ai: zhAi,
           onboarding: zhOnboarding,
+          rituals: zhRituals,
         },
         "en-US": {
           common: enCommon,
@@ -95,6 +98,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           system: enSystem,
           ai: enAi,
           onboarding: enOnboarding,
+          rituals: enRituals,
         },
       },
       lng: effectiveLocale,
@@ -117,6 +121,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "system",
         "ai",
         "onboarding",
+        "rituals",
       ],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
