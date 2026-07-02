@@ -19,6 +19,7 @@
     "test:maestro:purge": "maestro test .maestro/flows/recycle-bin-purge.yaml",
     "test:maestro:011": "maestro test .maestro/flows/011-metaphor-acceptance.yaml",
     "test:maestro:012": "maestro test .maestro/flows/012-onboarding-metaphor.yaml",
+    "test:maestro:014": "maestro test .maestro/flows/014-shareable-ritual-cards.yaml",
     "build:optimized": "node ./scripts/build-optimized.js",
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",

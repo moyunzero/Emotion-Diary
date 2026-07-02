@@ -25,6 +25,7 @@ export type StackScreenHeaderProps = {
   readonly headerRight?: React.ReactNode;
   readonly backAccessibilityLabel?: string;
   readonly backAccessibilityHint?: string;
+  readonly backTestID?: string;
   readonly titleAccessibilityLabel?: string;
   /** 覆盖默认标题色（如洞察/回顾图主题） */
   readonly titleColor?: string;
@@ -43,6 +44,7 @@ export function StackScreenHeader({
   headerRight,
   backAccessibilityLabel,
   backAccessibilityHint,
+  backTestID,
   titleAccessibilityLabel,
   titleColor,
   titleFontSize,
@@ -83,6 +85,7 @@ export function StackScreenHeader({
       >
         {showLeading ? (
           <Pressable
+            testID={backTestID}
             onPress={onBack}
             hitSlop={screenHeader.backHitSlop}
             accessibilityRole="button"

@@ -638,6 +638,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           style={[styles.container, isResolved && styles.resolvedContainer]}
         >
           <TouchableOpacity
+            testID="entry-card-pressable"
             onPress={() => {
               // 确保Android LayoutAnimation配置生效
               ensureLayoutAnimationEnabled();

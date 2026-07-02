@@ -1,0 +1,44 @@
+{
+  "actions": {
+    "saveToAlbum": "Save to Photos",
+    "download": "Download image",
+    "continue": "Continue"
+  },
+  "canvas": {
+    "periodTitle": "{{period}} relationship weather",
+    "weatherLabel": "Relationship weather",
+    "gardenLabel": "Inner garden",
+    "closingLabel": "Closing note",
+    "closingLabelPeriod": "{{period}} closing note",
+    "weatherEmptyPeriod": "Your relationship sky is still gathering this period—be gentle with yourself",
+    "aiLoading": "Writing your closing line…",
+    "weatherFallback": "This week's weather deserves a gentle memory"
+  },
+  "watermark": {
+    "brand": "MoodMO · Relationship weather diary",
+    "withDate": "{{brand}} · {{date}}"
+  },
+  "optIn": {
+    "label": "Add a personal line",
+    "placeholder": "One line to take with you (no names, please)",
+    "hint": "This line appears on the card—check it for private details before saving",
+    "off": "Not on card"
+  },
+  "alerts": {
+    "privacy": {
+      "title": "Privacy note",
+      "message": "The share card saves to your device. Others who use this device may see it."
+    },
+    "saveFail": {
+      "title": "Save failed",
+      "message": "Could not create the image. Please try again."
+    },
+    "downloadSuccess": {
+      "title": "Downloaded",
+      "message": "Your share card was saved to your downloads folder."
+    }
+  },
+  "a11y": {
+    "canvas": "Share card preview canvas"
+  }
+}

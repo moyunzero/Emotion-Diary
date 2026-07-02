@@ -1,36 +1,39 @@
 /**
- * Mood review export: preset selection, capturable canvas, optional AI closing line, save PNG to Photos.
- * Privacy and permissions confirmed via Alert and AsyncStorage on first save.
+ * Mood review export: preset selection, 9:16 share card preview, optional AI closing line, save PNG.
+ * Privacy confirmed via shared ensurePrivacyAck on first save.
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import * as Haptics from 'expo-haptics';
-import * as MediaLibrary from 'expo-media-library';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
-  InteractionManager,
-  Linking,
-  PixelRatio,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
+  TextInput,
   useWindowDimensions,
-  View
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { captureRef } from 'react-native-view-shot';
 import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 import { getEffectiveFirstEntryDateForCompanion } from '../../services/companionDaysService';
 import { formatLocaleDate } from '../../shared/formatting';
 import { type ReviewExportPreset } from '../../shared/time-range';
 import { forceCancelRecording } from '../../shared/audio/recordingCoordinator';
+import { excludeSoftDeletedEntries } from '../../shared/entries/visibility';
+import { buildWeekShareCardModel } from '../../shared/share/buildShareCardModel';
+import { captureViewToPng } from '../../shared/share/captureViewToPng';
+import {
+  ensurePrivacyAck,
+  persistPrivacyAck,
+} from '../../shared/share/privacyAck';
+import { saveShareCardImage } from '../../shared/share/saveShareCardImage';
 import { useAppStore } from '../../store/useAppStore';
 import {
   generateReviewExportClosingLine,
@@ -38,17 +41,17 @@ import {
   isGroqConfigured,
 } from '../../utils/aiService';
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
+import { filterEntriesInRange } from '../../utils/reviewStats';
+import { logger } from '../../utils/logger';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
-import { createStackScreenHeaderStyle } from '../../styles/stackScreenHeader';
-import { ReviewExportCanvas, type ReviewExportAiStatus } from './ReviewExportCanvas';
-import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
+import { ShareCardShell } from '../share/ShareCardShell';
 import {
-  REVIEW_EXPORT_CAPTURE_MAX_WIDTH,
-  REVIEW_EXPORT_CAPTURE_QUALITY,
-} from '../../constants/performance';
-
-const PRIVACY_ACK_KEY = 'review_export_privacy_ack_v1';
+  ShareCardWeekContent,
+  type ShareCardAiStatus,
+} from '../share/ShareCardWeekContent';
+import { createStackScreenHeaderStyle } from '../../styles/stackScreenHeader';
+import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
 
 const PRESET_VALUES: ReviewExportPreset[] = [
   'this_week',
@@ -67,6 +70,7 @@ function parseInitialPreset(raw: string | undefined): ReviewExportPreset {
 export const ReviewExportScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation('review');
+  const { t: tShare } = useTranslation('share');
   const { t: tCommon } = useTranslation('common');
   const { t: tSystem } = useTranslation('system');
   const { preset: presetParam } = useLocalSearchParams<{ preset?: string }>();
@@ -106,6 +110,8 @@ export const ReviewExportScreen: React.FC = () => {
   );
   const [now] = useState(() => new Date());
   const [isBusy, setIsBusy] = useState(false);
+  const [snippetEnabled, setSnippetEnabled] = useState(false);
+  const [snippetText, setSnippetText] = useState('');
 
   const derived = useMemo(
     () =>
@@ -118,7 +124,32 @@ export const ReviewExportScreen: React.FC = () => {
       ),
     [entries, firstEntryDate, preset, now, effectiveLocale],
   );
+  const periodStartMs = derived.current.startMs;
+  const periodEndMs = derived.current.endMs;
+  const periodEntries = useMemo(
+    () =>
+      filterEntriesInRange(
+        excludeSoftDeletedEntries(entries),
+        periodStartMs,
+        periodEndMs,
+      ),
+    [entries, periodStartMs, periodEndMs],
+  );
+  const periodLabel = useMemo(() => t(`presets.${preset}`), [t, preset]);
+  const cardTitle = useMemo(
+    () => tShare('canvas.periodTitle', { period: periodLabel }),
+    [tShare, periodLabel],
+  );
+  const closingSectionLabel = useMemo(
+    () => tShare('canvas.closingLabelPeriod', { period: periodLabel }),
+    [tShare, periodLabel],
+  );
   const summary = derived.closingSummary;
+  const dateRangeLabel = useMemo(
+    () =>
+      `${formatLocaleDate(derived.current.startMs, effectiveLocale)}${t('canvas.dateRangeSeparator')}${formatLocaleDate(derived.current.endMs, effectiveLocale)}`,
+    [derived, effectiveLocale, t],
+  );
   const exportRangeA11yLabel = useMemo(
     () =>
       t('a11y.exportRange', {
@@ -132,10 +163,22 @@ export const ReviewExportScreen: React.FC = () => {
     getDefaultReviewExportClosingLine(summary, effectiveLocale),
   );
 
-  const [aiStatus, setAiStatus] = useState<ReviewExportAiStatus>('idle');
+  const [aiStatus, setAiStatus] = useState<ShareCardAiStatus>('idle');
   const closingRequestIdRef = useRef(0);
 
   const captureRootRef = useRef<View>(null);
+
+  const shareModel = useMemo(
+    () =>
+      buildWeekShareCardModel({
+        derived,
+        closingLine,
+        effectiveLocale,
+        periodEntries,
+        userSnippet: snippetEnabled ? snippetText : undefined,
+      }),
+    [derived, closingLine, effectiveLocale, periodEntries, snippetEnabled, snippetText],
+  );
 
   useEffect(() => {
     const defaultLine = getDefaultReviewExportClosingLine(summary, effectiveLocale);
@@ -158,134 +201,86 @@ export const ReviewExportScreen: React.FC = () => {
       })
       .catch((error) => {
         if (id !== closingRequestIdRef.current) return;
-        console.error('Review export closing line failed:', error);
+        logger.error('ReviewExportScreen', 'Review export closing line failed', error);
         setAiStatus('fallback');
       });
   }, [summary, user?.id, user?.name, effectiveLocale]);
 
-  const captureReviewPngUri = useCallback(async (): Promise<string> => {
-    // Wait for interactions to finish before capture; failures bubble to onPressSave.
-    await new Promise<void>((resolve) => {
-      InteractionManager.runAfterInteractions(() => resolve());
-    });
-    const target = captureRootRef.current;
-    if (!target) {
-      throw new Error('Capture area not ready');
-    }
-
-    const layout = await new Promise<{ width: number; height: number }>(
-      (resolve, reject) => {
-        target.measure((_x, _y, width, height) => {
-          if (width <= 0 || height <= 0) {
-            reject(new Error('Invalid capture dimensions'));
-            return;
-          }
-          resolve({ width, height });
-        });
-      },
-    );
-
-    const pixelWidth = Math.round(layout.width * PixelRatio.get());
-    const captureWidth = Math.min(
-      pixelWidth,
-      REVIEW_EXPORT_CAPTURE_MAX_WIDTH,
-    );
-
-    const uri = await captureRef(target, {
-      format: 'png',
-      quality: REVIEW_EXPORT_CAPTURE_QUALITY,
-      result: 'tmpfile',
-      width: captureWidth,
-    });
-    if (!uri || typeof uri !== 'string') {
-      throw new Error('Capture failed, please try again');
-    }
-    return uri;
-  }, []);
-
-  const performCaptureAndSave = useCallback(async () => {
-    if (Platform.OS === 'web') {
-      Alert.alert(
-        t('alerts.webUnsupported.title'),
-        t('alerts.webUnsupported.message'),
-      );
-      return;
-    }
-    const uri = await captureReviewPngUri();
-    const perm = await MediaLibrary.requestPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert(
-        t('alerts.permission.title'),
-        t('alerts.permission.message'),
-        [
-          { text: tCommon('actions.cancel'), style: 'cancel' },
-          {
-            text: tSystem('audio.permission.openSettings'),
-            onPress: () => {
-              Linking.openSettings().catch((error) => {
-                console.error('Open settings failed:', error);
-              });
-            },
-          },
-        ],
-      );
-      return;
-    }
-    await MediaLibrary.saveToLibraryAsync(uri);
-    if (Platform.OS === 'ios') {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-    Alert.alert(
-      t('alerts.saveSuccess.title'),
-      t('alerts.saveSuccess.message'),
-    );
-  }, [captureReviewPngUri, t, tCommon, tSystem]);
+  const saveCopy = useMemo(
+    () => ({
+      permissionTitle: t('alerts.permission.title'),
+      permissionMessage: t('alerts.permission.message'),
+      cancelLabel: tCommon('actions.cancel'),
+      openSettingsLabel: tSystem('audio.permission.openSettings'),
+      successTitle:
+        Platform.OS === 'web'
+          ? tShare('alerts.downloadSuccess.title')
+          : t('alerts.saveSuccess.title'),
+      successMessage:
+        Platform.OS === 'web'
+          ? tShare('alerts.downloadSuccess.message')
+          : t('alerts.saveSuccess.message'),
+    }),
+    [t, tCommon, tShare, tSystem],
+  );
 
   const onPressSave = useCallback(async () => {
-    if (isBusy) return;
+    if (isBusy || aiStatus === 'loading') return;
 
-    const go = async (setAck: boolean) => {
+    await ensurePrivacyAck(async (setAck) => {
       setIsBusy(true);
       try {
         if (setAck) {
-          await AsyncStorage.setItem(PRIVACY_ACK_KEY, 'true');
+          await persistPrivacyAck();
         }
-        await performCaptureAndSave();
+        const target = captureRootRef.current;
+        if (!target) {
+          throw new Error('Capture area not ready');
+        }
+        const uri = await captureViewToPng(target);
+        await saveShareCardImage(uri, saveCopy);
+        if (Platform.OS === 'web') {
+          Alert.alert(saveCopy.successTitle, saveCopy.successMessage);
+        }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        Alert.alert(t('alerts.saveFail.title'), msg);
+        if (msg === 'Media library permission denied') {
+          return;
+        }
+        Alert.alert(
+          tShare('alerts.saveFail.title'),
+          msg || tShare('alerts.saveFail.message'),
+        );
       } finally {
         setIsBusy(false);
       }
-    };
+    }, {
+      title: tShare('alerts.privacy.title'),
+      message: tShare('alerts.privacy.message'),
+      continueLabel: tShare('actions.continue'),
+    });
+  }, [aiStatus, isBusy, saveCopy, tShare]);
 
-    const ack = await AsyncStorage.getItem(PRIVACY_ACK_KEY);
-    if (ack === 'true') {
-      await go(false);
-      return;
+  const saveDisabled = isBusy || aiStatus === 'loading';
+  const saveLabel =
+    Platform.OS === 'web'
+      ? tShare('actions.download')
+      : tShare('actions.saveToAlbum');
+
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
     }
-
-    Alert.alert(
-      t('alerts.privacy.title'),
-      t('alerts.privacy.message'),
-      [
-        {
-          text: t('actions.continue'),
-          onPress: () => {
-            go(true).catch((error) => {
-              console.error('Save failed:', error);
-            });
-          },
-        },
-      ],
-    );
-  }, [isBusy, performCaptureAndSave, t]);
+  }, [router]);
 
   return (
     <AppScreenShell
       edges={['top', 'left', 'right']}
       title={t('screen.title')}
-      onBack={() => router.back()}
+      onBack={handleBack}
+      backTestID="review-export-back-button"
       titleColor={INSIGHTS_COLORS.text}
       titleFontFamily="Lato_700Bold"
       titleFontSize={responsiveLayout.headerTitleFontSize}
@@ -306,6 +301,7 @@ export const ReviewExportScreen: React.FC = () => {
           ]}
         >
           <Pressable
+            testID="share-card-save-button"
             style={[
               styles.saveBtn,
               {
@@ -313,20 +309,20 @@ export const ReviewExportScreen: React.FC = () => {
                 borderRadius: responsiveLayout.saveButtonRadius,
                 minHeight: responsiveLayout.saveButtonMinHeight,
               },
-              isBusy && styles.saveBtnDisabled,
+              saveDisabled && styles.saveBtnDisabled,
             ]}
             onPress={() => {
               onPressSave().catch((error) => {
-                console.error('Save failed:', error);
+                logger.error('ReviewExportScreen', 'Save failed', error);
               });
             }}
-            disabled={isBusy}
+            disabled={saveDisabled}
           >
             {isBusy ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
-                {t('actions.saveToAlbum')}
+                {saveLabel}
               </Text>
             )}
           </Pressable>
@@ -386,17 +382,59 @@ export const ReviewExportScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
       >
         <View
+          style={[
+            styles.previewOuter,
+            { maxWidth: Math.min(width * 0.92, 380) },
+          ]}
+        >
+        <View
           ref={captureRootRef}
           collapsable={false}
-          style={[styles.captureWrap, { borderRadius: responsiveLayout.captureRadius }]}
           accessible
           accessibilityLabel={exportRangeA11yLabel}
+          style={styles.captureRoot}
         >
-          <ReviewExportCanvas
-            derived={derived}
-            closingLine={closingLine}
-            aiStatus={aiStatus}
-          />
+          <ShareCardShell model={shareModel}>
+              <ShareCardWeekContent
+                model={shareModel}
+                aiStatus={aiStatus}
+                dateRangeLabel={dateRangeLabel}
+                cardTitle={cardTitle}
+                closingSectionLabel={closingSectionLabel}
+              />
+            </ShareCardShell>
+          </View>
+        </View>
+
+        <View style={styles.optInBlock}>
+          <View style={styles.optInRow}>
+            <Text style={styles.optInLabel}>{tShare('optIn.label')}</Text>
+            <Switch
+              testID="share-card-snippet-toggle"
+              value={snippetEnabled}
+              onValueChange={setSnippetEnabled}
+              accessibilityLabel={tShare('optIn.label')}
+            />
+          </View>
+          {snippetEnabled ? (
+            <>
+              <TextInput
+                testID="share-card-snippet-input"
+                style={styles.snippetInput}
+                value={snippetText}
+                onChangeText={setSnippetText}
+                maxLength={80}
+                placeholder={tShare('optIn.placeholder')}
+                placeholderTextColor={INSIGHTS_COLORS.textSecondary}
+                multiline
+                numberOfLines={3}
+                accessibilityLabel={tShare('optIn.placeholder')}
+              />
+              <Text style={styles.optInHint}>{tShare('optIn.hint')}</Text>
+            </>
+          ) : (
+            <Text style={styles.optInOff}>{tShare('optIn.off')}</Text>
+          )}
         </View>
       </ScrollView>
       </View>
@@ -417,11 +455,12 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexShrink: 0,
     gap: 8,
+    paddingVertical: 4,
   },
   chip: {
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.primary + '40',
+    borderColor: INSIGHTS_COLORS.primary + '35',
   },
   chipSelected: {
     backgroundColor: INSIGHTS_COLORS.primary + '25',
@@ -439,9 +478,67 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    alignItems: 'center',
+    flexGrow: 1,
   },
-  captureWrap: {
-    overflow: 'hidden',
+  previewOuter: {
+    alignSelf: 'center',
+    width: '100%',
+  },
+  captureRoot: {
+    width: '100%',
+  },
+  optInBlock: {
+    alignSelf: 'stretch',
+    width: '100%',
+    maxWidth: 380,
+    marginTop: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: INSIGHTS_COLORS.cardBg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: INSIGHTS_COLORS.primary + '28',
+  },
+  optInRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+  },
+  optInLabel: {
+    flex: 1,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 16,
+    color: INSIGHTS_COLORS.text,
+    marginRight: 12,
+  },
+  snippetInput: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: INSIGHTS_COLORS.primary + '40',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 14,
+    lineHeight: 21,
+    color: INSIGHTS_COLORS.text,
+    minHeight: 72,
+    textAlignVertical: 'top',
+  },
+  optInHint: {
+    marginTop: 8,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 12,
+    lineHeight: 16.8,
+    color: INSIGHTS_COLORS.textSecondary,
+  },
+  optInOff: {
+    marginTop: 4,
+    fontFamily: 'Lato_400Regular',
+    fontSize: 12,
+    color: INSIGHTS_COLORS.textSecondary,
   },
   footer: {
     borderTopWidth: StyleSheet.hairlineWidth,

@@ -16,6 +16,7 @@ import enRecord from "../locales/en-US/record.json";
 import enRecycle from "../locales/en-US/recycle.json";
 import enRetention from "../locales/en-US/retention.json";
 import enReview from "../locales/en-US/review.json";
+import enShare from "../locales/en-US/share.json";
 import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
 import zhAi from "../locales/zh-Hans/ai.json";
@@ -32,6 +33,7 @@ import zhRecord from "../locales/zh-Hans/record.json";
 import zhRecycle from "../locales/zh-Hans/recycle.json";
 import zhRetention from "../locales/zh-Hans/retention.json";
 import zhReview from "../locales/zh-Hans/review.json";
+import zhShare from "../locales/zh-Hans/share.json";
 import zhSync from "../locales/zh-Hans/sync.json";
 import zhTabs from "../locales/zh-Hans/tabs.json";
 import type { AppLocale } from "./mapDeviceLocale";
@@ -73,6 +75,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           recycle: zhRecycle,
           tabs: zhTabs,
           review: zhReview,
+          share: zhShare,
           mood: zhMood,
           record: zhRecord,
           dashboard: zhDashboard,
@@ -91,6 +94,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           recycle: enRecycle,
           tabs: enTabs,
           review: enReview,
+          share: enShare,
           mood: enMood,
           record: enRecord,
           dashboard: enDashboard,
@@ -114,6 +118,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "recycle",
         "tabs",
         "review",
+        "share",
         "mood",
         "record",
         "dashboard",

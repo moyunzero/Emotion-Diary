@@ -31,6 +31,7 @@ type AppScreenShellProps = {
   | 'headerRight'
   | 'backAccessibilityLabel'
   | 'backAccessibilityHint'
+  | 'backTestID'
   | 'titleAccessibilityLabel'
   | 'titleColor'
   | 'titleFontSize'
@@ -58,6 +59,7 @@ export function AppScreenShell({
   headerRight,
   backAccessibilityLabel,
   backAccessibilityHint,
+  backTestID,
   titleAccessibilityLabel,
   titleColor,
   titleFontSize,
@@ -106,6 +108,7 @@ export function AppScreenShell({
             headerRight={headerRight}
             backAccessibilityLabel={backAccessibilityLabel}
             backAccessibilityHint={backAccessibilityHint}
+            backTestID={backTestID}
             titleAccessibilityLabel={titleAccessibilityLabel}
             titleColor={titleColor}
             titleFontSize={titleFontSize}
