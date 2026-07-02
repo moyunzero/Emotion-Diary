@@ -42,6 +42,7 @@ import {
 } from '../../utils/aiService';
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
+import { logger } from '../../utils/logger';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -123,14 +124,16 @@ export const ReviewExportScreen: React.FC = () => {
       ),
     [entries, firstEntryDate, preset, now, effectiveLocale],
   );
+  const periodStartMs = derived.current.startMs;
+  const periodEndMs = derived.current.endMs;
   const periodEntries = useMemo(
     () =>
       filterEntriesInRange(
         excludeSoftDeletedEntries(entries),
-        derived.current.startMs,
-        derived.current.endMs,
+        periodStartMs,
+        periodEndMs,
       ),
-    [entries, derived.current.startMs, derived.current.endMs],
+    [entries, periodStartMs, periodEndMs],
   );
   const periodLabel = useMemo(() => t(`presets.${preset}`), [t, preset]);
   const cardTitle = useMemo(
@@ -198,7 +201,7 @@ export const ReviewExportScreen: React.FC = () => {
       })
       .catch((error) => {
         if (id !== closingRequestIdRef.current) return;
-        console.error('Review export closing line failed:', error);
+        logger.error('ReviewExportScreen', 'Review export closing line failed', error);
         setAiStatus('fallback');
       });
   }, [summary, user?.id, user?.name, effectiveLocale]);
@@ -277,6 +280,7 @@ export const ReviewExportScreen: React.FC = () => {
       edges={['top', 'left', 'right']}
       title={t('screen.title')}
       onBack={handleBack}
+      backTestID="review-export-back-button"
       titleColor={INSIGHTS_COLORS.text}
       titleFontFamily="Lato_700Bold"
       titleFontSize={responsiveLayout.headerTitleFontSize}
@@ -309,7 +313,7 @@ export const ReviewExportScreen: React.FC = () => {
             ]}
             onPress={() => {
               onPressSave().catch((error) => {
-                console.error('Save failed:', error);
+                logger.error('ReviewExportScreen', 'Save failed', error);
               });
             }}
             disabled={saveDisabled}
@@ -409,6 +413,7 @@ export const ReviewExportScreen: React.FC = () => {
               testID="share-card-snippet-toggle"
               value={snippetEnabled}
               onValueChange={setSnippetEnabled}
+              accessibilityLabel={tShare('optIn.label')}
             />
           </View>
           {snippetEnabled ? (
@@ -423,6 +428,7 @@ export const ReviewExportScreen: React.FC = () => {
                 placeholderTextColor={INSIGHTS_COLORS.textSecondary}
                 multiline
                 numberOfLines={3}
+                accessibilityLabel={tShare('optIn.placeholder')}
               />
               <Text style={styles.optInHint}>{tShare('optIn.hint')}</Text>
             </>

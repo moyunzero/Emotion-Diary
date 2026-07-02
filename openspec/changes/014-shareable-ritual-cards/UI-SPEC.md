@@ -285,7 +285,7 @@ aspectRatio   = 9 / 16
 |------|-----|
 | 路由 | `app/share-card-preview.tsx` |
 | 呈现 | `presentation: 'modal'`，`headerShown: false` |
-| Params | `variant=resolve|burn`；**禁止** `content`、`people`、`triggers` query |
+| Params | `variant=resolve\|burn`；**禁止** `content`、`people`、`triggers` query |
 | 根容器 | `testID="share-card-preview-root"` |
 | Shell | 与周卡相同 `ShareCardShell` |
 | Opt-in | 同周卡；`testID="share-card-snippet-toggle"` |
@@ -437,6 +437,7 @@ aspectRatio   = 9 / 16
 | `share-card-snippet-input` | opt-in TextInput | toggle on 后可见 |
 | `share-card-save-button` | 保存/下载 | 预览屏 footer |
 | `share-card-canvas` | 捕获根 View | `collapsable={false}` |
+| `review-export-back-button` | ReviewExport 栈顶返回 | deep link 无 back stack 时回首页 |
 
 **Maestro 断言**：仅用 testID，**不匹配** locale 文案（Phase 2/3 先例）。
 

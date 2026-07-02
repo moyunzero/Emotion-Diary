@@ -1,7 +1,4 @@
 {
-  "cta": {
-    "generate": "Create share card"
-  },
   "actions": {
     "saveToAlbum": "Save to Photos",
     "download": "Download image",
@@ -9,17 +6,6 @@
   },
   "canvas": {
     "periodTitle": "{{period}} relationship weather",
-    "week": {
-      "title": "This week in your weather"
-    },
-    "resolve": {
-      "title": "A moment of resolve",
-      "moment": "Letting this feeling clear"
-    },
-    "burn": {
-      "title": "Released with care",
-      "moment": "The sharp words have drifted away"
-    },
     "weatherLabel": "Relationship weather",
     "gardenLabel": "Inner garden",
     "closingLabel": "Closing note",
@@ -31,11 +17,6 @@
   "watermark": {
     "brand": "MoodMO · Relationship weather diary",
     "withDate": "{{brand}} · {{date}}"
-  },
-  "preview": {
-    "title": "Share card preview",
-    "titleResolve": "Resolve moment",
-    "titleBurn": "Release moment"
   },
   "optIn": {
     "label": "Add a personal line",

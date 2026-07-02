@@ -1,6 +1,7 @@
 import * as Haptics from "expo-haptics";
 import * as MediaLibrary from "expo-media-library";
 import { Alert, Linking, Platform } from "react-native";
+import { logger } from "../../utils/logger";
 
 export type SaveShareCardCopy = {
   permissionTitle: string;
@@ -20,7 +21,7 @@ function triggerWebDownload(dataUri: string): void {
   anchor.style.display = "none";
   document.body.appendChild(anchor);
   anchor.click();
-  document.body.removeChild(anchor);
+  anchor.remove();
 }
 
 /**
@@ -44,7 +45,7 @@ export async function saveShareCardImage(
         text: copy.openSettingsLabel,
         onPress: () => {
           Linking.openSettings().catch((error) => {
-            console.error("Open settings failed:", error);
+            logger.error("saveShareCardImage", "Open settings failed", error);
           });
         },
       },

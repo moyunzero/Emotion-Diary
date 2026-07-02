@@ -50,7 +50,7 @@ appId: com.moyunzero.emotiondiary
 - takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/04-review-export-after-save
 # Deep link 进入时无 back stack，返回应回首页而非 GO_BACK 报错
 - tapOn:
-    text: "返回"
+    id: review-export-back-button
 - extendedWaitUntil:
     visible:
       id: dashboard-header

@@ -40,15 +40,19 @@ describe("share copy via i18n", () => {
     expect(zh).not.toBe(en);
   });
 
-  it("cta.generate exists in zh-Hans", async () => {
+  it("canvas.periodTitle exists in zh-Hans", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("zh-Hans");
-    expect(i18n.t("cta.generate", { ns: "share" })).toMatch(/分享卡/);
+    expect(
+      i18n.t("canvas.periodTitle", { ns: "share", period: "本周" }),
+    ).toMatch(/关系天气/);
   });
 
-  it("cta.generate exists in en-US", async () => {
+  it("canvas.periodTitle exists in en-US", async () => {
     const { i18n } = await import("@/i18n");
     await i18n.changeLanguage("en-US");
-    expect(i18n.t("cta.generate", { ns: "share" })).toMatch(/share card/i);
+    expect(
+      i18n.t("canvas.periodTitle", { ns: "share", period: "This week" }),
+    ).toMatch(/relationship weather/i);
   });
 });
