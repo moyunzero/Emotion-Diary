@@ -1,5 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
@@ -52,6 +52,11 @@ import { isLowEndDevice } from "../utils/devicePerformance";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AshIcon from "./AshIcon";
 import BurnAnimation from "./BurnAnimation";
+import ResolveCeremonyHost from "./rituals/ResolveCeremonyHost";
+import ResolveConfirmOverlay from "./rituals/ResolveConfirmOverlay";
+import BurnConfirmOverlay from "./rituals/BurnConfirmOverlay";
+
+type ResolvePhase = "idle" | "confirm" | "ceremony";
 
 export interface EntryCardProps {
   entry: MoodEntry;
@@ -135,6 +140,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
   const { t: tSystem } = useTranslation("system");
   const { t: tRecord } = useTranslation("record");
+  const { t: tRituals } = useTranslation("rituals");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -182,6 +188,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isBurning, setIsBurning] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
+  const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
+  const [showBurnConfirm, setShowBurnConfirm] = useState(false);
+  const [showBurnCompleteMessage, setShowBurnCompleteMessage] = useState(false);
+  const burnMessageOpacity = useRef(new Animated.Value(0)).current;
 
   const currentAudioId = useAppStore((s) =>
     s.playbackEntryId === entry.id ? s.currentAudioId : null,
@@ -327,10 +337,46 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     }
   }, [isExpanded, isActivePlaybackEntry, entry.id]);
 
-  const handleResolve = () => {
-    triggerHaptic("success");
+  const handleResolvePress = () => {
+    triggerHaptic("light");
+    setResolvePhase("confirm");
+  };
+
+  const handleResolveConfirm = () => {
+    setResolvePhase("ceremony");
+  };
+
+  const handleResolveCancel = () => {
+    setResolvePhase("idle");
+  };
+
+  const handleResolveCeremonyComplete = () => {
     resolveEntry(entry.id);
-    setIsExpanded(false); // 操作完成后折叠卡片
+    setResolvePhase("idle");
+    setIsExpanded(false);
+  };
+
+  const handleBurnComplete = () => {
+    setIsBurning(false);
+    setSnapshot(null);
+    setUseSimpleAnimation(false);
+    triggerHaptic("success");
+    setShowBurnCompleteMessage(true);
+    burnMessageOpacity.setValue(1);
+    Animated.sequence([
+      Animated.delay(2500),
+      Animated.timing(burnMessageOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      setShowBurnCompleteMessage(false);
+      if (finished) {
+        burnEntry(entry.id);
+        onBurn?.(entry.id);
+      }
+    });
   };
 
   const handleDelete = () => {
@@ -358,62 +404,62 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     );
   };
 
-  const handleBurn = async () => {
+  const startBurnAnimation = async () => {
+    setIsPreparing(true);
+    triggerHaptic("medium");
+
+    const isLowEnd = await isLowEndDevice();
+
+    if (isLowEnd) {
+      setUseSimpleAnimation(true);
+      setIsBurning(true);
+      triggerHaptic("light");
+      setIsPreparing(false);
+      return;
+    }
+
+    setTimeout(async () => {
+      try {
+        let image: SkImage | null = null;
+        try {
+          image = await makeImageFromView(viewRef);
+        } catch (captureError) {
+          console.error("Screenshot capture failed:", captureError);
+          image = null;
+        }
+
+        if (image) {
+          setSnapshot(image);
+          setIsBurning(true);
+          triggerHaptic("light");
+          setIsPreparing(false);
+        } else {
+          setUseSimpleAnimation(true);
+          setIsBurning(true);
+          triggerHaptic("light");
+          setIsPreparing(false);
+        }
+      } catch (e) {
+        console.error("Burn effect failed:", e);
+        burnEntry(entry.id);
+        setIsPreparing(false);
+      }
+    }, 50);
+  };
+
+  const handleBurnPress = () => {
     if (isPreparing) return;
+    triggerHaptic("light");
+    setShowBurnConfirm(true);
+  };
 
-    Alert.alert(
-      i18n.t("alerts.burn.title", { ns: "dashboard" }),
-      i18n.t("alerts.burn.message", { ns: "dashboard" }),
-      [
-        {
-          text: i18n.t("alerts.burn.cancel", { ns: "dashboard" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.burn.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: async () => {
-            setIsPreparing(true);
-            triggerHaptic("medium");
+  const handleBurnConfirm = () => {
+    setShowBurnConfirm(false);
+    void startBurnAnimation();
+  };
 
-            const isLowEnd = await isLowEndDevice();
-
-            if (isLowEnd) {
-              setUseSimpleAnimation(true);
-              setIsBurning(true);
-              setIsPreparing(false);
-              return;
-            }
-
-            setTimeout(async () => {
-              try {
-                let image: SkImage | null = null;
-                try {
-                  image = await makeImageFromView(viewRef);
-                } catch (captureError) {
-                  console.error("Screenshot capture failed:", captureError);
-                  image = null;
-                }
-
-                if (image) {
-                  setSnapshot(image);
-                  setIsBurning(true);
-                  setIsPreparing(false);
-                } else {
-                  setUseSimpleAnimation(true);
-                  setIsBurning(true);
-                  setIsPreparing(false);
-                }
-              } catch (e) {
-                console.error("Burn effect failed:", e);
-                burnEntry(entry.id);
-                setIsPreparing(false);
-              }
-            }, 50);
-          },
-        },
-      ],
-    );
+  const handleBurnCancel = () => {
+    setShowBurnConfirm(false);
   };
 
   // 彻底删除灰烬（只对已焚烧的卡片显示）
@@ -457,13 +503,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const formatEntryDate = (timestamp: number) =>
     formatLocaleDate(timestamp, effectiveLocale);
-
-  const handleBurnComplete = () => {
-    burnEntry(entry.id);
-    setIsBurning(false);
-    setSnapshot(null);
-    setUseSimpleAnimation(false);
-  };
 
   if (isBurning && useSimpleAnimation) {
     return (
@@ -512,10 +551,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsEditModalVisible(true);
   };
 
-  // 如果是灰烬状态，渲染灰烬卡片
-  if (isBurned) {
+  // 如果是灰烬状态，渲染灰烬卡片（焚烧完成 toast 期间仍走主卡片路径）
+  if (isBurned && !showBurnCompleteMessage) {
     return (
-      <View style={styles.wrapper}>
+      <View style={styles.wrapper} testID="mood-entry-card">
         <TouchableOpacity
           onPress={() => {
             ensureLayoutAnimationEnabled();
@@ -589,7 +628,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   return (
     <>
       <View
-        style={styles.wrapper}
+        style={[styles.wrapper, { position: "relative" }]}
         ref={viewRef}
         collapsable={false}
         testID="mood-entry-card"
@@ -690,7 +729,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           </TouchableOpacity>
 
           {/* Expanded Actions */}
-          {isExpanded && !isResolved && (
+          {isExpanded && !isResolved && !isBurned && !showBurnCompleteMessage && (
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -707,7 +746,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={handleResolve}
+                onPress={handleResolvePress}
+                testID="entry-resolve-button"
                 accessibilityRole="button"
                 accessibilityLabel={t("entryCard.resolveA11y")}
                 accessibilityHint={t("entryCard.resolveHint")}
@@ -720,8 +760,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
               <TouchableOpacity
                 style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
-                onPress={handleBurn}
+                onPress={handleBurnPress}
                 disabled={isPreparing}
+                testID="entry-burn-button"
                 accessibilityRole="button"
                 accessibilityLabel={t("entryCard.burnA11y")}
                 accessibilityHint={t("entryCard.burnHint")}
@@ -760,7 +801,47 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             </View>
           )}
         </Animated.View>
+
+        {showBurnCompleteMessage && (
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                padding: 12,
+                backgroundColor: "rgba(249,115,22,0.12)",
+                borderBottomLeftRadius: DESIGN_TOKENS.borderRadius.xl,
+                borderBottomRightRadius: DESIGN_TOKENS.borderRadius.xl,
+                opacity: burnMessageOpacity,
+              },
+            ]}
+            testID="burn-complete-message"
+          >
+            <Text style={{ fontSize: 14, color: COLORS.text.secondary, textAlign: "center" }}>
+              {tRituals("burn.complete.message")}
+            </Text>
+          </Animated.View>
+        )}
+
+        <ResolveCeremonyHost
+          visible={resolvePhase === "ceremony"}
+          onComplete={handleResolveCeremonyComplete}
+        />
       </View>
+
+      <ResolveConfirmOverlay
+        visible={resolvePhase === "confirm"}
+        onConfirm={handleResolveConfirm}
+        onCancel={handleResolveCancel}
+      />
+
+      <BurnConfirmOverlay
+        visible={showBurnConfirm}
+        onConfirm={handleBurnConfirm}
+        onCancel={handleBurnCancel}
+      />
 
       {/* 编辑模态框 */}
       <EditEntryModal

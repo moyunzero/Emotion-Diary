@@ -49,8 +49,80 @@
     }
   },
   "weatherAdvice": {
-    "sunny": "A good day to feel light",
-    "cloudy": "A good day to talk it through"
+    "sunny": "You can ease up today",
+    "cloudy": "Slow talks are okay too",
+    "rainy": "No need to explain everything at once",
+    "stormy": "Protect yourself first"
+  },
+  "weatherNarrative": {
+    "sunny": {
+      "calm": {
+        "low": "Clear skies — ease up for now",
+        "medium": "Sunny week — room to connect",
+        "high": "Still bright — one step at a time"
+      },
+      "mixed": {
+        "low": "Sun's out — ripples will pass",
+        "medium": "Bright day, some ripples — be gentle",
+        "high": "Sun with tension — name what's urgent"
+      },
+      "heavy": {
+        "low": "Sun outside, heaviness inside — okay",
+        "medium": "Fair skies, heavy heart — slow down",
+        "high": "Full day — breathe before you speak"
+      }
+    },
+    "cloudy": {
+      "calm": {
+        "low": "Soft clouds — things feel steady",
+        "medium": "Light clouds — easy talks fit",
+        "high": "Busy today — still mostly mild"
+      },
+      "mixed": {
+        "low": "Small shifts — light behind clouds",
+        "medium": "Unsaid words are okay — quiet time",
+        "high": "Clouds gathering — what matters most"
+      },
+      "heavy": {
+        "low": "Gray skies — don't judge yourself",
+        "medium": "Heavy mood — slower talks help",
+        "high": "Low clouds — care for yourself first"
+      }
+    },
+    "rainy": {
+      "calm": {
+        "low": "Rain outside — peace inside",
+        "medium": "Gentle rain — quiet talks suit",
+        "high": "Rain falling — gentle pace today"
+      },
+      "mixed": {
+        "low": "Light rain — feelings need time",
+        "medium": "Rain at the window — space to share",
+        "high": "Heavier rain — name what's stuck"
+      },
+      "heavy": {
+        "low": "Heavy rain — settle yourself first",
+        "medium": "Rain lingers — reach out this week",
+        "high": "Dense rain — you first, then talk"
+      }
+    },
+    "stormy": {
+      "calm": {
+        "low": "Storm nearby — steady your breath",
+        "medium": "Winds up — guard your boundaries",
+        "high": "Distant thunder — keep your pace"
+      },
+      "mixed": {
+        "low": "Storm brewing — feelings stir too",
+        "medium": "Wind and rain — rest this week",
+        "high": "Rough weather — safety first today"
+      },
+      "heavy": {
+        "low": "Thunder — under your own roof",
+        "medium": "Storm lingers — don't carry alone",
+        "high": "Storm still loud — pause and breathe"
+      }
+    }
   },
   "entryCard": {
     "edit": "Edit",

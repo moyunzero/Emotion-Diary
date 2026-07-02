@@ -38,6 +38,24 @@
     },
     "encouragement": "面对情绪，就是在浇灌自己"
   },
+  "milestone": {
+    "sprout": {
+      "title": "新芽破土啦",
+      "body": "和解让花园更有生机"
+    },
+    "seedling": {
+      "title": "幼苗在长高",
+      "body": "你在学着照料自己的情绪"
+    },
+    "bud": {
+      "title": "花苞出现了",
+      "body": "关系天气在慢慢放晴"
+    },
+    "bloom": {
+      "title": "花园开花了",
+      "body": "大部分情绪已和解，真棒"
+    }
+  },
   "relationship": {
     "title": "关系花园",
     "subtitle": "需要你的关注",
@@ -143,9 +161,9 @@
       "5": "需浇水"
     },
     "potStatus": {
-      "blooming": "盛开",
-      "growing": "生长中",
-      "needWater": "需浇水"
+      "blooming": "盛开中",
+      "growing": "正在生长",
+      "needWater": "需要浇水"
     },
     "growthStage": {
       "seed": "种子",

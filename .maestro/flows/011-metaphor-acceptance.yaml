@@ -69,3 +69,79 @@ appId: com.moyunzero.emotiondiary
       id: garden-ambience
     timeout: 15000
 - takeScreenshot: acceptance/011-metaphor/05-insights-garden-ambience
+# 焚烧仪式验收（CodeRabbit CR：burn-complete toast + RitualConfirmOverlay）
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 30000
+- tapOn:
+    id: mood-content-input
+- inputText: "Maestro 011 焚烧仪式验收"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 15000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- tapOn:
+    id: dashboard-filter-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-filter-active
+    timeout: 5000
+- tapOn:
+    id: dashboard-filter-active
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 15000
+- tapOn:
+    id: mood-entry-card
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: entry-burn-button
+    timeout: 10000
+- tapOn:
+    id: entry-burn-button
+- extendedWaitUntil:
+    visible:
+      id: burn-confirm-root
+    timeout: 8000
+- takeScreenshot: acceptance/011-metaphor/06-burn-confirm-overlay
+- tapOn:
+    id: burn-confirm-confirm
+- extendedWaitUntil:
+    visible:
+      id: burn-complete-message
+    timeout: 20000
+- takeScreenshot: acceptance/011-metaphor/07-burn-complete-message
+- extendedWaitUntil:
+    notVisible:
+      id: burn-complete-message
+    timeout: 10000
+- tapOn:
+    id: dashboard-filter-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-filter-burned
+    timeout: 5000
+- tapOn:
+    id: dashboard-filter-burned
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 15000
+- takeScreenshot: acceptance/011-metaphor/08-burned-filter-list

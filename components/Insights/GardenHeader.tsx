@@ -49,7 +49,7 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="garden-ambience">
       <View style={styles.titleRow}>
         <Flower2 size={28} color={INSIGHTS_COLORS.accent} />
         <Text style={styles.title}>{t('header.title')}</Text>

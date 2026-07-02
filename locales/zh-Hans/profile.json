@@ -9,7 +9,7 @@
   },
   "sections": {
     "dataSecurity": "数据与安全",
-    "retention": "留存与提醒",
+    "retention": "提醒",
     "account": "其他"
   },
   "recycleBin": {

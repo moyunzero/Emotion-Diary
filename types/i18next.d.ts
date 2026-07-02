@@ -12,6 +12,7 @@ import type zhRecord from "../locales/zh-Hans/record.json";
 import type zhRecycle from "../locales/zh-Hans/recycle.json";
 import type zhRetention from "../locales/zh-Hans/retention.json";
 import type zhReview from "../locales/zh-Hans/review.json";
+import type zhRituals from "../locales/zh-Hans/rituals.json";
 import type zhSync from "../locales/zh-Hans/sync.json";
 import type zhTabs from "../locales/zh-Hans/tabs.json";
 
@@ -32,6 +33,7 @@ declare module "i18next" {
       record: typeof zhRecord;
       dashboard: typeof zhDashboard;
       insights: typeof zhInsights;
+      rituals: typeof zhRituals;
       system: typeof zhSystem;
       ai: typeof zhAi;
     };

@@ -4,10 +4,11 @@ import {
   getDashboardEntryItemType,
   type DashboardFilterType,
 } from "@/shared/entries/dashboardFilter";
+import { computeWeatherNarrative } from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Filter, PenLine } from "lucide-react-native";
+import { Filter, CloudSun, Flame, Leaf, Sprout } from "lucide-react-native";
 import React, {
   useCallback,
   useEffect,
@@ -33,6 +34,16 @@ import WeatherStation from "./WeatherStation";
 
 // Type alias for dashboard filter (shared with dashboardFilter.ts)
 type DashboardFilter = DashboardFilterType;
+
+const EMPTY_FILTER_ICONS: Record<
+  DashboardFilter,
+  React.ComponentType<{ size?: number; color?: string }>
+> = {
+  active: Sprout,
+  resolved: Leaf,
+  burned: Flame,
+  all: CloudSun,
+};
 
 const FILTER_OPTIONS: DashboardFilter[] = [
   "active",
@@ -174,15 +185,19 @@ const Dashboard: React.FC = () => {
   );
 
   const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
-  const weatherAdvice = useMemo(
-    () =>
-      t(
-        weather.condition === "sunny"
-          ? "weatherAdvice.sunny"
-          : "weatherAdvice.cloudy",
-      ),
-    [t, weather.condition],
-  );
+  const weatherAdvice = useMemo((): string => {
+    const { adviceKey } = computeWeatherNarrative(entries, weather.condition);
+    const translated = String(t(adviceKey as never));
+    if (translated !== adviceKey) {
+      return translated;
+    }
+    const fallbackKey =
+      `weatherStation.descriptions.${weather.condition}` as const;
+    const fallback = t(fallbackKey);
+    return fallback === fallbackKey
+      ? t("weatherStation.descriptions.sunny")
+      : fallback;
+  }, [entries, weather.condition, t]);
   const emptyStateContent = useMemo(
     () => ({
       title: t(`empty.${filter}.title`),
@@ -194,6 +209,7 @@ const Dashboard: React.FC = () => {
     }),
     [t, filter],
   );
+  const EmptyFilterIcon = EMPTY_FILTER_ICONS[filter];
 
   // 焚烧处理函数已在 EntryCard 内部处理，这里无需操作
   const handleBurn = useCallback((_id: string) => {
@@ -289,8 +305,11 @@ const Dashboard: React.FC = () => {
         }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <View style={styles.emptyIconContainer}>
-              <PenLine size={48} color={COLORS.primaryLight} />
+            <View
+              style={styles.emptyIconContainer}
+              testID={`dashboard-empty-icon-${filter}`}
+            >
+              <EmptyFilterIcon size={48} color={COLORS.primaryLight} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
               {emptyStateContent.title}
