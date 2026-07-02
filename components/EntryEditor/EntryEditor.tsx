@@ -38,6 +38,7 @@ import {
   type DraftEntry,
 } from "../../utils/draftManager";
 import { forceCancelRecording } from "../../shared/audio/recordingCoordinator";
+import { excludeSoftDeletedEntries } from "../../shared/entries/visibility";
 import { logger } from "../../utils/logger";
 import {
   normalizeCustomDeadline,
@@ -69,6 +70,7 @@ export type EntryEditorProps = EntryEditorCreateProps | EntryEditorEditProps;
 
 export function EntryEditor(props: EntryEditorProps) {
   const { t } = useTranslation("record");
+  const { t: tOnboarding } = useTranslation("onboarding");
   const isCreate = props.mode === "create";
   const editSyncKey =
     props.mode === "edit"
@@ -89,6 +91,10 @@ export function EntryEditor(props: EntryEditorProps) {
 
   const addEntry = useAppStore((state) => state.addEntry);
   const updateEntry = useAppStore((state) => state.updateEntry);
+  const visibleCount = useAppStore((state) =>
+    excludeSoftDeletedEntries(state.entries).length,
+  );
+  const showFirstEntryHint = isCreate && visibleCount === 0;
   const { trigger: triggerHaptic } = useHapticFeedback();
   const scrollViewRef = useRef<ScrollView>(null);
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -373,6 +379,12 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
         compactMode={isCreate}
+        showFirstEntryHint={showFirstEntryHint}
+        contentPlaceholder={
+          showFirstEntryHint
+            ? tOnboarding("firstEntry.placeholder")
+            : undefined
+        }
         getPeopleLabel={resolvePeopleLabel}
         getTriggerLabel={resolveTriggerLabel}
         peopleSectionTitle={t("sections.people.title")}

@@ -16,6 +16,12 @@ export function createMoodFormStyles(width: number, height: number) {
       textTransform: 'uppercase',
       letterSpacing: 1,
     },
+    firstEntryHint: {
+      fontSize: m.fontSize.body,
+      color: COLORS.text.secondary,
+      lineHeight: 22,
+      marginBottom: DESIGN_TOKENS.spacing.md,
+    },
     moodContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -124,7 +130,7 @@ export function createMoodFormStyles(width: number, height: number) {
       marginBottom: DESIGN_TOKENS.spacing.xl,
     },
     moodTipCloseButton: {
-      backgroundColor: COLORS.submit,
+      backgroundColor: COLORS.primaryDark,
       paddingHorizontal: DESIGN_TOKENS.spacing.xxl,
       paddingVertical: 10,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,
@@ -141,7 +147,7 @@ export function createMoodFormStyles(width: number, height: number) {
     },
     advancedToggleText: {
       fontSize: m.fontSize.small,
-      color: COLORS.submit,
+      color: COLORS.primaryDark,
       fontWeight: '600',
     },
   });

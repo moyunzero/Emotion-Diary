@@ -58,6 +58,10 @@ interface MoodFormProps {
   onSubmit: () => void;
   /** 创建流默认折叠人物/触发器/期限，降低记录门槛（A4） */
   compactMode?: boolean;
+  /** 零条目时显示内联首次记录提示（D-14） */
+  showFirstEntryHint?: boolean;
+  /** 覆盖正文 placeholder（如首次记录暖色文案） */
+  contentPlaceholder?: string;
   getPeopleLabel?: (item: string) => string;
   getTriggerLabel?: (item: string) => string;
   peopleSectionTitle?: string;
@@ -92,6 +96,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   onDeleteCustomTrigger,
   onSubmit,
   compactMode = false,
+  showFirstEntryHint = false,
+  contentPlaceholder,
   getPeopleLabel = (item) => item,
   getTriggerLabel = (item) => item,
   peopleSectionTitle,
@@ -109,6 +115,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   const { t: tRetention } = useTranslation("retention");
   const { t: tRecord } = useTranslation("record");
   const { t: tCommon } = useTranslation("common");
+  const { t: tOnboarding } = useTranslation("onboarding");
 
   // 情绪等级提示 Modal
   const [moodTipVisible, setMoodTipVisible] = useState(false);
@@ -234,11 +241,18 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
         <Text style={styles.sectionTitle}>
           {tRecord("sections.content.title")}
         </Text>
+        {showFirstEntryHint ? (
+          <Text style={styles.firstEntryHint} testID="record-first-entry-hint">
+            {tOnboarding("firstEntry.hint")}
+          </Text>
+        ) : null}
         <TextInput
           testID="mood-content-input"
           value={content}
           onChangeText={onContentChange}
-          placeholder={tRecord("sections.content.placeholder")}
+          placeholder={
+            contentPlaceholder ?? tRecord("sections.content.placeholder")
+          }
           multiline
           numberOfLines={4}
           style={styles.contentInput}
@@ -499,6 +513,8 @@ const MoodFormComparison = (
       prevProps.onDeleteCustomTrigger !== nextProps.onDeleteCustomTrigger ||
       prevProps.onSubmit !== nextProps.onSubmit ||
       prevProps.compactMode !== nextProps.compactMode ||
+      prevProps.showFirstEntryHint !== nextProps.showFirstEntryHint ||
+      prevProps.contentPlaceholder !== nextProps.contentPlaceholder ||
       prevProps.peopleSectionTitle !== nextProps.peopleSectionTitle ||
       prevProps.triggersSectionTitle !== nextProps.triggersSectionTitle ||
       prevProps.getPeopleLabel !== nextProps.getPeopleLabel ||
