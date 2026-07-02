@@ -5,6 +5,7 @@ import type zhCommon from "../locales/zh-Hans/common.json";
 import type zhDashboard from "../locales/zh-Hans/dashboard.json";
 import type zhInsights from "../locales/zh-Hans/insights.json";
 import type zhMood from "../locales/zh-Hans/mood.json";
+import type zhOnboarding from "../locales/zh-Hans/onboarding.json";
 import type zhSystem from "../locales/zh-Hans/system.json";
 import type zhProfile from "../locales/zh-Hans/profile.json";
 import type zhRecord from "../locales/zh-Hans/record.json";
@@ -27,6 +28,7 @@ declare module "i18next" {
       tabs: typeof zhTabs;
       review: typeof zhReview;
       mood: typeof zhMood;
+      onboarding: typeof zhOnboarding;
       record: typeof zhRecord;
       dashboard: typeof zhDashboard;
       insights: typeof zhInsights;
