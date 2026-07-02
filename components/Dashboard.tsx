@@ -4,6 +4,7 @@ import {
   getDashboardEntryItemType,
   type DashboardFilterType,
 } from "@/shared/entries/dashboardFilter";
+import { computeWeatherNarrative } from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -174,15 +175,10 @@ const Dashboard: React.FC = () => {
   );
 
   const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
-  const weatherAdvice = useMemo(
-    () =>
-      t(
-        weather.condition === "sunny"
-          ? "weatherAdvice.sunny"
-          : "weatherAdvice.cloudy",
-      ),
-    [t, weather.condition],
-  );
+  const weatherAdvice = useMemo((): string => {
+    const { adviceKey } = computeWeatherNarrative(entries, weather.condition);
+    return String(t(adviceKey as never));
+  }, [entries, weather.condition, t]);
   const emptyStateContent = useMemo(
     () => ({
       title: t(`empty.${filter}.title`),
