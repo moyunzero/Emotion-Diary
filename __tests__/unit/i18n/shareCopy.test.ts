@@ -28,4 +28,27 @@ describe("share copy via i18n", () => {
     await i18n.changeLanguage("en-US");
     expect(i18n.t("watermark.brand", { ns: "share" })).toMatch(/MoodMO/i);
   });
+
+  it("watermark.brand zh and en are non-empty and distinct", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    const zh = i18n.t("watermark.brand", { ns: "share" });
+    await i18n.changeLanguage("en-US");
+    const en = i18n.t("watermark.brand", { ns: "share" });
+    expect(zh.length).toBeGreaterThan(0);
+    expect(en.length).toBeGreaterThan(0);
+    expect(zh).not.toBe(en);
+  });
+
+  it("cta.generate exists in zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("cta.generate", { ns: "share" })).toMatch(/分享卡/);
+  });
+
+  it("cta.generate exists in en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("cta.generate", { ns: "share" })).toMatch(/share card/i);
+  });
 });
