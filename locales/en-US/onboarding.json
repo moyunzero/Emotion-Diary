@@ -1,0 +1,25 @@
+{
+  "slides": {
+    "weather": {
+      "title": "Weather in your relationships",
+      "body": "The Weather Station helps you feel the temperature of your connections—written just for you, no explanations needed."
+    },
+    "record": {
+      "title": "Just jot it down",
+      "body": "Text or voice works. Write what comes to mind—no need to be perfect or say it all at once."
+    },
+    "garden": {
+      "title": "Your inner garden grows",
+      "body": "Every entry adds a little green. Here you'll see your gentle growth over time."
+    }
+  },
+  "actions": {
+    "next": "Next",
+    "start": "Start journaling",
+    "skip": "Skip"
+  },
+  "firstEntry": {
+    "hint": "First time? Jot down how you feel right now—only you can see this.",
+    "placeholder": "How's the weather in your relationships today? Write what's on your mind…"
+  }
+}

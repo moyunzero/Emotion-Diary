@@ -1,4 +1,7 @@
 {
+  "onboarding": {
+    "replayIntro": "重新观看介绍"
+  },
   "language": {
     "sectionTitle": "语言",
     "options": {

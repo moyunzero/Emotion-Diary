@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import * as Localization from "expo-localization";
 
 import enAi from "../locales/en-US/ai.json";
+import enOnboarding from "../locales/en-US/onboarding.json";
 import enAuth from "../locales/en-US/auth.json";
 import enCommon from "../locales/en-US/common.json";
 import enDashboard from "../locales/en-US/dashboard.json";
@@ -17,6 +18,7 @@ import enReview from "../locales/en-US/review.json";
 import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
 import zhAi from "../locales/zh-Hans/ai.json";
+import zhOnboarding from "../locales/zh-Hans/onboarding.json";
 import zhAuth from "../locales/zh-Hans/auth.json";
 import zhCommon from "../locales/zh-Hans/common.json";
 import zhDashboard from "../locales/zh-Hans/dashboard.json";
@@ -75,6 +77,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           insights: zhInsights,
           system: zhSystem,
           ai: zhAi,
+          onboarding: zhOnboarding,
         },
         "en-US": {
           common: enCommon,
@@ -91,6 +94,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           insights: enInsights,
           system: enSystem,
           ai: enAi,
+          onboarding: enOnboarding,
         },
       },
       lng: effectiveLocale,
@@ -112,6 +116,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "insights",
         "system",
         "ai",
+        "onboarding",
       ],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
