@@ -18,6 +18,7 @@ import {
     Play,
     Trash2,
 } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import React, {
     useCallback,
     useEffect,
@@ -32,6 +33,8 @@ import {
     Animated,
     LayoutAnimation,
     Platform,
+    Pressable,
+    StyleSheet,
     Text,
     TouchableOpacity,
     UIManager,
@@ -137,10 +140,12 @@ const makeImageFromView = async (
  * Uses React.memo with a custom comparison function for performance optimization.
  */
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
+  const router = useRouter();
   const { t } = useTranslation("dashboard");
   const { t: tSystem } = useTranslation("system");
   const { t: tRecord } = useTranslation("record");
   const { t: tRituals } = useTranslation("rituals");
+  const { t: tShare } = useTranslation("share");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -189,6 +194,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [isPreparing, setIsPreparing] = useState(false);
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
+  const [showResolveShareCta, setShowResolveShareCta] = useState(false);
   const [showBurnConfirm, setShowBurnConfirm] = useState(false);
   const [showBurnCompleteMessage, setShowBurnCompleteMessage] = useState(false);
   const burnMessageOpacity = useRef(new Animated.Value(0)).current;
@@ -350,10 +356,27 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setResolvePhase("idle");
   };
 
-  const handleResolveCeremonyComplete = () => {
+  const finalizeResolve = useCallback(() => {
     resolveEntry(entry.id);
     setResolvePhase("idle");
+    setShowResolveShareCta(false);
     setIsExpanded(false);
+  }, [entry.id, resolveEntry]);
+
+  const handleResolveCeremonyComplete = () => {
+    setShowResolveShareCta(true);
+  };
+
+  const handleResolveSharePress = () => {
+    router.push({
+      pathname: "/share-card-preview",
+      params: { variant: "resolve" },
+    });
+    finalizeResolve();
+  };
+
+  const handleResolveShareSkip = () => {
+    finalizeResolve();
   };
 
   const handleBurnComplete = () => {
@@ -822,8 +845,44 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             <Text style={{ fontSize: 14, color: COLORS.text.secondary, textAlign: "center" }}>
               {tRituals("burn.complete.message")}
             </Text>
+            <Pressable
+              testID="share-card-cta-burn"
+              onPress={() => {
+                router.push({
+                  pathname: "/share-card-preview",
+                  params: { variant: "burn" },
+                });
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={tShare("cta.generate")}
+              style={shareCtaStyles.shareCtaButton}
+            >
+              <Text style={shareCtaStyles.shareCtaText}>{tShare("cta.generate")}</Text>
+            </Pressable>
           </Animated.View>
         )}
+
+        {showResolveShareCta && resolvePhase === "ceremony" ? (
+          <View style={shareCtaStyles.resolveShareCtaRow} testID="resolve-share-cta-row">
+            <Pressable
+              testID="share-card-cta-resolve"
+              onPress={handleResolveSharePress}
+              accessibilityRole="button"
+              accessibilityLabel={tShare("cta.generate")}
+              style={shareCtaStyles.shareCtaButton}
+            >
+              <Text style={shareCtaStyles.shareCtaText}>{tShare("cta.generate")}</Text>
+            </Pressable>
+            <Pressable
+              onPress={handleResolveShareSkip}
+              accessibilityRole="button"
+              accessibilityLabel={tShare("optIn.off")}
+              style={shareCtaStyles.shareCtaSkipButton}
+            >
+              <Text style={shareCtaStyles.shareCtaSkipText}>{tShare("optIn.off")}</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         <ResolveCeremonyHost
           visible={resolvePhase === "ceremony"}
@@ -926,5 +985,48 @@ export const areEntryCardPropsEqual = (
 const EntryCard = React.memo(EntryCardComponent, areEntryCardPropsEqual);
 
 EntryCard.displayName = "EntryCard";
+
+const shareCtaStyles = StyleSheet.create({
+  resolveShareCtaRow: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 24,
+    alignItems: "center",
+    gap: 8,
+    zIndex: 101,
+    paddingHorizontal: 16,
+  },
+  shareCtaButton: {
+    minWidth: 44,
+    minHeight: 44,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.medium,
+    borderWidth: 1,
+    borderColor: COLORS.primaryLight,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shareCtaText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.primaryDark,
+  },
+  shareCtaSkipButton: {
+    minWidth: 44,
+    minHeight: 44,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shareCtaSkipText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: COLORS.text.secondary,
+  },
+});
 
 export default EntryCard;
