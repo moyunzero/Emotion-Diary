@@ -8,6 +8,7 @@
     "continue": "Continue"
   },
   "canvas": {
+    "periodTitle": "{{period}} relationship weather",
     "week": {
       "title": "This week in your weather"
     },
@@ -21,6 +22,9 @@
     },
     "weatherLabel": "Relationship weather",
     "gardenLabel": "Inner garden",
+    "closingLabel": "Closing note",
+    "closingLabelPeriod": "{{period}} closing note",
+    "weatherEmptyPeriod": "Your relationship sky is still gathering this period—be gentle with yourself",
     "aiLoading": "Writing your closing line…",
     "weatherFallback": "This week's weather deserves a gentle memory"
   },

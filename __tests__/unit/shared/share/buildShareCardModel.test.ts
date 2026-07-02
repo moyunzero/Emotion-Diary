@@ -11,8 +11,6 @@ import { Deadline, MoodEntry, MoodLevel, Status } from "@/types";
 import type { ReviewExportDerivedState } from "@/utils/reviewExportDerived";
 import { computeReviewExportDerivedState } from "@/utils/reviewExportDerived";
 import {
-  buildBurnShareCardModel,
-  buildResolveShareCardModel,
   buildWeekShareCardModel,
   type ShareCardModel,
 } from "@/shared/share/buildShareCardModel";
@@ -72,43 +70,74 @@ describe("buildShareCardModel", () => {
         derived,
         closingLine: "本周温柔收尾",
         effectiveLocale: "zh-Hans",
+        periodEntries: entries,
       });
       assertNoPii(model);
       expect(model.variant).toBe("week");
       expect(model.closingOrRitualLine).toBe("本周温柔收尾");
     });
-  });
 
-  describe("buildResolveShareCardModel", () => {
-    it("uses weather condition and global resolve rate only", () => {
-      const entries = [
-        makeEntry({ status: Status.RESOLVED }),
-        makeEntry({ id: "e2", status: Status.ACTIVE }),
-      ];
-      const model = buildResolveShareCardModel({
-        entries,
-        weatherCondition: "cloudy",
+    it("shows empty-period weather copy when no stats in range", () => {
+      const derived = computeReviewExportDerivedState(
+        [],
+        null,
+        "last_week",
+        NOW,
+        "zh-Hans",
+      );
+      const model = buildWeekShareCardModel({
+        derived,
+        closingLine: "line",
         effectiveLocale: "zh-Hans",
-        footerDateMs: Date.now(),
+        periodEntries: [],
       });
-      assertNoPii(model);
-      expect(model.variant).toBe("resolve");
-      expect(model.weatherBucket).toBe("cloudy");
-      expect(model.ritualAccent).toBe("resolve");
-      expect(model.weatherNarrativeLine.length).toBeGreaterThan(0);
+      expect(model.weatherNarrativeLine).toMatch(/积累|耐心/);
     });
-  });
 
-  describe("buildBurnShareCardModel", () => {
-    it("has variant burn and ritualAccent burn with no entry fields", () => {
-      const model = buildBurnShareCardModel({
-        effectiveLocale: "en-US",
-        footerDateMs: Date.now(),
+    it("derives weather narrative from period entries not empty stub", () => {
+      const calmEntries = [
+        makeEntry({
+          moodLevel: MoodLevel.ANNOYED,
+          timestamp: new Date("2025-03-10T12:00:00.000Z").getTime(),
+        }),
+      ];
+      const heavyEntries = [
+        makeEntry({
+          moodLevel: MoodLevel.FURIOUS,
+          timestamp: new Date("2025-03-10T12:00:00.000Z").getTime(),
+        }),
+      ];
+      const calmDerived = computeReviewExportDerivedState(
+        calmEntries,
+        null,
+        "this_month",
+        NOW,
+        "zh-Hans",
+      );
+      const heavyDerived = computeReviewExportDerivedState(
+        heavyEntries,
+        null,
+        "this_month",
+        NOW,
+        "zh-Hans",
+      );
+      const calmModel = buildWeekShareCardModel({
+        derived: calmDerived,
+        closingLine: "a",
+        effectiveLocale: "zh-Hans",
+        periodEntries: calmEntries,
       });
-      assertNoPii(model);
-      expect(model.variant).toBe("burn");
-      expect(model.ritualAccent).toBe("burn");
-      expect(model.closingOrRitualLine.length).toBeGreaterThan(0);
+      const heavyModel = buildWeekShareCardModel({
+        derived: heavyDerived,
+        closingLine: "b",
+        effectiveLocale: "zh-Hans",
+        periodEntries: heavyEntries,
+      });
+      expect(calmModel.weatherBucket).toBe("sunny");
+      expect(heavyModel.weatherBucket).toBe("stormy");
+      expect(calmModel.weatherNarrativeLine).not.toBe(
+        heavyModel.weatherNarrativeLine,
+      );
     });
   });
 
@@ -125,6 +154,7 @@ describe("buildShareCardModel", () => {
         derived,
         closingLine: "line",
         effectiveLocale: "zh-Hans",
+        periodEntries: [],
       });
       expect(without.userSnippet).toBeUndefined();
 
@@ -133,6 +163,7 @@ describe("buildShareCardModel", () => {
         derived,
         closingLine: "line",
         effectiveLocale: "zh-Hans",
+        periodEntries: [],
         userSnippet: `  ${long}  `,
       });
       expect(withSnippet.userSnippet).toHaveLength(80);

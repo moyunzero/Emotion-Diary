@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import * as MediaLibrary from "expo-media-library";
-import { Linking, Platform } from "react-native";
+import { Alert, Linking, Platform } from "react-native";
 
 export type SaveShareCardCopy = {
   permissionTitle: string;
@@ -38,7 +38,6 @@ export async function saveShareCardImage(
 
   const perm = await MediaLibrary.requestPermissionsAsync();
   if (!perm.granted) {
-    const { Alert } = await import("react-native");
     Alert.alert(copy.permissionTitle, copy.permissionMessage, [
       { text: copy.cancelLabel, style: "cancel" },
       {
@@ -58,6 +57,5 @@ export async function saveShareCardImage(
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
 
-  const { Alert } = await import("react-native");
   Alert.alert(copy.successTitle, copy.successMessage);
 }

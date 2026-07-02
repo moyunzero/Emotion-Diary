@@ -1,18 +1,13 @@
-import type { TFunction } from "i18next";
 import type { AppLocale } from "../../i18n/mapDeviceLocale";
-import { i18n } from "../../i18n";
-import { excludeSoftDeletedEntries } from "../entries/visibility";
 import { formatLocaleDate } from "../formatting";
 import type { WeatherCondition } from "../weather/weatherNarrative";
-import { computeWeatherNarrative } from "../weather/weatherNarrative";
+import type { MoodEntry } from "../../types";
 import type { ReviewExportDerivedState } from "../../utils/reviewExportDerived";
 import type { ExportWeatherBucket } from "../../utils/reviewStatsWeather";
-import { MoodEntry, Status } from "../../types";
 
 export type GrowthStageId = "seed" | "sprout" | "seedling" | "bud" | "bloom";
 
-export type ShareCardVariant = "week" | "resolve" | "burn";
-export type RitualAccent = "resolve" | "burn";
+export type ShareCardVariant = "week";
 
 export type ShareCardModel = {
   variant: ShareCardVariant;
@@ -23,27 +18,14 @@ export type ShareCardModel = {
   gardenStageLabel: string;
   userSnippet?: string;
   footerDate: string;
-  ritualAccent?: RitualAccent;
 };
 
 export type BuildWeekShareCardModelInputs = {
   derived: ReviewExportDerivedState;
   closingLine: string;
   effectiveLocale: AppLocale;
-  userSnippet?: string;
-};
-
-export type BuildResolveShareCardModelInputs = {
-  entries: readonly MoodEntry[];
-  weatherCondition: WeatherCondition;
-  effectiveLocale: AppLocale;
-  footerDateMs: number;
-  userSnippet?: string;
-};
-
-export type BuildBurnShareCardModelInputs = {
-  effectiveLocale: AppLocale;
-  footerDateMs: number;
+  /** 当前 preset 时间窗内的条目，用于关系天气叙事（moodMix / deadlinePressure） */
+  periodEntries: MoodEntry[];
   userSnippet?: string;
 };
 
@@ -58,33 +40,14 @@ function normalizeUserSnippet(raw?: string): string | undefined {
   return trimmed.slice(0, 80);
 }
 
-function insightsT(locale: AppLocale): TFunction<"insights"> {
+function insightsT(locale: AppLocale) {
+  const { i18n } = require("../../i18n") as typeof import("../../i18n");
   return i18n.getFixedT(locale, "insights");
 }
 
-function shareT(locale: AppLocale): TFunction<"share"> {
-  return i18n.getFixedT(locale, "share");
-}
-
-function dashboardT(locale: AppLocale): TFunction<"dashboard"> {
+function dashboardT(locale: AppLocale) {
+  const { i18n } = require("../../i18n") as typeof import("../../i18n");
   return i18n.getFixedT(locale, "dashboard");
-}
-
-function computeResolveRate(entries: readonly MoodEntry[]): number {
-  const visible = excludeSoftDeletedEntries([...entries]);
-  if (visible.length === 0) {
-    return 0;
-  }
-  const resolved = visible.filter((e) => e.status === Status.RESOLVED).length;
-  return resolved / visible.length;
-}
-
-function getGrowthStageId(rate: number): GrowthStageId {
-  if (rate >= 0.8) return "bloom";
-  if (rate >= 0.6) return "bud";
-  if (rate >= 0.4) return "seedling";
-  if (rate >= 0.2) return "sprout";
-  return "seed";
 }
 
 function resolveGrowthStage(
@@ -92,16 +55,36 @@ function resolveGrowthStage(
   locale: AppLocale,
 ): { stage: GrowthStageId; label: string } {
   const t = insightsT(locale);
-  const stage = getGrowthStageId(rate ?? 0);
+  const stage: GrowthStageId =
+    (rate ?? 0) >= 0.8
+      ? "bloom"
+      : (rate ?? 0) >= 0.6
+        ? "bud"
+        : (rate ?? 0) >= 0.4
+          ? "seedling"
+          : (rate ?? 0) >= 0.2
+            ? "sprout"
+            : "seed";
   return { stage, label: t(`utils.growthStage.${stage}`) };
 }
 
+function shareT(locale: AppLocale) {
+  const { i18n } = require("../../i18n") as typeof import("../../i18n");
+  return i18n.getFixedT(locale, "share");
+}
+
 function resolveWeatherNarrativeLine(
-  entries: readonly MoodEntry[],
-  condition: WeatherCondition,
+  bucket: ExportWeatherBucket,
+  periodEntries: MoodEntry[],
   locale: AppLocale,
+  hasWeatherStats: boolean,
 ): string {
-  const narrative = computeWeatherNarrative(entries, condition);
+  if (!hasWeatherStats) {
+    return String(shareT(locale)("canvas.weatherEmptyPeriod"));
+  }
+  const { computeWeatherNarrative } =
+    require("../weather/weatherNarrative") as typeof import("../weather/weatherNarrative");
+  const narrative = computeWeatherNarrative(periodEntries, bucket);
   const t = dashboardT(locale);
   return String(t(narrative.narrativeKey as never));
 }
@@ -109,17 +92,20 @@ function resolveWeatherNarrativeLine(
 export function buildWeekShareCardModel(
   inputs: BuildWeekShareCardModelInputs,
 ): ShareCardModel {
-  const { derived, closingLine, effectiveLocale } = inputs;
+  const { derived, closingLine, effectiveLocale, periodEntries } = inputs;
+  const topWeather = derived.topWeather;
+  const hasWeatherStats = topWeather.length > 0;
   const dominantBucket =
-    derived.topWeather[0]?.bucket ?? ("sunny" as ExportWeatherBucket);
+    topWeather[0]?.bucket ?? ("sunny" as ExportWeatherBucket);
   const { stage, label } = resolveGrowthStage(
     derived.compare.current.resolutionRate,
     effectiveLocale,
   );
   const narrativeLine = resolveWeatherNarrativeLine(
-    [],
     dominantBucket,
+    periodEntries,
     effectiveLocale,
+    hasWeatherStats,
   );
 
   return {
@@ -130,50 +116,6 @@ export function buildWeekShareCardModel(
     weatherNarrativeLine: narrativeLine,
     gardenStageLabel: label,
     footerDate: formatLocaleDate(derived.current.endMs, effectiveLocale),
-    userSnippet: normalizeUserSnippet(inputs.userSnippet),
-  };
-}
-
-export function buildResolveShareCardModel(
-  inputs: BuildResolveShareCardModelInputs,
-): ShareCardModel {
-  const { entries, weatherCondition, effectiveLocale, footerDateMs } = inputs;
-  const rate = computeResolveRate(entries);
-  const { stage, label } = resolveGrowthStage(rate, effectiveLocale);
-  const tShare = shareT(effectiveLocale);
-
-  return {
-    variant: "resolve",
-    weatherBucket: weatherCondition,
-    growthStage: stage,
-    closingOrRitualLine: tShare("canvas.resolve.moment"),
-    weatherNarrativeLine: resolveWeatherNarrativeLine(
-      entries,
-      weatherCondition,
-      effectiveLocale,
-    ),
-    gardenStageLabel: label,
-    footerDate: formatLocaleDate(footerDateMs, effectiveLocale),
-    ritualAccent: "resolve",
-    userSnippet: normalizeUserSnippet(inputs.userSnippet),
-  };
-}
-
-export function buildBurnShareCardModel(
-  inputs: BuildBurnShareCardModelInputs,
-): ShareCardModel {
-  const tShare = shareT(inputs.effectiveLocale);
-  const { stage, label } = resolveGrowthStage(0, inputs.effectiveLocale);
-
-  return {
-    variant: "burn",
-    weatherBucket: "sunny",
-    growthStage: stage,
-    closingOrRitualLine: tShare("canvas.burn.moment"),
-    weatherNarrativeLine: tShare("canvas.burn.moment"),
-    gardenStageLabel: label,
-    footerDate: formatLocaleDate(inputs.footerDateMs, inputs.effectiveLocale),
-    ritualAccent: "burn",
     userSnippet: normalizeUserSnippet(inputs.userSnippet),
   };
 }

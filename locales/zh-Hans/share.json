@@ -8,6 +8,7 @@
     "continue": "继续"
   },
   "canvas": {
+    "periodTitle": "{{period}}的关系天气",
     "week": {
       "title": "这一周的关系天气"
     },
@@ -21,6 +22,9 @@
     },
     "weatherLabel": "关系天气",
     "gardenLabel": "心灵花园",
+    "closingLabel": "本周结语",
+    "closingLabelPeriod": "{{period}}结语",
+    "weatherEmptyPeriod": "本期关系天空还在慢慢积累，先给自己一点耐心",
     "aiLoading": "正在生成结语…",
     "weatherFallback": "本周的关系天气，值得被温柔记住"
   },

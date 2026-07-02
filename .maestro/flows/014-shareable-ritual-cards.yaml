@@ -1,146 +1,9 @@
 appId: com.moyunzero.emotiondiary
 ---
-# 014 可分享仪式卡片 Maestro 验收（testID-only，无 locale 文案断言）
-# 前置：dev build 已安装（yarn ios / yarn android）；yarn test:maestro:preflight
+# 014 周回顾分享卡 Maestro 验收（含保存路径）
+# 截图：.maestro/acceptance/014-shareable-ritual-cards/*.png
 # 运行：yarn test:maestro:preflight && yarn start & yarn test:maestro:014
-# 说明：相册保存可能弹出系统权限 — 本 flow 最低门禁为预览导航与 canvas 可见；save 步 optional
-# SHR-02 负向：和解 ceremony 结束后 preview 不可见，须先 tap share-card-cta-resolve
-- runFlow:
-    file: ../subflows/seed-active-entry.yaml
-    env:
-      ENTRY_CONTENT: "Maestro 014 分享卡验收"
-- tapOn:
-    id: mood-entry-card
-    index: 0
-- extendedWaitUntil:
-    visible:
-      id: entry-resolve-button
-    timeout: 10000
-- tapOn:
-    id: entry-resolve-button
-- extendedWaitUntil:
-    visible:
-      id: resolve-confirm-root
-    timeout: 8000
-- tapOn:
-    id: resolve-confirm-confirm
-- extendedWaitUntil:
-    visible:
-      id: resolve-ceremony-skip
-    timeout: 10000
-    optional: true
-- runFlow:
-    when:
-      visible:
-        id: resolve-ceremony-skip
-    commands:
-      - tapOn:
-          id: resolve-ceremony-skip
-- extendedWaitUntil:
-    visible:
-      id: share-card-cta-resolve
-    timeout: 15000
-- assertNotVisible:
-    id: share-card-preview-root
-- tapOn:
-    id: share-card-cta-resolve
-- extendedWaitUntil:
-    visible:
-      id: share-card-preview-root
-    timeout: 10000
-- extendedWaitUntil:
-    visible:
-      id: share-card-canvas
-    timeout: 10000
-- extendedWaitUntil:
-    visible:
-      id: share-card-snippet-toggle
-    timeout: 5000
-- assertNotVisible:
-    id: share-card-snippet-input
-- tapOn:
-    id: share-card-save-button
-    optional: true
-- runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://
-- extendedWaitUntil:
-    visible:
-      id: dashboard-header
-    timeout: 30000
-# 焚烧路径（SHR-02 burn CTA）
-- runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://record
-- extendedWaitUntil:
-    visible:
-      id: mood-content-input
-    timeout: 30000
-- tapOn:
-    id: mood-content-input
-- inputText: "Maestro 014 焚烧分享卡"
-- tapOn:
-    id: mood-submit-button
-- extendedWaitUntil:
-    notVisible:
-      id: mood-content-input
-    timeout: 15000
-- runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://
-- extendedWaitUntil:
-    visible:
-      id: dashboard-header
-    timeout: 30000
-- tapOn:
-    id: dashboard-filter-button
-- extendedWaitUntil:
-    visible:
-      id: dashboard-filter-active
-    timeout: 5000
-- tapOn:
-    id: dashboard-filter-active
-- extendedWaitUntil:
-    visible:
-      id: mood-entry-card
-    timeout: 15000
-- tapOn:
-    id: mood-entry-card
-    index: 0
-- extendedWaitUntil:
-    visible:
-      id: entry-burn-button
-    timeout: 10000
-- tapOn:
-    id: entry-burn-button
-- extendedWaitUntil:
-    visible:
-      id: burn-confirm-root
-    timeout: 8000
-- tapOn:
-    id: burn-confirm-confirm
-- extendedWaitUntil:
-    visible:
-      id: burn-complete-message
-    timeout: 20000
-- extendedWaitUntil:
-    visible:
-      id: share-card-cta-burn
-    timeout: 5000
-- tapOn:
-    id: share-card-cta-burn
-- extendedWaitUntil:
-    visible:
-      id: share-card-preview-root
-    timeout: 10000
-- extendedWaitUntil:
-    visible:
-      id: share-card-canvas
-    timeout: 10000
-# SHR-01 周回顾路径
+- launchApp
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -149,10 +12,47 @@ appId: com.moyunzero.emotiondiary
     visible:
       id: share-card-canvas
     timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/01-review-export-canvas
 - extendedWaitUntil:
     visible:
       id: share-card-save-button
     timeout: 10000
+- takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/02-review-export-save-button
+- extendedWaitUntil:
+    visible:
+      id: share-card-snippet-toggle
+    timeout: 5000
+- assertNotVisible:
+    id: share-card-snippet-input
+- takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/03-review-export-snippet-default-off
+# 保存路径（修复 PushNotificationIOS 崩溃后必须能走完）
 - tapOn:
     id: share-card-save-button
+- tapOn:
+    text: "继续"
     optional: true
+- tapOn:
+    text: "允许访问所有照片"
+    optional: true
+- tapOn:
+    text: "Allow Full Access"
+    optional: true
+- tapOn:
+    text: "好"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: share-card-canvas
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/04-review-export-after-save
+# Deep link 进入时无 back stack，返回应回首页而非 GO_BACK 报错
+- tapOn:
+    text: "返回"
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/014-shareable-ritual-cards/05-review-export-back-to-dashboard

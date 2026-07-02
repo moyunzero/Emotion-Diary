@@ -152,10 +152,6 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="share-card-preview"
-              options={{ headerShown: false, presentation: 'modal' }}
-            />
-            <Stack.Screen
               name="recycle-bin"
               options={{ headerShown: false }}
             />

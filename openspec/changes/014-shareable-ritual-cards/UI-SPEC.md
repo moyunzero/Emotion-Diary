@@ -6,13 +6,14 @@ shadcn_initialized: false
 preset: none
 created: 2026-07-02
 openspec: openspec/changes/014-shareable-ritual-cards/
-requirements: SHR-01, SHR-02, SHR-03, SHR-04, SHR-05
+requirements: SHR-01, SHR-03, SHR-04, SHR-05
 extends: openspec/changes/011-metaphor-activation/UI-SPEC.md
 ---
 
-# Phase 4 — 可分享仪式卡片 UI 设计契约
+# Phase 4 — 可分享周回顾卡片 UI 设计契约
 
-> 竖版 9:16 share card：周回顾与和解/焚烧仪式时刻，温和传播、零 PII。  
+> 竖版 9:16 share card：**周回顾**导出，温和传播、零 PII。  
+> **2026-07-01 范围变更：** SHR-02 和解/焚烧仪式分享卡已取消；下文 Resolve/Burn/Preview/CTA 章节仅作历史参考，**勿实现**。  
 > **权威源**：011 [`UI-SPEC.md`](../011-metaphor-activation/UI-SPEC.md) + [`VISUAL-IDENTITY.md`](../011-metaphor-activation/VISUAL-IDENTITY.md) §6 + [`constants/colors.ts`](../../../constants/colors.ts) `COLORS` / `DESIGN_TOKENS`。  
 > **上游锁定**：[`04-CONTEXT.md`](../../../.planning/phases/04-shareable-ritual-cards/04-CONTEXT.md) D-01～D-18。
 
@@ -20,9 +21,9 @@ extends: openspec/changes/011-metaphor-activation/UI-SPEC.md
 
 ## Design Intent
 
-**Phase 边界**：SHR-01～SHR-05。用户可将 **周回顾** 或 **和解/焚烧仪式时刻** 导出为竖版 PNG 存相册（Web 下载）。**不含**：应用内社交 feed、系统 `Share.share` sheet、人物/触发器/日记全文、自动弹出分享流程、Phase 5 回访 Banner 动态 copy。
+**Phase 边界**：SHR-01、SHR-03–SHR-05。用户可将 **周回顾** 导出为竖版 PNG 存相册（Web 下载）。**不含**：和解/焚烧仪式分享卡（SHR-02 已取消）、应用内社交 feed、系统 `Share.share` sheet、人物/触发器/日记全文、自动弹出分享流程、Phase 5 回访 Banner 动态 copy。
 
-**传播心理**：温和、可存相册发圈；**看起来像同一产品**（统一粉壳），但情绪不同（week = 回顾；resolve/burn = moment）。
+**传播心理**：温和、可存相册发圈；统一粉壳；week = 回顾。
 
 **叙事 tone**：温暖、短句、隐喻优先（天气 + 花园）；非数据表格、非统计报告。对齐 VISUAL-IDENTITY §6 商店截图脱敏原则。
 
@@ -64,7 +65,7 @@ extends: openspec/changes/011-metaphor-activation/UI-SPEC.md
 | Capture | `react-native-view-shot` `captureRef` + `PixelRatio` |
 | Persist | `expo-media-library`（native）/ anchor download（web） |
 
-**011 继承**：间距、Typography 角色、60/30/10 色分配、PrimaryButton 规范 **不变**。本 Phase 新增 `ShareCardShell`、三套内容区、预览屏、仪式内嵌 CTA。
+**011 继承**：间距、Typography 角色、60/30/10 色分配、PrimaryButton 规范 **不变**。本 Phase 新增 `ShareCardShell`、`ShareCardWeekContent`、`ReviewExportScreen` 9:16 预览与 opt-in。
 
 ---
 

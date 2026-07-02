@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
 import { INSIGHTS_COLORS } from "../Insights/constants";
-import type { ShareCardModel, ShareCardVariant } from "../../shared/share/buildShareCardModel";
+import type { ShareCardModel } from "../../shared/share/buildShareCardModel";
 import {
   SHARE_CARD_ASPECT_RATIO,
   SHARE_CARD_HEIGHT_PX,
@@ -12,24 +12,16 @@ import {
 } from "../../shared/share/shareCardDimensions";
 
 export type ShareCardShellProps = {
-  variant: ShareCardVariant;
   model: ShareCardModel;
   children: React.ReactNode;
 };
 
 export const ShareCardShell: React.FC<ShareCardShellProps> = ({
-  variant,
   model,
   children,
 }) => {
   const { t } = useTranslation("share");
   const logical = toLogicalSize(SHARE_CARD_WIDTH_PX, SHARE_CARD_HEIGHT_PX);
-  const accentColor =
-    variant === "resolve"
-      ? COLORS.ritual.resolve
-      : variant === "burn"
-        ? COLORS.ritual.burn
-        : undefined;
 
   const watermarkText = model.footerDate
     ? t("watermark.withDate", {
@@ -47,20 +39,20 @@ export const ShareCardShell: React.FC<ShareCardShellProps> = ({
       style={[
         styles.shell,
         {
-          width: logical.width,
-          height: logical.height,
+          width: "100%",
+          maxWidth: logical.width,
           aspectRatio: SHARE_CARD_ASPECT_RATIO,
         },
       ]}
     >
       <View style={styles.inner}>
-        {accentColor ? (
-          <View
-            style={[styles.accentStrip, { backgroundColor: accentColor }]}
-          />
-        ) : null}
-        <View style={styles.content}>{children}</View>
-        <Text style={styles.watermark}>{watermarkText}</Text>
+        <View style={styles.body}>{children}</View>
+        <View style={styles.footerSlot}>
+          <View style={styles.footerRule} />
+          <Text style={styles.watermark} numberOfLines={2}>
+            {watermarkText}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -69,34 +61,44 @@ export const ShareCardShell: React.FC<ShareCardShellProps> = ({
 const styles = StyleSheet.create({
   shell: {
     overflow: "hidden",
+    alignSelf: "center",
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: 1,
-    borderColor: `${INSIGHTS_COLORS.primary}35`,
+    borderColor: `${INSIGHTS_COLORS.primary}28`,
     borderRadius: DESIGN_TOKENS.borderRadius.large,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
   inner: {
     flex: 1,
-    padding: DESIGN_TOKENS.spacing.xxl,
-    flexDirection: "column",
+    paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+    paddingTop: DESIGN_TOKENS.spacing.lg,
+    paddingBottom: DESIGN_TOKENS.spacing.sm,
   },
-  accentStrip: {
-    position: "absolute",
-    left: 0,
-    top: DESIGN_TOKENS.spacing.xxl,
-    bottom: DESIGN_TOKENS.spacing.xxl + 24,
-    width: 4,
-    borderRadius: 2,
-  },
-  content: {
+  body: {
     flex: 1,
-    paddingLeft: 4,
+    minHeight: 0,
+    overflow: "hidden",
+  },
+  footerSlot: {
+    flexShrink: 0,
+    paddingTop: DESIGN_TOKENS.spacing.sm,
+    paddingBottom: DESIGN_TOKENS.spacing.xs,
+  },
+  footerRule: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: `${INSIGHTS_COLORS.primary}30`,
+    marginBottom: DESIGN_TOKENS.spacing.sm,
   },
   watermark: {
-    marginTop: DESIGN_TOKENS.spacing.lg,
-    fontSize: 12,
-    lineHeight: 16.8,
+    fontSize: 11,
+    lineHeight: 15.4,
     fontFamily: "Lato_400Regular",
     color: COLORS.text.secondary,
     textAlign: "center",
+    letterSpacing: 0.2,
   },
 });

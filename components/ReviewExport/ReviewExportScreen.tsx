@@ -26,6 +26,7 @@ import { getEffectiveFirstEntryDateForCompanion } from '../../services/companion
 import { formatLocaleDate } from '../../shared/formatting';
 import { type ReviewExportPreset } from '../../shared/time-range';
 import { forceCancelRecording } from '../../shared/audio/recordingCoordinator';
+import { excludeSoftDeletedEntries } from '../../shared/entries/visibility';
 import { buildWeekShareCardModel } from '../../shared/share/buildShareCardModel';
 import { captureViewToPng } from '../../shared/share/captureViewToPng';
 import {
@@ -33,7 +34,6 @@ import {
   persistPrivacyAck,
 } from '../../shared/share/privacyAck';
 import { saveShareCardImage } from '../../shared/share/saveShareCardImage';
-import { SHARE_CARD_ASPECT_RATIO } from '../../shared/share/shareCardDimensions';
 import { useAppStore } from '../../store/useAppStore';
 import {
   generateReviewExportClosingLine,
@@ -41,6 +41,7 @@ import {
   isGroqConfigured,
 } from '../../utils/aiService';
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
+import { filterEntriesInRange } from '../../utils/reviewStats';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -122,6 +123,24 @@ export const ReviewExportScreen: React.FC = () => {
       ),
     [entries, firstEntryDate, preset, now, effectiveLocale],
   );
+  const periodEntries = useMemo(
+    () =>
+      filterEntriesInRange(
+        excludeSoftDeletedEntries(entries),
+        derived.current.startMs,
+        derived.current.endMs,
+      ),
+    [entries, derived.current.startMs, derived.current.endMs],
+  );
+  const periodLabel = useMemo(() => t(`presets.${preset}`), [t, preset]);
+  const cardTitle = useMemo(
+    () => tShare('canvas.periodTitle', { period: periodLabel }),
+    [tShare, periodLabel],
+  );
+  const closingSectionLabel = useMemo(
+    () => tShare('canvas.closingLabelPeriod', { period: periodLabel }),
+    [tShare, periodLabel],
+  );
   const summary = derived.closingSummary;
   const dateRangeLabel = useMemo(
     () =>
@@ -152,9 +171,10 @@ export const ReviewExportScreen: React.FC = () => {
         derived,
         closingLine,
         effectiveLocale,
+        periodEntries,
         userSnippet: snippetEnabled ? snippetText : undefined,
       }),
-    [derived, closingLine, effectiveLocale, snippetEnabled, snippetText],
+    [derived, closingLine, effectiveLocale, periodEntries, snippetEnabled, snippetText],
   );
 
   useEffect(() => {
@@ -244,11 +264,19 @@ export const ReviewExportScreen: React.FC = () => {
       ? tShare('actions.download')
       : tShare('actions.saveToAlbum');
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  }, [router]);
+
   return (
     <AppScreenShell
       edges={['top', 'left', 'right']}
       title={t('screen.title')}
-      onBack={() => router.back()}
+      onBack={handleBack}
       titleColor={INSIGHTS_COLORS.text}
       titleFontFamily="Lato_700Bold"
       titleFontSize={responsiveLayout.headerTitleFontSize}
@@ -352,20 +380,23 @@ export const ReviewExportScreen: React.FC = () => {
         <View
           style={[
             styles.previewOuter,
-            { maxWidth: width * 0.9, aspectRatio: SHARE_CARD_ASPECT_RATIO },
+            { maxWidth: Math.min(width * 0.92, 380) },
           ]}
         >
-          <View
-            ref={captureRootRef}
-            collapsable={false}
-            accessible
-            accessibilityLabel={exportRangeA11yLabel}
-          >
-            <ShareCardShell variant="week" model={shareModel}>
+        <View
+          ref={captureRootRef}
+          collapsable={false}
+          accessible
+          accessibilityLabel={exportRangeA11yLabel}
+          style={styles.captureRoot}
+        >
+          <ShareCardShell model={shareModel}>
               <ShareCardWeekContent
                 model={shareModel}
                 aiStatus={aiStatus}
                 dateRangeLabel={dateRangeLabel}
+                cardTitle={cardTitle}
+                closingSectionLabel={closingSectionLabel}
               />
             </ShareCardShell>
           </View>
@@ -418,11 +449,12 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexShrink: 0,
     gap: 8,
+    paddingVertical: 4,
   },
   chip: {
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.primary + '40',
+    borderColor: INSIGHTS_COLORS.primary + '35',
   },
   chipSelected: {
     backgroundColor: INSIGHTS_COLORS.primary + '25',
@@ -441,16 +473,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     alignItems: 'center',
+    flexGrow: 1,
   },
   previewOuter: {
     alignSelf: 'center',
     width: '100%',
-    overflow: 'hidden',
+  },
+  captureRoot: {
+    width: '100%',
   },
   optInBlock: {
     alignSelf: 'stretch',
-    marginTop: 32,
-    paddingHorizontal: 4,
+    width: '100%',
+    maxWidth: 380,
+    marginTop: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: INSIGHTS_COLORS.cardBg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: INSIGHTS_COLORS.primary + '28',
   },
   optInRow: {
     flexDirection: 'row',

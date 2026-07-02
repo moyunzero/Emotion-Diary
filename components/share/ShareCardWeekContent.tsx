@@ -25,6 +25,8 @@ export type ShareCardWeekContentProps = {
   model: ShareCardModel;
   aiStatus: ShareCardAiStatus;
   dateRangeLabel: string;
+  cardTitle: string;
+  closingSectionLabel: string;
 };
 
 const WEATHER_ICONS: Record<
@@ -66,6 +68,8 @@ export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
   model,
   aiStatus,
   dateRangeLabel,
+  cardTitle,
+  closingSectionLabel,
 }) => {
   const { t } = useTranslation("share");
   const bucket = resolveWeatherBucket(model.weatherBucket);
@@ -78,35 +82,59 @@ export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t("canvas.week.title")}</Text>
-      <Text style={styles.dateRange}>{dateRangeLabel}</Text>
-
-      <Text style={styles.sectionLabel}>{t("canvas.weatherLabel")}</Text>
-      <View
-        style={[styles.weatherZone, { backgroundColor: weatherTokens.bg }]}
-      >
-        <WeatherIcon size={32} color={weatherTokens.icon} />
-        <Text style={[styles.narrative, { color: weatherTokens.text }]}>
-          {narrativeLine}
+      <View style={styles.headerBlock}>
+        <Text style={styles.title} numberOfLines={2}>
+          {cardTitle}
+        </Text>
+        <Text style={styles.dateRange} numberOfLines={1}>
+          {dateRangeLabel}
         </Text>
       </View>
 
-      <Text style={styles.sectionLabel}>{t("canvas.gardenLabel")}</Text>
-      <View style={styles.gardenZone}>
-        <GrowthIcon size={48} color={COLORS.ritual.resolve} />
-        <Text style={styles.gardenLabel}>{model.gardenStageLabel}</Text>
-      </View>
-
-      <View style={styles.closingZone}>
-        {aiStatus === "loading" ? (
-          <Text style={styles.aiLoading}>{t("canvas.aiLoading")}</Text>
-        ) : null}
-        <Text style={styles.closingLine}>{model.closingOrRitualLine}</Text>
-        {model.userSnippet ? (
-          <View style={styles.snippetWrap}>
-            <Text style={styles.userSnippet}>{model.userSnippet}</Text>
+      <View style={styles.sections}>
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{t("canvas.weatherLabel")}</Text>
+          <View
+            style={[styles.weatherZone, { backgroundColor: weatherTokens.bg }]}
+          >
+            <View style={styles.weatherIconWrap}>
+              <WeatherIcon size={22} color={weatherTokens.icon} />
+            </View>
+            <Text
+              style={[styles.narrative, { color: weatherTokens.text }]}
+              numberOfLines={3}
+            >
+              {narrativeLine}
+            </Text>
           </View>
-        ) : null}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{t("canvas.gardenLabel")}</Text>
+          <View style={styles.gardenZone}>
+            <View style={styles.gardenIconWrap}>
+              <GrowthIcon size={28} color={COLORS.ritual.resolve} />
+            </View>
+            <Text style={styles.gardenLabel} numberOfLines={1}>
+              {model.gardenStageLabel}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{closingSectionLabel}</Text>
+          <View style={styles.closingZone}>
+            {aiStatus === "loading" ? (
+              <Text style={styles.aiLoading}>{t("canvas.aiLoading")}</Text>
+            ) : null}
+            <Text style={styles.closingLine}>{model.closingOrRitualLine}</Text>
+            {model.userSnippet ? (
+              <View style={styles.snippetWrap}>
+                <Text style={styles.userSnippet}>{model.userSnippet}</Text>
+              </View>
+            ) : null}
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -115,35 +143,55 @@ export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    flexDirection: "column",
+    minHeight: 0,
+  },
+  headerBlock: {
+    marginBottom: DESIGN_TOKENS.spacing.md,
   },
   title: {
     fontFamily: "Lato_700Bold",
     fontSize: 20,
-    lineHeight: 25,
+    lineHeight: 27,
     color: INSIGHTS_COLORS.text,
   },
   dateRange: {
-    marginTop: DESIGN_TOKENS.spacing.xs,
+    marginTop: 4,
     fontFamily: "Lato_400Regular",
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 20,
     color: INSIGHTS_COLORS.textSecondary,
   },
+  sections: {
+    flex: 1,
+    minHeight: 0,
+    gap: DESIGN_TOKENS.spacing.sm + 2,
+  },
+  section: {
+    flexShrink: 0,
+  },
   sectionLabel: {
-    marginTop: DESIGN_TOKENS.spacing.lg,
-    marginBottom: DESIGN_TOKENS.spacing.md,
+    marginBottom: DESIGN_TOKENS.spacing.xs,
     fontFamily: "Lato_700Bold",
     fontSize: 12,
-    lineHeight: 16.8,
+    lineHeight: 16,
+    letterSpacing: 0.4,
     color: COLORS.text.secondary,
   },
   weatherZone: {
     borderRadius: DESIGN_TOKENS.borderRadius.medium,
-    padding: DESIGN_TOKENS.spacing.lg,
+    paddingHorizontal: DESIGN_TOKENS.spacing.md,
+    paddingVertical: DESIGN_TOKENS.spacing.sm + 2,
     flexDirection: "row",
     alignItems: "center",
-    gap: DESIGN_TOKENS.spacing.md,
+    gap: DESIGN_TOKENS.spacing.sm,
+  },
+  weatherIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   narrative: {
     flex: 1,
@@ -154,47 +202,56 @@ const styles = StyleSheet.create({
   gardenZone: {
     flexDirection: "row",
     alignItems: "center",
-    gap: DESIGN_TOKENS.spacing.md,
-    paddingVertical: DESIGN_TOKENS.spacing.sm,
+    gap: DESIGN_TOKENS.spacing.sm,
+    paddingVertical: DESIGN_TOKENS.spacing.xs,
+  },
+  gardenIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: `${COLORS.ritual.resolve}14`,
+    alignItems: "center",
+    justifyContent: "center",
   },
   gardenLabel: {
     flex: 1,
-    fontFamily: "Lato_400Regular",
+    fontFamily: "Lato_700Bold",
     fontSize: 16,
     lineHeight: 24,
     color: INSIGHTS_COLORS.text,
   },
   closingZone: {
-    marginTop: "auto",
-    paddingTop: DESIGN_TOKENS.spacing.lg,
+    alignSelf: "stretch",
     paddingHorizontal: DESIGN_TOKENS.spacing.md,
-    paddingBottom: DESIGN_TOKENS.spacing.md,
-    backgroundColor: `${INSIGHTS_COLORS.primary}18`,
+    paddingVertical: DESIGN_TOKENS.spacing.md,
+    backgroundColor: `${INSIGHTS_COLORS.primary}12`,
     borderRadius: DESIGN_TOKENS.borderRadius.medium,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${INSIGHTS_COLORS.primary}25`,
   },
   aiLoading: {
     fontFamily: "Lato_400Regular",
-    fontSize: 12,
-    lineHeight: 16.8,
+    fontSize: 13,
+    lineHeight: 18,
     color: INSIGHTS_COLORS.textSecondary,
     marginBottom: DESIGN_TOKENS.spacing.xs,
   },
   closingLine: {
     fontFamily: "Lato_400Regular",
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 17,
+    lineHeight: 26,
     color: INSIGHTS_COLORS.text,
   },
   snippetWrap: {
     marginTop: DESIGN_TOKENS.spacing.md,
-    borderLeftWidth: 3,
+    borderLeftWidth: 2,
     borderLeftColor: COLORS.primaryLight,
-    paddingLeft: DESIGN_TOKENS.spacing.md,
+    paddingLeft: DESIGN_TOKENS.spacing.sm,
   },
   userSnippet: {
     fontFamily: "Lato_400Regular",
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 15,
+    lineHeight: 22,
     fontStyle: "italic",
     color: INSIGHTS_COLORS.textSecondary,
   },

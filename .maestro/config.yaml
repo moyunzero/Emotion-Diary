@@ -3,4 +3,5 @@
 # Xcode 26.5 + 仅 26.2/26.4 Simulator 时 xcodebuild 会失败 — 需安装 iOS 26.5 Platform
 # 诊断：bash scripts/maestro-preflight.sh
 # 011 验收截图：takeScreenshot 写入 .maestro/acceptance/011-metaphor/*.png
+# 014 验收截图：takeScreenshot 写入 .maestro/acceptance/014-shareable-ritual-cards/*.png
 appId: com.moyunzero.emotiondiary
