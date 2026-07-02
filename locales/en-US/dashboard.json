@@ -57,70 +57,70 @@
   "weatherNarrative": {
     "sunny": {
       "calm": {
-        "low": "Clear skies today — enjoy this gentle ease",
-        "medium": "Mostly sunny — leave room to talk this week",
-        "high": "Still bright out — take today one step at a time"
+        "low": "Clear skies — ease up for now",
+        "medium": "Sunny week — room to connect",
+        "high": "Still bright — one step at a time"
       },
       "mixed": {
-        "low": "Sun is out — light clouds will pass",
-        "medium": "Bright day, small ripples — align gently this week",
-        "high": "Sunshine with tension — say the urgent things first"
+        "low": "Sun's out — ripples will pass",
+        "medium": "Bright day, some ripples — be gentle",
+        "high": "Sun with tension — name what's urgent"
       },
       "heavy": {
-        "low": "Sun outside, weight inside — give yourself space",
-        "medium": "Fair weather, heavy heart — don't carry it alone",
-        "high": "A lot on your plate — breathe before you speak"
+        "low": "Sun outside, heaviness inside — okay",
+        "medium": "Fair skies, heavy heart — slow down",
+        "high": "Full day — breathe before you speak"
       }
     },
     "cloudy": {
       "calm": {
-        "low": "Soft clouds — your connection feels steady",
-        "medium": "Light clouds — a calm chat fits this week",
-        "high": "Cloudy but mild — pace yourself today"
+        "low": "Soft clouds — things feel steady",
+        "medium": "Light clouds — easy talks fit",
+        "high": "Busy today — still mostly mild"
       },
       "mixed": {
-        "low": "Small shifts behind the clouds — that's okay",
-        "medium": "Unsaid words are okay too — find a quiet moment this week",
-        "high": "Clouds gathering — name what matters most today"
+        "low": "Small shifts — light behind clouds",
+        "medium": "Unsaid words are okay — quiet time",
+        "high": "Clouds gathering — what matters most"
       },
       "heavy": {
-        "low": "Gray skies — go easy on yourself",
-        "medium": "Heavy mood — slower conversations help this week",
-        "high": "Clouds feel low — care for yourself first today"
+        "low": "Gray skies — don't judge yourself",
+        "medium": "Heavy mood — slower talks help",
+        "high": "Low clouds — care for yourself first"
       }
     },
     "rainy": {
       "calm": {
-        "low": "Rain outside — you're mostly at peace inside",
-        "medium": "Steady rain — quiet talks suit this week",
-        "high": "Rain falling — take today's tasks gently"
+        "low": "Rain outside — peace inside",
+        "medium": "Gentle rain — quiet talks suit",
+        "high": "Rain falling — gentle pace today"
       },
       "mixed": {
-        "low": "Light rain — some feelings still drying",
-        "medium": "Rain on the window — make space to share",
-        "high": "Heavier rain — clear the stuck thing first"
+        "low": "Light rain — feelings need time",
+        "medium": "Rain at the window — space to share",
+        "high": "Heavier rain — name what's stuck"
       },
       "heavy": {
-        "low": "Rain feels heavy — keep your umbrella close",
-        "medium": "Rain won't lift yet — reach out this week",
-        "high": "Rain is dense — care for you, then communicate"
+        "low": "Heavy rain — settle yourself first",
+        "medium": "Rain lingers — reach out this week",
+        "high": "Dense rain — you first, then talk"
       }
     },
     "stormy": {
       "calm": {
-        "low": "Storm nearby — you can still steady your breath",
-        "medium": "Winds rising — guard your boundaries this week",
-        "high": "Thunder far off — keep your pace today"
+        "low": "Storm nearby — steady your breath",
+        "medium": "Winds up — guard your boundaries",
+        "high": "Distant thunder — keep your pace"
       },
       "mixed": {
-        "low": "Storm brewing — feelings are stirring too",
-        "medium": "Winds rising — guard your boundaries this week",
-        "high": "Wind and rain — put safety first today"
+        "low": "Storm brewing — feelings stir too",
+        "medium": "Wind and rain — rest this week",
+        "high": "Rough weather — safety first today"
       },
       "heavy": {
-        "low": "Thunder day — step under your own roof",
-        "medium": "Storm still here — don't face it alone",
-        "high": "Storm still loud — pause and breathe today"
+        "low": "Thunder — under your own roof",
+        "medium": "Storm lingers — don't carry alone",
+        "high": "Storm still loud — pause and breathe"
       }
     }
   },
