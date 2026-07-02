@@ -1,10 +1,59 @@
 {
+  "cta": {
+    "generate": "Create share card"
+  },
+  "actions": {
+    "saveToAlbum": "Save to Photos",
+    "download": "Download image",
+    "continue": "Continue"
+  },
   "canvas": {
+    "week": {
+      "title": "This week in your weather"
+    },
     "resolve": {
+      "title": "A moment of resolve",
       "moment": "Letting this feeling clear"
     },
     "burn": {
+      "title": "Released with care",
       "moment": "The sharp words have drifted away"
+    },
+    "weatherLabel": "Relationship weather",
+    "gardenLabel": "Inner garden",
+    "aiLoading": "Writing your closing line…",
+    "weatherFallback": "This week's weather deserves a gentle memory"
+  },
+  "watermark": {
+    "brand": "MoodMO · Relationship weather diary",
+    "withDate": "{{brand}} · {{date}}"
+  },
+  "preview": {
+    "title": "Share card preview",
+    "titleResolve": "Resolve moment",
+    "titleBurn": "Release moment"
+  },
+  "optIn": {
+    "label": "Add a personal line",
+    "placeholder": "One line to take with you (no names, please)",
+    "hint": "This line appears on the card—check it for private details before saving",
+    "off": "Not on card"
+  },
+  "alerts": {
+    "privacy": {
+      "title": "Privacy note",
+      "message": "The share card saves to your device. Others who use this device may see it."
+    },
+    "saveFail": {
+      "title": "Save failed",
+      "message": "Could not create the image. Please try again."
+    },
+    "downloadSuccess": {
+      "title": "Downloaded",
+      "message": "Your share card was saved to your downloads folder."
     }
+  },
+  "a11y": {
+    "canvas": "Share card preview canvas"
   }
 }

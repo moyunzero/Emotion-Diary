@@ -34,6 +34,8 @@ import zhOnboarding from "@/locales/zh-Hans/onboarding.json";
 import enOnboarding from "@/locales/en-US/onboarding.json";
 import zhRituals from "@/locales/zh-Hans/rituals.json";
 import enRituals from "@/locales/en-US/rituals.json";
+import zhShare from "@/locales/zh-Hans/share.json";
+import enShare from "@/locales/en-US/share.json";
 
 function collectLeafPaths(
   obj: Record<string, unknown>,
@@ -78,6 +80,7 @@ const NAMESPACE_PAIRS: Array<{
   { name: "ai", zh: zhAi, en: enAi },
   { name: "onboarding", zh: zhOnboarding, en: enOnboarding },
   { name: "rituals", zh: zhRituals, en: enRituals },
+  { name: "share", zh: zhShare, en: enShare },
 ];
 
 describe("namespace key parity (zh-Hans vs en-US)", () => {

@@ -1,0 +1,31 @@
+/**
+ * SHR-05 — share namespace copy gate
+ */
+
+jest.mock("expo-localization", () => ({
+  getLocales: jest.fn(() => [{ languageTag: "zh-Hans" }]),
+}));
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn(),
+}));
+
+describe("share copy via i18n", () => {
+  beforeAll(async () => {
+    const { initI18n } = await import("@/i18n");
+    await initI18n();
+  });
+
+  it("watermark.brand exists in zh-Hans", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("zh-Hans");
+    expect(i18n.t("watermark.brand", { ns: "share" })).toMatch(/心晴MO/);
+  });
+
+  it("watermark.brand exists in en-US", async () => {
+    const { i18n } = await import("@/i18n");
+    await i18n.changeLanguage("en-US");
+    expect(i18n.t("watermark.brand", { ns: "share" })).toMatch(/MoodMO/i);
+  });
+});

@@ -1,10 +1,59 @@
 {
+  "cta": {
+    "generate": "生成分享卡"
+  },
+  "actions": {
+    "saveToAlbum": "保存到相册",
+    "download": "下载图片",
+    "continue": "继续"
+  },
   "canvas": {
+    "week": {
+      "title": "这一周的关系天气"
+    },
     "resolve": {
+      "title": "种下和解",
       "moment": "让这段情绪慢慢放晴"
     },
     "burn": {
+      "title": "气话已飘走",
       "moment": "那些气话已经化作青烟"
+    },
+    "weatherLabel": "关系天气",
+    "gardenLabel": "心灵花园",
+    "aiLoading": "正在生成结语…",
+    "weatherFallback": "本周的关系天气，值得被温柔记住"
+  },
+  "watermark": {
+    "brand": "心晴MO · 关系天气日记",
+    "withDate": "{{brand}} · {{date}}"
+  },
+  "preview": {
+    "title": "分享卡预览",
+    "titleResolve": "和解时刻",
+    "titleBurn": "焚烧时刻"
+  },
+  "optIn": {
+    "label": "加一句自己的话",
+    "placeholder": "写一句想带走的心情（请勿写姓名）",
+    "hint": "这句话会出现在卡片上，保存前请确认不含隐私信息",
+    "off": "不上卡"
+  },
+  "alerts": {
+    "privacy": {
+      "title": "隐私提示",
+      "message": "分享卡将保存到你的设备；请注意设备共用与他人翻看风险。"
+    },
+    "saveFail": {
+      "title": "保存失败",
+      "message": "生成图片失败，请稍后再试"
+    },
+    "downloadSuccess": {
+      "title": "已下载",
+      "message": "分享卡图片已保存到你的下载文件夹。"
     }
+  },
+  "a11y": {
+    "canvas": "分享卡预览画布"
   }
 }
