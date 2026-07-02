@@ -2,25 +2,25 @@
   "resolve": {
     "confirm": {
       "title": "Mark resolved",
-      "message": "Marking peace is like watering this connection. Ready?",
+      "message": "Like watering this connection once. You don't have to forgive yet — just mark that you're tending this feeling. Ready?",
       "confirm": "Begin resolve",
       "cancel": "Not yet"
     },
     "ceremony": {
       "title": "Planting peace",
-      "body": "Let this feeling slowly clear…",
+      "body": "No need to forgive yet — let your heart soften a little…",
       "skip": "Skip"
     }
   },
   "burn": {
     "confirm": {
       "title": "Burn it out",
-      "message": "Burn this memory for good? You'll keep an ash trace, but the words won't come back.",
+      "message": "Turn these heated words to smoke? You'll keep an ash trace, but the words won't come back.",
       "confirm": "Burn it",
       "cancel": "Not yet"
     },
     "complete": {
-      "message": "The words turned to smoke — breathe a little easier"
+      "message": "Those words have drifted away — take a breath"
     }
   }
 }

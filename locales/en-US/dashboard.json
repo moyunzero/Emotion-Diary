@@ -49,10 +49,10 @@
     }
   },
   "weatherAdvice": {
-    "sunny": "A good day to feel light",
-    "cloudy": "A good day to talk it through",
-    "rainy": "Take it slow — talk when ready",
-    "stormy": "Care for yourself first"
+    "sunny": "You can ease up today",
+    "cloudy": "Slow talks are okay too",
+    "rainy": "No need to explain everything at once",
+    "stormy": "Protect yourself first"
   },
   "weatherNarrative": {
     "sunny": {
@@ -80,8 +80,8 @@
       },
       "mixed": {
         "low": "Small shifts behind the clouds — that's okay",
-        "medium": "Words still waiting — find time to talk this week",
-        "high": "Clouds gathering — name what matters today"
+        "medium": "Unsaid words are okay too — find a quiet moment this week",
+        "high": "Clouds gathering — name what matters most today"
       },
       "heavy": {
         "low": "Gray skies — go easy on yourself",
@@ -114,13 +114,13 @@
       },
       "mixed": {
         "low": "Storm brewing — feelings are stirring too",
-        "medium": "Storm weather — grab your umbrella first",
+        "medium": "Winds rising — guard your boundaries this week",
         "high": "Wind and rain — put safety first today"
       },
       "heavy": {
         "low": "Thunder day — step under your own roof",
         "medium": "Storm still here — don't face it alone",
-        "high": "Storm weather — shelter yourself first"
+        "high": "Storm still loud — pause and breathe today"
       }
     }
   },
