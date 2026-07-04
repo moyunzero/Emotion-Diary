@@ -2,6 +2,7 @@
  * 周回顾触达（A3）：周末应用内提示生成回顾图。
  */
 
+import { getRetentionNow } from "@/shared/retention/getRetentionNow";
 import {
   getIsoWeekKey,
   shouldShowWeeklyReviewBanner,
@@ -43,13 +44,20 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
     });
   }, []);
 
+  const nowMs = getRetentionNow().getTime();
+
   const show = useMemo(
-    () => shouldShowWeeklyReviewBanner(entries, dismissedWeek),
-    [entries, dismissedWeek],
+    () =>
+      shouldShowWeeklyReviewBanner(
+        entries,
+        dismissedWeek,
+        new Date(nowMs),
+      ),
+    [entries, dismissedWeek, nowMs],
   );
 
   const handleDismiss = useCallback(async () => {
-    const weekKey = getIsoWeekKey();
+    const weekKey = getIsoWeekKey(getRetentionNow());
     setDismissedWeek(weekKey);
     await AsyncStorage.setItem(DISMISS_KEY, weekKey);
   }, []);
@@ -64,12 +72,14 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
   if (!show) return null;
 
   return (
-    <View style={styles.banner}>
+    <View style={styles.banner} testID="weekly-review-banner">
       <View style={styles.row}>
         <ImageIcon size={18} color={COLORS.primaryDark} />
         <View style={styles.textCol}>
           <Text style={styles.title}>{t("weeklyBanner.title")}</Text>
-          <Text style={styles.body}>{t("weeklyBanner.body")}</Text>
+          <Text style={styles.body} testID="weekly-review-banner-body">
+            {t("weeklyBanner.body")}
+          </Text>
         </View>
         <TouchableOpacity
           onPress={handleDismiss}
@@ -86,6 +96,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
         ]}
         onPress={handleOpen}
         accessibilityRole="button"
+        testID="weekly-review-action"
       >
         <Text style={styles.actionText}>{t("weeklyBanner.action")}</Text>
       </Pressable>

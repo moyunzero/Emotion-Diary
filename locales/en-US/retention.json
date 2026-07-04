@@ -1,12 +1,12 @@
 {
   "dailyReminder": {
     "title": "Mood check-in reminder",
-    "subtextEnabled": "A gentle nudge every day at {{hour}}:{{minute}}",
-    "subtextDisabled": "Off by default; local notifications only — no diary content"
+    "subtextEnabled": "A gentle nudge every day at {{hour}}:{{minute}} to tend your inner garden",
+    "subtextDisabled": "Off by default; local gentle reminders only — no diary content"
   },
   "weeklyReview": {
     "toggleTitle": "Weekend review reminder",
-    "toggleSubtext": "Saturday 10:00 — time to create your weekly review"
+    "toggleSubtext": "Saturday 10:00 — time to create your vertical weekly review card"
   },
   "enableConfirm": {
     "title": "Turn on mood reminders",
@@ -19,21 +19,28 @@
   "reminderUnavailable": "Local notifications aren't available on this device",
   "dailyNotification": {
     "title": "MoodMO",
-    "body": "How was your day? Take a minute to check in with yourself"
+    "body": "A corner of your garden awaits — take a minute to check in"
   },
   "weeklyNotification": {
     "title": "MoodMO · Weekly review",
-    "body": "Your week deserves to be seen — create your review"
+    "body": "It's the weekend — create last week's vertical review card and keep your week close"
   },
   "revisitBanner": {
     "titleToday": "You haven't logged today yet",
     "titleDaysAgo": "Your last entry was {{days}} days ago",
     "action": "Log now",
-    "dismiss": "Not today"
+    "dismiss": "Not today",
+    "subtitle": {
+      "seed": "Your garden is waiting for its first seed — come give it a little water",
+      "sprout": "A tiny sprout is peeking through — another entry helps it grow",
+      "seedling": "Your seedlings are stretching upward — keep tending with a gentle check-in",
+      "bud": "Buds are forming — come back and hear what they want to say",
+      "bloom": "Your garden is in bloom — today deserves a quiet moment too"
+    }
   },
   "weeklyBanner": {
     "title": "Your weekly review is ready",
-    "body": "Gather this week's moods into one review image",
+    "body": "Turn this week's moods into a vertical share card you can save to your album",
     "action": "Create last week's review",
     "dismiss": "Skip this week"
   },

@@ -1,0 +1,10 @@
+appId: com.moyunzero.emotiondiary
+---
+# Maestro 015 seed（冷启动 + clearState）
+# 环境变量：SCENARIO=revisit|weekly，LOCALE=zh-Hans|en-US，REMINDERS=default|daily-on
+- launchApp:
+    clearState: true
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://dev-seed-retention?scenario=${SCENARIO}&locale=${LOCALE}&reminders=${REMINDERS}

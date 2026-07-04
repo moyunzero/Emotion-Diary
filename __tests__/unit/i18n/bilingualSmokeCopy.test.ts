@@ -45,6 +45,19 @@ describe("bilingual end-to-end copy smoke", () => {
       /care for yourself/i,
     );
     expect(i18n.t("utils.weekdays.1", { ns: "insights" })).toMatch(/mon/i);
+    expect(i18n.t("revisitBanner.action", { ns: "retention" })).toBe("Log now");
+    expect(i18n.t("weeklyBanner.action", { ns: "retention" })).toMatch(
+      /review/i,
+    );
+    expect(
+      i18n.t("revisitBanner.subtitle.seed", { ns: "retention" }).length,
+    ).toBeGreaterThan(0);
+    expect(i18n.t("dailyNotification.body", { ns: "retention" })).toMatch(
+      /garden|check in/i,
+    );
+    expect(i18n.t("slides.weather.title", { ns: "onboarding" })).toMatch(
+      /weather/i,
+    );
   });
 
   it("same path keys zh-Hans locked", async () => {
@@ -74,5 +87,18 @@ describe("bilingual end-to-end copy smoke", () => {
       "雷雨天，先照顾好自己，再慢慢沟通",
     );
     expect(i18n.t("utils.weekdays.1", { ns: "insights" })).toBe("周一");
+    expect(i18n.t("revisitBanner.action", { ns: "retention" })).toBe("去记一笔");
+    expect(i18n.t("weeklyBanner.action", { ns: "retention" })).toBe(
+      "生成上周回顾",
+    );
+    expect(
+      i18n.t("revisitBanner.subtitle.seed", { ns: "retention" }).length,
+    ).toBeGreaterThan(0);
+    expect(i18n.t("dailyNotification.body", { ns: "retention" })).toMatch(
+      /花园|记一笔/,
+    );
+    expect(i18n.t("slides.weather.title", { ns: "onboarding" })).toMatch(
+      /天气/,
+    );
   });
 });

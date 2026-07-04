@@ -191,7 +191,7 @@ export function ProfileScreen() {
   };
 
   return (
-    <View style={profileStyles.container}>
+    <View style={profileStyles.container} testID="profile-screen">
       <View style={profileStyles.bgCircle} />
 
       <AppScreenShell

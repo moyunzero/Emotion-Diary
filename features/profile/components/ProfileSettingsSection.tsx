@@ -271,6 +271,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         <Pressable
           style={profileStyles.menuItem}
           onPress={() => void onSetLocale("zh-Hans")}
+          testID="profile-locale-zh-hans"
         >
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
@@ -286,6 +287,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         <Pressable
           style={profileStyles.menuItem}
           onPress={() => void onSetLocale("en-US")}
+          testID="profile-locale-en-us"
         >
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
@@ -376,8 +378,8 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
       </GroupedSettingsCard>
 
       <ProfileSectionHeader title={tProfile("sections.retention")} />
-      <GroupedSettingsCard>
-        <View style={profileStyles.menuItem}>
+      <GroupedSettingsCard testID="profile-retention-section">
+        <View style={profileStyles.menuItem} testID="profile-daily-reminder-row">
           <View
             style={[
               profileStyles.menuIcon,
@@ -390,7 +392,10 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
             <Text style={profileStyles.menuText}>
               {tRetention("dailyReminder.title")}
             </Text>
-            <Text style={profileStyles.menuSubtext}>
+            <Text
+              style={profileStyles.menuSubtext}
+              testID="profile-daily-reminder-subtext"
+            >
               {reminderSupported
                 ? reminderSettings.dailyReminderEnabled
                   ? tRetention("dailyReminder.subtextEnabled", {
@@ -421,7 +426,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         {reminderSupported && reminderSettings.dailyReminderEnabled ? (
           <>
             <View style={profileStyles.menuDivider} />
-            <View style={profileStyles.menuItem}>
+            <View style={profileStyles.menuItem} testID="profile-weekly-review-row">
               <View
                 style={[
                   profileStyles.menuIcon,
@@ -434,7 +439,10 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 <Text style={profileStyles.menuText}>
                   {tRetention("weeklyReview.toggleTitle")}
                 </Text>
-                <Text style={profileStyles.menuSubtext}>
+                <Text
+                  style={profileStyles.menuSubtext}
+                  testID="profile-weekly-review-subtext"
+                >
                   {tRetention("weeklyReview.toggleSubtext")}
                 </Text>
               </View>

@@ -1,0 +1,7 @@
+appId: com.moyunzero.emotiondiary
+---
+# 热更新 seed（不清空 App 状态）
+- runFlow:
+    file: open-url.yaml
+    env:
+      URL: emotiondiary://dev-seed-retention?scenario=${SCENARIO}&locale=${LOCALE}&reminders=${REMINDERS}

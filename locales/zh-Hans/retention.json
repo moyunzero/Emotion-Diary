@@ -1,12 +1,12 @@
 {
   "dailyReminder": {
     "title": "情绪记录提醒",
-    "subtextEnabled": "每天 {{hour}}:{{minute}} 温柔提醒记一笔",
-    "subtextDisabled": "默认关闭；仅本地通知，不含日记内容"
+    "subtextEnabled": "每天 {{hour}}:{{minute}} 温柔提醒，给心灵花园浇浇水",
+    "subtextDisabled": "默认关闭；仅本地温柔提醒，不含日记正文"
   },
   "weeklyReview": {
     "toggleTitle": "周末回顾提醒",
-    "toggleSubtext": "周六 10:00 提示生成本周回顾图"
+    "toggleSubtext": "周六 10:00 提醒你生成竖版周回顾卡"
   },
   "enableConfirm": {
     "title": "开启情绪提醒",
@@ -19,21 +19,28 @@
   "reminderUnavailable": "当前设备暂不支持本地通知",
   "dailyNotification": {
     "title": "心晴MO",
-    "body": "今天过得怎样？花一分钟记录心情吧"
+    "body": "花园里还有一隅等你照料，花一分钟记一笔吧"
   },
   "weeklyNotification": {
     "title": "心晴MO · 周回顾",
-    "body": "本周的心情值得被看见，去生成回顾图吧"
+    "body": "周末到了，去生成上周竖版回顾卡，把心情收进相册"
   },
   "revisitBanner": {
     "titleToday": "今天还没记录",
     "titleDaysAgo": "上次记录是 {{days}} 天前",
     "action": "去记一笔",
-    "dismiss": "今天先不提醒"
+    "dismiss": "今天先不提醒",
+    "subtitle": {
+      "seed": "花园还在等第一颗种子，回来浇浇水吧",
+      "sprout": "新芽刚探出头，再记一笔会更有力气",
+      "seedling": "小苗在慢慢长高，继续照料会更安心",
+      "bud": "花苞已经在酝酿，回来听听它想说什么",
+      "bloom": "花园正盛开着，今天也值得被轻轻记录"
+    }
   },
   "weeklyBanner": {
     "title": "本周回顾准备好了",
-    "body": "把这一周的心情收成一张回顾图",
+    "body": "把本周心情收成竖版分享卡，保存到相册慢慢回味",
     "action": "生成上周回顾",
     "dismiss": "本周不再提示"
   },
