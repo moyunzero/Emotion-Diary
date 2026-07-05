@@ -253,10 +253,20 @@
 - 对话 AI 教练、情侣共写、虚拟宠物、CBT/危机干预、Sentry、主题皮肤
 - **Defer v2**：关系时间线、On This Day、Year-in-pixels 关系天气图、Widget
 
-### 11.5 建议下一任务
+### 11.5 v1.4 状态与下一方向
 
-**011-metaphor-activation** 合入（Phase 1 收尾）→ `/gsd-plan-phase 2` 创建 012 SPEC。
+**v1.4.0（011–015）已全部合入 `master` 并于 2026-07 App Store 上架。**
+
+| Phase | SSD | 状态 |
+| --- | --- | --- |
+| 1 | `011-metaphor-activation` | ✅ 已交付 |
+| 2 | `012-onboarding-metaphor` | ✅ 已交付 |
+| 3 | `013-metaphor-narrative` | ✅ 已交付 |
+| 4 | `014-shareable-ritual-cards` | ✅ 已交付 |
+| 5 | `015-retention-garden-loop` | ✅ 已交付 |
+
+**建议下一方向（v2，未排期）**：关系时间线、On This Day、Year-in-pixels 关系天气图、Widget — 见 §11.4 Defer 列表。新 SSD 任务仍自 `openspec/templates/` 创建 `SPEC.md` 后再排期。
 
 ---
 
-*文档版本：2026-07-01 · v1.4 节追加自竞品重估 brainstorming*
+*文档版本：2026-07-05 · v1.4 五阶段全部交付*

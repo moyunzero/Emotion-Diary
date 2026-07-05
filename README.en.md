@@ -54,7 +54,7 @@ yarn test              # Jest unit tests (excludes e2e/)
 - **Pull requests / push to `master`:** `yarn typecheck` → `yarn lint` → `yarn test` (Node 22).
 - **Push to `master` only:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
 
-**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). See [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4.
+**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015`. See [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4.
 
 ### Community & docs
 
@@ -95,7 +95,8 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Relationship Pots**: Each person corresponds to a flower pot, showing relationship health (Blooming/Growing/Needs Water)
 - **Trigger Insights**: Analyze Top 3 emotion triggers with warm "gardening advice"
 - **Encouraging Footer**: Dynamically generated positive feedback to show growth
-- **Weekly/Monthly Review & Export**: View stats for a chosen range and generate a review image, save to Photos (`review-export` route)
+- **Weekly/Monthly Review & Export**: 9:16 vertical share cards (relationship weather + mind garden + AI closing line), save to Photos (`review-export` route)
+- **Weekend weekly review nudge**: Garden tab banner to create last week's review card (weekend by default)
 
 ### 🔥 Vent Burning & Release Archive
 - Therapeutic emotional release with an **Emotion Release Archive** to revisit releases and trigger context
@@ -114,7 +115,12 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Cloud Backup**: Optional Supabase sync; deleting an entry is a **soft delete** by default (data can remain syncable and recoverable via cloud merge), not immediate physical wipe
 - **Smart Data Migration**: Seamless switching between guest data and logged-in user data
 
-### 🌍 Bilingual UI (v1.3)
+### 🔔 Revisit & Reminders (v1.4)
+
+- **Garden-stage revisit copy**: When you haven't logged in a while, the home banner shows encouragement matched to your healing stage (seed → bloom)
+- **Reminders off by default**: Daily check-in and weekend review reminders in Profile; notifications never include diary text
+
+### 🌍 Bilingual UI (v1.3+)
 - **Simplified Chinese & English** across the app
 - **Follow system** or **manual** language in Profile → Language
 - Dates, relative time, AI output, native permission dialogs, and review export follow the active locale
@@ -122,6 +128,8 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 
 ## 🎨 Design Highlights
 
+- **Pink-healing visual system (v1.4)**: Unified tokens and component styling app-wide
+- **First-run onboarding (v1.4)**: ≤3-screen intro teaching Weather → Record → Garden metaphor chain
 - **Healing Color Scheme**: Pink-green gradient theme, warm and comfortable
 - **Weather-Themed Icons**: Unified Lucide icon library, avoiding emoji compatibility issues
 - **Mind Garden Metaphor**: Transform emotion management into nurturing a garden
@@ -333,6 +341,28 @@ eas build --platform ios --profile production
 
 Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
 
+### [1.4.0] - 2026-07-05 · App Store update
+
+> v1.4 “metaphor experience first” — all five phases (OpenSpec `011`–`015`) shipped to App Store.
+
+#### Added
+
+- **Pink-healing visual system (011)**: App-wide token migration; Maestro 011 acceptance
+- **First-run onboarding (012)**: ≤3-screen intro (Weather → Record → Garden); first-entry inline hint; show once
+- **Metaphor narrative (013)**: Relationship weather narratives, garden growth milestones, resolve/burn ritual polish
+- **Vertical weekly review cards (014)**: 9:16 share cards (weather + garden + AI closing line); save to Photos on iOS/Android; Web download
+- **Retention garden loop (015)**: Garden-stage revisit subtitles; weekend weekly-review banner → vertical card; refreshed notification & Profile copy (zh/en)
+
+#### Changed
+
+- Clearer retention copy (e.g. “More options” on Record)
+- Instant onboarding/retention copy refresh on language switch
+
+#### Developer / quality
+
+- Maestro: `011` / `012` / `014` / `015` acceptance flows; `yarn test:maestro:015` and siblings
+- Tests: `resolveRevisitSubtitleKey`, `retentionCopy`, extended bilingual smoke
+
 ### [1.3.0] - 2026-06-19 · App Store update
 
 #### Added
@@ -390,10 +420,35 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 - ✅ Vent burning feature
 - ✅ Android/iOS app building
 
-### Planned (not scheduled)
+### Product Roadmap
 
-- 📊 More data analysis dimensions
-- 🎨 Theme customization system
+Authoritative roadmap: [`openspec/iteration-roadmap-2026.md`](./openspec/iteration-roadmap-2026.md)
+
+#### Shipped milestones
+
+| Version | Theme | OpenSpec | Status |
+| --- | --- | --- | --- |
+| **1.2.0** | Engineering health + data trust + retention | `003`–`010` | ✅ App Store |
+| **1.3.0** | Full bilingual i18n | Phase 7 / i18n sweep | ✅ App Store |
+| **1.4.0** | Metaphor experience first | `011`–`015` (visual → onboarding → narrative → share card → retention loop) | ✅ App Store |
+
+#### v1.4 phases (011–015, all merged to `master`)
+
+| Phase | SSD | Delivery |
+| --- | --- | --- |
+| 1 | `011-metaphor-activation` | Pink-healing token migration |
+| 2 | `012-onboarding-metaphor` | ≤3-screen metaphor intro + first-entry hint |
+| 3 | `013-metaphor-narrative` | Weather narratives, garden milestones, ritual polish |
+| 4 | `014-shareable-ritual-cards` | Vertical weekly review share cards + save to Photos |
+| 5 | `015-retention-garden-loop` | Revisit / weekly review tied to garden metaphor |
+
+#### v2 candidates (not scheduled · defer)
+
+- Relationship timeline, On This Day, year-in-pixels relationship weather, home-screen Widget
+
+#### Explicit non-goals
+
+- Conversational AI coach, couple co-journaling, health data integration, theme skins, third-party crash monitoring (Sentry)
 
 ## 🤝 Contributing Guidelines
 

@@ -61,7 +61,7 @@ yarn test              # Jest 单测（不含 e2e/）
 | Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
 | iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
 
-Maestro 诊断：`yarn test:maestro:preflight`。Flow 见 `e2e/`、`.maestro/`。详情见 [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4。
+Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015`。Flow 见 `e2e/`、`.maestro/`。详情见 [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4。
 
 ### 文档与社区
 
@@ -97,7 +97,8 @@ Maestro 诊断：`yarn test:maestro:preflight`。Flow 见 `e2e/`、`.maestro/`�
 - **关系花盆**：每个人对应一个花盆，显示关系健康度（繁花盛开/正常生长/需要浇水）
 - **情绪触发洞察**：分析 Top 3 情绪触发器，配合温暖的"园艺建议"
 - **底部鼓励语**：动态生成的正向反馈，让用户感受到成长
-- **周/月回顾与导出**：按所选范围查看统计并生成情绪回顾图，可保存到系统相册（路由：`review-export`）
+- **周/月回顾与导出**：9:16 竖版分享卡（关系天气 + 心灵花园 + AI 结语），可保存到系统相册（路由：`review-export`）
+- **周末周回顾触达**：花园页横幅一键生成上周回顾卡（默认周末提示）
 
 ### 🔥 气话焚烧与情绪释放档案
 
@@ -119,7 +120,12 @@ Maestro 诊断：`yarn test:maestro:preflight`。Flow 见 `e2e/`、`.maestro/`�
 - **云端备份**：可选 Supabase 云端同步；删除默认为**软删除**（回收站可恢复），永久删除会从云端清除
 - **智能数据迁移**：支持访客数据与登录用户数据无缝切换
 
-### 🌍 双语界面（v1.3）
+### 🔔 回访与提醒（v1.4）
+
+- **花园阶段回访语**：久未记录时，首页横幅按治愈进度（种子→开花）显示不同鼓励副句
+- **本地提醒默认关**：每日记录与周末周回顾提醒可在个人中心配置；通知不含日记正文
+
+### 🌍 双语界面（v1.3+）
 
 - **简体中文 / English** 完整界面与文案
 - **跟随系统**或**手动选择**语言（个人中心 → Language）
@@ -128,6 +134,8 @@ Maestro 诊断：`yarn test:maestro:preflight`。Flow 见 `e2e/`、`.maestro/`�
 
 ## 🎨 设计亮点
 
+- **粉色疗愈视觉（v1.4）**：全站统一 token 与组件样式，温暖一致
+- **首次理解路径（v1.4）**：≤3 屏 intro 教用户读懂气象站 → 记一笔 → 花园隐喻链
 - **治愈系配色**：粉绿渐变主题，温暖舒适
 - **天气主题图标**：统一使用 Lucide 图标库，避免 emoji 兼容性问题
 - **心灵花园隐喻**：将情绪管理转化为照料花园的过程
@@ -438,6 +446,28 @@ eas build --platform ios --profile production
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。
 
+### [1.4.0] - 2026-07-05 · App Store 更新
+
+> v1.4「隐喻体验优先」五阶段（OpenSpec `011`–`015`）全部合入并上架。
+
+#### 新增
+
+- **粉色疗愈视觉（011）**：全站 token 与组件样式统一，Maestro 011 验收
+- **首次理解路径（012）**：≤3 屏 intro（气象站 → 记一笔 → 花园）；首记 inline hint；Skip / 完成只展示一次
+- **隐喻叙事（013）**：关系天气叙事引擎、花园成长里程碑、和解/焚烧仪式抛光
+- **竖版周回顾卡（014）**：9:16 分享卡（关系天气 + 心灵花园 + AI 结语），iOS/Android 存相册、Web 下载
+- **回访花园闭环（015）**：回访横幅按花园阶段副句；周末周回顾横幅桥接竖版卡；通知与 Profile 副文案焕新（中英）
+
+#### 改进
+
+- 记一笔「更多选项」等留存相关文案更简洁
+- 双语切换后 onboarding / retention 文案即时更新
+
+#### 开发与质量
+
+- Maestro：`011` / `012` / `014` / `015` 验收 flow；`yarn test:maestro:015` 等独立命令
+- 单测：`resolveRevisitSubtitleKey`、`retentionCopy`、双语 smoke 扩展
+
 ### [1.3.0] - 2026-06-19 · App Store 更新
 
 #### 新增
@@ -495,10 +525,35 @@ eas build --platform ios --profile production
 - ✅ 气话焚烧功能
 - ✅ Android/iOS 应用打包
 
-### 规划中（未排期）
+### 产品开发路线
 
-- 📊 更多数据分析维度
-- 🎨 主题定制系统
+权威路线图：[`openspec/iteration-roadmap-2026.md`](./openspec/iteration-roadmap-2026.md)
+
+#### 已交付里程碑
+
+| 版本 | 主题 | OpenSpec | 状态 |
+| --- | --- | --- | --- |
+| **1.2.0** | 工程健康 + 数据信任 + 留存触达 | `003`–`010` | ✅ App Store |
+| **1.3.0** | 完整双语 i18n | Phase 7 / i18n sweep | ✅ App Store |
+| **1.4.0** | 隐喻体验优先 | `011`–`015`（视觉 → onboarding → 叙事 → 分享卡 → 回访闭环） | ✅ App Store |
+
+#### v1.4 Phase 明细（011–015，均已合入 `master`）
+
+| Phase | SSD | 交付 |
+| --- | --- | --- |
+| 1 | `011-metaphor-activation` | 粉色疗愈 token 全站迁移 |
+| 2 | `012-onboarding-metaphor` | ≤3 屏隐喻 intro + 首记 hint |
+| 3 | `013-metaphor-narrative` | 天气叙事、花园里程碑、仪式抛光 |
+| 4 | `014-shareable-ritual-cards` | 竖版周回顾分享卡 + 存相册 |
+| 5 | `015-retention-garden-loop` | 回访/周回顾与花园隐喻联动 |
+
+#### v2 候选（未排期 · Defer）
+
+- 关系时间线、On This Day、Year-in-pixels 关系天气图、桌面 Widget
+
+#### 明确不做
+
+- 对话式 AI 教练、情侣/双人共写、健康数据关联、主题皮肤定制、第三方崩溃监控（Sentry）
 
 ## 🤝 贡献指南
 
