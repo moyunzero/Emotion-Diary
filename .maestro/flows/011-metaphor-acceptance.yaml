@@ -123,15 +123,12 @@ appId: com.moyunzero.emotiondiary
 - takeScreenshot: acceptance/011-metaphor/06-burn-confirm-overlay
 - tapOn:
     id: burn-confirm-confirm
-- extendedWaitUntil:
-    visible:
-      id: burn-complete-message
-    timeout: 20000
-- takeScreenshot: acceptance/011-metaphor/07-burn-complete-message
+# 动画结束后立即 burnEntry；active 筛选下卡片直接消失（无 burn-complete toast）
 - extendedWaitUntil:
     notVisible:
-      id: burn-complete-message
-    timeout: 10000
+      id: entry-burn-button
+    timeout: 15000
+- takeScreenshot: acceptance/011-metaphor/07-burn-active-cleared
 - tapOn:
     id: dashboard-filter-button
 - extendedWaitUntil:

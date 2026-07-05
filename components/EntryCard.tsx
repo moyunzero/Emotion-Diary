@@ -1,5 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { COLORS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
@@ -140,7 +140,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
   const { t: tSystem } = useTranslation("system");
   const { t: tRecord } = useTranslation("record");
-  const { t: tRituals } = useTranslation("rituals");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -190,8 +189,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
   const [showBurnConfirm, setShowBurnConfirm] = useState(false);
-  const [showBurnCompleteMessage, setShowBurnCompleteMessage] = useState(false);
-  const burnMessageOpacity = useRef(new Animated.Value(0)).current;
 
   const currentAudioId = useAppStore((s) =>
     s.playbackEntryId === entry.id ? s.currentAudioId : null,
@@ -357,26 +354,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   };
 
   const handleBurnComplete = () => {
+    triggerHaptic("success");
+    burnEntry(entry.id);
+    onBurn?.(entry.id);
     setIsBurning(false);
     setSnapshot(null);
     setUseSimpleAnimation(false);
-    triggerHaptic("success");
-    setShowBurnCompleteMessage(true);
-    burnMessageOpacity.setValue(1);
-    Animated.sequence([
-      Animated.delay(2500),
-      Animated.timing(burnMessageOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(({ finished }) => {
-      setShowBurnCompleteMessage(false);
-      if (finished) {
-        burnEntry(entry.id);
-        onBurn?.(entry.id);
-      }
-    });
+    setIsExpanded(false);
   };
 
   const handleDelete = () => {
@@ -551,8 +535,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsEditModalVisible(true);
   };
 
-  // 如果是灰烬状态，渲染灰烬卡片（焚烧完成 toast 期间仍走主卡片路径）
-  if (isBurned && !showBurnCompleteMessage) {
+  // 灰烬状态卡片
+  if (isBurned) {
     return (
       <View style={styles.wrapper} testID="mood-entry-card">
         <TouchableOpacity
@@ -730,7 +714,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           </TouchableOpacity>
 
           {/* Expanded Actions */}
-          {isExpanded && !isResolved && !isBurned && !showBurnCompleteMessage && (
+          {isExpanded && !isResolved && !isBurned && (
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -802,29 +786,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             </View>
           )}
         </Animated.View>
-
-        {showBurnCompleteMessage && (
-          <Animated.View
-            style={[
-              {
-                position: "absolute",
-                left: 0,
-                right: 0,
-                bottom: 0,
-                padding: 12,
-                backgroundColor: "rgba(249,115,22,0.12)",
-                borderBottomLeftRadius: DESIGN_TOKENS.borderRadius.xl,
-                borderBottomRightRadius: DESIGN_TOKENS.borderRadius.xl,
-                opacity: burnMessageOpacity,
-              },
-            ]}
-            testID="burn-complete-message"
-          >
-            <Text style={{ fontSize: 14, color: COLORS.text.secondary, textAlign: "center" }}>
-              {tRituals("burn.complete.message")}
-            </Text>
-          </Animated.View>
-        )}
 
         <ResolveCeremonyHost
           visible={resolvePhase === "ceremony"}
