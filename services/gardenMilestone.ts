@@ -8,8 +8,8 @@ import { getGrowthStage } from '../components/Insights/utils';
 import { excludeSoftDeletedEntries } from '../shared/entries/visibility';
 import { MoodEntry, Status } from '../types';
 
-export const GARDEN_MILESTONE_V1_SEEN_PREFIX = 'garden_milestone_v1_seen_';
-export const GARDEN_MILESTONE_V1_PENDING = 'garden_milestone_v1_pending';
+const GARDEN_MILESTONE_V1_SEEN_PREFIX = 'garden_milestone_v1_seen_';
+const GARDEN_MILESTONE_V1_PENDING = 'garden_milestone_v1_pending';
 
 export type GrowthStageId = 'seed' | 'sprout' | 'seedling' | 'bud' | 'bloom';
 
@@ -42,7 +42,7 @@ export function getMilestonePendingKey(userId: string | null): string {
   return `${GARDEN_MILESTONE_V1_PENDING}_${milestoneUserSuffix(userId)}`;
 }
 
-export function getGrowthStageRank(stage: GrowthStageId): number {
+function getGrowthStageRank(stage: GrowthStageId): number {
   return STAGE_RANK[stage];
 }
 

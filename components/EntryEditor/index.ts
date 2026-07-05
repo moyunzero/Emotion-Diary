@@ -1,1 +1,1 @@
-export { EntryEditor, type EntryEditorProps, type EntryEditorCreateProps, type EntryEditorEditProps } from './EntryEditor';
+export { EntryEditor } from './EntryEditor';

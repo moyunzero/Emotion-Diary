@@ -40,7 +40,7 @@ function getNotifications(): ExpoNotifications | null {
   return notificationsModule;
 }
 
-export function configureNotificationHandler(): void {
+function configureNotificationHandler(): void {
   const Notifications = getNotifications();
   if (!Notifications || handlerConfigured) return;
   Notifications.setNotificationHandler({

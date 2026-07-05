@@ -6,8 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "emotion_reminder_settings_v1";
 
-export const DEFAULT_REMINDER_HOUR = 20;
-export const DEFAULT_REMINDER_MINUTE = 0;
+const DEFAULT_REMINDER_HOUR = 20;
+const DEFAULT_REMINDER_MINUTE = 0;
 
 export type EmotionReminderSettings = {
   dailyReminderEnabled: boolean;

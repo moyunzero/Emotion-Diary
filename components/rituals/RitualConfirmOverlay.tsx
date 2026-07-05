@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-export type RitualConfirmVariant = "resolve" | "burn";
+type RitualConfirmVariant = "resolve" | "burn";
 
 export interface RitualConfirmOverlayProps {
   variant: RitualConfirmVariant;

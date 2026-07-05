@@ -50,14 +50,14 @@ import AppIcon from "../icons/AppIcon";
 import MoodForm from "../MoodForm";
 import { styles as embeddedStyles } from "../EditEntryModal/EditEntryModal.styles";
 
-export type EntryEditorCreateProps = {
+type EntryEditorCreateProps = {
   mode: "create";
   presentation: "fullscreen";
   onClose: () => void;
   onSuccess?: () => void;
 };
 
-export type EntryEditorEditProps = {
+type EntryEditorEditProps = {
   mode: "edit";
   presentation: "embedded";
   entry: MoodEntry;
@@ -66,7 +66,7 @@ export type EntryEditorEditProps = {
   onSuccess?: () => void;
 };
 
-export type EntryEditorProps = EntryEditorCreateProps | EntryEditorEditProps;
+type EntryEditorProps = EntryEditorCreateProps | EntryEditorEditProps;
 
 export function EntryEditor(props: EntryEditorProps) {
   const { t } = useTranslation("record");

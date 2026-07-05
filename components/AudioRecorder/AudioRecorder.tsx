@@ -22,14 +22,14 @@ import { RecordButton } from "./RecordButton";
 import { WaveformView } from "./WaveformView";
 
 /** 创建页强调录音；编辑弹窗优先已有语音、压缩录音区占位 */
-export type AudioRecorderLayoutPreset = "create" | "edit";
+type AudioRecorderLayoutPreset = "create" | "edit";
 
 /**
  * 全局 clipHandler 注册策略（单例协调器只能绑定一个接收方）：
  * - `tab-focus`：仅当前 Tab 获得导航焦点时注册（记一笔）；离开 Tab 时释放，避免被编辑层抢占后永久 null
  * - `{ active: boolean }`：由父组件显式控制（编辑弹层仅在 visible 时注册）
  */
-export type AudioClipBinding = "tab-focus" | { active: boolean };
+type AudioClipBinding = "tab-focus" | { active: boolean };
 
 interface AudioRecorderProps {
   readonly audios: AudioData[];
@@ -39,7 +39,7 @@ interface AudioRecorderProps {
   readonly clipBinding?: AudioClipBinding;
 }
 
-export interface AudioRecorderHandle {
+interface AudioRecorderHandle {
   stopPlayback: () => void;
 }
 

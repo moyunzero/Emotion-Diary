@@ -62,7 +62,7 @@
     "ts-node",
     "@expo/metro-config"
   ],
-  "ignoreBinaries": ["eas"],
+  "ignoreBinaries": ["eas", "maestro"],
   "ignoreUnresolved": ["@jest/globals", "expo-updates"],
   "ignoreIssues": {
     "constants/**": ["exports"],

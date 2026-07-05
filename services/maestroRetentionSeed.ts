@@ -26,7 +26,7 @@ const DISMISS_WEEKLY_KEY = "retention_weekly_review_dismissed_week";
 const REMINDER_STORAGE_KEY = "emotion_reminder_settings_v1";
 
 export type MaestroRetentionScenario = "revisit" | "weekly";
-export type MaestroReminderPreset = "default" | "daily-on";
+type MaestroReminderPreset = "default" | "daily-on";
 
 export type MaestroRetentionSeedOptions = {
   scenario: MaestroRetentionScenario;
@@ -74,7 +74,7 @@ function makeSeedEntry(
   };
 }
 
-export async function setMaestroLocale(locale: AppLocale): Promise<void> {
+async function setMaestroLocale(locale: AppLocale): Promise<void> {
   if (!__DEV__) {
     return;
   }
