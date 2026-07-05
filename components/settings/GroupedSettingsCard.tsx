@@ -11,12 +11,14 @@ export type GroupedSettingsCardProps = {
   /** 可选首行状态（如最后同步） */
   readonly statusRow?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 };
 
 export function GroupedSettingsCard({
   children,
   statusRow,
   style,
+  testID,
 }: GroupedSettingsCardProps) {
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
@@ -25,7 +27,7 @@ export function GroupedSettingsCard({
   );
 
   return (
-    <View style={[styles.groupedCard, style]}>
+    <View style={[styles.groupedCard, style]} testID={testID}>
       {statusRow != null ? (
         <>
           {statusRow}

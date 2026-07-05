@@ -1,0 +1,359 @@
+appId: com.moyunzero.emotiondiary
+---
+# 015 Phase 5 UAT 全场景验收（testID + 截图归档）
+# 截图：.maestro/acceptance/015-retention-garden-loop/*.png
+# 运行：yarn test:maestro:preflight && yarn start & yarn test:maestro:015
+
+# ── UAT 1：Revisit Banner 中文花园副句 ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: zh-Hans
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-root
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-subtitle
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-action
+    timeout: 5000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/01-revisit-banner-zh
+
+# ── UAT 2：Revisit Banner English ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: en-US
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-root
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-subtitle
+    timeout: 10000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/02-revisit-banner-en
+
+# ── UAT 3：Weekly Review 中文分享卡桥接 ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: weekly
+      LOCALE: zh-Hans
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: weekly-review-banner
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: weekly-review-banner-body
+    timeout: 10000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/03-weekly-banner-zh
+- tapOn:
+    id: weekly-review-action
+- extendedWaitUntil:
+    visible:
+      id: share-card-canvas
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/04-share-card-bridge-zh
+- tapOn:
+    id: review-export-back-button
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 15000
+
+# ── UAT 4：Weekly Review English ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: weekly
+      LOCALE: en-US
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: weekly-review-banner
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/05-weekly-banner-en
+- tapOn:
+    id: weekly-review-action
+- extendedWaitUntil:
+    visible:
+      id: share-card-canvas
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/06-share-card-bridge-en
+- tapOn:
+    id: review-export-back-button
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 15000
+
+# ── UAT 5：Profile 提醒副文案 中文（默认关 + 开启后）──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: zh-Hans
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: profile-retention-section
+    direction: DOWN
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: profile-daily-reminder-subtext
+    timeout: 10000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/07-profile-retention-off-zh
+- runFlow:
+    file: ../subflows/apply-retention-seed.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: zh-Hans
+      REMINDERS: daily-on
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: profile-weekly-review-subtext
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/08-profile-retention-on-zh
+
+# ── UAT 6：Profile 提醒副文案 English ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: en-US
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: profile-retention-section
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/09-profile-retention-off-en
+- runFlow:
+    file: ../subflows/apply-retention-seed.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: en-US
+      REMINDERS: daily-on
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: profile-weekly-review-subtext
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/10-profile-retention-on-en
+
+# ── UAT 7：核心用户环 中文 record → dashboard → insights → export → revisit ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: weekly
+      LOCALE: zh-Hans
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- tapOn:
+    id: mood-content-input
+- inputText: "Maestro 015 核心环 zh 记一笔"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 15000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/11-core-loop-dashboard-zh
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://insights
+- extendedWaitUntil:
+    visible:
+      id: weekly-review-banner
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/12-core-loop-weekly-zh
+- tapOn:
+    id: weekly-review-action
+- extendedWaitUntil:
+    visible:
+      id: share-card-canvas
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/13-core-loop-export-zh
+- tapOn:
+    id: review-export-back-button
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: zh-Hans
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-root
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/14-core-loop-revisit-zh
+
+# ── UAT 8：核心用户环 English ──
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: weekly
+      LOCALE: en-US
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- tapOn:
+    id: mood-content-input
+- inputText: "Maestro 015 core loop en entry"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 15000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/15-core-loop-dashboard-en
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://insights
+- extendedWaitUntil:
+    visible:
+      id: weekly-review-banner
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/16-core-loop-weekly-en
+- tapOn:
+    id: weekly-review-action
+- extendedWaitUntil:
+    visible:
+      id: share-card-canvas
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/17-core-loop-export-en
+- tapOn:
+    id: review-export-back-button
+- runFlow:
+    file: ../subflows/seed-retention-touchpoints.yaml
+    env:
+      SCENARIO: revisit
+      LOCALE: en-US
+      REMINDERS: default
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: revisit-banner-root
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/015-retention-garden-loop/18-core-loop-revisit-en

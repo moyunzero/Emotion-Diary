@@ -18,15 +18,23 @@ export function createRevisitBannerStyles(width: number, height: number) {
     },
     row: {
       flexDirection: "row",
-      alignItems: "center",
+      alignItems: "flex-start",
       gap: spacing.xs,
       marginBottom: spacing.sm,
     },
-    title: {
+    textCol: {
       flex: 1,
+    },
+    title: {
       fontSize: fontSize.sm,
       color: COLORS.text.primary,
       fontFamily: "Lato_700Bold",
+      marginBottom: 2,
+    },
+    subtitle: {
+      fontSize: fontSize.xs,
+      color: COLORS.text.secondary,
+      lineHeight: 18,
     },
     action: {
       alignSelf: "flex-start",

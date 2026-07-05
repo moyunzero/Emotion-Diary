@@ -4,4 +4,5 @@
 # 诊断：bash scripts/maestro-preflight.sh
 # 011 验收截图：takeScreenshot 写入 .maestro/acceptance/011-metaphor/*.png
 # 014 验收截图：takeScreenshot 写入 .maestro/acceptance/014-shareable-ritual-cards/*.png
+# 015 验收截图：takeScreenshot 写入 .maestro/acceptance/015-retention-garden-loop/*.png
 appId: com.moyunzero.emotiondiary
