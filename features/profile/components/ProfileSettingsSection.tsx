@@ -342,7 +342,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               : tSync("uploadSubtext")
           }
           showChevron={!(storeSyncStatus === "syncing" || isLoading)}
-          disabled={isLoading}
+          disabled={
+            isLoading ||
+            storeSyncStatus === "syncing" ||
+            storeSyncStatus === "pending"
+          }
           onPress={onSyncUpload}
         />
         <View style={profileStyles.menuDivider} />
@@ -356,7 +360,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               : tSync("pullSubtext")
           }
           showChevron={!(storeSyncStatus === "syncing" || isLoading)}
-          disabled={isLoading}
+          disabled={
+            isLoading ||
+            storeSyncStatus === "syncing" ||
+            storeSyncStatus === "pending"
+          }
           onPress={onSyncDownload}
         />
         <View style={profileStyles.menuDivider} />
