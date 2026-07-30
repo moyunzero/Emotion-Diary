@@ -13,10 +13,16 @@ import { i18n } from "../i18n";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
 
 // 导入模块
-import { uploadPendingAudios } from "../services/audioSync";
+import {
+  resolvePlayableRemoteUrl,
+  uploadPendingAudios,
+} from "../services/audioSync";
 import { rescheduleEmotionRemindersFromStorage } from "../services/emotionReminders";
 import { fetchUserTombstoneEntryIds } from "../services/entryTombstones";
-import { initAudioCoordinator } from "../shared/audio/coordinator";
+import {
+  initAudioCoordinator,
+  setAudioRemoteResolver,
+} from "../shared/audio/coordinator";
 import { initRecordingCoordinator } from "../shared/audio/recordingCoordinator";
 import { applyAudioUploadResults } from "../shared/audio/sync";
 import { mergeCloudPullEntries } from "../shared/sync/cloudMerge";
@@ -197,6 +203,7 @@ export const useAppStore = create<AppState>()((...args) => {
     initAudioCoordinator((patch) => {
       set(patch as Partial<AppState>);
     });
+    setAudioRemoteResolver(resolvePlayableRemoteUrl);
   }
 
   if (!recordingCoordinatorInitialized) {

@@ -28,3 +28,13 @@ export async function resolveAudioSource(
   }
   return audio.remoteUrl || null;
 }
+
+/**
+ * True when resolveAudioSource returned the verified local file (skip remote sign).
+ */
+export function isLocalPlaybackSource(
+  source: string,
+  audio: { localUri?: string },
+): boolean {
+  return Boolean(audio.localUri && source === audio.localUri);
+}
