@@ -48,14 +48,20 @@ jest.mock('../../../../utils/logger', () => ({
 }));
 
 import type { AudioData } from '../../../../types';
+import {
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+} from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 import {
   commitRecordingIfActive,
   forceCancelRecording,
   initRecordingCoordinator,
+  recordingCoordinator,
   registerRecordingRecorder,
   releaseRecordingClipHandler,
   setRecordingClipHandler,
+  unregisterRecordingRecorder,
 } from '../../../../shared/audio/recordingCoordinator';
 
 function makeRecorder(isRecording = true) {
@@ -86,6 +92,10 @@ describe('recordingCoordinator clipHandler ownership (real dispatch)', () => {
     });
     (FileSystem.copyAsync as jest.Mock).mockResolvedValue(undefined);
     (FileSystem.deleteAsync as jest.Mock).mockResolvedValue(undefined);
+    (requestRecordingPermissionsAsync as jest.Mock).mockResolvedValue({
+      granted: true,
+    });
+    (setAudioModeAsync as jest.Mock).mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -166,5 +176,55 @@ describe('recordingCoordinator clipHandler ownership (real dispatch)', () => {
     });
     expect(typeof clip.localUri).toBe('string');
     expect(clip.localUri.length).toBeGreaterThan(0);
+  });
+
+  it('unregisterRecordingRecorder force-cancels and clears so subsequent commit does not deliver', async () => {
+    const recorder = makeRecorder(true);
+    registerRecordingRecorder(recorder as never);
+
+    const handler = jest.fn<void, [AudioData]>();
+    setRecordingClipHandler(handler);
+
+    unregisterRecordingRecorder(recorder as never);
+
+    await commitRecordingIfActive();
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('forceCancelRecording during hung arm resets armInFlight so a later pressIn is not swallowed', async () => {
+    let resolvePerm!: (value: { granted: boolean }) => void;
+    (requestRecordingPermissionsAsync as jest.Mock).mockImplementation(
+      () =>
+        new Promise<{ granted: boolean }>((resolve) => {
+          resolvePerm = resolve;
+        }),
+    );
+
+    const recorder = makeRecorder(false);
+    registerRecordingRecorder(recorder as never);
+
+    recordingCoordinator.pressIn();
+    await Promise.resolve();
+    expect(recordingState).toBe('preparing');
+
+    await forceCancelRecording();
+    expect(recordingState).toBe('idle');
+
+    resolvePerm({ granted: true });
+    await new Promise((r) => setTimeout(r, 20));
+
+    (requestRecordingPermissionsAsync as jest.Mock).mockResolvedValue({
+      granted: true,
+    });
+    recorder.prepareToRecordAsync.mockClear();
+    recorder.record.mockClear();
+
+    recordingCoordinator.pressIn();
+    await new Promise((r) => setTimeout(r, 250));
+
+    expect(recorder.prepareToRecordAsync).toHaveBeenCalled();
+    expect(recorder.record).toHaveBeenCalled();
+    expect(recordingState).toBe('recording');
   });
 });
