@@ -1,5 +1,8 @@
 /**
- * recordingCoordinator — clipHandler 所有权（§2.3 回归）
+ * recordingCoordinator — clipHandler 所有权 / 真实 dispatch（TEST-01, D-01..D-04）
+ *
+ * 断言经 commitRecordingIfActive → commitStopInternal → clipHandler?.(newAudio)，
+ * 禁止直接调用 handler mock 再 expect toHaveBeenCalled（vacuous）。
  */
 
 jest.mock('expo-localization', () => ({
@@ -14,13 +17,13 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('expo-audio', () => ({
   requestRecordingPermissionsAsync: jest.fn(),
-  setAudioModeAsync: jest.fn(),
+  setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('expo-file-system', () => ({
   cacheDirectory: '/cache/',
-  copyAsync: jest.fn(),
-  deleteAsync: jest.fn(),
+  copyAsync: jest.fn().mockResolvedValue(undefined),
+  deleteAsync: jest.fn().mockResolvedValue(undefined),
   getInfoAsync: jest.fn(),
 }));
 
@@ -45,70 +48,123 @@ jest.mock('../../../../utils/logger', () => ({
 }));
 
 import type { AudioData } from '../../../../types';
+import * as FileSystem from 'expo-file-system';
 import {
+  commitRecordingIfActive,
+  forceCancelRecording,
+  initRecordingCoordinator,
+  registerRecordingRecorder,
   releaseRecordingClipHandler,
   setRecordingClipHandler,
 } from '../../../../shared/audio/recordingCoordinator';
 
-function makeHandler(tag: string): (clip: AudioData) => void {
-  return jest.fn((clip: AudioData) => {
-    void tag;
-    void clip;
-  });
+function makeRecorder(isRecording = true) {
+  return {
+    uri: 'file:///src.m4a',
+    getStatus: jest.fn(() => ({ isRecording, durationMillis: 3000 })),
+    stop: jest.fn().mockResolvedValue(undefined),
+    prepareToRecordAsync: jest.fn().mockResolvedValue(undefined),
+    record: jest.fn(),
+  };
 }
 
-describe('recordingCoordinator clipHandler ownership', () => {
-  const clip: AudioData = {
-    id: '1',
-    localUri: 'file:///a.m4a',
-    duration: 1,
-    fileSize: 1,
-    fileHash: 'h',
-    createdAt: 1,
-    syncStatus: 'pending',
-  };
-
-  afterEach(() => {
-    setRecordingClipHandler(null);
+describe('recordingCoordinator clipHandler ownership (real dispatch)', () => {
+  let recordingState: string = 'idle';
+  const sync = jest.fn((patch: { recordingState?: string }) => {
+    if (patch.recordingState !== undefined) {
+      recordingState = patch.recordingState;
+    }
   });
 
-  it('release 非当前 handler 后当前 handler 仍占住协调器（set(null) 能清空）', () => {
-    const a = makeHandler('a');
-    const b = makeHandler('b');
-    setRecordingClipHandler(a);
-    setRecordingClipHandler(b);
-
-    releaseRecordingClipHandler(a);
-    setRecordingClipHandler(null);
-
-    const c = makeHandler('c');
-    setRecordingClipHandler(c);
-    c(clip);
-    expect(c).toHaveBeenCalled();
-    expect(a).not.toHaveBeenCalled();
+  beforeEach(() => {
+    recordingState = 'idle';
+    sync.mockClear();
+    initRecordingCoordinator(sync, () => recordingState as never);
+    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      exists: true,
+      size: 42,
+    });
+    (FileSystem.copyAsync as jest.Mock).mockResolvedValue(undefined);
+    (FileSystem.deleteAsync as jest.Mock).mockResolvedValue(undefined);
   });
 
-  it('release 当前 handler 后新 set 可正常注册', () => {
-    const first = makeHandler('first');
+  afterEach(async () => {
+    setRecordingClipHandler(null);
+    await forceCancelRecording();
+  });
+
+  it('stale release of superseded (tab) handler is a no-op; commit delivers only to edit handler', async () => {
+    registerRecordingRecorder(makeRecorder(true) as never);
+
+    const tabHandler = jest.fn<void, [AudioData]>();
+    const editHandler = jest.fn<void, [AudioData]>();
+
+    setRecordingClipHandler(tabHandler);
+    setRecordingClipHandler(editHandler);
+    releaseRecordingClipHandler(tabHandler);
+
+    await commitRecordingIfActive();
+
+    expect(editHandler).toHaveBeenCalledTimes(1);
+    expect(editHandler.mock.calls[0][0]).toMatchObject({
+      duration: 3,
+      fileSize: 42,
+      syncStatus: 'pending',
+    });
+    expect(tabHandler).not.toHaveBeenCalled();
+  });
+
+  it('release of current handler clears; subsequent commit does not call released handler', async () => {
+    registerRecordingRecorder(makeRecorder(true) as never);
+
+    const first = jest.fn<void, [AudioData]>();
     setRecordingClipHandler(first);
     releaseRecordingClipHandler(first);
 
-    const second = makeHandler('second');
-    setRecordingClipHandler(second);
+    await commitRecordingIfActive();
 
-    second(clip);
-    expect(second).toHaveBeenCalledWith(clip);
+    expect(first).not.toHaveBeenCalled();
   });
 
-  it('setRecordingClipHandler(null) 清空全局 handler', () => {
-    const handler = makeHandler('h');
+  it('setRecordingClipHandler(null) then commit does not call prior handler', async () => {
+    registerRecordingRecorder(makeRecorder(true) as never);
+
+    const handler = jest.fn<void, [AudioData]>();
     setRecordingClipHandler(handler);
     setRecordingClipHandler(null);
 
-    const next = makeHandler('next');
-    setRecordingClipHandler(next);
+    await commitRecordingIfActive();
 
-    next(clip);
-    expect(next).toHaveBeenCalled();
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('commitRecordingIfActive is a no-op when recorder reports not recording', async () => {
+    registerRecordingRecorder(makeRecorder(false) as never);
+
+    const handler = jest.fn<void, [AudioData]>();
+    setRecordingClipHandler(handler);
+
+    await commitRecordingIfActive();
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('commit delivers clip with duration/fileSize/syncStatus pending shape', async () => {
+    registerRecordingRecorder(makeRecorder(true) as never);
+
+    const handler = jest.fn<void, [AudioData]>();
+    setRecordingClipHandler(handler);
+
+    await commitRecordingIfActive();
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    const clip = handler.mock.calls[0][0];
+    expect(clip).toMatchObject({
+      duration: 3,
+      fileSize: 42,
+      syncStatus: 'pending',
+    });
+    expect(typeof clip.localUri).toBe('string');
+    expect(clip.localUri.length).toBeGreaterThan(0);
   });
 });
