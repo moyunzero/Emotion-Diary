@@ -347,9 +347,53 @@ describe('useAppStore sync integration (TEST-02 / D-05)', () => {
     });
   });
 
-  it('D-05 syncFromCloud: cloud-wins merge + tombstone filter', async () => {
-    // Plan 09-04 Task 2: cloud-wins merge via syncFromCloud
-    seedStore([makeEntry({ id: 'e1', content: 'x' })]);
-    expect(false).toBe(true);
+  describe('syncFromCloud', () => {
+    it('D-05 syncFromCloud: cloud-wins merge + tombstone filter', async () => {
+      mockSyncDb.handlers['entry_tombstones.select'] = () => ({
+        data: [{ entry_id: 'e2' }],
+        error: null,
+      });
+      mockSyncDb.handlers['entries.select'] = () => ({
+        data: [
+          {
+            id: 'e1',
+            user_id: 'u1',
+            timestamp: 1_700_000_002_000,
+            moodlevel: MoodLevel.ANNOYED,
+            content: 'c',
+            deadline: 'later',
+            people: [],
+            triggers: [],
+            status: 'active',
+            updatedat: 1_700_000_009_000,
+            audios: [],
+          },
+        ],
+        error: null,
+      });
+
+      seedStore([
+        makeEntry({
+          id: 'e1',
+          content: 'x',
+          updatedAt: 1_700_000_001_000,
+          timestamp: 1_700_000_001_000,
+        }),
+        makeEntry({
+          id: 'e2',
+          content: 'x',
+          updatedAt: 1_700_000_001_500,
+          timestamp: 1_700_000_001_500,
+        }),
+      ]);
+
+      expect(await useAppStore.getState().syncFromCloud()).toBe(true);
+
+      const { entries, syncStatus } = useAppStore.getState();
+      expect(syncStatus).toBe('idle');
+      expect(entries.map((e) => e.id)).toEqual(['e1']);
+      expect(entries[0].content).toBe('c');
+      expect(entries[0].updatedAt).toBe(1_700_000_009_000);
+    });
   });
 });
