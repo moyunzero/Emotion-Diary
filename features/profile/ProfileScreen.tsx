@@ -62,7 +62,7 @@ export function ProfileScreen() {
   const syncHandlers = useProfileSyncHandlers({
     isSyncingRef: state.isSyncingRef,
     setIsLoading: state.setIsLoading,
-    setSyncStatus: state.setSyncStatus,
+    setProfileSyncChrome: state.setProfileSyncChrome,
     setSyncProgress: state.setSyncProgress,
     setLastSyncTime: state.setLastSyncTime,
     setIsLoginModalOpen: state.setIsLoginModalOpen,
@@ -237,7 +237,7 @@ export function ProfileScreen() {
           onSetLocale={setLocale}
           onSetLocaleMode={setLocaleMode}
           user={user}
-          syncStatus={state.syncStatus}
+          profileSyncChrome={state.profileSyncChrome}
           syncProgress={state.syncProgress}
           lastSyncTime={state.lastSyncTime}
           formatLastSyncTime={syncHandlers.formatLastSyncTime}

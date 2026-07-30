@@ -10,12 +10,12 @@ import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
 import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
 import type { MutableRefObject } from "react";
-import type { SyncStatus } from "./useProfileScreenState";
+import type { ProfileSyncChrome } from "./useProfileScreenState";
 
 type StateRef = {
   isSyncingRef: MutableRefObject<boolean>;
   setIsLoading: (v: boolean) => void;
-  setSyncStatus: (v: SyncStatus) => void;
+  setProfileSyncChrome: (v: ProfileSyncChrome) => void;
   setSyncProgress: (v: string) => void;
   setLastSyncTime: (v: number) => void;
   setIsLoginModalOpen: (v: boolean) => void;
@@ -37,13 +37,13 @@ export function useProfileSyncHandlers(state: StateRef) {
         return;
       }
 
-      const { isSyncingRef, setIsLoading, setSyncStatus, setSyncProgress } =
+      const { isSyncingRef, setIsLoading, setProfileSyncChrome, setSyncProgress } =
         state;
       if (isSyncingRef.current) return;
 
       isSyncingRef.current = true;
       setIsLoading(true);
-      setSyncStatus("syncing");
+      setProfileSyncChrome("syncing");
       setSyncProgress(
         type === "upload"
           ? i18n.t("upload.progress", { ns: "sync" })
@@ -59,29 +59,29 @@ export function useProfileSyncHandlers(state: StateRef) {
         if (!ok) {
           const status = useAppStore.getState().syncStatus;
           if (status === "pending") {
-            setSyncStatus("syncing");
+            setProfileSyncChrome("syncing");
             setSyncProgress(i18n.t("pendingMessage", { ns: "sync" }));
             setTimeout(() => {
-              setSyncStatus("idle");
+              setProfileSyncChrome("idle");
               setSyncProgress("");
             }, 2500);
             return;
           }
           if (status === "error") {
-            setSyncStatus("error");
+            setProfileSyncChrome("error");
             setSyncProgress(i18n.t("notLoggedIn", { ns: "sync" }));
             setTimeout(() => {
-              setSyncStatus("idle");
+              setProfileSyncChrome("idle");
               setSyncProgress("");
             }, 3000);
             return;
           }
-          setSyncStatus("error");
+          setProfileSyncChrome("error");
           setSyncProgress(
             i18n.t("sync.operationIncomplete", { ns: "system" }),
           );
           setTimeout(() => {
-            setSyncStatus("idle");
+            setProfileSyncChrome("idle");
             setSyncProgress("");
           }, 3000);
           return;
@@ -97,7 +97,7 @@ export function useProfileSyncHandlers(state: StateRef) {
           .getState()
           .entries.flatMap((e) => e.audios ?? [])
           .filter((a) => a.syncStatus === "failed").length;
-        setSyncStatus("success");
+        setProfileSyncChrome("success");
         const baseMsg =
           type === "upload"
             ? i18n.t("upload.success", { ns: "sync", count: visibleCount })
@@ -112,7 +112,7 @@ export function useProfileSyncHandlers(state: StateRef) {
         );
         useAppStore.setState({ syncStatus: "idle" });
         setTimeout(() => {
-          setSyncStatus("idle");
+          setProfileSyncChrome("idle");
           setSyncProgress("");
         }, 2000);
       } catch (error: unknown) {
@@ -120,10 +120,10 @@ export function useProfileSyncHandlers(state: StateRef) {
         const errorMessage =
           err?.message ||
           i18n.t("sync.operationFailed", { ns: "system" });
-        setSyncStatus("error");
+        setProfileSyncChrome("error");
         setSyncProgress(errorMessage);
         setTimeout(() => {
-          setSyncStatus("idle");
+          setProfileSyncChrome("idle");
           setSyncProgress("");
         }, 3000);
       } finally {

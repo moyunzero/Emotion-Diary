@@ -5,7 +5,7 @@
 import { useRef, useState } from "react";
 import { Animated, type ScrollView, type TextInput } from "react-native";
 
-export type SyncStatus = "idle" | "syncing" | "success" | "error";
+export type ProfileSyncChrome = "idle" | "syncing" | "success" | "error";
 
 export type ToastState = {
   message: string;
@@ -25,7 +25,8 @@ export function useProfileScreenState() {
   const emailInputRef = useRef<TextInput>(null);
   const isSwitchingModeRef = useRef(false);
 
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [profileSyncChrome, setProfileSyncChrome] =
+    useState<ProfileSyncChrome>("idle");
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
   const [syncProgress, setSyncProgress] = useState<string>("");
 
@@ -71,8 +72,8 @@ export function useProfileScreenState() {
     modalScrollViewRef,
     emailInputRef,
     isSwitchingModeRef,
-    syncStatus,
-    setSyncStatus,
+    profileSyncChrome,
+    setProfileSyncChrome,
     lastSyncTime,
     setLastSyncTime,
     syncProgress,
