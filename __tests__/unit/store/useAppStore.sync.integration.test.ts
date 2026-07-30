@@ -1,7 +1,7 @@
 /**
- * useAppStore sync integration — Wave 0 harness for TEST-02 (D-05..D-08).
+ * useAppStore sync integration — TEST-02 (D-05..D-08).
  *
- * D-05 scenarios (Plan 09-04 greens assertions):
+ * D-05 scenarios:
  * - tombstone purge excludes upsert
  * - revision-meta push skip
  * - 42501 → 23505 → update (CR-01); meta advances only on update OK
@@ -9,7 +9,6 @@
  * - syncFromCloud cloud-wins merge
  *
  * Pattern 2 import mocks + Pattern 3 thenable supabase fake (09-RESEARCH).
- * RED until Plan 09-04 fills RESEARCH verified expects; do not describe.skip.
  */
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
@@ -157,6 +156,7 @@ jest.mock('@/lib/supabase', () => ({
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MoodLevel, Status, type AudioData, type MoodEntry } from '@/types';
+import { revisionMetaStorageKey } from '@/shared/sync/revisionMeta';
 import { cleanupStoreTimers, useAppStore } from '@/store/useAppStore';
 
 const mockStorage = AsyncStorage as jest.Mocked<typeof AsyncStorage> & {
@@ -231,7 +231,7 @@ afterAll(() => {
   cleanupStoreTimers();
 });
 
-describe('useAppStore sync integration (TEST-02 / D-05 Wave 0)', () => {
+describe('useAppStore sync integration (TEST-02 / D-05)', () => {
   it('harness loads store and exposes syncToCloud / syncFromCloud', () => {
     expect(typeof useAppStore.getState().syncToCloud).toBe('function');
     expect(typeof useAppStore.getState().syncFromCloud).toBe('function');
@@ -239,39 +239,116 @@ describe('useAppStore sync integration (TEST-02 / D-05 Wave 0)', () => {
     expect(isWritebackPayload({ audios: [], id: 'e1' })).toBe(false);
   });
 
-  it('D-05 tombstone: purged entry excluded from upsert', async () => {
-    // Plan 09-04: RESEARCH Code Example — tombstone purge excludes upsert
-    seedStore([makeEntry({ id: 'e1' }), makeEntry({ id: 'e2' })]);
-    expect(useAppStore.getState().entries).toHaveLength(2);
-    expect(false).toBe(true);
-  });
+  describe('syncToCloud', () => {
+    it('D-05 tombstone: purged entry excluded from upsert', async () => {
+      mockSyncDb.handlers['entry_tombstones.select'] = () => ({
+        data: [{ entry_id: 'e2' }],
+        error: null,
+      });
 
-  it('D-05 revision-meta: unchanged entry skipped on second push', async () => {
-    // Plan 09-04: RESEARCH — push skip via revision meta
-    seedStore([makeEntry({ id: 'e1', updatedAt: 5000 })]);
-    expect(false).toBe(true);
-  });
+      seedStore([makeEntry({ id: 'e1' }), makeEntry({ id: 'e2' })]);
 
-  it('D-05 CR-01: 42501 then 23505 routes to update; meta advances only on update OK', async () => {
-    // Plan 09-04: RESEARCH CR-01 + negative twin (update fail)
-    seedStore([makeEntry({ id: 'e1', updatedAt: 5000 })]);
-    expect(false).toBe(true);
-  });
+      expect(await useAppStore.getState().syncToCloud()).toBe(true);
 
-  it('D-05 CR-02 writeback: failure clears lastSynced for that entry', async () => {
-    // Plan 09-04: RESEARCH CR-02 — audios-only update error clears meta
-    seedStore([
-      makeEntry({
-        id: 'e1',
-        updatedAt: 5000,
-        audios: [makeAudio({ id: 'a1' })],
-      }),
-    ]);
-    expect(false).toBe(true);
+      const upsert = mockSyncDb.calls.find((c) => c.op === 'upsert');
+      expect((upsert?.payload as { id: string }[]).map((e) => e.id)).toEqual([
+        'e1',
+      ]);
+      expect(
+        mockSyncDb.calls.some(
+          (c) => c.table === 'entries' && c.op === 'delete',
+        ),
+      ).toBe(true);
+      expect(useAppStore.getState().syncStatus).toBe('idle');
+    });
+
+    it('D-05 revision-meta: unchanged entry skipped on second push', async () => {
+      seedStore([makeEntry({ id: 'e1', updatedAt: 5000 })]);
+
+      await useAppStore.getState().syncToCloud();
+      mockSyncDb.calls.length = 0;
+      await useAppStore.getState().syncToCloud();
+
+      expect(mockSyncDb.calls.some((c) => c.op === 'upsert')).toBe(false);
+    });
+
+    it('D-05 CR-01: 42501 then 23505 routes to update; meta advances only on update OK', async () => {
+      mockSyncDb.handlers['entries.upsert'] = () => ({
+        error: { code: '42501' },
+      });
+      mockSyncDb.handlers['entries.select'] = () => ({ data: [], error: null });
+      mockSyncDb.handlers['entries.insert'] = () => ({
+        error: { code: '23505' },
+      });
+      const updatePayloads: unknown[] = [];
+      mockSyncDb.handlers['entries.update'] = (p) => {
+        updatePayloads.push(p);
+        return { error: null };
+      };
+
+      seedStore([makeEntry({ id: 'e1', updatedAt: 5000 })]);
+
+      expect(await useAppStore.getState().syncToCloud()).toBe(true);
+      expect(updatePayloads).toHaveLength(1);
+
+      const meta = JSON.parse(
+        mockStorage._store[revisionMetaStorageKey('u1')],
+      );
+      expect(meta.lastSyncedUpdatedAtByEntryId).toEqual({ e1: 5000 });
+    });
+
+    it('D-05 CR-01 twin: 23505 then update fail does not advance lastSynced', async () => {
+      mockSyncDb.handlers['entries.upsert'] = () => ({
+        error: { code: '42501' },
+      });
+      mockSyncDb.handlers['entries.select'] = () => ({ data: [], error: null });
+      mockSyncDb.handlers['entries.insert'] = () => ({
+        error: { code: '23505' },
+      });
+      mockSyncDb.handlers['entries.update'] = () => ({
+        error: { message: 'denied' },
+      });
+
+      seedStore([makeEntry({ id: 'e1', updatedAt: 5000 })]);
+
+      await useAppStore.getState().syncToCloud();
+
+      expect(mockStorage._store[revisionMetaStorageKey('u1')]).toBeUndefined();
+    });
+
+    it('D-05 CR-02 writeback: failure clears lastSynced for that entry', async () => {
+      mockSyncDb.handlers['entries.upsert'] = () => ({ error: null });
+      mockSyncDb.handlers['entries.update'] = (p) =>
+        isWritebackPayload(p)
+          ? { error: { message: 'writeback boom' } }
+          : { error: null };
+
+      mockUploadPendingAudios.mockResolvedValue({
+        success: 1,
+        failed: 0,
+        results: new Map([['a1', 'audios/u1/a1.m4a']]),
+        failedAudioIds: [],
+      });
+
+      seedStore([
+        makeEntry({
+          id: 'e1',
+          updatedAt: 5000,
+          audios: [makeAudio({ id: 'a1' })],
+        }),
+      ]);
+
+      await useAppStore.getState().syncToCloud();
+
+      const meta = JSON.parse(
+        mockStorage._store[revisionMetaStorageKey('u1')],
+      );
+      expect(meta.lastSyncedUpdatedAtByEntryId).toEqual({});
+    });
   });
 
   it('D-05 syncFromCloud: cloud-wins merge + tombstone filter', async () => {
-    // Plan 09-04: cloud-wins merge via syncFromCloud
+    // Plan 09-04 Task 2: cloud-wins merge via syncFromCloud
     seedStore([makeEntry({ id: 'e1', content: 'x' })]);
     expect(false).toBe(true);
   });
