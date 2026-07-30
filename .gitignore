@@ -48,7 +48,7 @@ pnpm-debug.log*
 lerna-debug.log*
 .pnpm-store/
 
-# AI / Planning — 本地规划目录，不上传 GitHub（工程正文见 openspec/engineering-system.md、openspec/engineering-quality.md）
+# AI / Planning — 本地规划目录，不上传 GitHub（工程事实见 `.planning/codebase/` 七篇 map）
 .planning/
 # App Store 本地素材（截图等）；metadata 文案入库
 app-store-submission/*
@@ -122,7 +122,7 @@ expo-env.d.ts
 .metro-health-check*
 .eas/
 
-# Expo prebuild 原生工程（CNG 按需本地生成，见 openspec/changes/WORKTREE-2026-06.md）
+# Expo prebuild 原生工程（CNG 按需本地生成，见 .planning/archive/WORKTREE-2026-06.md）
 /ios/
 /android/
 
@@ -285,7 +285,6 @@ docs/
 .monkeycode/
 
 # OpenSpec
-# openspec/
 
 # Misc
 app-example/

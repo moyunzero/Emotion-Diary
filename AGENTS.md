@@ -1,114 +1,113 @@
-# AGENTS.md - 心晴MO开发指南
+# AGENTS.md — 心晴MO
 
-## Agent 执行基线（必循）
+面向编码 Agent 的仓库指令（人类说明见 `README.md`）。与 [`.cursor/rules/karpathy-guidelines.mdc`](./.cursor/rules/karpathy-guidelines.mdc)（alwaysApply）叠加；冲突时取**更严**或**更贴近用户当次需求**者。
 
-- **Karpathy 行为准则**：编写、审查或重构代码时须遵循 [`.cursor/rules/karpathy-guidelines.mdc`](./.cursor/rules/karpathy-guidelines.mdc)——先澄清假设与取舍、最小必要改动、手术式编辑（不顺带「美化」无关代码）、可验证的成功标准（改完跑 `typecheck` / `lint` 等）。该规则在 Cursor 中为 **alwaysApply**，与本文件及 OpenSpec 约定叠加生效，冲突时以更严、更贴近用户明确需求者为准。
+本地规划根：[`.planning/README.md`](./.planning/README.md)（**gitignore，不上传 GitHub**）。
 
-## 开发环境
+---
+
+## 必做 / 禁止
+
+**必做**
+
+1. 改代码前：澄清假设；有歧义先问；能简单则简单。
+2. 功能 / 里程碑 / phase / 调试：先读并执行对应 **`gsd-*` skill**（`~/.claude/skills/gsd-*/SKILL.md`），勿手写平行流程。
+3. 包管理只用 **Yarn**（`yarn.lock`）；对齐 CI 用 `yarn install --frozen-lockfile`。
+4. 合并前验证：`yarn typecheck && yarn lint && yarn test`（触及 E2E 路径再跑对应 e2e）。
+5. 本次改动产生的未使用 import / 死代码，同一 diff 删掉。
+6. 最终回复写明：依据（GSD skill / 文档）、验证命令与结果、未验证项或剩余风险。
+
+**禁止**
+
+- 在 `master` 上直接开发或提交；未经用户明确要求不要 `git commit` / `push` / `--force`。
+- 使用 npm / pnpm 安装依赖；提交 `.env`、真实密钥、`SUPABASE_SERVICE_ROLE_KEY` 进客户端。
+- 新建仓库根 `openspec/` 或依赖已删除的 `docs/`；把规划正文提交进 GitHub（`.planning/` 本地）。
+- 扩大范围「顺便重构」无关文件；为未要求的场景加抽象 / 配置 / 错误处理。
+- 向 store 增加「只改 `isPlaying`、不驱动原生」的半截音频 API。
+- 在 `services` 中 import `components` / `store`；在 `utils` 塞副作用业务（见 ESLint `boundaries`）。
+
+---
+
+## 命令（复制即用）
 
 ```bash
-yarn install          # 安装依赖
-yarn start           # 启动开发服务器
-yarn ios             # iOS模拟器
-yarn android         # Android模拟器
-yarn web             # Web预览
+yarn install                 # 安装
+yarn start                   # Metro / Expo
+yarn ios | yarn android | yarn web
+
+yarn typecheck               # tsc --noEmit
+yarn lint                    # ESLint（含 boundaries）
+yarn test                    # Jest 单测（排除 e2e/）
+yarn verify:governance       # 治理；CI 仅 push master 必跑
+
+yarn test:e2e                # Playwright · Expo Web（本地）
+yarn test:maestro:preflight  # Maestro 环境诊断
+yarn test:maestro            # 原生 E2E（需 CLI + 模拟器 + dev build）
 ```
 
-## 代码质量检查
+**CI（Node 22）**：PR / push `master` → `typecheck` → `lint` → `test`；仅 push `master` 另跑 `verify:governance` + smoke。E2E **不进 CI**。
 
-```bash
-yarn lint            # ESLint
-yarn typecheck       # TypeScript
-yarn verify:governance  # 治理规则校验
-```
+---
 
-**CI流程（PR和push到master）**：
+## GSD 流程
+
+| 意图 | Skill |
+| --- | --- |
+| 进度 / 下一步 | `gsd-progress` |
+| 新里程碑 | `gsd-new-milestone`（无规划时：`gsd-map-codebase` → `gsd-new-project`） |
+| Phase | `gsd-discuss-phase` → `gsd-plan-phase` → `gsd-execute-phase` → `gsd-verify-work` → `gsd-ship` |
+| 小改 / 极小改 | `gsd-quick` / `gsd-fast` |
+| Bug | `gsd-debug` |
+| 帮助 | `gsd-help` |
+
+闭环：`/gsd-progress` → discuss → plan → execute → verify → ship。
+
+工程事实（对照代码，优先读这些，勿在 AGENTS 双写长文）：
+
+- `.planning/codebase/STACK.md` · `ARCHITECTURE.md` · `STRUCTURE.md` · `INTEGRATIONS.md`
+- `.planning/codebase/CONVENTIONS.md` · `TESTING.md` · `CONCERNS.md`
+- 领域补充：`.planning/domain/`（`data-models` / `state-management` / `services` / `ui-components`）
+- 状态：`.planning/STATE.md` · `PROJECT.md` · `ROADMAP.md`
+
+---
+
+## 架构要点（易踩坑）
 
 ```text
-typecheck -> lint -> test
+app/           Expo Router 路由
+components/    UI
+features/      垂直功能（profile、recycleBin…）
+store/         Zustand；modules/* 切片；入口 useAppStore.ts
+services/      副作用编排（禁引 components/store）
+shared/        纯领域逻辑（sync、audio、weather…）
+utils/         纯工具（logger、aiService、errorHandler…）
+lib/           supabase 客户端
+types.ts       领域模型（MoodEntry 等）
 ```
 
-**额外（仅push到master）**：
+- **数据**：离线优先；软删设 `deletedAt`；上云列 `deletedat`；拉云同 id **云端优先**。详见 `domain/state-management.md`。
+- **音频**：播放单一实例 → `shared/audio/coordinator.ts` + store `pauseAudio` / `stopAudio`；录音片段 → `shared/audio/recordingCoordinator.ts`（`clipBinding` + `releaseRecordingClipHandler`）。见 `CONCERNS.md`。
+- **日志**：新代码用 `utils/logger`；生产勿刷信息级日志。
+- **分支**：`YYMMDD-(feat|fix|chore|refactor)-描述`；默认分支 `master`。
 
-```text
-verify:governance -> verify-governance-smoke.js
-```
+### 脆弱区（改前必读 CONCERNS + 相关单测）
 
-（`yarn test` 为 Jest/ts-jest 纯 Node 单测，与 `.github/workflows/ci.yml` 中 Node 22 一致。）
+- `store/useAppStore.ts` 同步与初始化
+- `shared/audio/recordingCoordinator.ts` · `services/audioSync.ts`
+- `utils/aiService.ts` · `lib/supabase.ts`
 
-**E2E（本地，未进 CI）**：Web 回收站主路径 `yarn test:e2e`（Playwright）；iOS/Android 原生全链路 `yarn test:maestro`（需 [Maestro CLI](https://maestro.mobile.dev) + 模拟器已安装 dev build）。Flow 见 `e2e/`、`.maestro/`。
+---
 
-**日志**：新代码优先 `utils/logger`；信息级勿在生产刷屏（`__DEV__` 或 `logger`）。详见 [`openspec/engineering-quality.md`](./openspec/engineering-quality.md) 摘要与 `utils/logger.ts` 中 `persistLog` 说明。
+## 安全
 
-## 项目架构
+- 密钥只放 `.env`（参考 `.env.example`）；客户端仅 `EXPO_PUBLIC_*`。
+- 不上报日记正文 / 标签 / 音频内容；本仓库不接 Sentry。
+- 分享卡默认不暴露日记全文；改分享路径时保持脱敏。
 
-```text
-app/              # Expo Router页面（文件即路由）
-components/       # 通用组件（含子目录：EditEntryModal/ReviewExport/Insights/entries/ai等）
-features/         # 功能模块（如profile/）
-store/            # Zustand状态管理
-store/modules/    # 模块化slice（entries/user/weather/ai/storage）
-hooks/            # 自定义Hooks
-utils/            # 工具函数
-services/         # 业务服务
-shared/           # 跨层共享
-constants/        # 常量
-types.ts          # 领域模型
-```
+---
 
-## 关键类型
+## 变更收尾
 
-```typescript
-// 情绪条目（MoodEntry）定义在 types.ts
-interface MoodEntry {
-  id: string;
-  timestamp: number;
-  moodLevel: MoodLevel;
-  content: string;
-  deadline: string;
-  people: string[];
-  triggers: string[];
-  status: Status;
-  // ...
-}
-```
-
-## Store模式
-
-使用Zustand模块化设计，`store/modules/*.ts`定义各模块接口和实现，`store/useAppStore.ts`组合。
-
-**条目与同步（简）**：新建 `id` 为 UUID v4（`generateEntryId`）；用户删除为**软删**（`deletedAt`，仍留在 `entries`）；上云列 `deletedat`；`syncFromCloud` / `recoverFromCloud` 合并时**同 id 以云端行为准**。详情见 `openspec/state-management.md`、`openspec/changes/002-entry-backup-soft-delete/SPEC.md`。
-
-## 音频功能
-
-使用 `expo-audio` 处理录音和播放（已从旧版 `expo-av` 迁移）。已配置 `expo-media-library`。播放为**单一实例**：业务侧调用 `shared/audio/coordinator.ts`，经 `store` 的 `pauseAudio` / `stopAudio` 与 UI 状态对齐；勿再向 store 增加「只改 isPlaying、不驱动原生」的半截 API。
-
-## Git规范
-
-- **默认分支**: master
-- **新分支命名**: `YYMMDD-(feat|fix|chore|refactor)-描述`
-- **不要在master分支直接操作**
-- **`openspec/`**：OpenSpec 领域规范 + SSD 任务目录（`changes/`、`templates/`），**应提交到版本库**；详见 `openspec/README.md`
-- **`docs/`** 在 gitignore 中（本地补充文档不入库）
-
-## OpenSpec / SSD 规范同步开发
-
-- 开发前先读 **`openspec/README.md`**，再按需打开 **`openspec/engineering-system.md`**（栈、目录、集成）或 **`openspec/engineering-quality.md`**（约定、风险、UI 壳层、测试）
-- 新功能、重要修复、跨模块重构先在 **`openspec/changes/<编号>-<名称>/`** 建立 `SPEC.md`（可从 `openspec/templates/` 拷贝）；复杂任务补 `PLAN.md` 和 `VERIFICATION.md`
-- **`.planning/`** 为本地规划目录（默认 **gitignore**，不上传 GitHub）；SSD 任务与工程正文以 **`openspec/`**（`changes/`、`engineering-system.md`、`engineering-quality.md`）为准
-- 大批次合入前对照：**[`openspec/changes/WORKTREE-2026-06.md`](./openspec/changes/WORKTREE-2026-06.md)**（003–010 代码入口、E2E、验证命令）
-- 改代码后同步更新受影响文档；新风险写入 **`openspec/engineering-quality.md`** §2，新约定写入同文件 §1（或 §4 若属测试/CI）
-- 最终回复必须说明改动依据、验证结果、未验证项或剩余风险
-
-## 重要约束
-
-- TypeScript严格模式
-- 离线优先+云端同步
-- 使用Groq API做AI功能
-- 使用Supabase做云端存储
-- **无用代码及时清理**：替换实现或合并功能后，删除未被引用的 action、类型、导出与分支；提交前全仓库搜索旧符号确认无残留，并跑通 `yarn typecheck`（及受影响路径的 `yarn lint` / 测试）。避免「半套旧 API + 半套新路径」长期并存误导后续开发。
-
-## Agent 协作（变更收尾）
-
-- 每次改代码若产生孤儿（本次改动引入的未使用 import/变量/方法），**在同一批提交内删掉**。
-- 跨文件契约变更（如播放从 store 直设改为 coordinator）时，同步删类型与实现，并在 `openspec/engineering-quality.md` 等有约定处按需补一句（重大行为再写 `changes/`）。
+1. 跑通与改动匹配的验证命令；失败先修再结束。
+2. 行为 / 公共 API 变更：同步更新本地 `.planning/codebase/` 或 `domain/`（及当前 phase VERIFICATION）。
+3. Phase 收尾：对应 `gsd-verify-work` / `gsd-ship` / `gsd-complete-milestone`，并更新本地 `STATE.md`。

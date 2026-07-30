@@ -54,14 +54,14 @@ yarn test              # Jest unit tests (excludes e2e/)
 - **Pull requests / push to `master`:** `yarn typecheck` → `yarn lint` → `yarn test` (Node 22).
 - **Push to `master` only:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
 
-**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015`. See [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4.
+**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015`. See [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4.
 
 ### Community & docs
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 - [SECURITY.md](./SECURITY.md)
-- [openspec/README.md](./openspec/README.md) · [openspec/engineering-system.md](./openspec/engineering-system.md) · [openspec/engineering-quality.md](./openspec/engineering-quality.md)
+- [.planning/README.md](./.planning/README.md) · [.planning/codebase/ARCHITECTURE.md](./.planning/codebase/ARCHITECTURE.md) · [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md)
 
 ## 📦 Release & App Store
 
@@ -195,8 +195,8 @@ Emotion-Diary/
 ├── hooks/ lib/ utils/ services/ shared/
 ├── i18n/ locales/               # Runtime i18n + zh-Hans / en-US bundles
 ├── styles/ types/ constants/    # Plus root types.ts, constants.ts
-├── assets/ scripts/ openspec/ docs/
-├── .planning/                   # Local planning (gitignored); specs in openspec/
+├── assets/ scripts/
+├── .planning/                   # Sole planning & engineering docs root (GSD)
 ├── app-store-submission/
 ├── src/                         # Experimental / placeholder subdomains (mostly empty)
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
@@ -211,7 +211,7 @@ Emotion-Diary/
 | `android/` `ios/` | Standard **prebuild** output; keep shared logic in TS. |
 | `components/` `features/` | Typical split: reusable UI vs feature screens/logic. |
 
-See [openspec/engineering-system.md](./openspec/engineering-system.md) §6 for SDK, native modules, and CI command anchors.
+See [.planning/codebase/ARCHITECTURE.md](./.planning/codebase/ARCHITECTURE.md) §6 for SDK, native modules, and CI command anchors.
 
 ## 🔧 Development Setup
 
@@ -343,7 +343,7 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 
 ### [1.4.0] - 2026-07-05 · App Store update
 
-> v1.4 “metaphor experience first” — all five phases (OpenSpec `011`–`015`) shipped to App Store.
+> v1.4 “metaphor experience first” — all five phases (phases 011–015) shipped to App Store.
 
 #### Added
 
@@ -399,7 +399,7 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 
 #### Developer / quality
 
-- Regression tests for sync, merge, and soft delete (OpenSpec `003`–`010`)
+- Regression tests for sync, merge, and soft delete (archive 003–010)
 - Playwright (Web) and Maestro (iOS) recycle-bin E2E (local only, not in CI)
 
 ### [1.1.0] - 2026-04-20
@@ -422,11 +422,11 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 
 ### Product Roadmap
 
-Authoritative roadmap: [`openspec/iteration-roadmap-2026.md`](./openspec/iteration-roadmap-2026.md)
+Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planning/archive/iteration-roadmap-2026.md)
 
 #### Shipped milestones
 
-| Version | Theme | OpenSpec | Status |
+| Version | Theme | Docs | Status |
 | --- | --- | --- | --- |
 | **1.2.0** | Engineering health + data trust + retention | `003`–`010` | ✅ App Store |
 | **1.3.0** | Full bilingual i18n | Phase 7 / i18n sweep | ✅ App Store |

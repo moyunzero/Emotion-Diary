@@ -1,6 +1,6 @@
 /**
  * 条目在主界面/统计中的可见性（软删）。
- * 与 `openspec/changes/002-entry-backup-soft-delete/SPEC.md` 对齐。
+ * 与 `.planning/domain/state-management.md` 对齐。
  */
 
 import type { MoodEntry } from "../../types";

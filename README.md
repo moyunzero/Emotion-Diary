@@ -61,14 +61,14 @@ yarn test              # Jest 单测（不含 e2e/）
 | Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
 | iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
 
-Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015`。Flow 见 `e2e/`、`.maestro/`。详情见 [openspec/engineering-quality.md](./openspec/engineering-quality.md) §4。
+Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
 
 ### 文档与社区
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
-- [openspec/README.md](./openspec/README.md)
-- [openspec/engineering-system.md](./openspec/engineering-system.md)
+- [.planning/README.md](./.planning/README.md)
+- [.planning/codebase/ARCHITECTURE.md](./.planning/codebase/ARCHITECTURE.md)
 
 ## 🌟 核心功能
 
@@ -252,9 +252,7 @@ Emotion-Diary/
 ├── i18n/ locales/               # 运行时 i18n 与 zh-Hans / en-US 文案包
 ├── assets/                      # 图片与静态资源
 ├── scripts/                     # 校验与治理脚本（verify-*）
-├── openspec/                    # OpenSpec 领域规范 + SSD 任务（changes/、templates/）
-├── docs/                        # 本地补充文档（默认 gitignore）
-├── .planning/                   # 本地规划（gitignore，不入库）；规范见 openspec/
+├── .planning/                   # 唯一规划与工程文档根（GSD；见 .planning/README.md）
 ├── app-store-submission/        # 商店提审文案与清单
 ├── src/                         # 预留/实验性子域目录（多数为空；少量如 core-state）
 ├── app.json eas.json metro.config.js babel.config.js eslint.config.js
@@ -270,51 +268,33 @@ Emotion-Diary/
 | `components/` `features/` | 常见 RN 分层：**展示组件**与**功能切片**分离。 |
 | `store/` `hooks/` `services/` | 状态、副作用与领域服务分离，便于测试与边界（见 ESLint `boundaries`）。 |
 
-更完整的 **SDK、Native 模块与 CI 命令锚点** 见 [openspec/engineering-system.md](./openspec/engineering-system.md) §6。
+更完整的 **SDK、Native 模块与 CI 命令锚点** 见 [.planning/codebase/ARCHITECTURE.md](./.planning/codebase/ARCHITECTURE.md) §6。
 
 **说明：** `src/` 下部分子文件夹为占位结构，与主业务并置；新功能优先落在 `app/`、`components/`、`features/` 以免重复入口。
 
-## 📚 OpenSpec 规范驱动开发
+## 📚 GSD / `.planning` 规范驱动开发
 
-本项目使用 **OpenSpec**（规范驱动开发工具）进行开发管理，确保代码质量和一致性。
+本项目以 **GSD skills** + **`.planning/`** 作为唯一规划与工程文档根（Agent 流程见根目录 [`AGENTS.md`](./AGENTS.md)）。
 
-### 什么是 OpenSpec？
+### 文档入口
 
-OpenSpec 是一个规范驱动开发（Spec-driven Development，SDD）工具，通过在编写代码之前锁定意图，确保人类和 AI 在项目需求上达成一致，从而实现可预测和可审查的输出。
+- **[`.planning/README.md`](./.planning/README.md)** — 文档索引
+- **[工程 · 系统与集成](./.planning/codebase/ARCHITECTURE.md)** — 架构、目录树、技术栈、外部集成、同步要点
+- **[工程 · 质量与体验](./.planning/codebase/TESTING.md)** — 代码约定、技术债与风险、UI 壳层、测试与 CI
+- **[项目概览](./.planning/domain/project-overview.md)** / **[数据模型](./.planning/domain/data-models.md)** / **[状态管理](./.planning/domain/state-management.md)** / **[UI](./.planning/domain/ui-components.md)** / **[服务](./.planning/domain/services.md)** / **[工具](./.planning/domain/utils.md)**
+- **历史 SSD 归档**：`.planning/archive/SSD-INDEX.md#`（001–015）
+- **里程碑状态**：`.planning/PROJECT.md` · `STATE.md` · `ROADMAP.md` · `MILESTONES.md`
 
-### 规范文档
+### 开发工作流程（摘要）
 
-所有规范文档位于 `openspec/` 目录下：
+1. **进度** — `/gsd-progress`
+2. **讨论 / 规划** — `/gsd-discuss-phase` → `/gsd-plan-phase`
+3. **执行 / 验收** — `/gsd-execute-phase` → `/gsd-verify-work`
+4. **合入** — `/gsd-ship`（或约定 PR 流程）
 
-- **[README.md](./openspec/README.md)** - OpenSpec 使用指南（含 SSD 流程与 `changes/` 任务目录说明）
-- **[工程 · 系统与集成](./openspec/engineering-system.md)** - 架构、目录树、技术栈、外部集成、同步要点
-- **[工程 · 质量与体验](./openspec/engineering-quality.md)** - 代码约定、技术债与风险、UI 壳层、测试与 CI
-- **[开发工作流](./openspec/development-workflow.md)** - 提案→审查→实施→归档；任务级规范见 `openspec/changes/`
-- **任务与模板**：`openspec/changes/<编号>-<名称>/`（SPEC / PLAN / VERIFICATION）、`openspec/templates/`
-- **[项目概览规范](./openspec/project-overview.md)** - 项目目标、技术栈、架构概览
-- **[数据模型规范](./openspec/data-models.md)** - 数据结构定义和业务规则
-- **[状态管理规范](./openspec/state-management.md)** - Zustand Store 接口和方法
-- **[UI组件规范](./openspec/ui-components.md)** - 组件功能和交互逻辑
-- **[服务层规范](./openspec/services.md)** - AI 服务和 Supabase 服务
-- **[工具函数规范](./openspec/utils.md)** - 工具函数 API 和使用说明
+小改动用 `/gsd-quick` 或 `/gsd-fast`；新里程碑用 `/gsd-new-milestone`。
 
-（工程 vs 领域「禁止双写」说明见上两篇 `engineering-*.md` 文首。）
-
-### 开发工作流程
-
-1. **提案（Proposal）** - 创建变更提案，描述所需的规范更新
-2. **审查（Review）** - 与 AI 助手一起审查和完善提案
-3. **实施（Implementation）** - 根据批准的规范实施任务
-4. **归档（Archive）** - 将完成的变更归档，并更新规范文档
-
-### 使用规范进行开发
-
-- **查看规范**：在开始新功能开发前，先查看相关的规范文档
-- **修改规范**：当需要添加新功能或修改现有功能时，先更新相应的规范文档
-- **代码审查**：使用规范文档作为代码审查的标准
-- **AI 协作**：与 AI 工具协作时，引用规范文档确保理解和实现的一致性
-
-详细说明请参考 [OpenSpec 使用指南](./openspec/README.md) 和 [开发工作流文档](./openspec/development-workflow.md)。
+详细说明见 [`.planning/README.md`](./.planning/README.md) 与 [`AGENTS.md`](./AGENTS.md)。
 
 ## 🔧 开发配置
 
@@ -527,25 +507,25 @@ eas build --platform ios --profile production
 
 ### 产品开发路线
 
-权威路线图：[`openspec/iteration-roadmap-2026.md`](./openspec/iteration-roadmap-2026.md)
+权威路线图：[`.planning/archive/iteration-roadmap-2026.md`](./.planning/archive/iteration-roadmap-2026.md)
 
 #### 已交付里程碑
 
-| 版本 | 主题 | OpenSpec | 状态 |
+| 版本 | 主题 | 文档 | 状态 |
 | --- | --- | --- | --- |
-| **1.2.0** | 工程健康 + 数据信任 + 留存触达 | `003`–`010` | ✅ App Store |
-| **1.3.0** | 完整双语 i18n | Phase 7 / i18n sweep | ✅ App Store |
-| **1.4.0** | 隐喻体验优先 | `011`–`015`（视觉 → onboarding → 叙事 → 分享卡 → 回访闭环） | ✅ App Store |
+| **1.2.0** | 工程健康 + 数据信任 + 留存触达 | `archive/SSD-INDEX.md#003`–`010` | ✅ App Store |
+| **1.3.0** | 完整双语 i18n | `.planning/phases/01-i18n` … `07-*` | ✅ App Store |
+| **1.4.0** | 隐喻体验优先 | Phase 1–5（011–015） | ✅ App Store |
 
-#### v1.4 Phase 明细（011–015，均已合入 `master`）
+#### v1.4 Phase 明细（均已合入 `master`）
 
-| Phase | SSD | 交付 |
+| Phase | 目录 / 归档 | 交付 |
 | --- | --- | --- |
-| 1 | `011-metaphor-activation` | 粉色疗愈 token 全站迁移 |
-| 2 | `012-onboarding-metaphor` | ≤3 屏隐喻 intro + 首记 hint |
-| 3 | `013-metaphor-narrative` | 天气叙事、花园里程碑、仪式抛光 |
-| 4 | `014-shareable-ritual-cards` | 竖版周回顾分享卡 + 存相册 |
-| 5 | `015-retention-garden-loop` | 回访/周回顾与花园隐喻联动 |
+| 1 | `archive/SSD-INDEX.md#011-metaphor-activation` | 粉色疗愈 token 全站迁移 |
+| 2 | `phases/02-onboarding-metaphor` | ≤3 屏隐喻 intro + 首记 hint |
+| 3 | `phases/03-metaphor-narrative` | 天气叙事、花园里程碑、仪式抛光 |
+| 4 | `phases/04-shareable-ritual-cards` | 竖版周回顾分享卡 + 存相册 |
+| 5 | `phases/05-retention-garden-loop` | 回访/周回顾与花园隐喻联动 |
 
 #### v2 候选（未排期 · Defer）
 

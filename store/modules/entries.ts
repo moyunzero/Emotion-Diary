@@ -163,7 +163,7 @@ export const createEntriesSlice: StateCreator<
 
   /**
    * 删除条目：软删除（设置 `deletedAt`），仍保留在 `entries` 中。
-   * 见 `openspec/changes/002-entry-backup-soft-delete/SPEC.md`。
+   * 见 `.planning/domain/state-management.md`。
    */
   deleteEntry: async (id): Promise<void> => {
     const { entries } = get();
