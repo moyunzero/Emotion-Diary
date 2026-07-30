@@ -105,7 +105,6 @@ export interface CachedProfile {
 export interface WeatherState {
   score: number; // 0 - 100+
   condition: 'sunny' | 'cloudy' | 'rainy' | 'stormy';
-  description: string;
 }
 
 export interface AppState {
