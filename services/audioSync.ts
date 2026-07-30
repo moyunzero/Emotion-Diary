@@ -131,7 +131,7 @@ const UPLOAD_CONCURRENCY = 3;
 /**
  * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）。
  * D-10/D-11/D-13: pool cap 3 + fail-continue + per-item uploadAudioWithRetry.
- * D-12: caller applies applyAudioUploadResults once after this returns.
+ * D-12: batch writeback stays at syncToCloud call site (not here).
  */
 export const uploadPendingAudios = async (
   audios: AudioData[],
