@@ -19,6 +19,10 @@ import {
   generateEntryId,
   isSoftDeleted,
 } from '../../shared/entries/visibility';
+import {
+  backfillUpdatedAt,
+  withBumpedUpdatedAt,
+} from '../../shared/sync/revisionMeta';
 import { maybeSetPendingAfterResolve } from '../../services/gardenMilestone';
 import { MoodEntry, Status } from '../../types';
 import {
@@ -69,6 +73,8 @@ export const createEntriesSlice: StateCreator<
       ...entryData,
       id: generateEntryId(),
       timestamp: Date.now(),
+      // D-02: wall-clock revision, independent of event timestamp field
+      updatedAt: Date.now(),
       status: Status.ACTIVE,
     };
 
@@ -107,14 +113,14 @@ export const createEntriesSlice: StateCreator<
       MAX_EDIT_HISTORY,
     );
 
-    // 更新条目
+    // 更新条目（D-01: bump updatedAt on user-visible fields）
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? {
+        ? withBumpedUpdatedAt({
             ...e,
             ...updates,
             editHistory: newHistory,
-          }
+          })
         : e
     );
 
@@ -133,7 +139,11 @@ export const createEntriesSlice: StateCreator<
     const beforeEntries = entries;
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? { ...e, status: Status.RESOLVED, resolvedAt: Date.now() }
+        ? withBumpedUpdatedAt({
+            ...e,
+            status: Status.RESOLVED,
+            resolvedAt: Date.now(),
+          })
         : e
     );
     set({ entries: updatedEntries });
@@ -152,7 +162,11 @@ export const createEntriesSlice: StateCreator<
     const { entries } = get();
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? { ...e, status: Status.BURNED, burnedAt: Date.now() }
+        ? withBumpedUpdatedAt({
+            ...e,
+            status: Status.BURNED,
+            burnedAt: Date.now(),
+          })
         : e
     );
     set({ entries: updatedEntries });
@@ -170,7 +184,9 @@ export const createEntriesSlice: StateCreator<
     const { entries } = get();
     const now = Date.now();
     const updatedEntries = entries.map((e) =>
-      e.id === id ? { ...e, deletedAt: now } : e,
+      e.id === id
+        ? withBumpedUpdatedAt({ ...e, deletedAt: now })
+        : e,
     );
     set({ entries: updatedEntries });
 
@@ -195,7 +211,9 @@ export const createEntriesSlice: StateCreator<
     }
 
     const updatedEntries = entries.map((e) =>
-      e.id === id ? { ...e, deletedAt: undefined } : e,
+      e.id === id
+        ? withBumpedUpdatedAt({ ...e, deletedAt: undefined })
+        : e,
     );
     set({ entries: updatedEntries });
 
@@ -286,14 +304,15 @@ export const createEntriesSlice: StateCreator<
 
       const migrationResult = await migrateFromLegacyStorage(userId);
       if (migrationResult.success && migrationResult.data) {
-        set({ entries: migrationResult.data });
+        set({ entries: migrationResult.data.map(backfillUpdatedAt) });
         get()._calculateWeather();
         return;
       }
 
       const storageKey = getStorageKey(userId);
       const entries = await loadFromStorage(storageKey);
-      set({ entries });
+      // D-03: backfill missing updatedAt from timestamp
+      set({ entries: entries.map(backfillUpdatedAt) });
       get()._calculateWeather();
     } catch (error) {
       logger.error('entries', 'Error loading entries', error);

@@ -334,6 +334,11 @@ export const useAppStore = create<AppState>()((...args) => {
                 typeof entry.deletedAt === "number" && entry.deletedAt > 0
                   ? entry.deletedAt
                   : null,
+              // D-04: client revision bigint; prefer updatedAt, else timestamp
+              updatedat:
+                typeof entry.updatedAt === "number" && entry.updatedAt > 0
+                  ? entry.updatedAt
+                  : entry.timestamp,
               user_id: currentUserId,
               audios: entry.audios || [],
             };
@@ -423,6 +428,7 @@ export const useAppStore = create<AppState>()((...args) => {
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
                         deletedat: entry.deletedat,
+                        updatedat: entry.updatedat,
                         audios: entry.audios || [],
                       })
                       .eq("id", entry.id)
@@ -648,6 +654,12 @@ export const useAppStore = create<AppState>()((...args) => {
                 : cloudEntry.burnedAt,
               timestamp: ensureMilliseconds(cloudEntry.timestamp),
               deletedAt: deletedAtMs,
+              // D-04/D-05: revision from updatedat; never diary timestamp alone for skip
+              updatedAt: ensureMilliseconds(
+                cloudEntry.updatedat ??
+                  cloudEntry.updatedAt ??
+                  cloudEntry.timestamp,
+              ),
             };
           })
           .filter((cloudEntry) => !tombstoneIdSet.has(cloudEntry.id));
