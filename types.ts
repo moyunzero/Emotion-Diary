@@ -79,6 +79,11 @@ export interface MoodEntry {
   audios?: AudioData[]; // 语音附件
   intensity?: 1 | 2 | 3 | 4 | 5; // 情绪强度
   syncStatus?: SyncStatus; // 同步状态
+  /**
+   * Client revision timestamp (ms). Maps to DB `updatedat`.
+   * Not the diary event `timestamp` (D-05). Optional until load backfill / writers set it.
+   */
+  updatedAt?: number;
   /** 软删除时间戳（毫秒）；未删除则为 undefined / null */
   deletedAt?: number | null;
 }
