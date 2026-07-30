@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "lint": "eslint app components constants features hooks lib services store utils shared types types.ts constants.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:maestro": "maestro test .maestro/flows",
@@ -132,7 +132,19 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/e2e/"
-    ]
+    ],
+    "collectCoverageFrom": [
+      "{constants,features,hooks,lib,services,shared,store,utils}/**/*.ts",
+      "!**/*.d.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 10,
+        "branches": 10,
+        "functions": 10,
+        "lines": 10
+      }
+    }
   },
   "private": true
 }
