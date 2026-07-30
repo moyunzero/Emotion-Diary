@@ -407,6 +407,12 @@ export const useAppStore = create<AppState>()((...args) => {
             if (upsertError) {
               // 如果是 RLS 错误，尝试使用分离的操作
               if (upsertError.code === "42501") {
+                // Fail closed: without a reliable id set, insert/update split
+                // would treat unknown existing rows as new and mis-advance meta.
+                if (fetchError) {
+                  throw fetchError;
+                }
+
                 if (__DEV__) console.log("upsert 遇到 RLS 问题，使用分离的 insert/update 操作");
 
                 const existingIds = new Set(
@@ -416,7 +422,7 @@ export const useAppStore = create<AppState>()((...args) => {
                 const newEntries = entriesToSync.filter(
                   (e) => !existingIds.has(e.id),
                 );
-                const updateEntries = entriesToSync.filter((e) =>
+                let updateEntries = entriesToSync.filter((e) =>
                   existingIds.has(e.id),
                 );
 
@@ -426,13 +432,15 @@ export const useAppStore = create<AppState>()((...args) => {
                     .from("entries")
                     .insert(newEntries);
 
-                  if (insertError && insertError.code !== "23505") {
-                    // 忽略主键冲突错误，其他错误抛出
+                  if (insertError?.code === "23505") {
+                    // Conflict ⇒ treat as existing; update payload, advance only on OK
+                    updateEntries = [...updateEntries, ...newEntries];
+                  } else if (insertError) {
                     throw insertError;
-                  }
-                  // Batch insert succeeded (or duplicate race treated as ok)
-                  for (const e of newEntries) {
-                    successfulUpsertIds.add(e.id);
+                  } else {
+                    for (const e of newEntries) {
+                      successfulUpsertIds.add(e.id);
+                    }
                   }
                 }
 
