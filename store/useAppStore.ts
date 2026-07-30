@@ -34,6 +34,12 @@ import { initRecordingCoordinator } from "../shared/audio/recordingCoordinator";
 import { applyAudioUploadResults } from "../shared/audio/sync";
 import { mergeCloudPullEntries } from "../shared/sync/cloudMerge";
 import {
+  advanceLastSyncedAfterSuccess,
+  loadRevisionMeta,
+  saveRevisionMeta,
+  shouldUpsertEntry,
+} from "../shared/sync/revisionMeta";
+import {
   consumePendingSyncRequest,
   hasPendingSyncRequest,
   isSyncLockHeld,
@@ -312,39 +318,49 @@ export const useAppStore = create<AppState>()((...args) => {
         }
 
         // 准备同步数据（墓碑命中的 id 不得再 upsert，否则会复活已 purge 的云端行）
-        const entriesToSync = filterOutTombstonedEntries(
-          entries.map((entry) => {
-            const peopleArray = Array.isArray(entry.people) ? entry.people : [];
-            const triggersArray = Array.isArray(entry.triggers)
-              ? entry.triggers
-              : [];
+        const afterTombstone = filterOutTombstonedEntries(entries, tombstoneIdSet);
 
-            return {
-              id: entry.id,
-              timestamp: entry.timestamp,
-              moodlevel: entry.moodLevel || 1,
-              content: entry.content || "",
-              deadline: entry.deadline || "later",
-              people: peopleArray,
-              triggers: triggersArray,
-              status: entry.status || "active",
-              resolvedat: entry.resolvedAt || null,
-              burnedat: entry.burnedAt || null,
-              deletedat:
-                typeof entry.deletedAt === "number" && entry.deletedAt > 0
-                  ? entry.deletedAt
-                  : null,
-              // D-04: client revision bigint; prefer updatedAt, else timestamp
-              updatedat:
-                typeof entry.updatedAt === "number" && entry.updatedAt > 0
-                  ? entry.updatedAt
-                  : entry.timestamp,
-              user_id: currentUserId,
-              audios: entry.audios || [],
-            };
-          }),
-          tombstoneIdSet,
-        );
+        // SYNC-02: skip unchanged rows via independent revision meta (D-07/D-08)
+        const revisionMeta = await loadRevisionMeta(currentUserId);
+        const entriesNeedingUpsert = afterTombstone.filter((entry) => {
+          const updatedAt =
+            typeof entry.updatedAt === "number" && entry.updatedAt > 0
+              ? entry.updatedAt
+              : entry.timestamp;
+          return shouldUpsertEntry({ id: entry.id, updatedAt }, revisionMeta);
+        });
+
+        const entriesToSync = entriesNeedingUpsert.map((entry) => {
+          const peopleArray = Array.isArray(entry.people) ? entry.people : [];
+          const triggersArray = Array.isArray(entry.triggers)
+            ? entry.triggers
+            : [];
+
+          return {
+            id: entry.id,
+            timestamp: entry.timestamp,
+            moodlevel: entry.moodLevel || 1,
+            content: entry.content || "",
+            deadline: entry.deadline || "later",
+            people: peopleArray,
+            triggers: triggersArray,
+            status: entry.status || "active",
+            resolvedat: entry.resolvedAt || null,
+            burnedat: entry.burnedAt || null,
+            deletedat:
+              typeof entry.deletedAt === "number" && entry.deletedAt > 0
+                ? entry.deletedAt
+                : null,
+            // D-04: client revision bigint; prefer updatedAt, else timestamp
+            // D-08: lastSyncedUpdatedAt stays in meta — never on MoodEntry / upsert body
+            updatedat:
+              typeof entry.updatedAt === "number" && entry.updatedAt > 0
+                ? entry.updatedAt
+                : entry.timestamp,
+            user_id: currentUserId,
+            audios: entry.audios || [],
+          };
+        });
 
         // 获取云端数据（upsert 回退路径需要已知云端 id 集合）
         const { data: existingCloudData, error: fetchError } = await supabase
@@ -371,7 +387,9 @@ export const useAppStore = create<AppState>()((...args) => {
           }
         }
 
-        // 同步数据
+        // 同步数据；D-09: advance lastSynced only after successful upsert per row
+        const successfulUpsertIds = new Set<string>();
+
         if (entriesToSync.length > 0) {
           // 使用 upsert 操作，但需要确保 RLS 策略正确配置
           // 如果 upsert 失败，回退到分离的 insert/update 操作
@@ -410,9 +428,13 @@ export const useAppStore = create<AppState>()((...args) => {
                     // 忽略主键冲突错误，其他错误抛出
                     throw insertError;
                   }
+                  // Batch insert succeeded (or duplicate race treated as ok)
+                  for (const e of newEntries) {
+                    successfulUpsertIds.add(e.id);
+                  }
                 }
 
-                // 更新已存在的记录
+                // 更新已存在的记录 — advance only rows with no error (Pitfall 2)
                 if (updateEntries.length > 0) {
                   for (const entry of updateEntries) {
                     const { error: updateError } = await supabase
@@ -436,12 +458,19 @@ export const useAppStore = create<AppState>()((...args) => {
 
                     if (updateError) {
                       console.warn(`更新记录 ${entry.id} 失败:`, updateError);
+                    } else {
+                      successfulUpsertIds.add(entry.id);
                     }
                   }
                 }
               } else {
                 // 其他错误，抛出
                 throw upsertError;
+              }
+            } else {
+              // Batch upsert with no error → advance all filtered ids (D-09)
+              for (const e of entriesToSync) {
+                successfulUpsertIds.add(e.id);
               }
             }
           } catch (error: unknown) {
@@ -474,6 +503,18 @@ export const useAppStore = create<AppState>()((...args) => {
             }
 
             throw error;
+          }
+
+          if (successfulUpsertIds.size > 0) {
+            const nextMeta = advanceLastSyncedAfterSuccess(
+              revisionMeta,
+              entriesToSync.map((e) => ({
+                id: e.id,
+                updatedAt: e.updatedat,
+              })),
+              successfulUpsertIds,
+            );
+            await saveRevisionMeta(currentUserId, nextMeta);
           }
         }
 
