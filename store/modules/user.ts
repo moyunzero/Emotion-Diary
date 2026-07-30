@@ -4,11 +4,13 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { deleteAsync } from "expo-file-system";
 import { logger } from "@/utils/logger";
 import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
 import { i18n } from "../../i18n";
+import { stripAudiosFromEntries } from "../../shared/audio/guestAudioStrip";
 import { isSoftDeleted } from "../../shared/entries/visibility";
 import type { MoodEntry, User } from "../../types";
 import { getDefaultAvatar } from "../../utils/avatarPresets";
@@ -659,7 +661,7 @@ export const createUserSlice: StateCreator<
 
     /**
      * 注销账号（方案 C - 真删除）
-     * 删除云端 Auth 用户、profiles、entries；本地以当前快照写入游客存储后保留。
+     * Edge 删云端；成功后 guest 保留正文并剥离 audios（D-04），localUri 尽力删（D-05）。
      */
     deleteAccount: async () => {
       try {
@@ -671,6 +673,7 @@ export const createUserSlice: StateCreator<
         clearEntriesSaveDebounce();
         const snapshot = get().entries;
         const userKey = getStorageKey(user.id);
+        // 用户键完整备份；guest 先写完整快照，Edge 失败时仍保留 audios 元数据（Pitfall 4）
         await saveToStorage(userKey, snapshot);
         await replaceGuestStorageEntries(snapshot);
 
@@ -680,7 +683,7 @@ export const createUserSlice: StateCreator<
           snapshot,
         );
 
-        // 3. 调用 Edge Function 删除云端账号
+        // 调用 Edge Function 删除云端账号（含 Storage wipe）
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -704,14 +707,39 @@ export const createUserSlice: StateCreator<
           throw new Error(data.error);
         }
 
-        // 4. 本地登出、清除状态
+        // D-04: Edge 成功后再剥离 guest audios（不在 invoke 前 strip）
+        await replaceGuestStorageEntries(stripAudiosFromEntries(snapshot));
+
+        // D-05: best-effort 删除本机 localUri；失败只记日志，不推翻 Edge 成功
+        const localUris: string[] = [];
+        for (const entry of snapshot) {
+          for (const audio of entry.audios ?? []) {
+            if (audio.localUri) localUris.push(audio.localUri);
+          }
+        }
+        let unlinkFailed = 0;
+        for (const uri of localUris) {
+          try {
+            await deleteAsync(uri);
+          } catch {
+            unlinkFailed += 1;
+          }
+        }
+        if (unlinkFailed > 0) {
+          logger.warn("user", "account delete localUri unlink failures", {
+            total: localUris.length,
+            failed: unlinkFailed,
+          });
+        }
+
+        // 本地登出、清除状态
         await supabase.auth.signOut();
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
         await clearCachedProfile(user.id);
 
-        // 内存中的 entries 与游客键已在注销前对齐，无需再加载
+        // 游客键已在成功路径上 strip；内存 entries 无需再加载
       } catch (error) {
         logger.error("user", "Delete account error", error);
         throw error;
