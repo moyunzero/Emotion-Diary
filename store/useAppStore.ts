@@ -486,7 +486,22 @@ export const useAppStore = create<AppState>()((...args) => {
           } catch (error: unknown) {
             console.error("同步记录失败:", error);
             console.error("失败的记录数量:", entriesToSync.length);
-            console.error("第一条记录示例:", entriesToSync[0]);
+            const sample = entriesToSync[0];
+            if (sample) {
+              console.error("第一条记录示例:", {
+                id: sample.id,
+                updatedat: sample.updatedat,
+                peopleCount: Array.isArray(sample.people)
+                  ? sample.people.length
+                  : 0,
+                triggersCount: Array.isArray(sample.triggers)
+                  ? sample.triggers.length
+                  : 0,
+                audiosCount: Array.isArray(sample.audios)
+                  ? sample.audios.length
+                  : 0,
+              });
+            }
 
             const pgCode =
               error !== null &&
