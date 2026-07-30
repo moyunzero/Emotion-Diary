@@ -4,13 +4,20 @@
  */
 
 import { ensureMilliseconds } from "@/shared/formatting";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-url-polyfill/auto";
+import { Alert } from "react-native";
 import { create } from "zustand";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import {
+  isSupabaseConfigured,
+  registerSecureStorePersistFailureHandler,
+  supabase,
+} from "../lib/supabase";
 import { User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
 import { i18n } from "../i18n";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
+import { logger } from "../utils/logger";
 
 // 导入模块
 import {
@@ -49,6 +56,8 @@ import { createWeatherModule } from "./modules/weather";
 /** 全局音频协调器与 Zustand 的 one-shot 接线（避免 coordinator ↔ store 循环依赖） */
 let audioCoordinatorInitialized = false;
 let recordingCoordinatorInitialized = false;
+/** SecureStore setItem 最终失败 → Alert + signOut（D-16/D-17；lib 不 import store） */
+let secureStorePersistFailureHandlerRegistered = false;
 
 // 待处理同步的防抖定时器（互斥见 shared/sync/syncLock.ts）
 
@@ -214,6 +223,29 @@ export const useAppStore = create<AppState>()((...args) => {
       },
       () => get().recordingState,
     );
+  }
+
+  if (!secureStorePersistFailureHandlerRegistered) {
+    secureStorePersistFailureHandlerRegistered = true;
+    registerSecureStorePersistFailureHandler(() => {
+      Alert.alert(
+        i18n.t("sessionPersistFailed.title", { ns: "auth" }),
+        i18n.t("sessionPersistFailed.message", { ns: "auth" }),
+      );
+      void (async () => {
+        try {
+          await supabase.auth.signOut();
+        } catch (error) {
+          logger.warn("store", "signOut after SecureStore persist failure", error);
+        }
+        set({ user: null });
+        try {
+          await AsyncStorage.removeItem("user_session");
+        } catch (error) {
+          logger.warn("store", "clear user_session after SecureStore persist failure", error);
+        }
+      })();
+    });
   }
 
   return {

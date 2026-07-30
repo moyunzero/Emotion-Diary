@@ -3,6 +3,65 @@ import { logger } from '@/utils/logger';
 import * as SecureStore from 'expo-secure-store';
 import 'react-native-url-polyfill/auto';
 
+/** 初始尝试 + 最多 2 次重试（D-18） */
+export const SECURE_STORE_SET_MAX_ATTEMPTS = 3;
+/** 重试前短退避（毫秒） */
+export const SECURE_STORE_SET_BACKOFF_MS = 50;
+
+export type SecureStorePersistFailureHandler = (() => void) | null;
+
+let onSecureStorePersistFailure: SecureStorePersistFailureHandler = null;
+
+/**
+ * 注册 SecureStore setItem 最终失败回调（由 store 初始化接线；lib 不得 import store）。
+ */
+export function registerSecureStorePersistFailureHandler(
+  fn: SecureStorePersistFailureHandler,
+): void {
+  onSecureStorePersistFailure = fn;
+}
+
+export type SecureStoreSetRetryOptions = {
+  maxAttempts?: number;
+  backoffMs?: number;
+  sleep?: (ms: number) => Promise<void>;
+};
+
+function defaultSleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * 可注入的 setItem 重试：成功返回 `ok`；全部失败后通知 handler 一次并返回 `failed`。
+ */
+export async function runSecureStoreSetItemWithRetry(
+  write: () => Promise<void>,
+  options?: SecureStoreSetRetryOptions,
+): Promise<'ok' | 'failed'> {
+  const maxAttempts = options?.maxAttempts ?? SECURE_STORE_SET_MAX_ATTEMPTS;
+  const backoffMs = options?.backoffMs ?? SECURE_STORE_SET_BACKOFF_MS;
+  const sleep = options?.sleep ?? defaultSleep;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      await write();
+      return 'ok';
+    } catch {
+      if (attempt < maxAttempts - 1) {
+        await sleep(backoffMs);
+      }
+    }
+  }
+
+  try {
+    onSecureStorePersistFailure?.();
+  } catch (handlerError) {
+    logger.warn('supabase', 'SecureStore persist failure handler threw', handlerError);
+  }
+
+  return 'failed';
+}
+
 // 创建一个适配器，将SecureStore的API转换为Supabase期望的格式
 // 添加错误处理，防止 SecureStore 操作失败导致应用崩溃
 const SecureStoreAdapter = {
@@ -15,10 +74,11 @@ const SecureStoreAdapter = {
     }
   },
   setItem: async (key: string, value: string) => {
-    try {
-      await SecureStore.setItemAsync(key, value);
-    } catch (error) {
-      logger.warn('supabase', `SecureStore setItem failed for key ${key}`, error);
+    const result = await runSecureStoreSetItemWithRetry(() =>
+      SecureStore.setItemAsync(key, value),
+    );
+    if (result === 'failed') {
+      logger.warn('supabase', `SecureStore setItem failed for key ${key} after retries`);
     }
   },
   removeItem: async (key: string) => {

@@ -10,6 +10,8 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn(),
 }));
 
+jest.mock('react-native-url-polyfill/auto', () => ({}));
+
 jest.mock('@/utils/logger', () => ({
   logger: {
     warn: jest.fn(),
