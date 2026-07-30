@@ -125,8 +125,13 @@ export async function uploadAudioWithRetry(
   return { success: false };
 }
 
+/** D-10: pending audio upload concurrency cap (hand-rolled pool; no p-limit). */
+const UPLOAD_CONCURRENCY = 3;
+
 /**
- * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）
+ * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）。
+ * D-10/D-11/D-13: pool cap 3 + fail-continue + per-item uploadAudioWithRetry.
+ * D-12: caller applies applyAudioUploadResults once after this returns.
  */
 export const uploadPendingAudios = async (
   audios: AudioData[],
@@ -142,21 +147,34 @@ export const uploadPendingAudios = async (
       (a.syncStatus === "pending" || a.syncStatus === "failed") && a.localUri,
   );
 
-  for (const audio of pendingAudios) {
-    const outcome = await uploadAudioWithRetry(audio, userId);
-    if (outcome.success) {
-      results.set(audio.id, outcome.remoteUrl);
-      success++;
-    } else {
-      failed++;
-      failedAudioIds.push(audio.id);
-      logger.error(
-        "audioSync",
-        `音频上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
-        { audioId: audio.id },
-      );
+  let nextIndex = 0;
+
+  const worker = async (): Promise<void> => {
+    while (true) {
+      const i = nextIndex++;
+      if (i >= pendingAudios.length) break;
+
+      const audio = pendingAudios[i];
+      const outcome = await uploadAudioWithRetry(audio, userId);
+      if (outcome.success) {
+        results.set(audio.id, outcome.remoteUrl);
+        success++;
+      } else {
+        failed++;
+        failedAudioIds.push(audio.id);
+        logger.error(
+          "audioSync",
+          `音频上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
+          { audioId: audio.id },
+        );
+      }
     }
-  }
+  };
+
+  const workerCount = Math.min(UPLOAD_CONCURRENCY, pendingAudios.length);
+  await Promise.all(
+    Array.from({ length: workerCount }, () => worker()),
+  );
 
   return { success, failed, results, failedAudioIds };
 };
