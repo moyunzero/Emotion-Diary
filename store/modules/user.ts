@@ -4,6 +4,7 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logger } from "@/utils/logger";
 import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
@@ -131,7 +132,7 @@ export const createUserSlice: StateCreator<
         const now = Date.now();
         await AsyncStorage.setItem(storageKey, now.toString());
       } catch (error) {
-        console.error("initializeFirstEntryDate 失败:", error);
+        logger.error("user", "initializeFirstEntryDate 失败", error);
       }
     },
 
@@ -217,16 +218,16 @@ export const createUserSlice: StateCreator<
             error.code === "PGRST204" ||
             error.message?.includes("first_entry_date")
           ) {
-            console.warn(
-              "数据库中 first_entry_date 字段不存在，请执行数据库迁移。详见: docs/FIRST_ENTRY_DATE_MIGRATION.md",
+            logger.warn(
+              "user",
+              "数据库中 first_entry_date 字段不存在，请执行数据库迁移；应用将继续使用本地计算",
             );
-            console.warn("应用将继续使用本地计算，不影响功能。");
           } else {
-            console.error("同步firstEntryDate到云端失败:", error);
+            logger.error("user", "同步firstEntryDate到云端失败", error);
           }
         }
       } catch (error) {
-        console.error("同步firstEntryDate到云端异常:", error);
+        logger.error("user", "同步firstEntryDate到云端异常", error);
       }
     },
 
@@ -277,7 +278,7 @@ export const createUserSlice: StateCreator<
           await get()._syncFirstEntryDateToCloud();
         }
       } catch (error) {
-        console.error("从云端同步firstEntryDate异常:", error);
+        logger.error("user", "从云端同步firstEntryDate异常", error);
       }
     },
 
@@ -390,7 +391,7 @@ export const createUserSlice: StateCreator<
               });
             }
           } catch (err) {
-            console.error("Profile operation exception:", err);
+            logger.error("user", "Profile operation exception", err);
           }
 
           // 保留现有的 firstEntryDate
@@ -408,7 +409,7 @@ export const createUserSlice: StateCreator<
           await get()._loadEntries();
         }
       } catch (error) {
-        console.error("Error loading user:", error);
+        logger.error("user", "Error loading user", error);
         set({ user: null });
         await get()._loadEntries();
       }
@@ -431,7 +432,7 @@ export const createUserSlice: StateCreator<
         });
 
         if (error) {
-          console.error("Registration error:", error);
+          logger.error("user", "Registration error", error);
           if (error.message.includes("User already registered")) {
             throw new Error("User already registered");
           }
@@ -454,7 +455,7 @@ export const createUserSlice: StateCreator<
 
         return false;
       } catch (error) {
-        console.error("Registration error:", error);
+        logger.error("user", "Registration error", error);
         throw error;
       }
     },
@@ -465,7 +466,7 @@ export const createUserSlice: StateCreator<
     login: async (email: string, password: string) => {
       try {
         if (!email || !password) {
-          console.error("邮箱和密码不能为空");
+          logger.error("user", "邮箱和密码不能为空");
           return false;
         }
 
@@ -475,7 +476,7 @@ export const createUserSlice: StateCreator<
         });
 
         if (error) {
-          console.error("登录失败:", error.message);
+          logger.error("user", "登录失败", error.message);
           if (error.message.includes("Invalid login credentials")) {
             throw new Error(
               i18n.t("login.invalidCredentials", { ns: "auth" }),
@@ -606,7 +607,7 @@ export const createUserSlice: StateCreator<
 
         return false;
       } catch (error) {
-        console.error("Login error:", error);
+        logger.error("user", "Login error", error);
         throw error;
       }
     },
@@ -640,7 +641,7 @@ export const createUserSlice: StateCreator<
         // 登出
         const { error } = await supabase.auth.signOut();
         if (error) {
-          console.error("Logout error:", error);
+          logger.error("user", "Logout error", error);
         }
 
         // 清除 profile 缓存
@@ -649,7 +650,7 @@ export const createUserSlice: StateCreator<
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
       } catch (error) {
-        console.error("Logout error:", error);
+        logger.error("user", "Logout error", error);
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
@@ -712,7 +713,7 @@ export const createUserSlice: StateCreator<
 
         // 内存中的 entries 与游客键已在注销前对齐，无需再加载
       } catch (error) {
-        console.error("Delete account error:", error);
+        logger.error("user", "Delete account error", error);
         throw error;
       }
     },
@@ -735,7 +736,7 @@ export const createUserSlice: StateCreator<
           });
 
         if (error) {
-          console.error("Error updating user profile:", error);
+          logger.error("user", "Error updating user profile", error);
           throw error;
         }
 
@@ -764,7 +765,7 @@ export const createUserSlice: StateCreator<
           }
         }
       } catch (error) {
-        console.error("Error updating user:", error);
+        logger.error("user", "Error updating user", error);
         throw error;
       }
     },

@@ -4,6 +4,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from '@/utils/logger';
 import { CachedProfile, MoodEntry } from '../../types';
 
 // 存储键常量
@@ -85,7 +86,7 @@ export const loadFromStorage = async (key: string): Promise<MoodEntry[]> => {
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error(`读取存储失败 (${key}):`, error);
+    logger.error('storage', `读取存储失败 (${key})`, error);
     return [];
   }
 };
@@ -101,7 +102,7 @@ export const saveToStorage = async (
     await AsyncStorage.setItem(key, JSON.stringify(entries));
     return true;
   } catch (error) {
-    console.error(`保存存储失败 (${key}):`, error);
+    logger.error('storage', `保存存储失败 (${key})`, error);
     return false;
   }
 };
@@ -114,7 +115,7 @@ export const removeFromStorage = async (key: string): Promise<boolean> => {
     await AsyncStorage.removeItem(key);
     return true;
   } catch (error) {
-    console.error(`删除存储失败 (${key}):`, error);
+    logger.error('storage', `删除存储失败 (${key})`, error);
     return false;
   }
 };
@@ -160,7 +161,7 @@ export const migrateFromLegacyStorage = async (
       message: `已迁移 ${legacyData.length} 条旧版数据`,
     };
   } catch (error) {
-    console.error('迁移旧版数据失败:', error);
+    logger.error('storage', '迁移旧版数据失败', error);
     return {
       success: false,
       data: null,
@@ -210,7 +211,7 @@ export const migrateGuestDataToUser = async (
       message: `已迁移 ${guestData.length} 条游客数据`,
     };
   } catch (error) {
-    console.error('迁移游客数据失败:', error);
+    logger.error('storage', '迁移游客数据失败', error);
     return {
       success: false,
       data: null,
@@ -267,7 +268,7 @@ export const getCachedProfile = async (
     
     return cached;
   } catch (error) {
-    console.error('读取 Profile 缓存失败:', error);
+    logger.error('storage', '读取 Profile 缓存失败', error);
     return null;
   }
 };
@@ -289,7 +290,7 @@ export const setCachedProfile = async (
     };
     await AsyncStorage.setItem(cacheKey, JSON.stringify(cached));
   } catch (error) {
-    console.error('设置 Profile 缓存失败:', error);
+    logger.error('storage', '设置 Profile 缓存失败', error);
   }
 };
 
@@ -302,6 +303,6 @@ export const clearCachedProfile = async (userId: string): Promise<void> => {
     const cacheKey = getProfileCacheKey(userId);
     await AsyncStorage.removeItem(cacheKey);
   } catch (error) {
-    console.error('清除 Profile 缓存失败:', error);
+    logger.error('storage', '清除 Profile 缓存失败', error);
   }
 };

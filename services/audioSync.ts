@@ -10,6 +10,7 @@ import {
 } from "../shared/audio/uploadRetry";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AudioData } from "../types";
+import { logger } from "@/utils/logger";
 
 const AUDIO_BUCKET = "audios";
 
@@ -46,7 +47,7 @@ export const uploadAudio = async (
       });
 
     if (error) {
-      console.error("上传音频失败:", error);
+      logger.error("audioSync", "上传音频失败", error);
       return { success: false, error: error.message };
     }
 
@@ -56,7 +57,7 @@ export const uploadAudio = async (
 
     return { success: true, remoteUrl: publicUrl };
   } catch (error) {
-    console.error("上传音频异常:", error);
+    logger.error("audioSync", "上传音频异常", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "未知错误",
@@ -116,8 +117,10 @@ export const uploadPendingAudios = async (
     } else {
       failed++;
       failedAudioIds.push(audio.id);
-      console.error(
-        `音频 ${audio.id} 上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
+      logger.error(
+        "audioSync",
+        `音频上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
+        { audioId: audio.id },
       );
     }
   }

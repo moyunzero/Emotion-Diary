@@ -6,6 +6,7 @@
 // 防抖合并多次快速写入，减少 AsyncStorage 频繁 IO；与天气模块联动在落盘后重算。
 
 import { StateCreator } from 'zustand';
+import { logger } from '@/utils/logger';
 import { MAX_EDIT_HISTORY } from '../../constants';
 import { supabase } from '../../lib/supabase';
 import { insertEntryTombstone } from '../../services/entryTombstones';
@@ -94,7 +95,7 @@ export const createEntriesSlice: StateCreator<
     const entry = entries.find((e) => e.id === id);
 
     if (!entry) {
-      console.error('Entry not found:', id);
+      logger.error('entries', 'Entry not found', { id });
       return;
     }
 
@@ -223,12 +224,12 @@ export const createEntriesSlice: StateCreator<
     if (user) {
       const { error } = await insertEntryTombstone(supabase, user.id, id);
       if (error) {
-        console.warn("登记墓碑失败:", error.message);
+        logger.warn("entries", "登记墓碑失败", error.message);
       }
       try {
         await get().syncToCloud();
       } catch (syncError) {
-        console.warn("永久删除后同步失败:", syncError);
+        logger.warn("entries", "永久删除后同步失败", syncError);
       }
     }
 
@@ -295,7 +296,7 @@ export const createEntriesSlice: StateCreator<
       set({ entries });
       get()._calculateWeather();
     } catch (error) {
-      console.error('Error loading entries:', error);
+      logger.error('entries', 'Error loading entries', error);
       set({ entries: [] });
     }
   },
@@ -314,7 +315,7 @@ export const createEntriesSlice: StateCreator<
         const storageKey = getStorageKey(user?.id || null);
         await saveToStorage(storageKey, entries);
       } catch (error) {
-        console.error('Error saving entries:', error);
+        logger.error('entries', 'Error saving entries', error);
       } finally {
         saveEntriesTimeoutRef = null;
       }

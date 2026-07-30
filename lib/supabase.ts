@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/utils/logger';
 import * as SecureStore from 'expo-secure-store';
 import 'react-native-url-polyfill/auto';
 
@@ -9,7 +10,7 @@ const SecureStoreAdapter = {
     try {
       return await SecureStore.getItemAsync(key);
     } catch (error) {
-      console.warn(`SecureStore getItem failed for key ${key}:`, error);
+      logger.warn('supabase', `SecureStore getItem failed for key ${key}`, error);
       return null;
     }
   },
@@ -17,14 +18,14 @@ const SecureStoreAdapter = {
     try {
       await SecureStore.setItemAsync(key, value);
     } catch (error) {
-      console.warn(`SecureStore setItem failed for key ${key}:`, error);
+      logger.warn('supabase', `SecureStore setItem failed for key ${key}`, error);
     }
   },
   removeItem: async (key: string) => {
     try {
       await SecureStore.deleteItemAsync(key);
     } catch (error) {
-      console.warn(`SecureStore removeItem failed for key ${key}:`, error);
+      logger.warn('supabase', `SecureStore removeItem failed for key ${key}`, error);
     }
   },
 };
@@ -35,11 +36,9 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // 检查环境变量是否配置
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    '⚠️ Supabase 环境变量未配置！应用将以离线模式运行。\n' +
-    '请确保在 .env 文件或 EAS Secrets 中配置了以下变量：\n' +
-    '- EXPO_PUBLIC_SUPABASE_URL\n' +
-    '- EXPO_PUBLIC_SUPABASE_ANON_KEY'
+  logger.warn(
+    'supabase',
+    'Supabase 环境变量未配置，应用将以离线模式运行（需 EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY）',
   );
 }
 
