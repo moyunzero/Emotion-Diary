@@ -323,7 +323,7 @@ export const useAppStore = create<AppState>()((...args) => {
         const afterTombstone = filterOutTombstonedEntries(entries, tombstoneIdSet);
 
         // SYNC-02: skip unchanged rows via independent revision meta (D-07/D-08)
-        const revisionMeta = await loadRevisionMeta(currentUserId);
+        let revisionMeta = await loadRevisionMeta(currentUserId);
         const entriesNeedingUpsert = afterTombstone.filter((entry) => {
           const updatedAt =
             typeof entry.updatedAt === "number" && entry.updatedAt > 0
@@ -516,7 +516,7 @@ export const useAppStore = create<AppState>()((...args) => {
           }
 
           if (successfulUpsertIds.size > 0) {
-            const nextMeta = advanceLastSyncedAfterSuccess(
+            revisionMeta = advanceLastSyncedAfterSuccess(
               revisionMeta,
               entriesToSync.map((e) => ({
                 id: e.id,
@@ -524,7 +524,7 @@ export const useAppStore = create<AppState>()((...args) => {
               })),
               successfulUpsertIds,
             );
-            await saveRevisionMeta(currentUserId, nextMeta);
+            await saveRevisionMeta(currentUserId, revisionMeta);
           }
         }
 
@@ -567,6 +567,7 @@ export const useAppStore = create<AppState>()((...args) => {
               set({ entries: updatedEntries });
               get()._saveEntries();
 
+              const failedWritebackIds: string[] = [];
               for (const payload of writeback) {
                 const { error: writebackError } = await supabase
                   .from("entries")
@@ -575,11 +576,28 @@ export const useAppStore = create<AppState>()((...args) => {
                   .eq("user_id", currentUserId);
 
                 if (writebackError) {
+                  failedWritebackIds.push(payload.id);
                   console.warn(
                     `回写 entry ${payload.id} 的 audios 元数据失败:`,
                     writebackError,
                   );
                 }
+              }
+
+              // CR-02: clear lastSynced so next push re-upserts audios metadata.
+              // Do not bump updatedAt (D-01: audio-only writeback is not a revision bump).
+              if (failedWritebackIds.length > 0) {
+                const lastSyncedUpdatedAtByEntryId = {
+                  ...revisionMeta.lastSyncedUpdatedAtByEntryId,
+                };
+                for (const id of failedWritebackIds) {
+                  delete lastSyncedUpdatedAtByEntryId[id];
+                }
+                revisionMeta = {
+                  ...revisionMeta,
+                  lastSyncedUpdatedAtByEntryId,
+                };
+                await saveRevisionMeta(currentUserId, revisionMeta);
               }
             }
 
