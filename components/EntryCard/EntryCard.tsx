@@ -3,58 +3,58 @@ import { COLORS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
-    resolvePeopleLabel,
-    resolveTriggerLabel,
+  resolvePeopleLabel,
+  resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
 import { audioCoordinator } from "@/shared/audio/coordinator";
 import { formatLocaleDate } from "@/shared/formatting";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import {
-    CheckCircle,
-    Edit,
-    Flame,
-    Mic,
-    Pause,
-    Play,
-    Trash2,
+  CheckCircle,
+  Edit,
+  Flame,
+  Mic,
+  Pause,
+  Play,
+  Trash2,
 } from "lucide-react-native";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    LayoutAnimation,
-    Platform,
-    Text,
-    TouchableOpacity,
-    UIManager,
-    View,
-    useWindowDimensions,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  LayoutAnimation,
+  Platform,
+  Text,
+  TouchableOpacity,
+  UIManager,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
-import { MOOD_CONFIG } from "../constants";
-import { useHapticFeedback } from "../hooks/useHapticFeedback";
-import { useAppStore } from "../store/useAppStore";
-import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
-import { AudioData, MoodEntry, MoodLevel, Status } from "../types";
+import { MOOD_CONFIG } from "../../constants";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
+import { useAppStore } from "../../store/useAppStore";
+import { createEntryCardStyles } from "../../styles/components/EntryCard.styles";
+import { AudioData, MoodEntry, MoodLevel, Status } from "../../types";
 import {
-    areAudioDataArraysEqual,
-    areOrderedStringArraysEqual,
-} from "../utils/arrayEquality";
-import { isLowEndDevice } from "../utils/devicePerformance";
-import { getMoodIcon } from "../utils/moodIconUtils";
-import AshIcon from "./AshIcon";
-import BurnAnimation from "./BurnAnimation";
-import ResolveCeremonyHost from "./rituals/ResolveCeremonyHost";
-import ResolveConfirmOverlay from "./rituals/ResolveConfirmOverlay";
-import BurnConfirmOverlay from "./rituals/BurnConfirmOverlay";
+  areAudioDataArraysEqual,
+  areOrderedStringArraysEqual,
+} from "../../utils/arrayEquality";
+import { isLowEndDevice } from "../../utils/devicePerformance";
+import { getMoodIcon } from "../../utils/moodIconUtils";
+import AshIcon from "../AshIcon";
+import BurnAnimation from "../BurnAnimation";
+import ResolveCeremonyHost from "../rituals/ResolveCeremonyHost";
+import ResolveConfirmOverlay from "../rituals/ResolveConfirmOverlay";
+import BurnConfirmOverlay from "../rituals/BurnConfirmOverlay";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
