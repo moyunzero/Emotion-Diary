@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 import { i18n } from "@/i18n";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
+import { logger } from "@/utils/logger";
 import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
 import type { MutableRefObject } from "react";
 
@@ -112,6 +113,7 @@ export function useProfileSyncHandlers(state: StateRef) {
           useAppStore.setState({ syncProgress: "" });
         }, 2000);
       } catch (error: unknown) {
+        logger.error("profileSync", "sync action failed", error);
         const err = error as { message?: string };
         const errorMessage =
           err?.message ||

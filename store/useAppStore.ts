@@ -467,7 +467,11 @@ export const useAppStore = create<AppState>()((...args) => {
                       .eq("user_id", currentUserId);
 
                     if (updateError) {
-                      console.warn(`更新记录 ${entry.id} 失败:`, updateError);
+                      logger.warn(
+                        "store",
+                        `更新记录 ${entry.id} 失败`,
+                        updateError,
+                      );
                     } else {
                       successfulUpsertIds.add(entry.id);
                     }
@@ -484,11 +488,15 @@ export const useAppStore = create<AppState>()((...args) => {
               }
             }
           } catch (error: unknown) {
-            console.error("同步记录失败:", error);
-            console.error("失败的记录数量:", entriesToSync.length);
+            logger.error("store", "同步记录失败", error);
+            logger.error(
+              "store",
+              "失败的记录数量",
+              entriesToSync.length,
+            );
             const sample = entriesToSync[0];
             if (sample) {
-              console.error("第一条记录示例:", {
+              logger.error("store", "第一条记录示例", {
                 id: sample.id,
                 updatedat: sample.updatedat,
                 peopleCount: Array.isArray(sample.people)
@@ -515,8 +523,7 @@ export const useAppStore = create<AppState>()((...args) => {
                 details?: string;
                 hint?: string;
               };
-              console.error("数据库约束检查失败 (23514)");
-              console.error("错误详情:", {
+              logger.error("store", "数据库约束检查失败 (23514)", {
                 message: e.message,
                 details: e.details,
                 hint: e.hint,
@@ -592,8 +599,9 @@ export const useAppStore = create<AppState>()((...args) => {
 
                 if (writebackError) {
                   failedWritebackIds.push(payload.id);
-                  console.warn(
-                    `回写 entry ${payload.id} 的 audios 元数据失败:`,
+                  logger.warn(
+                    "store",
+                    `回写 entry ${payload.id} 的 audios 元数据失败`,
                     writebackError,
                   );
                 }
@@ -617,13 +625,14 @@ export const useAppStore = create<AppState>()((...args) => {
             }
 
             if (uploadResult.failed > 0) {
-              console.warn(
+              logger.warn(
+                "store",
                 `[syncToCloud] ${uploadResult.failed} 条语音上传失败，已标记 failed，可重试`,
               );
             }
           }
         } catch (audioError) {
-          console.error("音频同步失败:", audioError);
+          logger.error("store", "音频同步失败", audioError);
         }
 
         set({ syncStatus: "idle" });

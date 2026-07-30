@@ -78,5 +78,14 @@ describe('runSecureStoreSetItemWithRetry (SEC-03)', () => {
     expect(result).toBe('failed');
     expect(write).toHaveBeenCalledTimes(SECURE_STORE_SET_MAX_ATTEMPTS);
     expect(handler).toHaveBeenCalledTimes(1);
+
+    const { logger } = jest.requireMock('@/utils/logger') as {
+      logger: { warn: jest.Mock };
+    };
+    expect(logger.warn).toHaveBeenCalledWith(
+      'supabase',
+      'SecureStore setItem exhausted retries',
+      expect.any(Error),
+    );
   });
 });

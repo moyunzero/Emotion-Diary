@@ -48,4 +48,10 @@ describe('extractAudiosObjectPath', () => {
       'https://xyz.supabase.co/storage/v1/object/public/audios/user%2Fid/a%20b.m4a';
     expect(extractAudiosObjectPath(url)).toBe('user/id/a b.m4a');
   });
+
+  it('returns null for malformed percent-encoding (no throw)', () => {
+    const url =
+      'https://xyz.supabase.co/storage/v1/object/public/audios/user%/broken.m4a';
+    expect(extractAudiosObjectPath(url)).toBeNull();
+  });
 });

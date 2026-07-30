@@ -42,11 +42,13 @@ export async function runSecureStoreSetItemWithRetry(
   const backoffMs = options?.backoffMs ?? SECURE_STORE_SET_BACKOFF_MS;
   const sleep = options?.sleep ?? defaultSleep;
 
+  let lastError: unknown;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       await write();
       return 'ok';
-    } catch {
+    } catch (error) {
+      lastError = error;
       if (attempt < maxAttempts - 1) {
         await sleep(backoffMs);
       }
@@ -59,6 +61,7 @@ export async function runSecureStoreSetItemWithRetry(
     logger.warn('supabase', 'SecureStore persist failure handler threw', handlerError);
   }
 
+  logger.warn('supabase', 'SecureStore setItem exhausted retries', lastError);
   return 'failed';
 }
 
@@ -78,7 +81,10 @@ const SecureStoreAdapter = {
       SecureStore.setItemAsync(key, value),
     );
     if (result === 'failed') {
-      logger.warn('supabase', `SecureStore setItem failed for key ${key} after retries`);
+      logger.warn(
+        'supabase',
+        `SecureStore setItem failed for key ${key} after retries`,
+      );
     }
   },
   removeItem: async (key: string) => {

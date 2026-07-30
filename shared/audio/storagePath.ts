@@ -24,7 +24,11 @@ export function extractAudiosObjectPath(stored: string): string | null {
     const i = trimmed.indexOf(m);
     if (i >= 0) {
       const rest = trimmed.slice(i + m.length).split("?")[0];
-      return decodeURIComponent(rest);
+      try {
+        return decodeURIComponent(rest);
+      } catch {
+        return null;
+      }
     }
   }
   return null;
