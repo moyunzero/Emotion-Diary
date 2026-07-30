@@ -1,0 +1,98 @@
+appId: com.moyunzero.emotiondiary
+---
+# 016 D-11：私有桶 signed URL 播放（UI 断言 playing，不直接验 HTTP）
+# 前置：
+#   1) 测试账号云端已有至少一条带录音的日记（已同步）
+#   2) Simulator booted + matching dev build；yarn start
+#   3) export MAESTRO_EMAIL=... MAESTRO_PASSWORD=...
+# 截图：.maestro/acceptance/016-signed-audio-playback/*.png
+# 运行：yarn test:maestro:preflight && yarn test:maestro:016
+#
+# 策略：clearState → 无本地文件 → 登录 → 云端拉取 → 展开条目 → 播放
+# 本地 miss 时应走 createSignedUrl 路径（断言 UI playing）
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 45000
+- tapOn:
+    id: onboarding-skip-button
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/01-dashboard-guest
+
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/02-profile-guest
+
+- runFlow:
+    file: ../subflows/login.yaml
+
+- scrollUntilVisible:
+    element:
+      id: profile-sync-pull
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: profile-sync-pull
+# RN Alert：确认合并
+- extendedWaitUntil:
+    visible: "继续合并"
+    timeout: 10000
+- tapOn: "继续合并"
+- extendedWaitUntil:
+    visible: "正在从云端合并"
+    timeout: 15000
+    optional: true
+- extendedWaitUntil:
+    notVisible: "正在从云端合并"
+    timeout: 120000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/03-profile-after-pull
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/04-dashboard-synced
+
+# 滚动到带录音角标的条目并展开（避免误点 Tab）
+- scrollUntilVisible:
+    element:
+      id: entry-has-audio
+    direction: DOWN
+    timeout: 60000
+    visibilityPercentage: 40
+- tapOn:
+    id: entry-has-audio
+- extendedWaitUntil:
+    visible:
+      id: entry-audio-play
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/05-entry-expanded-audio
+- tapOn:
+    id: entry-audio-play
+- extendedWaitUntil:
+    visible:
+      id: entry-audio-playing
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/06-audio-playing

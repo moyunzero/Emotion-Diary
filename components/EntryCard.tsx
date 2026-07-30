@@ -267,6 +267,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           accessibilityLabel={tRecord("audio.list.playA11y", {
             label: getAudioDisplayLabel(audio),
           })}
+          testID="entry-audio-play"
         >
           {isAudioRowActive(audio) && isPlayingGlobal ? (
             <Pause size={16} color={COLORS.audio.primary} />
@@ -283,7 +284,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             {getAudioDisplayLabel(audio)}
           </Text>
           {isAudioRowActive(audio) && isPlayingGlobal && (
-            <Text style={styles.audioPlayDuration}>
+            <Text style={styles.audioPlayDuration} testID="entry-audio-playing">
               {formatDuration(playbackPosition)} /{" "}
               {formatDuration(audio.duration)}
             </Text>
@@ -689,7 +690,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                     </View>
                   ))}
                   {entry.audios && entry.audios.length > 0 && (
-                    <View style={styles.audioTag}>
+                    <View style={styles.audioTag} testID="entry-has-audio">
                       <Mic size={12} color={COLORS.audio.primary} />
                       <Text style={styles.audioTagText}>
                         {tSystem("audio.voiceCount", {

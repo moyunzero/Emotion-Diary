@@ -351,6 +351,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
+          testID="profile-sync-pull"
           icon={<CloudDownload size={20} color={COLORS.primaryDark} />}
           iconBgColor="#EFF6FF"
           title={tSync("pullTitle")}
@@ -607,6 +608,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                         autoComplete="email"
                         textContentType="emailAddress"
                         returnKeyType="next"
+                        testID="login-email-input"
                         onSubmitEditing={() =>
                           setTimeout(
                             () =>
@@ -635,6 +637,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                         autoComplete="password"
                         textContentType="password"
                         returnKeyType="done"
+                        testID="login-password-input"
                         onSubmitEditing={onLogin}
                         onFocus={() =>
                           setTimeout(
@@ -833,6 +836,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 <TouchableOpacity
                   style={ms.primaryButton}
                   onPress={onLogin}
+                  testID="login-submit-button"
                   disabled={
                     isLoading ||
                     (!isRegisterMode &&
