@@ -103,6 +103,7 @@ types.ts       领域模型（MoodEntry 等）
 - 密钥只放 `.env`（参考 `.env.example`）；客户端仅 `EXPO_PUBLIC_*`。
 - 不上报日记正文 / 标签 / 音频内容；本仓库不接 Sentry。
 - 分享卡默认不暴露日记全文；改分享路径时保持脱敏。
+- 永久产品政策（无 Sentry / E2E 不进 CI / 云端优先合并 / 无根 `openspec/`）见 `.planning/codebase/CONCERNS.md` → Accepted Product Risks。
 
 ---
 
