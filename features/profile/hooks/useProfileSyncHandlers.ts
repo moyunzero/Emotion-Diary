@@ -8,16 +8,13 @@ import { Alert } from "react-native";
 import { i18n } from "@/i18n";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
+import { logger } from "@/utils/logger";
 import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
 import type { MutableRefObject } from "react";
-import type { SyncStatus } from "./useProfileScreenState";
 
 type StateRef = {
   isSyncingRef: MutableRefObject<boolean>;
   setIsLoading: (v: boolean) => void;
-  setSyncStatus: (v: SyncStatus) => void;
-  setSyncProgress: (v: string) => void;
-  setLastSyncTime: (v: number) => void;
   setIsLoginModalOpen: (v: boolean) => void;
   setIsRegisterMode: (v: boolean) => void;
 };
@@ -37,18 +34,19 @@ export function useProfileSyncHandlers(state: StateRef) {
         return;
       }
 
-      const { isSyncingRef, setIsLoading, setSyncStatus, setSyncProgress } =
-        state;
+      const { isSyncingRef, setIsLoading } = state;
       if (isSyncingRef.current) return;
 
       isSyncingRef.current = true;
       setIsLoading(true);
-      setSyncStatus("syncing");
-      setSyncProgress(
-        type === "upload"
-          ? i18n.t("upload.progress", { ns: "sync" })
-          : i18n.t("pull.progress", { ns: "sync" }),
-      );
+      // Set syncing before progress so idle+progress never flashes CheckCircle (D-15)
+      useAppStore.setState({
+        syncStatus: "syncing",
+        syncProgress:
+          type === "upload"
+            ? i18n.t("upload.progress", { ns: "sync" })
+            : i18n.t("pull.progress", { ns: "sync" }),
+      });
 
       try {
         const ok =
@@ -59,36 +57,34 @@ export function useProfileSyncHandlers(state: StateRef) {
         if (!ok) {
           const status = useAppStore.getState().syncStatus;
           if (status === "pending") {
-            setSyncStatus("syncing");
-            setSyncProgress(i18n.t("pendingMessage", { ns: "sync" }));
+            useAppStore.setState({
+              syncProgress: i18n.t("pendingMessage", { ns: "sync" }),
+            });
             setTimeout(() => {
-              setSyncStatus("idle");
-              setSyncProgress("");
+              useAppStore.setState({ syncProgress: "" });
             }, 2500);
             return;
           }
           if (status === "error") {
-            setSyncStatus("error");
-            setSyncProgress(i18n.t("notLoggedIn", { ns: "sync" }));
+            useAppStore.setState({
+              syncProgress: i18n.t("notLoggedIn", { ns: "sync" }),
+            });
             setTimeout(() => {
-              setSyncStatus("idle");
-              setSyncProgress("");
+              useAppStore.setState({ syncProgress: "" });
             }, 3000);
             return;
           }
-          setSyncStatus("error");
-          setSyncProgress(
-            i18n.t("sync.operationIncomplete", { ns: "system" }),
-          );
+          useAppStore.setState({
+            syncStatus: "error",
+            syncProgress: i18n.t("sync.operationIncomplete", { ns: "system" }),
+          });
           setTimeout(() => {
-            setSyncStatus("idle");
-            setSyncProgress("");
+            useAppStore.setState({ syncProgress: "" });
           }, 3000);
           return;
         }
 
         const now = Date.now();
-        state.setLastSyncTime(now);
         await AsyncStorage.setItem("last_sync_time", now.toString());
         const visibleCount = excludeSoftDeletedEntries(
           useAppStore.getState().entries,
@@ -97,34 +93,37 @@ export function useProfileSyncHandlers(state: StateRef) {
           .getState()
           .entries.flatMap((e) => e.audios ?? [])
           .filter((a) => a.syncStatus === "failed").length;
-        setSyncStatus("success");
         const baseMsg =
           type === "upload"
             ? i18n.t("upload.success", { ns: "sync", count: visibleCount })
             : i18n.t("pull.success", { ns: "sync", count: visibleCount });
-        setSyncProgress(
-          failedAudioCount > 0
-            ? `${baseMsg} ${i18n.t("sync.audioUploadFailedSuffix", {
-                ns: "system",
-                count: failedAudioCount,
-              })}`
-            : baseMsg,
-        );
-        useAppStore.setState({ syncStatus: "idle" });
+        // Success flash: idle + non-empty syncProgress → CheckCircle ~2s (D-15)
+        useAppStore.setState({
+          syncStatus: "idle",
+          lastSyncTime: now,
+          syncProgress:
+            failedAudioCount > 0
+              ? `${baseMsg} ${i18n.t("sync.audioUploadFailedSuffix", {
+                  ns: "system",
+                  count: failedAudioCount,
+                })}`
+              : baseMsg,
+        });
         setTimeout(() => {
-          setSyncStatus("idle");
-          setSyncProgress("");
+          useAppStore.setState({ syncProgress: "" });
         }, 2000);
       } catch (error: unknown) {
+        logger.error("profileSync", "sync action failed", error);
         const err = error as { message?: string };
         const errorMessage =
           err?.message ||
           i18n.t("sync.operationFailed", { ns: "system" });
-        setSyncStatus("error");
-        setSyncProgress(errorMessage);
+        useAppStore.setState({
+          syncStatus: "error",
+          syncProgress: errorMessage,
+        });
         setTimeout(() => {
-          setSyncStatus("idle");
-          setSyncProgress("");
+          useAppStore.setState({ syncProgress: "" });
         }, 3000);
       } finally {
         setIsLoading(false);

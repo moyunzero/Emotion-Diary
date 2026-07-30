@@ -1,0 +1,49 @@
+appId: com.moyunzero.emotiondiary
+---
+# 子流程：确保已登录（guest 则填表；已登录则跳过）
+# 环境变量：MAESTRO_EMAIL / MAESTRO_PASSWORD
+# iOS 密码框用剪贴板 pasteText（调用方 pbcopy）
+# clearState 不一定清 SecureStore，故需兼容已登录
+
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+
+- runFlow:
+    when:
+      visible:
+        id: profile-tap-to-login
+    commands:
+      - tapOn:
+          id: profile-tap-to-login
+      - extendedWaitUntil:
+          visible:
+            id: login-email-input
+          timeout: 10000
+      - tapOn:
+          id: login-email-input
+      - eraseText
+      - inputText: ${MAESTRO_EMAIL}
+      - hideKeyboard
+      - tapOn:
+          id: login-password-input
+      - eraseText
+      - pasteText
+      - hideKeyboard
+      - tapOn:
+          id: login-submit-button
+      - extendedWaitUntil:
+          notVisible:
+            id: login-email-input
+          timeout: 45000
+
+- scrollUntilVisible:
+    element:
+      id: profile-sync-pull
+    direction: DOWN
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: profile-sync-pull
+    timeout: 10000

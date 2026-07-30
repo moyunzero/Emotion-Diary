@@ -105,6 +105,7 @@ playwright/.cache/
 # Maestro 验收截图（takeScreenshot 产出，仅本地存档；flow 保留在 .maestro/flows/）
 acceptance/
 .maestro/acceptance/
+.maestro.env
 
 # 本地代码智能索引（不入库）
 .codegraph/

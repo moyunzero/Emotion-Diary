@@ -24,7 +24,6 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
   weather: {
     score: 0,
     condition: 'sunny',
-    description: '关系晴朗',
   },
 
   /**
@@ -54,20 +53,16 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
 
     // 根据分数确定天气状态
     let condition: WeatherState['condition'] = 'sunny';
-    let description = '相处不错哦~';
 
     if (score > WEATHER_THRESHOLDS.stormy) {
       condition = 'stormy';
-      description = '预警！关系需要紧急维护！';
     } else if (score > WEATHER_THRESHOLDS.rainy) {
       condition = 'rainy';
-      description = '建议安排一次深度沟通';
     } else if (score > WEATHER_THRESHOLDS.cloudy) {
       condition = 'cloudy';
-      description = '有些小情绪，需要关注';
     }
 
-    set({ weather: { score, condition, description } });
+    set({ weather: { score, condition } });
   },
 });
 

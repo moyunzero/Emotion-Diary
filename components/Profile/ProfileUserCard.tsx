@@ -50,6 +50,7 @@ export function ProfileUserCard({
         accessibilityLabel={
           isLoggedIn ? t("userCard.editProfile") : t("userCard.tapToLogin")
         }
+        testID="profile-user-card"
       >
         <Avatar
           uri={avatarUri ?? undefined}
@@ -80,7 +81,11 @@ export function ProfileUserCard({
             )}
           </>
         ) : (
-          <TouchableOpacity onPress={onPress} accessibilityRole="button">
+          <TouchableOpacity
+            onPress={onPress}
+            accessibilityRole="button"
+            testID="profile-tap-to-login"
+          >
             <Text style={profileStyles.loginTitle}>{t("userCard.tapToLogin")}</Text>
             <Text style={profileStyles.loginSubtitle}>{t("userCard.loginSubtitle")}</Text>
           </TouchableOpacity>

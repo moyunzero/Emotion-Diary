@@ -68,7 +68,6 @@ export type ProfileSettingsSectionProps = {
   onSetLocale: (locale: AppLocale) => Promise<void>;
   onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
-  syncStatus: "idle" | "syncing" | "success" | "error";
   storeSyncStatus: StoreSyncStatus;
   recycleBinCount: number;
   onOpenRecycleBin: () => void;
@@ -140,7 +139,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     onSetLocale,
     onSetLocaleMode,
     user,
-    syncStatus,
     storeSyncStatus,
     recycleBinCount,
     onOpenRecycleBin,
@@ -311,23 +309,24 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         statusRow={
           user ? (
             <View style={settingsStyles.statusRow}>
-              {(syncStatus === "syncing" || storeSyncStatus === "syncing") && (
+              {(storeSyncStatus === "syncing" ||
+                storeSyncStatus === "pending") && (
                 <ActivityIndicator
                   size="small"
                   color={COLORS.primaryDark}
                   style={settingsStyles.statusIcon}
                 />
               )}
-              {syncStatus === "success" && storeSyncStatus === "idle" && (
+              {storeSyncStatus === "error" ? (
+                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
+              ) : null}
+              {storeSyncStatus === "idle" && syncProgress !== "" ? (
                 <CheckCircle
                   size={16}
                   color={COLORS.success}
                   style={settingsStyles.statusIcon}
                 />
-              )}
-              {(syncStatus === "error" || storeSyncStatus === "error") && (
-                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
-              )}
+              ) : null}
               <Text style={settingsStyles.statusText}>{statusText}</Text>
             </View>
           ) : undefined
@@ -338,26 +337,35 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           iconBgColor="#FEF2F2"
           title={tSync("uploadTitle")}
           subtext={
-            syncStatus === "syncing"
+            storeSyncStatus === "syncing" || isLoading
               ? tSync("upload.progress")
               : tSync("uploadSubtext")
           }
-          showChevron={syncStatus !== "syncing"}
-          disabled={isLoading}
+          showChevron={!(storeSyncStatus === "syncing" || isLoading)}
+          disabled={
+            isLoading ||
+            storeSyncStatus === "syncing" ||
+            storeSyncStatus === "pending"
+          }
           onPress={onSyncUpload}
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
+          testID="profile-sync-pull"
           icon={<CloudDownload size={20} color={COLORS.primaryDark} />}
           iconBgColor="#EFF6FF"
           title={tSync("pullTitle")}
           subtext={
-            syncStatus === "syncing"
+            storeSyncStatus === "syncing" || isLoading
               ? tSync("pull.progress")
               : tSync("pullSubtext")
           }
-          showChevron={syncStatus !== "syncing"}
-          disabled={isLoading}
+          showChevron={!(storeSyncStatus === "syncing" || isLoading)}
+          disabled={
+            isLoading ||
+            storeSyncStatus === "syncing" ||
+            storeSyncStatus === "pending"
+          }
           onPress={onSyncDownload}
         />
         <View style={profileStyles.menuDivider} />
@@ -600,6 +608,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                         autoComplete="email"
                         textContentType="emailAddress"
                         returnKeyType="next"
+                        testID="login-email-input"
                         onSubmitEditing={() =>
                           setTimeout(
                             () =>
@@ -628,6 +637,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                         autoComplete="password"
                         textContentType="password"
                         returnKeyType="done"
+                        testID="login-password-input"
                         onSubmitEditing={onLogin}
                         onFocus={() =>
                           setTimeout(
@@ -826,6 +836,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
                 <TouchableOpacity
                   style={ms.primaryButton}
                   onPress={onLogin}
+                  testID="login-submit-button"
                   disabled={
                     isLoading ||
                     (!isRegisterMode &&

@@ -10,7 +10,7 @@ import { AudioStatus, createAudioPlayer } from "expo-audio";
 import { getInfoAsync } from "expo-file-system";
 import type { AudioData } from "../../types";
 import { logger } from "../../utils/logger";
-import { resolveAudioSource } from "./playback";
+import { isLocalPlaybackSource, resolveAudioSource } from "./playback";
 
 /** 草稿（记一笔/编辑弹窗）与已落库条目卡片 */
 export type PlaybackScope = "draft" | "entry";
@@ -25,8 +25,11 @@ export type PlaybackStorePatch = {
 };
 
 type SyncFn = (patch: PlaybackStorePatch) => void;
+/** Play-time: path / legacy public URL → short-lived signed URL (D-06). */
+export type AudioRemoteResolver = (stored: string) => Promise<string | null>;
 
 let syncToStore: SyncFn | null = null;
+let resolveRemote: AudioRemoteResolver | null = null;
 
 let player: ReturnType<typeof createAudioPlayer> | null = null;
 let statusListener: ((status: AudioStatus) => void) | null = null;
@@ -38,6 +41,14 @@ let isNativePlaying = false;
 
 export function initAudioCoordinator(sync: SyncFn): void {
   syncToStore = sync;
+}
+
+/**
+ * Inject play-time remote signer (from services/audioSync via store bootstrap).
+ * Keeps shared/audio free of services imports.
+ */
+export function setAudioRemoteResolver(fn: AudioRemoteResolver | null): void {
+  resolveRemote = fn;
 }
 
 function detachListener(): void {
@@ -82,10 +93,19 @@ function applyStopped(): void {
 }
 
 async function resolvePlayableUri(audio: AudioData): Promise<string | null> {
-  return resolveAudioSource(audio, async (u) => {
+  const source = await resolveAudioSource(audio, async (u) => {
     const info = await getInfoAsync(u);
     return info.exists;
   });
+  if (!source) return null;
+  // Local file hit — skip network sign (D-06 play-time only for remote/path)
+  if (isLocalPlaybackSource(source, audio)) {
+    return source;
+  }
+  if (!resolveRemote) {
+    return source;
+  }
+  return resolveRemote(source);
 }
 
 export const audioCoordinator = {

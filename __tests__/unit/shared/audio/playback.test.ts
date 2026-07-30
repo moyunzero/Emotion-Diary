@@ -8,7 +8,10 @@
  * - 两者皆空：返回 null
  */
 
-import { resolveAudioSource } from '../../../../shared/audio/playback';
+import {
+  isLocalPlaybackSource,
+  resolveAudioSource,
+} from '../../../../shared/audio/playback';
 
 describe('resolveAudioSource (H6 回归)', () => {
   it('localUri 存在时优先返回 localUri，避免不必要的网络请求', async () => {
@@ -97,5 +100,19 @@ describe('resolveAudioSource (H6 回归)', () => {
       checkLocalExists,
     );
     expect(uri).toBeNull();
+  });
+});
+
+describe('isLocalPlaybackSource (SEC-02 needs-sign gate)', () => {
+  it('true only when source equals verified localUri', () => {
+    expect(
+      isLocalPlaybackSource('file:///local/a.m4a', {
+        localUri: 'file:///local/a.m4a',
+      }),
+    ).toBe(true);
+    expect(
+      isLocalPlaybackSource('user-1/a.m4a', { localUri: 'file:///local/a.m4a' }),
+    ).toBe(false);
+    expect(isLocalPlaybackSource('user-1/a.m4a', {})).toBe(false);
   });
 });

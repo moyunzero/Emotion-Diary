@@ -45,6 +45,8 @@ export function ProfileScreen() {
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const setLocale = useAppStore((state) => state.setLocale);
   const setLocaleMode = useAppStore((state) => state.setLocaleMode);
+  const syncProgress = useAppStore((state) => state.syncProgress);
+  const lastSyncTime = useAppStore((state) => state.lastSyncTime);
 
   const visibleEntryCount = useMemo(
     () => excludeSoftDeletedEntries(entries).length,
@@ -62,9 +64,6 @@ export function ProfileScreen() {
   const syncHandlers = useProfileSyncHandlers({
     isSyncingRef: state.isSyncingRef,
     setIsLoading: state.setIsLoading,
-    setSyncStatus: state.setSyncStatus,
-    setSyncProgress: state.setSyncProgress,
-    setLastSyncTime: state.setLastSyncTime,
     setIsLoginModalOpen: state.setIsLoginModalOpen,
     setIsRegisterMode: state.setIsRegisterMode,
   });
@@ -123,20 +122,22 @@ export function ProfileScreen() {
     isSwitchingModeRef: state.isSwitchingModeRef,
   });
 
-  // 加载最后同步时间
+  // 加载最后同步时间 → store.lastSyncTime (D-16)
   useEffect(() => {
     const loadLastSyncTime = async () => {
       try {
         const time = await AsyncStorage.getItem("last_sync_time");
         if (time) {
-          state.setLastSyncTime(Number.parseInt(time, 10));
+          useAppStore.setState({
+            lastSyncTime: Number.parseInt(time, 10),
+          });
         }
       } catch {
         // ignore
       }
     };
-    loadLastSyncTime();
-  }, [state]);
+    void loadLastSyncTime();
+  }, []);
 
   useEffect(() => {
     const showEvent =
@@ -237,9 +238,8 @@ export function ProfileScreen() {
           onSetLocale={setLocale}
           onSetLocaleMode={setLocaleMode}
           user={user}
-          syncStatus={state.syncStatus}
-          syncProgress={state.syncProgress}
-          lastSyncTime={state.lastSyncTime}
+          syncProgress={syncProgress}
+          lastSyncTime={lastSyncTime}
           formatLastSyncTime={syncHandlers.formatLastSyncTime}
           isLoading={state.isLoading}
           storeSyncStatus={syncHandlers.storeSyncStatus}

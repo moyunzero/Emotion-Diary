@@ -1,6 +1,6 @@
 /**
  * 音频云端同步模块
- * 处理音频文件的上传、下载和同步状态管理
+ * 处理音频文件上传与待同步批量上传
  */
 
 import {
@@ -8,10 +8,14 @@ import {
   computeUploadRetryDelayMs,
   sleepMs,
 } from "../shared/audio/uploadRetry";
+import { extractAudiosObjectPath } from "../shared/audio/storagePath";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AudioData } from "../types";
+import { logger } from "@/utils/logger";
 
 const AUDIO_BUCKET = "audios";
+/** D-07: signed URL TTL ≈ 24h */
+const SIGNED_URL_TTL_SEC = 60 * 60 * 24;
 
 export interface PendingAudioUploadResult {
   success: number;
@@ -21,7 +25,8 @@ export interface PendingAudioUploadResult {
 }
 
 /**
- * 上传单个音频文件到云端
+ * 上传单个音频文件到云端。
+ * 成功时 remoteUrl 为 Storage object path（非公有/签名 URL）— D-08/D-10。
  */
 export const uploadAudio = async (
   audioData: AudioData,
@@ -46,23 +51,52 @@ export const uploadAudio = async (
       });
 
     if (error) {
-      console.error("上传音频失败:", error);
+      logger.error("audioSync", "上传音频失败", error);
       return { success: false, error: error.message };
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(AUDIO_BUCKET).getPublicUrl(filePath);
-
-    return { success: true, remoteUrl: publicUrl };
+    return { success: true, remoteUrl: filePath };
   } catch (error) {
-    console.error("上传音频异常:", error);
+    logger.error("audioSync", "上传音频异常", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "未知错误",
     };
   }
 };
+
+/**
+ * Play-time：从持久化的 path / legacy public URL 解析 object path 并 mint 签名 URL。
+ * 不把 signed URL 写回 entry（D-06）。
+ */
+export async function resolvePlayableRemoteUrl(
+  stored: string,
+): Promise<string | null> {
+  if (!isSupabaseConfigured()) {
+    return null;
+  }
+
+  const objectPath = extractAudiosObjectPath(stored);
+  if (!objectPath) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(AUDIO_BUCKET)
+      .createSignedUrl(objectPath, SIGNED_URL_TTL_SEC);
+
+    if (error || !data?.signedUrl) {
+      logger.warn("audioSync", "createSignedUrl 失败", error ?? undefined);
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch (error) {
+    logger.warn("audioSync", "createSignedUrl 异常", error);
+    return null;
+  }
+}
 
 /**
  * 单条音频：最多尝试 AUDIO_UPLOAD_MAX_ATTEMPTS 次，失败间指数退避。
@@ -91,8 +125,13 @@ export async function uploadAudioWithRetry(
   return { success: false };
 }
 
+/** D-10: pending audio upload concurrency cap (hand-rolled pool; no p-limit). */
+const UPLOAD_CONCURRENCY = 3;
+
 /**
- * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）
+ * 批量上传待同步的音频文件（pending + failed，failed 在备份时自动重试）。
+ * D-10/D-11/D-13: pool cap 3 + fail-continue + per-item uploadAudioWithRetry.
+ * D-12: batch writeback stays at syncToCloud call site (not here).
  */
 export const uploadPendingAudios = async (
   audios: AudioData[],
@@ -108,156 +147,34 @@ export const uploadPendingAudios = async (
       (a.syncStatus === "pending" || a.syncStatus === "failed") && a.localUri,
   );
 
-  for (const audio of pendingAudios) {
-    const outcome = await uploadAudioWithRetry(audio, userId);
-    if (outcome.success) {
-      results.set(audio.id, outcome.remoteUrl);
-      success++;
-    } else {
-      failed++;
-      failedAudioIds.push(audio.id);
-      console.error(
-        `音频 ${audio.id} 上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
-      );
+  let nextIndex = 0;
+
+  const worker = async (): Promise<void> => {
+    while (true) {
+      const i = nextIndex++;
+      if (i >= pendingAudios.length) break;
+
+      const audio = pendingAudios[i];
+      const outcome = await uploadAudioWithRetry(audio, userId);
+      if (outcome.success) {
+        results.set(audio.id, outcome.remoteUrl);
+        success++;
+      } else {
+        failed++;
+        failedAudioIds.push(audio.id);
+        logger.error(
+          "audioSync",
+          `音频上传失败，已重试 ${AUDIO_UPLOAD_MAX_ATTEMPTS} 次`,
+          { audioId: audio.id },
+        );
+      }
     }
-  }
+  };
+
+  const workerCount = Math.min(UPLOAD_CONCURRENCY, pendingAudios.length);
+  await Promise.all(
+    Array.from({ length: workerCount }, () => worker()),
+  );
 
   return { success, failed, results, failedAudioIds };
-};
-
-/**
- * 下载云端音频文件到本地
- */
-export const downloadAudio = async (
-  audioData: AudioData,
-  userId: string
-): Promise<{ success: boolean; localPath?: string; error?: string }> => {
-  if (!isSupabaseConfigured()) {
-    return { success: false, error: "Supabase 未配置" };
-  }
-
-  if (!audioData.remoteUrl) {
-    return { success: false, error: "没有远程URL" };
-  }
-
-  const filePath = `${userId}/${audioData.id}.m4a`;
-
-  try {
-    const { error } = await supabase.storage
-      .from(AUDIO_BUCKET)
-      .download(filePath);
-
-    if (error) {
-      console.error("下载音频失败:", error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error("下载音频异常:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误",
-    };
-  }
-};
-
-/**
- * 删除云端音频文件
- */
-export const deleteCloudAudio = async (
-  audioId: string,
-  userId: string
-): Promise<{ success: boolean; error?: string }> => {
-  if (!isSupabaseConfigured()) {
-    return { success: false, error: "Supabase 未配置" };
-  }
-
-  const filePath = `${userId}/${audioId}.m4a`;
-
-  try {
-    const { error } = await supabase.storage
-      .from(AUDIO_BUCKET)
-      .remove([filePath]);
-
-    if (error) {
-      console.error("删除云端音频失败:", error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error("删除云端音频异常:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误",
-    };
-  }
-};
-
-/**
- * 批量删除云端音频文件
- */
-export const deleteMultipleCloudAudios = async (
-  audioIds: string[],
-  userId: string
-): Promise<{ success: number; failed: number }> => {
-  const filePaths = audioIds.map((id) => `${userId}/${id}.m4a`);
-
-  try {
-    const { error } = await supabase.storage
-      .from(AUDIO_BUCKET)
-      .remove(filePaths);
-
-    if (error) {
-      console.error("批量删除云端音频失败:", error);
-      return { success: 0, failed: audioIds.length };
-    }
-
-    return { success: audioIds.length, failed: 0 };
-  } catch (error) {
-    console.error("批量删除云端音频异常:", error);
-    return { success: 0, failed: audioIds.length };
-  }
-};
-
-/**
- * 获取云端音频的公开 URL
- */
-export const getCloudAudioUrl = (
-  audioId: string,
-  userId: string
-): string | null => {
-  if (!isSupabaseConfigured()) {
-    return null;
-  }
-
-  const filePath = `${userId}/${audioId}.m4a`;
-  const { data } = supabase.storage.from(AUDIO_BUCKET).getPublicUrl(filePath);
-
-  return data.publicUrl;
-};
-
-/**
- * 检查云端音频是否存在
- */
-export const checkCloudAudioExists = async (
-  audioId: string,
-  userId: string
-): Promise<boolean> => {
-  if (!isSupabaseConfigured()) {
-    return false;
-  }
-
-  const filePath = `${userId}/${audioId}.m4a`;
-
-  try {
-    const { data, error } = await supabase.storage
-      .from(AUDIO_BUCKET)
-      .download(filePath);
-
-    return !error && !!data;
-  } catch {
-    return false;
-  }
 };

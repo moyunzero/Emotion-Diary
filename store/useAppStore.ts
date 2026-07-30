@@ -4,22 +4,41 @@
  */
 
 import { ensureMilliseconds } from "@/shared/formatting";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-url-polyfill/auto";
+import { Alert } from "react-native";
 import { create } from "zustand";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import {
+  isSupabaseConfigured,
+  registerSecureStorePersistFailureHandler,
+  supabase,
+} from "../lib/supabase";
 import { User } from "../types";
 import { getDefaultAvatar } from "../utils/avatarPresets";
 import { i18n } from "../i18n";
 import { isAuthError, isNetworkError } from "../utils/errorHandler";
+import { logger } from "../utils/logger";
 
 // 导入模块
-import { uploadPendingAudios } from "../services/audioSync";
+import {
+  resolvePlayableRemoteUrl,
+  uploadPendingAudios,
+} from "../services/audioSync";
 import { rescheduleEmotionRemindersFromStorage } from "../services/emotionReminders";
 import { fetchUserTombstoneEntryIds } from "../services/entryTombstones";
-import { initAudioCoordinator } from "../shared/audio/coordinator";
+import {
+  initAudioCoordinator,
+  setAudioRemoteResolver,
+} from "../shared/audio/coordinator";
 import { initRecordingCoordinator } from "../shared/audio/recordingCoordinator";
 import { applyAudioUploadResults } from "../shared/audio/sync";
 import { mergeCloudPullEntries } from "../shared/sync/cloudMerge";
+import {
+  advanceLastSyncedAfterSuccess,
+  loadRevisionMeta,
+  saveRevisionMeta,
+  shouldUpsertEntry,
+} from "../shared/sync/revisionMeta";
 import {
   consumePendingSyncRequest,
   hasPendingSyncRequest,
@@ -43,6 +62,8 @@ import { createWeatherModule } from "./modules/weather";
 /** 全局音频协调器与 Zustand 的 one-shot 接线（避免 coordinator ↔ store 循环依赖） */
 let audioCoordinatorInitialized = false;
 let recordingCoordinatorInitialized = false;
+/** SecureStore setItem 最终失败 → Alert + signOut（D-16/D-17；lib 不 import store） */
+let secureStorePersistFailureHandlerRegistered = false;
 
 // 待处理同步的防抖定时器（互斥见 shared/sync/syncLock.ts）
 
@@ -197,6 +218,7 @@ export const useAppStore = create<AppState>()((...args) => {
     initAudioCoordinator((patch) => {
       set(patch as Partial<AppState>);
     });
+    setAudioRemoteResolver(resolvePlayableRemoteUrl);
   }
 
   if (!recordingCoordinatorInitialized) {
@@ -209,6 +231,29 @@ export const useAppStore = create<AppState>()((...args) => {
     );
   }
 
+  if (!secureStorePersistFailureHandlerRegistered) {
+    secureStorePersistFailureHandlerRegistered = true;
+    registerSecureStorePersistFailureHandler(() => {
+      Alert.alert(
+        i18n.t("sessionPersistFailed.title", { ns: "auth" }),
+        i18n.t("sessionPersistFailed.message", { ns: "auth" }),
+      );
+      void (async () => {
+        try {
+          await supabase.auth.signOut();
+        } catch (error) {
+          logger.warn("store", "signOut after SecureStore persist failure", error);
+        }
+        set({ user: null });
+        try {
+          await AsyncStorage.removeItem("user_session");
+        } catch (error) {
+          logger.warn("store", "clear user_session after SecureStore persist failure", error);
+        }
+      })();
+    });
+  }
+
   return {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
@@ -219,6 +264,8 @@ export const useAppStore = create<AppState>()((...args) => {
     ...createUserSlice(set, get, store),
 
     syncStatus: "idle" as "idle" | "syncing" | "pending" | "error",
+    syncProgress: "",
+    lastSyncTime: null as number | null,
 
     /**
      * 同步到云端
@@ -273,34 +320,49 @@ export const useAppStore = create<AppState>()((...args) => {
         }
 
         // 准备同步数据（墓碑命中的 id 不得再 upsert，否则会复活已 purge 的云端行）
-        const entriesToSync = filterOutTombstonedEntries(
-          entries.map((entry) => {
-            const peopleArray = Array.isArray(entry.people) ? entry.people : [];
-            const triggersArray = Array.isArray(entry.triggers)
-              ? entry.triggers
-              : [];
+        const afterTombstone = filterOutTombstonedEntries(entries, tombstoneIdSet);
 
-            return {
-              id: entry.id,
-              timestamp: entry.timestamp,
-              moodlevel: entry.moodLevel || 1,
-              content: entry.content || "",
-              deadline: entry.deadline || "later",
-              people: peopleArray,
-              triggers: triggersArray,
-              status: entry.status || "active",
-              resolvedat: entry.resolvedAt || null,
-              burnedat: entry.burnedAt || null,
-              deletedat:
-                typeof entry.deletedAt === "number" && entry.deletedAt > 0
-                  ? entry.deletedAt
-                  : null,
-              user_id: currentUserId,
-              audios: entry.audios || [],
-            };
-          }),
-          tombstoneIdSet,
-        );
+        // SYNC-02: skip unchanged rows via independent revision meta (D-07/D-08)
+        let revisionMeta = await loadRevisionMeta(currentUserId);
+        const entriesNeedingUpsert = afterTombstone.filter((entry) => {
+          const updatedAt =
+            typeof entry.updatedAt === "number" && entry.updatedAt > 0
+              ? entry.updatedAt
+              : entry.timestamp;
+          return shouldUpsertEntry({ id: entry.id, updatedAt }, revisionMeta);
+        });
+
+        const entriesToSync = entriesNeedingUpsert.map((entry) => {
+          const peopleArray = Array.isArray(entry.people) ? entry.people : [];
+          const triggersArray = Array.isArray(entry.triggers)
+            ? entry.triggers
+            : [];
+
+          return {
+            id: entry.id,
+            timestamp: entry.timestamp,
+            moodlevel: entry.moodLevel || 1,
+            content: entry.content || "",
+            deadline: entry.deadline || "later",
+            people: peopleArray,
+            triggers: triggersArray,
+            status: entry.status || "active",
+            resolvedat: entry.resolvedAt || null,
+            burnedat: entry.burnedAt || null,
+            deletedat:
+              typeof entry.deletedAt === "number" && entry.deletedAt > 0
+                ? entry.deletedAt
+                : null,
+            // D-04: client revision bigint; prefer updatedAt, else timestamp
+            // D-08: lastSyncedUpdatedAt stays in meta — never on MoodEntry / upsert body
+            updatedat:
+              typeof entry.updatedAt === "number" && entry.updatedAt > 0
+                ? entry.updatedAt
+                : entry.timestamp,
+            user_id: currentUserId,
+            audios: entry.audios || [],
+          };
+        });
 
         // 获取云端数据（upsert 回退路径需要已知云端 id 集合）
         const { data: existingCloudData, error: fetchError } = await supabase
@@ -327,7 +389,9 @@ export const useAppStore = create<AppState>()((...args) => {
           }
         }
 
-        // 同步数据
+        // 同步数据；D-09: advance lastSynced only after successful upsert per row
+        const successfulUpsertIds = new Set<string>();
+
         if (entriesToSync.length > 0) {
           // 使用 upsert 操作，但需要确保 RLS 策略正确配置
           // 如果 upsert 失败，回退到分离的 insert/update 操作
@@ -343,6 +407,12 @@ export const useAppStore = create<AppState>()((...args) => {
             if (upsertError) {
               // 如果是 RLS 错误，尝试使用分离的操作
               if (upsertError.code === "42501") {
+                // Fail closed: without a reliable id set, insert/update split
+                // would treat unknown existing rows as new and mis-advance meta.
+                if (fetchError) {
+                  throw fetchError;
+                }
+
                 if (__DEV__) console.log("upsert 遇到 RLS 问题，使用分离的 insert/update 操作");
 
                 const existingIds = new Set(
@@ -352,7 +422,7 @@ export const useAppStore = create<AppState>()((...args) => {
                 const newEntries = entriesToSync.filter(
                   (e) => !existingIds.has(e.id),
                 );
-                const updateEntries = entriesToSync.filter((e) =>
+                let updateEntries = entriesToSync.filter((e) =>
                   existingIds.has(e.id),
                 );
 
@@ -362,13 +432,19 @@ export const useAppStore = create<AppState>()((...args) => {
                     .from("entries")
                     .insert(newEntries);
 
-                  if (insertError && insertError.code !== "23505") {
-                    // 忽略主键冲突错误，其他错误抛出
+                  if (insertError?.code === "23505") {
+                    // Conflict ⇒ treat as existing; update payload, advance only on OK
+                    updateEntries = [...updateEntries, ...newEntries];
+                  } else if (insertError) {
                     throw insertError;
+                  } else {
+                    for (const e of newEntries) {
+                      successfulUpsertIds.add(e.id);
+                    }
                   }
                 }
 
-                // 更新已存在的记录
+                // 更新已存在的记录 — advance only rows with no error (Pitfall 2)
                 if (updateEntries.length > 0) {
                   for (const entry of updateEntries) {
                     const { error: updateError } = await supabase
@@ -384,13 +460,20 @@ export const useAppStore = create<AppState>()((...args) => {
                         resolvedat: entry.resolvedat,
                         burnedat: entry.burnedat,
                         deletedat: entry.deletedat,
+                        updatedat: entry.updatedat,
                         audios: entry.audios || [],
                       })
                       .eq("id", entry.id)
                       .eq("user_id", currentUserId);
 
                     if (updateError) {
-                      console.warn(`更新记录 ${entry.id} 失败:`, updateError);
+                      logger.warn(
+                        "store",
+                        `更新记录 ${entry.id} 失败`,
+                        updateError,
+                      );
+                    } else {
+                      successfulUpsertIds.add(entry.id);
                     }
                   }
                 }
@@ -398,11 +481,35 @@ export const useAppStore = create<AppState>()((...args) => {
                 // 其他错误，抛出
                 throw upsertError;
               }
+            } else {
+              // Batch upsert with no error → advance all filtered ids (D-09)
+              for (const e of entriesToSync) {
+                successfulUpsertIds.add(e.id);
+              }
             }
           } catch (error: unknown) {
-            console.error("同步记录失败:", error);
-            console.error("失败的记录数量:", entriesToSync.length);
-            console.error("第一条记录示例:", entriesToSync[0]);
+            logger.error("store", "同步记录失败", error);
+            logger.error(
+              "store",
+              "失败的记录数量",
+              entriesToSync.length,
+            );
+            const sample = entriesToSync[0];
+            if (sample) {
+              logger.error("store", "第一条记录示例", {
+                id: sample.id,
+                updatedat: sample.updatedat,
+                peopleCount: Array.isArray(sample.people)
+                  ? sample.people.length
+                  : 0,
+                triggersCount: Array.isArray(sample.triggers)
+                  ? sample.triggers.length
+                  : 0,
+                audiosCount: Array.isArray(sample.audios)
+                  ? sample.audios.length
+                  : 0,
+              });
+            }
 
             const pgCode =
               error !== null &&
@@ -416,8 +523,7 @@ export const useAppStore = create<AppState>()((...args) => {
                 details?: string;
                 hint?: string;
               };
-              console.error("数据库约束检查失败 (23514)");
-              console.error("错误详情:", {
+              logger.error("store", "数据库约束检查失败 (23514)", {
                 message: e.message,
                 details: e.details,
                 hint: e.hint,
@@ -429,6 +535,18 @@ export const useAppStore = create<AppState>()((...args) => {
             }
 
             throw error;
+          }
+
+          if (successfulUpsertIds.size > 0) {
+            revisionMeta = advanceLastSyncedAfterSuccess(
+              revisionMeta,
+              entriesToSync.map((e) => ({
+                id: e.id,
+                updatedAt: e.updatedat,
+              })),
+              successfulUpsertIds,
+            );
+            await saveRevisionMeta(currentUserId, revisionMeta);
           }
         }
 
@@ -471,6 +589,7 @@ export const useAppStore = create<AppState>()((...args) => {
               set({ entries: updatedEntries });
               get()._saveEntries();
 
+              const failedWritebackIds: string[] = [];
               for (const payload of writeback) {
                 const { error: writebackError } = await supabase
                   .from("entries")
@@ -479,22 +598,41 @@ export const useAppStore = create<AppState>()((...args) => {
                   .eq("user_id", currentUserId);
 
                 if (writebackError) {
-                  console.warn(
-                    `回写 entry ${payload.id} 的 audios 元数据失败:`,
+                  failedWritebackIds.push(payload.id);
+                  logger.warn(
+                    "store",
+                    `回写 entry ${payload.id} 的 audios 元数据失败`,
                     writebackError,
                   );
                 }
               }
+
+              // CR-02: clear lastSynced so next push re-upserts audios metadata.
+              // Do not bump updatedAt (D-01: audio-only writeback is not a revision bump).
+              if (failedWritebackIds.length > 0) {
+                const lastSyncedUpdatedAtByEntryId = {
+                  ...revisionMeta.lastSyncedUpdatedAtByEntryId,
+                };
+                for (const id of failedWritebackIds) {
+                  delete lastSyncedUpdatedAtByEntryId[id];
+                }
+                revisionMeta = {
+                  ...revisionMeta,
+                  lastSyncedUpdatedAtByEntryId,
+                };
+                await saveRevisionMeta(currentUserId, revisionMeta);
+              }
             }
 
             if (uploadResult.failed > 0) {
-              console.warn(
+              logger.warn(
+                "store",
                 `[syncToCloud] ${uploadResult.failed} 条语音上传失败，已标记 failed，可重试`,
               );
             }
           }
         } catch (audioError) {
-          console.error("音频同步失败:", audioError);
+          logger.error("store", "音频同步失败", audioError);
         }
 
         set({ syncStatus: "idle" });
@@ -609,6 +747,12 @@ export const useAppStore = create<AppState>()((...args) => {
                 : cloudEntry.burnedAt,
               timestamp: ensureMilliseconds(cloudEntry.timestamp),
               deletedAt: deletedAtMs,
+              // D-04/D-05: revision from updatedat; never diary timestamp alone for skip
+              updatedAt: ensureMilliseconds(
+                cloudEntry.updatedat ??
+                  cloudEntry.updatedAt ??
+                  cloudEntry.timestamp,
+              ),
             };
           })
           .filter((cloudEntry) => !tombstoneIdSet.has(cloudEntry.id));

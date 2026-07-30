@@ -6,6 +6,7 @@
 // 防抖合并多次快速写入，减少 AsyncStorage 频繁 IO；与天气模块联动在落盘后重算。
 
 import { StateCreator } from 'zustand';
+import { logger } from '@/utils/logger';
 import { MAX_EDIT_HISTORY } from '../../constants';
 import { supabase } from '../../lib/supabase';
 import { insertEntryTombstone } from '../../services/entryTombstones';
@@ -18,6 +19,10 @@ import {
   generateEntryId,
   isSoftDeleted,
 } from '../../shared/entries/visibility';
+import {
+  backfillUpdatedAt,
+  withBumpedUpdatedAt,
+} from '../../shared/sync/revisionMeta';
 import { maybeSetPendingAfterResolve } from '../../services/gardenMilestone';
 import { MoodEntry, Status } from '../../types';
 import {
@@ -68,6 +73,8 @@ export const createEntriesSlice: StateCreator<
       ...entryData,
       id: generateEntryId(),
       timestamp: Date.now(),
+      // D-02: wall-clock revision, independent of event timestamp field
+      updatedAt: Date.now(),
       status: Status.ACTIVE,
     };
 
@@ -94,7 +101,7 @@ export const createEntriesSlice: StateCreator<
     const entry = entries.find((e) => e.id === id);
 
     if (!entry) {
-      console.error('Entry not found:', id);
+      logger.error('entries', 'Entry not found', { id });
       return;
     }
 
@@ -106,14 +113,14 @@ export const createEntriesSlice: StateCreator<
       MAX_EDIT_HISTORY,
     );
 
-    // 更新条目
+    // 更新条目（D-01: bump updatedAt on user-visible fields）
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? {
+        ? withBumpedUpdatedAt({
             ...e,
             ...updates,
             editHistory: newHistory,
-          }
+          })
         : e
     );
 
@@ -132,7 +139,11 @@ export const createEntriesSlice: StateCreator<
     const beforeEntries = entries;
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? { ...e, status: Status.RESOLVED, resolvedAt: Date.now() }
+        ? withBumpedUpdatedAt({
+            ...e,
+            status: Status.RESOLVED,
+            resolvedAt: Date.now(),
+          })
         : e
     );
     set({ entries: updatedEntries });
@@ -151,7 +162,11 @@ export const createEntriesSlice: StateCreator<
     const { entries } = get();
     const updatedEntries = entries.map((e) =>
       e.id === id
-        ? { ...e, status: Status.BURNED, burnedAt: Date.now() }
+        ? withBumpedUpdatedAt({
+            ...e,
+            status: Status.BURNED,
+            burnedAt: Date.now(),
+          })
         : e
     );
     set({ entries: updatedEntries });
@@ -169,7 +184,9 @@ export const createEntriesSlice: StateCreator<
     const { entries } = get();
     const now = Date.now();
     const updatedEntries = entries.map((e) =>
-      e.id === id ? { ...e, deletedAt: now } : e,
+      e.id === id
+        ? withBumpedUpdatedAt({ ...e, deletedAt: now })
+        : e,
     );
     set({ entries: updatedEntries });
 
@@ -194,7 +211,9 @@ export const createEntriesSlice: StateCreator<
     }
 
     const updatedEntries = entries.map((e) =>
-      e.id === id ? { ...e, deletedAt: undefined } : e,
+      e.id === id
+        ? withBumpedUpdatedAt({ ...e, deletedAt: undefined })
+        : e,
     );
     set({ entries: updatedEntries });
 
@@ -223,12 +242,12 @@ export const createEntriesSlice: StateCreator<
     if (user) {
       const { error } = await insertEntryTombstone(supabase, user.id, id);
       if (error) {
-        console.warn("登记墓碑失败:", error.message);
+        logger.warn("entries", "登记墓碑失败", error.message);
       }
       try {
         await get().syncToCloud();
       } catch (syncError) {
-        console.warn("永久删除后同步失败:", syncError);
+        logger.warn("entries", "永久删除后同步失败", syncError);
       }
     }
 
@@ -262,7 +281,7 @@ export const createEntriesSlice: StateCreator<
       });
       if (!entryChanged) return entry;
       found = true;
-      return { ...entry, audios: updatedAudios };
+      return withBumpedUpdatedAt({ ...entry, audios: updatedAudios });
     });
 
     if (!found) return;
@@ -285,17 +304,18 @@ export const createEntriesSlice: StateCreator<
 
       const migrationResult = await migrateFromLegacyStorage(userId);
       if (migrationResult.success && migrationResult.data) {
-        set({ entries: migrationResult.data });
+        set({ entries: migrationResult.data.map(backfillUpdatedAt) });
         get()._calculateWeather();
         return;
       }
 
       const storageKey = getStorageKey(userId);
       const entries = await loadFromStorage(storageKey);
-      set({ entries });
+      // D-03: backfill missing updatedAt from timestamp
+      set({ entries: entries.map(backfillUpdatedAt) });
       get()._calculateWeather();
     } catch (error) {
-      console.error('Error loading entries:', error);
+      logger.error('entries', 'Error loading entries', error);
       set({ entries: [] });
     }
   },
@@ -314,7 +334,7 @@ export const createEntriesSlice: StateCreator<
         const storageKey = getStorageKey(user?.id || null);
         await saveToStorage(storageKey, entries);
       } catch (error) {
-        console.error('Error saving entries:', error);
+        logger.error('entries', 'Error saving entries', error);
       } finally {
         saveEntriesTimeoutRef = null;
       }
