@@ -46,6 +46,11 @@ import {
 } from "@/components/settings";
 import { createSettingsStyles } from "@/components/settings/settings.styles";
 import { COLORS } from "@/constants/colors";
+import {
+  isSyncActionDisabled,
+  mapSyncChromeIcon,
+  mapSyncChromeText,
+} from "../utils/syncChrome";
 import type { AppLocale } from "@/i18n/mapDeviceLocale";
 import type {
   LocaleMode,
@@ -223,15 +228,18 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
   const lastSyncLabel = tSync("status.lastSyncPrefix", {
     time: formatLastSyncTime(lastSyncTime),
   });
-  const statusText =
-    syncProgress ||
-    (storeSyncStatus === "syncing"
-      ? tSync("status.syncing")
-      : storeSyncStatus === "pending"
-        ? tSync("status.pending")
-        : storeSyncStatus === "error"
-          ? tSync("status.error")
-          : lastSyncLabel);
+  const statusText = mapSyncChromeText(
+    storeSyncStatus,
+    syncProgress,
+    {
+      syncing: tSync("status.syncing"),
+      pending: tSync("status.pending"),
+      error: tSync("status.error"),
+    },
+    lastSyncLabel,
+  );
+  const syncChromeIcon = mapSyncChromeIcon(storeSyncStatus, syncProgress);
+  const syncActionsDisabled = isSyncActionDisabled(storeSyncStatus, isLoading);
 
   const closeLoginAndReset = () => {
     Keyboard.dismiss();
@@ -309,18 +317,17 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         statusRow={
           user ? (
             <View style={settingsStyles.statusRow}>
-              {(storeSyncStatus === "syncing" ||
-                storeSyncStatus === "pending") && (
+              {syncChromeIcon === "spinner" ? (
                 <ActivityIndicator
                   size="small"
                   color={COLORS.primaryDark}
                   style={settingsStyles.statusIcon}
                 />
-              )}
-              {storeSyncStatus === "error" ? (
+              ) : null}
+              {syncChromeIcon === "error" ? (
                 <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
               ) : null}
-              {storeSyncStatus === "idle" && syncProgress !== "" ? (
+              {syncChromeIcon === "success" ? (
                 <CheckCircle
                   size={16}
                   color={COLORS.success}
@@ -342,11 +349,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               : tSync("uploadSubtext")
           }
           showChevron={!(storeSyncStatus === "syncing" || isLoading)}
-          disabled={
-            isLoading ||
-            storeSyncStatus === "syncing" ||
-            storeSyncStatus === "pending"
-          }
+          disabled={syncActionsDisabled}
           onPress={onSyncUpload}
         />
         <View style={profileStyles.menuDivider} />
@@ -361,11 +364,7 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
               : tSync("pullSubtext")
           }
           showChevron={!(storeSyncStatus === "syncing" || isLoading)}
-          disabled={
-            isLoading ||
-            storeSyncStatus === "syncing" ||
-            storeSyncStatus === "pending"
-          }
+          disabled={syncActionsDisabled}
           onPress={onSyncDownload}
         />
         <View style={profileStyles.menuDivider} />
