@@ -264,6 +264,8 @@ export const useAppStore = create<AppState>()((...args) => {
     ...createUserSlice(set, get, store),
 
     syncStatus: "idle" as "idle" | "syncing" | "pending" | "error",
+    syncProgress: "",
+    lastSyncTime: null as number | null,
 
     /**
      * 同步到云端

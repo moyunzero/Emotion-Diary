@@ -123,20 +123,22 @@ export function ProfileScreen() {
     isSwitchingModeRef: state.isSwitchingModeRef,
   });
 
-  // 加载最后同步时间
+  // 加载最后同步时间 → store.lastSyncTime (D-16)
   useEffect(() => {
     const loadLastSyncTime = async () => {
       try {
         const time = await AsyncStorage.getItem("last_sync_time");
         if (time) {
-          state.setLastSyncTime(Number.parseInt(time, 10));
+          useAppStore.setState({
+            lastSyncTime: Number.parseInt(time, 10),
+          });
         }
       } catch {
         // ignore
       }
     };
-    loadLastSyncTime();
-  }, [state]);
+    void loadLastSyncTime();
+  }, []);
 
   useEffect(() => {
     const showEvent =

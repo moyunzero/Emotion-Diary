@@ -75,6 +75,10 @@ export type StoreSyncStatus = "idle" | "syncing" | "pending" | "error";
 
 export interface SyncModule {
   syncStatus: StoreSyncStatus;
+  /** Profile statusRow progress / success flash copy (D-16) */
+  syncProgress: string;
+  /** Last successful sync timestamp ms (D-16); AsyncStorage key last_sync_time */
+  lastSyncTime: number | null;
   syncToCloud: () => Promise<boolean>;
   syncFromCloud: () => Promise<boolean>;
   recoverFromCloud: () => Promise<boolean>;
