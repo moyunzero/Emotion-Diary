@@ -8,11 +8,14 @@ import {
   computeUploadRetryDelayMs,
   sleepMs,
 } from "../shared/audio/uploadRetry";
+import { extractAudiosObjectPath } from "../shared/audio/storagePath";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AudioData } from "../types";
 import { logger } from "@/utils/logger";
 
 const AUDIO_BUCKET = "audios";
+/** D-07: signed URL TTL ≈ 24h */
+const SIGNED_URL_TTL_SEC = 60 * 60 * 24;
 
 export interface PendingAudioUploadResult {
   success: number;
@@ -22,7 +25,8 @@ export interface PendingAudioUploadResult {
 }
 
 /**
- * 上传单个音频文件到云端
+ * 上传单个音频文件到云端。
+ * 成功时 remoteUrl 为 Storage object path（非公有/签名 URL）— D-08/D-10。
  */
 export const uploadAudio = async (
   audioData: AudioData,
@@ -51,11 +55,7 @@ export const uploadAudio = async (
       return { success: false, error: error.message };
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(AUDIO_BUCKET).getPublicUrl(filePath);
-
-    return { success: true, remoteUrl: publicUrl };
+    return { success: true, remoteUrl: filePath };
   } catch (error) {
     logger.error("audioSync", "上传音频异常", error);
     return {
@@ -64,6 +64,39 @@ export const uploadAudio = async (
     };
   }
 };
+
+/**
+ * Play-time：从持久化的 path / legacy public URL 解析 object path 并 mint 签名 URL。
+ * 不把 signed URL 写回 entry（D-06）。
+ */
+export async function resolvePlayableRemoteUrl(
+  stored: string,
+): Promise<string | null> {
+  if (!isSupabaseConfigured()) {
+    return null;
+  }
+
+  const objectPath = extractAudiosObjectPath(stored);
+  if (!objectPath) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(AUDIO_BUCKET)
+      .createSignedUrl(objectPath, SIGNED_URL_TTL_SEC);
+
+    if (error || !data?.signedUrl) {
+      logger.warn("audioSync", "createSignedUrl 失败", error ?? undefined);
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch (error) {
+    logger.warn("audioSync", "createSignedUrl 异常", error);
+    return null;
+  }
+}
 
 /**
  * 单条音频：最多尝试 AUDIO_UPLOAD_MAX_ATTEMPTS 次，失败间指数退避。
