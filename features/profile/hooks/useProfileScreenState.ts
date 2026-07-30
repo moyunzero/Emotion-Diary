@@ -5,8 +5,6 @@
 import { useRef, useState } from "react";
 import { Animated, type ScrollView, type TextInput } from "react-native";
 
-export type ProfileSyncChrome = "idle" | "syncing" | "success" | "error";
-
 export type ToastState = {
   message: string;
   type?: "success" | "error" | "info";
@@ -24,11 +22,6 @@ export function useProfileScreenState() {
   const modalScrollViewRef = useRef<ScrollView>(null);
   const emailInputRef = useRef<TextInput>(null);
   const isSwitchingModeRef = useRef(false);
-
-  const [profileSyncChrome, setProfileSyncChrome] =
-    useState<ProfileSyncChrome>("idle");
-  const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
-  const [syncProgress, setSyncProgress] = useState<string>("");
 
   const [editName, setEditName] = useState("");
   const [editAvatar, setEditAvatar] = useState("");
@@ -72,12 +65,6 @@ export function useProfileScreenState() {
     modalScrollViewRef,
     emailInputRef,
     isSwitchingModeRef,
-    profileSyncChrome,
-    setProfileSyncChrome,
-    lastSyncTime,
-    setLastSyncTime,
-    syncProgress,
-    setSyncProgress,
     editName,
     setEditName,
     editAvatar,

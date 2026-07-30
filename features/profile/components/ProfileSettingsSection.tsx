@@ -58,7 +58,6 @@ import {
   AVATAR_PRESETS,
   isSvgAvatarDataUri,
 } from "@/utils/avatarPresets";
-import type { ProfileSyncChrome } from "../hooks/useProfileScreenState";
 import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
 
 const AVATARS = AVATAR_PRESETS;
@@ -69,7 +68,6 @@ export type ProfileSettingsSectionProps = {
   onSetLocale: (locale: AppLocale) => Promise<void>;
   onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
-  profileSyncChrome: ProfileSyncChrome;
   storeSyncStatus: StoreSyncStatus;
   recycleBinCount: number;
   onOpenRecycleBin: () => void;
@@ -141,7 +139,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     onSetLocale,
     onSetLocaleMode,
     user,
-    profileSyncChrome,
     storeSyncStatus,
     recycleBinCount,
     onOpenRecycleBin,
@@ -312,23 +309,24 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         statusRow={
           user ? (
             <View style={settingsStyles.statusRow}>
-              {(profileSyncChrome === "syncing" || storeSyncStatus === "syncing") && (
+              {(storeSyncStatus === "syncing" ||
+                storeSyncStatus === "pending") && (
                 <ActivityIndicator
                   size="small"
                   color={COLORS.primaryDark}
                   style={settingsStyles.statusIcon}
                 />
               )}
-              {profileSyncChrome === "success" && storeSyncStatus === "idle" && (
+              {storeSyncStatus === "error" ? (
+                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
+              ) : null}
+              {storeSyncStatus === "idle" && syncProgress !== "" ? (
                 <CheckCircle
                   size={16}
                   color={COLORS.success}
                   style={settingsStyles.statusIcon}
                 />
-              )}
-              {(profileSyncChrome === "error" || storeSyncStatus === "error") && (
-                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
-              )}
+              ) : null}
               <Text style={settingsStyles.statusText}>{statusText}</Text>
             </View>
           ) : undefined
@@ -339,11 +337,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           iconBgColor="#FEF2F2"
           title={tSync("uploadTitle")}
           subtext={
-            profileSyncChrome === "syncing"
+            storeSyncStatus === "syncing" || isLoading
               ? tSync("upload.progress")
               : tSync("uploadSubtext")
           }
-          showChevron={profileSyncChrome !== "syncing"}
+          showChevron={!(storeSyncStatus === "syncing" || isLoading)}
           disabled={isLoading}
           onPress={onSyncUpload}
         />
@@ -353,11 +351,11 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
           iconBgColor="#EFF6FF"
           title={tSync("pullTitle")}
           subtext={
-            profileSyncChrome === "syncing"
+            storeSyncStatus === "syncing" || isLoading
               ? tSync("pull.progress")
               : tSync("pullSubtext")
           }
-          showChevron={profileSyncChrome !== "syncing"}
+          showChevron={!(storeSyncStatus === "syncing" || isLoading)}
           disabled={isLoading}
           onPress={onSyncDownload}
         />
