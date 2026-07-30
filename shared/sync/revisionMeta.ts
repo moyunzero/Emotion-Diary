@@ -1,6 +1,8 @@
 /**
- * Sync revision helpers — bump/backfill (SYNC-01); skip/advance stubs until Plan 08-03 (SYNC-02).
+ * Sync revision helpers — bump/backfill (SYNC-01); push-side skip/advance (SYNC-02).
  */
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type SyncRevisionMeta = {
   lastSyncedUpdatedAtByEntryId: Record<string, number>;
@@ -12,6 +14,18 @@ type RevisionFields = {
   timestamp: number;
   updatedAt?: number;
 };
+
+/** AsyncStorage key for per-user revision meta (discretion A1). */
+export function revisionMetaStorageKey(userId: string): string {
+  return `sync_revision_meta_${userId}`;
+}
+
+export function emptyRevisionMeta(): SyncRevisionMeta {
+  return {
+    lastSyncedUpdatedAtByEntryId: {},
+    pullCursorUpdatedAt: null,
+  };
+}
 
 /** Fill missing / non-positive updatedAt from diary event timestamp (D-03). */
 export function backfillUpdatedAt<T extends RevisionFields>(
@@ -31,19 +45,79 @@ export function withBumpedUpdatedAt<T extends object>(
   return { ...entry, updatedAt: Date.now() };
 }
 
-/** SYNC-02 — implemented in Plan 08-03. */
+/** Upsert when never synced or client revision is newer (D-07). */
 export function shouldUpsertEntry(
-  _entry: { id: string; updatedAt: number },
-  _meta: SyncRevisionMeta,
+  entry: { id: string; updatedAt: number },
+  meta: SyncRevisionMeta,
 ): boolean {
-  throw new Error('shouldUpsertEntry: implement in Plan 08-03');
+  const last = meta.lastSyncedUpdatedAtByEntryId[entry.id];
+  return last == null || entry.updatedAt > last;
 }
 
-/** SYNC-02 — implemented in Plan 08-03. */
+/**
+ * Advance lastSyncedUpdatedAt only for successful ids (D-09).
+ * Returns a new meta object; does not mutate input.
+ */
 export function advanceLastSyncedAfterSuccess(
-  _meta: SyncRevisionMeta,
-  _entries: readonly { id: string; updatedAt: number }[],
-  _successfulIds: ReadonlySet<string>,
+  meta: SyncRevisionMeta,
+  entries: readonly { id: string; updatedAt: number }[],
+  successfulIds: ReadonlySet<string>,
 ): SyncRevisionMeta {
-  throw new Error('advanceLastSyncedAfterSuccess: implement in Plan 08-03');
+  const lastSyncedUpdatedAtByEntryId = {
+    ...meta.lastSyncedUpdatedAtByEntryId,
+  };
+  for (const entry of entries) {
+    if (successfulIds.has(entry.id)) {
+      lastSyncedUpdatedAtByEntryId[entry.id] = entry.updatedAt;
+    }
+  }
+  return {
+    ...meta,
+    lastSyncedUpdatedAtByEntryId,
+  };
+}
+
+function isRevisionMeta(value: unknown): value is SyncRevisionMeta {
+  if (value == null || typeof value !== 'object') return false;
+  const v = value as Record<string, unknown>;
+  if (
+    v.lastSyncedUpdatedAtByEntryId == null ||
+    typeof v.lastSyncedUpdatedAtByEntryId !== 'object' ||
+    Array.isArray(v.lastSyncedUpdatedAtByEntryId)
+  ) {
+    return false;
+  }
+  const cursor = v.pullCursorUpdatedAt;
+  return cursor === null || typeof cursor === 'number';
+}
+
+/** Load per-user sync revision meta; empty map on miss/corrupt (D-08). */
+export async function loadRevisionMeta(
+  userId: string,
+): Promise<SyncRevisionMeta> {
+  try {
+    const raw = await AsyncStorage.getItem(revisionMetaStorageKey(userId));
+    if (!raw) return emptyRevisionMeta();
+    const parsed: unknown = JSON.parse(raw);
+    if (!isRevisionMeta(parsed)) return emptyRevisionMeta();
+    return {
+      lastSyncedUpdatedAtByEntryId: {
+        ...parsed.lastSyncedUpdatedAtByEntryId,
+      },
+      pullCursorUpdatedAt: parsed.pullCursorUpdatedAt,
+    };
+  } catch {
+    return emptyRevisionMeta();
+  }
+}
+
+/** Persist per-user sync revision meta (local-only; T-08-02). */
+export async function saveRevisionMeta(
+  userId: string,
+  meta: SyncRevisionMeta,
+): Promise<void> {
+  await AsyncStorage.setItem(
+    revisionMetaStorageKey(userId),
+    JSON.stringify(meta),
+  );
 }
