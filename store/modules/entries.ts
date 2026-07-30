@@ -281,7 +281,7 @@ export const createEntriesSlice: StateCreator<
       });
       if (!entryChanged) return entry;
       found = true;
-      return { ...entry, audios: updatedAudios };
+      return withBumpedUpdatedAt({ ...entry, audios: updatedAudios });
     });
 
     if (!found) return;
