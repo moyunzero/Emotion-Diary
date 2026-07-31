@@ -178,6 +178,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     <View style={styles.container}>
       <View style={styles.buttonWrapper}>
         <Pressable
+          testID="audio-record-button"
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           disabled={disabled}

@@ -3,58 +3,52 @@ import { COLORS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
-    resolvePeopleLabel,
-    resolveTriggerLabel,
+  resolvePeopleLabel,
+  resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
-import { audioCoordinator } from "@/shared/audio/coordinator";
 import { formatLocaleDate } from "@/shared/formatting";
 import { SkImage, Skia } from "@shopify/react-native-skia";
-import {
-    CheckCircle,
-    Edit,
-    Flame,
-    Mic,
-    Pause,
-    Play,
-    Trash2,
-} from "lucide-react-native";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    LayoutAnimation,
-    Platform,
-    Text,
-    TouchableOpacity,
-    UIManager,
-    View,
-    useWindowDimensions,
+  Alert,
+  Animated,
+  LayoutAnimation,
+  Platform,
+  Text,
+  TouchableOpacity,
+  UIManager,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
-import { MOOD_CONFIG } from "../constants";
-import { useHapticFeedback } from "../hooks/useHapticFeedback";
-import { useAppStore } from "../store/useAppStore";
-import { createEntryCardStyles } from "../styles/components/EntryCard.styles";
-import { AudioData, MoodEntry, MoodLevel, Status } from "../types";
+import { MOOD_CONFIG } from "../../constants";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
+import { useAppStore } from "../../store/useAppStore";
+import { createEntryCardStyles } from "../../styles/components/EntryCard.styles";
+import { MoodEntry, MoodLevel, Status } from "../../types";
 import {
-    areAudioDataArraysEqual,
-    areOrderedStringArraysEqual,
-} from "../utils/arrayEquality";
-import { isLowEndDevice } from "../utils/devicePerformance";
-import { getMoodIcon } from "../utils/moodIconUtils";
-import AshIcon from "./AshIcon";
-import BurnAnimation from "./BurnAnimation";
-import ResolveCeremonyHost from "./rituals/ResolveCeremonyHost";
-import ResolveConfirmOverlay from "./rituals/ResolveConfirmOverlay";
-import BurnConfirmOverlay from "./rituals/BurnConfirmOverlay";
+  areAudioDataArraysEqual,
+  areOrderedStringArraysEqual,
+} from "../../utils/arrayEquality";
+import { isLowEndDevice } from "../../utils/devicePerformance";
+import { getMoodIcon } from "../../utils/moodIconUtils";
+import AshIcon from "../AshIcon";
+import BurnAnimation from "../BurnAnimation";
+import ResolveCeremonyHost from "../rituals/ResolveCeremonyHost";
+import ResolveConfirmOverlay from "../rituals/ResolveConfirmOverlay";
+import BurnConfirmOverlay from "../rituals/BurnConfirmOverlay";
+import { EntryCardActions } from "./EntryCardActions";
+import {
+  EntryCardAudioTag,
+  EntryCardBurnedPlayback,
+  EntryCardPlayback,
+} from "./EntryCardPlayback";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
@@ -138,8 +132,6 @@ const makeImageFromView = async (
  */
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
-  const { t: tSystem } = useTranslation("system");
-  const { t: tRecord } = useTranslation("record");
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
     () => createEntryCardStyles(width, height),
@@ -149,7 +141,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const resolveEntry = useAppStore((state) => state.resolveEntry);
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);
-  const retryAudioUpload = useAppStore((state) => state.retryAudioUpload);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -189,141 +180,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
   const [showBurnConfirm, setShowBurnConfirm] = useState(false);
-
-  const currentAudioId = useAppStore((s) =>
-    s.playbackEntryId === entry.id ? s.currentAudioId : null,
-  );
-  const isPlayingGlobal = useAppStore(
-    (s) => s.playbackEntryId === entry.id && s.isPlaying,
-  );
-  const playbackPosition = useAppStore((s) =>
-    s.playbackEntryId === entry.id ? s.playbackPosition : 0,
-  );
-
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const isAudioRowActive = useCallback(
-    (audio: AudioData) => currentAudioId === audio.id,
-    [currentAudioId],
-  );
-
-  const handlePlayAudio = useCallback(
-    async (audio: AudioData) => {
-      try {
-        const result = await audioCoordinator.playEntryAudio(entry.id, audio);
-        if (!result.ok && result.reason === "no_uri") {
-          Alert.alert(
-            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-            i18n.t("alerts.playbackFailed.bodyMissing", { ns: "dashboard" }),
-          );
-        } else if (!result.ok) {
-          Alert.alert(
-            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-            i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
-          );
-        }
-      } catch (error) {
-        console.error("Failed to play audio:", error);
-        Alert.alert(
-          i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-          i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
-        );
-      }
-    },
-    [entry.id],
-  );
-
-  const formatAudioTime = useCallback((createdAt: number): string => {
-    const locale = i18n.language.startsWith("zh") ? "zh-CN" : "en-US";
-    return new Date(createdAt).toLocaleTimeString(locale, {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
-
-  const getAudioDisplayLabel = useCallback(
-    (audio: AudioData): string =>
-      audio.name ||
-      tRecord("audio.list.recordedAt", {
-        time: formatAudioTime(audio.createdAt),
-      }),
-    [formatAudioTime, tRecord],
-  );
-
-  const renderAudioRow = useCallback(
-    (audio: AudioData) => (
-      <View key={audio.id} style={styles.audioPlayRow}>
-        <TouchableOpacity
-          style={[
-            styles.audioPlayItem,
-            isAudioRowActive(audio) && styles.audioPlayItemActive,
-          ]}
-          onPress={() => handlePlayAudio(audio)}
-          accessibilityRole="button"
-          accessibilityLabel={tRecord("audio.list.playA11y", {
-            label: getAudioDisplayLabel(audio),
-          })}
-          testID="entry-audio-play"
-        >
-          {isAudioRowActive(audio) && isPlayingGlobal ? (
-            <Pause size={16} color={COLORS.audio.primary} />
-          ) : (
-            <Play size={16} color="#9CA3AF" />
-          )}
-          <Text
-            style={[
-              styles.audioPlayName,
-              isAudioRowActive(audio) && styles.audioPlayNameActive,
-            ]}
-            numberOfLines={1}
-          >
-            {getAudioDisplayLabel(audio)}
-          </Text>
-          {isAudioRowActive(audio) && isPlayingGlobal && (
-            <Text style={styles.audioPlayDuration} testID="entry-audio-playing">
-              {formatDuration(playbackPosition)} /{" "}
-              {formatDuration(audio.duration)}
-            </Text>
-          )}
-        </TouchableOpacity>
-        {audio.syncStatus === "pending" && (
-          <View style={styles.audioSyncMeta}>
-            <Text style={styles.audioSyncPending}>
-              {tSystem("audio.pendingUpload")}
-            </Text>
-          </View>
-        )}
-        {audio.syncStatus === "failed" && (
-          <TouchableOpacity
-            style={styles.audioSyncMeta}
-            onPress={() => retryAudioUpload(entry.id, audio.id)}
-            accessibilityRole="button"
-            accessibilityLabel={tSystem("audio.retryUploadA11y")}
-          >
-            <Text style={styles.audioSyncFailed}>
-              {tSystem("audio.uploadFailedRetry")}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    ),
-    [
-      entry.id,
-      getAudioDisplayLabel,
-      handlePlayAudio,
-      isAudioRowActive,
-      isPlayingGlobal,
-      playbackPosition,
-      retryAudioUpload,
-      styles,
-      tRecord,
-      tSystem,
-    ],
-  );
 
   const isActivePlaybackEntry = useAppStore(
     (s) => s.playbackEntryId === entry.id,
@@ -588,14 +444,11 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       })}
                     </Text>
                   </View>
-                  {entry.audios && entry.audios.length > 0 && (
-                    <View style={styles.burnedAudioContainer}>
-                      <Text style={styles.burnedAudioLabel}>
-                        {t("entryCard.burnedAudioLabel")}
-                      </Text>
-                      {entry.audios.map((audio) => renderAudioRow(audio))}
-                    </View>
-                  )}
+                  <EntryCardBurnedPlayback
+                    entry={entry}
+                    styles={styles}
+                    isExpanded={isExpanded}
+                  />
                 </View>
               )}
               <Text style={styles.burnedHint}>
@@ -689,103 +542,29 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       </Text>
                     </View>
                   ))}
-                  {entry.audios && entry.audios.length > 0 && (
-                    <View style={styles.audioTag} testID="entry-has-audio">
-                      <Mic size={12} color={COLORS.audio.primary} />
-                      <Text style={styles.audioTagText}>
-                        {tSystem("audio.voiceCount", {
-                          count: entry.audios.length,
-                        })}
-                      </Text>
-                    </View>
-                  )}
+                  <EntryCardAudioTag entry={entry} styles={styles} />
                 </View>
 
-                {/* Audio Playback Section - Only in expanded state */}
-                {isExpanded && entry.audios && entry.audios.length > 0 && (
-                  <View style={styles.audioPlaySection}>
-                    <Text style={styles.audioPlaySectionTitle}>
-                      {tSystem("audio.voicePlaySection")}
-                    </Text>
-                    {entry.audios.map((audio) => renderAudioRow(audio))}
-                  </View>
-                )}
+                <EntryCardPlayback
+                  entry={entry}
+                  styles={styles}
+                  isExpanded={isExpanded}
+                />
               </View>
             </View>
           </TouchableOpacity>
 
-          {/* Expanded Actions */}
-          {isExpanded && !isResolved && !isBurned && (
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleEdit}
-                accessibilityRole="button"
-                accessibilityLabel={t("entryCard.editA11y")}
-                accessibilityHint={t("entryCard.editHint")}
-              >
-                <View style={styles.actionIcon}>
-                  <Edit size={20} color={COLORS.primaryDark} />
-                </View>
-                <Text style={styles.actionText}>{t("entryCard.edit")}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleResolvePress}
-                testID="entry-resolve-button"
-                accessibilityRole="button"
-                accessibilityLabel={t("entryCard.resolveA11y")}
-                accessibilityHint={t("entryCard.resolveHint")}
-              >
-                <View style={styles.actionIcon}>
-                  <CheckCircle size={20} color={COLORS.mood.icon.level4} />
-                </View>
-                <Text style={styles.actionText}>{t("entryCard.resolve")}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, isPreparing && { opacity: 0.5 }]}
-                onPress={handleBurnPress}
-                disabled={isPreparing}
-                testID="entry-burn-button"
-                accessibilityRole="button"
-                accessibilityLabel={t("entryCard.burnA11y")}
-                accessibilityHint={t("entryCard.burnHint")}
-                accessibilityState={{ disabled: isPreparing }}
-              >
-                {isPreparing ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={COLORS.mood.icon.level5}
-                  />
-                ) : (
-                  <>
-                    <View style={styles.actionIcon}>
-                      <Flame size={22} color={COLORS.mood.icon.level5} />
-                    </View>
-                    <Text style={styles.actionText}>{t("entryCard.burn")}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleDelete}
-                testID="entry-delete-button"
-                accessibilityRole="button"
-                accessibilityLabel={t("entryCard.deleteA11y")}
-                accessibilityHint={t("entryCard.deleteHint")}
-              >
-                <View style={styles.actionIcon}>
-                  <Trash2 size={18} color={COLORS.text.tertiary} />
-                </View>
-                <Text style={[styles.actionText, styles.deleteActionText]}>
-                  {t("entryCard.delete")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <EntryCardActions
+            styles={styles}
+            isExpanded={isExpanded}
+            isResolved={isResolved}
+            isBurned={isBurned}
+            isPreparing={isPreparing}
+            onEdit={handleEdit}
+            onResolvePress={handleResolvePress}
+            onBurnPress={handleBurnPress}
+            onDelete={handleDelete}
+          />
         </Animated.View>
 
         <ResolveCeremonyHost

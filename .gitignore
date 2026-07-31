@@ -239,6 +239,8 @@ debug.keystore
 *.sqlite
 *.db
 *.dump
+# Supabase CLI local cache (project-ref, pooler URL, versions) — never upload
+supabase/.temp/
 
 # ==============================================
 # Project Documentation (Auto-generated/Planning)

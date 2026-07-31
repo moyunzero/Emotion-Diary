@@ -10,6 +10,7 @@ import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useAppStore } from "@/store/useAppStore";
 import { logger } from "@/utils/logger";
 import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
+import { SYNC_FLASH_MS, flashSyncProgress } from "../utils/syncChrome";
 import type { MutableRefObject } from "react";
 
 type StateRef = {
@@ -56,31 +57,31 @@ export function useProfileSyncHandlers(state: StateRef) {
 
         if (!ok) {
           const status = useAppStore.getState().syncStatus;
+          const apply = useAppStore.setState.bind(useAppStore);
           if (status === "pending") {
-            useAppStore.setState({
-              syncProgress: i18n.t("pendingMessage", { ns: "sync" }),
-            });
-            setTimeout(() => {
-              useAppStore.setState({ syncProgress: "" });
-            }, 2500);
+            flashSyncProgress(
+              apply,
+              { syncProgress: i18n.t("pendingMessage", { ns: "sync" }) },
+              2500,
+            );
             return;
           }
           if (status === "error") {
-            useAppStore.setState({
-              syncProgress: i18n.t("notLoggedIn", { ns: "sync" }),
-            });
-            setTimeout(() => {
-              useAppStore.setState({ syncProgress: "" });
-            }, 3000);
+            flashSyncProgress(
+              apply,
+              { syncProgress: i18n.t("notLoggedIn", { ns: "sync" }) },
+              3000,
+            );
             return;
           }
-          useAppStore.setState({
-            syncStatus: "error",
-            syncProgress: i18n.t("sync.operationIncomplete", { ns: "system" }),
-          });
-          setTimeout(() => {
-            useAppStore.setState({ syncProgress: "" });
-          }, 3000);
+          flashSyncProgress(
+            apply,
+            {
+              syncStatus: "error",
+              syncProgress: i18n.t("sync.operationIncomplete", { ns: "system" }),
+            },
+            3000,
+          );
           return;
         }
 
@@ -98,33 +99,35 @@ export function useProfileSyncHandlers(state: StateRef) {
             ? i18n.t("upload.success", { ns: "sync", count: visibleCount })
             : i18n.t("pull.success", { ns: "sync", count: visibleCount });
         // Success flash: idle + non-empty syncProgress → CheckCircle ~2s (D-15)
-        useAppStore.setState({
-          syncStatus: "idle",
-          lastSyncTime: now,
-          syncProgress:
-            failedAudioCount > 0
-              ? `${baseMsg} ${i18n.t("sync.audioUploadFailedSuffix", {
-                  ns: "system",
-                  count: failedAudioCount,
-                })}`
-              : baseMsg,
-        });
-        setTimeout(() => {
-          useAppStore.setState({ syncProgress: "" });
-        }, 2000);
+        flashSyncProgress(
+          useAppStore.setState.bind(useAppStore),
+          {
+            syncStatus: "idle",
+            lastSyncTime: now,
+            syncProgress:
+              failedAudioCount > 0
+                ? `${baseMsg} ${i18n.t("sync.audioUploadFailedSuffix", {
+                    ns: "system",
+                    count: failedAudioCount,
+                  })}`
+                : baseMsg,
+          },
+          SYNC_FLASH_MS,
+        );
       } catch (error: unknown) {
         logger.error("profileSync", "sync action failed", error);
         const err = error as { message?: string };
         const errorMessage =
           err?.message ||
           i18n.t("sync.operationFailed", { ns: "system" });
-        useAppStore.setState({
-          syncStatus: "error",
-          syncProgress: errorMessage,
-        });
-        setTimeout(() => {
-          useAppStore.setState({ syncProgress: "" });
-        }, 3000);
+        flashSyncProgress(
+          useAppStore.setState.bind(useAppStore),
+          {
+            syncStatus: "error",
+            syncProgress: errorMessage,
+          },
+          3000,
+        );
       } finally {
         setIsLoading(false);
         isSyncingRef.current = false;

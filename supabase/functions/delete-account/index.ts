@@ -132,6 +132,27 @@ async function wipeUserAudios(
     }
   }
 
+  // Fail-closed: confirm prefix empty before Auth deleteUser
+  const leftover = await collectUserAudioPaths(supabaseAdmin, userId);
+  if (leftover.error) {
+    return {
+      ok: false,
+      message: "Storage wipe verify list failed",
+      code: leftover.error.name,
+    };
+  }
+  if (leftover.paths.length > 0) {
+    console.error("storage wipe incomplete", {
+      userId,
+      leftover: leftover.paths.length,
+    });
+    return {
+      ok: false,
+      message: "Storage wipe incomplete",
+      code: "storage_wipe_incomplete",
+    };
+  }
+
   return { ok: true, removed: paths.length };
 }
 
