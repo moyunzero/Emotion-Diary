@@ -52,7 +52,7 @@ import {
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
-export interface EntryCardProps {
+interface EntryCardProps {
   entry: MoodEntry;
   onBurn?: (id: string) => void;
 }
@@ -611,7 +611,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
  * @param nextProps - Next props
  * @returns true if props are equal (no re-render needed), false otherwise
  */
-export const areEntryCardPropsEqual = (
+const areEntryCardPropsEqual = (
   prevProps: EntryCardProps,
   nextProps: EntryCardProps,
 ) => {
