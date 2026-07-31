@@ -61,7 +61,7 @@ yarn test              # Jest 单测（不含 e2e/）
 | Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
 | iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
 
-Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
+Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
 
 ### 文档与社区
 
@@ -119,6 +119,8 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 - **离线优先**：本地存储保护用户隐私
 - **云端备份**：可选 Supabase 云端同步；删除默认为**软删除**（回收站可恢复），永久删除会从云端清除
 - **智能数据迁移**：支持访客数据与登录用户数据无缝切换
+- **隐私加固（v1.5）**：账号删除会清理云端语音文件；已同步音频以私密签名链接播放；会话安全存储失败时提示重新登录
+- **同步体验（v1.5）**：日记修订识别更准确；待上传语音有限并发；个人中心同步状态与真实进度一致
 
 ### 🔔 回访与提醒（v1.4）
 
@@ -426,6 +428,29 @@ eas build --platform ios --profile production
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。
 
+### [1.5.0] - 2026-07-31 · App Store 更新
+
+> v1.5「CONCERNS 可清债务清零」（Phase 6–12）；面向用户的重点是账号隐私、云同步与稳定性。
+
+#### 新增 / 加固
+
+- **账号删除更彻底**：删除账号前清理云端 `audios/{userId}/` 语音对象，减少 Storage 残留
+- **语音播放更安全**：已同步音频改为播放时签发的私密签名链接（非长期公开 URL）
+- **会话失败可感知**：SecureStore 写入失败时提示重新登录，避免静默失效
+- **修订同步**：日记显式 `updatedAt`，云端推送可跳过未变更行；待上传语音有限并发（上限 3）
+- **个人中心同步状态**：与 store 真实 `syncStatus` / 进度单源一致
+
+#### 修复
+
+- 重命名语音后，首页日记卡片名称会正确刷新
+
+#### 开发与质量
+
+- 脆弱区单测：`recordingCoordinator` clipHandler、store sync 集成、Profile sync chrome；Jest 覆盖率下限
+- 可维护性拆分：`store/sync/*`、`utils/ai/*`、ProfileSettings 分区、EntryCard playback/actions
+- Maestro：`016`（签名音频播放）、`017`（编辑后回「记一笔」录音 rebind）；`yarn test:maestro:016` / `:017`
+- CONCERNS 可清工程债归零；Accepted Product Risks 固化为永久政策（无 Sentry、E2E 不进 CI、cloud-wins、无根 `openspec/`）
+
 ### [1.4.0] - 2026-07-05 · App Store 更新
 
 > v1.4「隐喻体验优先」五阶段（OpenSpec `011`–`015`）全部合入并上架。
@@ -516,6 +541,19 @@ eas build --platform ios --profile production
 | **1.2.0** | 工程健康 + 数据信任 + 留存触达 | `archive/SSD-INDEX.md#003`–`010` | ✅ App Store |
 | **1.3.0** | 完整双语 i18n | `.planning/phases/01-i18n` … `07-*` | ✅ App Store |
 | **1.4.0** | 隐喻体验优先 | Phase 1–5（011–015） | ✅ App Store |
+| **1.5.0** | 隐私 / 同步 / 可清债清零 | Phase 6–12；`milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
+
+#### v1.5 Phase 明细（均已合入 `master`）
+
+| Phase | 目录 | 交付 |
+| --- | --- | --- |
+| 6 | `phases/06-dead-code-naming` | 死代码 / ProfileSyncChrome / logger / Accepted 政策 |
+| 7 | `phases/07-security-account` | delete-account Storage wipe、signed URL、SecureStore UX |
+| 8 | `phases/08-sync-performance` | updatedAt、push skip、音频并发、Profile chrome 单源 |
+| 9 | `phases/09-fragility-tests` | clipHandler / store sync / coverage floor |
+| 10 | `phases/10-maintainability-splits` | store/sync、aiService、ProfileSettings、EntryCard 拆分 |
+| 11 | `phases/11-documentation-closeout` | CONCERNS 可清债归零 |
+| 12 | `phases/12-milestone-closeout-hygiene` | UAT、Nyquist、Maestro 017、staging Storage |
 
 #### v1.4 Phase 明细（均已合入 `master`）
 
