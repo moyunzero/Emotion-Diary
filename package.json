@@ -22,6 +22,7 @@
     "test:maestro:014": "maestro test .maestro/flows/014-shareable-ritual-cards.yaml",
     "test:maestro:015": "maestro test .maestro/flows/015-retention-garden-loop.yaml",
     "test:maestro:016": "bash -c 'set -a; [ -f .maestro.env ] && . ./.maestro.env; set +a; printf %s \"$MAESTRO_PASSWORD\" | pbcopy; maestro test .maestro/flows/016-signed-audio-playback.yaml'",
+    "test:maestro:017": "bash -c 'set -a; [ -f .maestro.env ] && . ./.maestro.env; set +a; maestro test .maestro/flows/017-recording-clip-refocus.yaml'",
     "build:optimized": "node ./scripts/build-optimized.js",
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",

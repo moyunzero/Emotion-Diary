@@ -39,6 +39,7 @@ export function EntryCardActions({
       <TouchableOpacity
         style={styles.actionButton}
         onPress={onEdit}
+        testID="entry-edit-button"
         accessibilityRole="button"
         accessibilityLabel={t("entryCard.editA11y")}
         accessibilityHint={t("entryCard.editHint")}
