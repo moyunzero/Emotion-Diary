@@ -54,7 +54,7 @@ yarn test              # Jest unit tests (excludes e2e/)
 - **Pull requests / push to `master`:** `yarn typecheck` → `yarn lint` → `yarn test` (Node 22).
 - **Push to `master` only:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
 
-**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015`. See [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4.
+**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`. See [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4.
 
 ### Community & docs
 
@@ -114,6 +114,8 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Offline-First**: Local storage protects user privacy
 - **Cloud Backup**: Optional Supabase sync; deleting an entry is a **soft delete** by default (data can remain syncable and recoverable via cloud merge), not immediate physical wipe
 - **Smart Data Migration**: Seamless switching between guest data and logged-in user data
+- **Privacy hardening (v1.5)**: Account deletion clears cloud voice files; synced audio plays via private signed URLs; SecureStore write failures prompt re-login
+- **Sync experience (v1.5)**: Clearer diary revision tracking; bounded concurrency for pending audio uploads; Profile sync chrome matches real store progress
 
 ### 🔔 Revisit & Reminders (v1.4)
 
@@ -341,6 +343,29 @@ eas build --platform ios --profile production
 
 Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
 
+### [1.5.0] - 2026-07-31 · App Store update
+
+> v1.5 “clearable CONCERNS debt zero” (Phases 6–12). User-facing focus: account privacy, cloud sync, and reliability.
+
+#### Added / hardened
+
+- **More complete account deletion**: Clears cloud `audios/{userId}/` objects before Auth user delete
+- **Safer audio playback**: Synced recordings use private signed URLs at play time (not long-lived public URLs)
+- **Visible session failures**: SecureStore write failures prompt re-login instead of failing silently
+- **Revision sync**: Explicit `MoodEntry.updatedAt`; cloud push can skip unchanged rows; pending audio uploads use concurrency cap 3
+- **Profile sync status**: Single-sourced from store `syncStatus` / progress
+
+#### Fixed
+
+- Renaming a voice note now refreshes correctly on home diary cards
+
+#### Developer / quality
+
+- Fragility tests: `recordingCoordinator` clipHandler, store sync integration, Profile sync chrome; Jest coverage floor
+- Maintainability splits: `store/sync/*`, `utils/ai/*`, ProfileSettings sections, EntryCard playback/actions
+- Maestro: `016` (signed audio playback), `017` (edit → create-tab clip rebind); `yarn test:maestro:016` / `:017`
+- Clearable CONCERNS debt zeroed; Accepted Product Risks locked as permanent policy (no Sentry, E2E not in CI, cloud-wins, no root `openspec/`)
+
 ### [1.4.0] - 2026-07-05 · App Store update
 
 > v1.4 “metaphor experience first” — all five phases (phases 011–015) shipped to App Store.
@@ -431,6 +456,19 @@ Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planni
 | **1.2.0** | Engineering health + data trust + retention | `003`–`010` | ✅ App Store |
 | **1.3.0** | Full bilingual i18n | Phase 7 / i18n sweep | ✅ App Store |
 | **1.4.0** | Metaphor experience first | `011`–`015` (visual → onboarding → narrative → share card → retention loop) | ✅ App Store |
+| **1.5.0** | Privacy / sync / clearable debt zero | Phases 6–12; `milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
+
+#### v1.5 phases (6–12, all merged to `master`)
+
+| Phase | Directory | Delivery |
+| --- | --- | --- |
+| 6 | `phases/06-dead-code-naming` | Dead code / ProfileSyncChrome / logger / Accepted policy |
+| 7 | `phases/07-security-account` | delete-account Storage wipe, signed URLs, SecureStore UX |
+| 8 | `phases/08-sync-performance` | updatedAt, push skip, audio concurrency, Profile chrome single-source |
+| 9 | `phases/09-fragility-tests` | clipHandler / store sync / coverage floor |
+| 10 | `phases/10-maintainability-splits` | store/sync, aiService, ProfileSettings, EntryCard splits |
+| 11 | `phases/11-documentation-closeout` | CONCERNS clearable debt zero |
+| 12 | `phases/12-milestone-closeout-hygiene` | UAT, Nyquist, Maestro 017, staging Storage |
 
 #### v1.4 phases (011–015, all merged to `master`)
 
