@@ -159,6 +159,10 @@ export default function RootLayout() {
               name="person-timeline"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="on-this-day"
+              options={{ headerShown: false }}
+            />
           </Stack>
           <MetaphorOnboardingHost />
         </SafeAreaProvider>
