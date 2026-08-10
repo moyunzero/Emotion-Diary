@@ -6,8 +6,10 @@ import { AppScreenShell } from "@/components/AppScreenShell";
 import EntryCard from "@/components/EntryCard/EntryCard";
 import { INSIGHTS_COLORS } from "@/components/Insights/constants";
 import { getFlowerPotStatus } from "@/components/Insights/utils";
+import { OnThisDayPersonSlot } from "@/components/onThisDay/OnThisDayPersonSlot";
 import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
+import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
 import {
   aggregateForPerson,
   entriesForPerson,
@@ -69,6 +71,14 @@ export function PersonTimelineScreen() {
 
   const aggregate = useMemo(
     () => (person ? aggregateForPerson(entries, person) : null),
+    [entries, person],
+  );
+
+  const otd = useMemo(
+    () =>
+      person
+        ? entriesOnThisDayPriorYears(entries, Date.now(), { person })
+        : [],
     [entries, person],
   );
 
@@ -181,10 +191,14 @@ export function PersonTimelineScreen() {
         </View>
 
         <Text style={styles.sectionLabel}>{t("section.timeline")}</Text>
-        <View testID="person-timeline-otd-slot" style={styles.otdSlot} />
+        {otd.length > 0 ? (
+          <View testID="person-timeline-otd-slot">
+            <OnThisDayPersonSlot entries={otd.slice(0, 3)} />
+          </View>
+        ) : null}
       </View>
     );
-  }, [aggregate, potStatus, displayName, latestLabel, styles, t]);
+  }, [aggregate, potStatus, displayName, latestLabel, otd, styles, t]);
 
   const shellProps = {
     title: t("screen.title"),

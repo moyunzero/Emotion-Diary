@@ -119,9 +119,6 @@ export function createPersonTimelineStyles(_width: number, height: number) {
       marginBottom: S.sm,
       paddingHorizontal: 2,
     },
-    otdSlot: {
-      height: S.md,
-    },
     row: {
       flexDirection: "row",
       alignItems: "stretch",
