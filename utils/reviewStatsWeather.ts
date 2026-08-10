@@ -3,7 +3,7 @@
  */
 
 import { isSoftDeleted } from '@/shared/entries/visibility';
-import { localDayKey } from '@/shared/formatting';
+import { localDayKey } from '@/shared/formatting/localCalendar';
 import { MoodEntry, MoodLevel } from '../types';
 import { filterEntriesInRange } from './reviewStats';
 

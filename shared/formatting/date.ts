@@ -44,29 +44,11 @@ export function formatMonthDay(input: DateInput): string {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
-/**
- * 格式化日期为本地日期字符串（YYYY-MM-DD格式，避免时区问题）
- */
-export function formatDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-/** Local calendar day key (YYYY-MM-DD); delegates to formatDate. */
-export function localDayKey(timestampMs: number): string {
-  return formatDate(timestampMs);
-}
-
-/** Local month-day key (MM-DD) for On This Day matching — local getters only. */
-export function localMonthDayKey(timestampMs: number): string {
-  const date = new Date(timestampMs);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${month}-${day}`;
-}
+export {
+  formatDate,
+  localDayKey,
+  localMonthDayKey,
+} from './localCalendar';
 
 /**
  * 确保时间戳为毫秒格式（如果数据库返回秒级时间戳，转换为毫秒）

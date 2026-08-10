@@ -2,21 +2,11 @@
  * QUAL-02 — localDayKey / localMonthDayKey (local getters only)
  */
 
-jest.mock('expo-localization', () => ({
-  getLocales: jest.fn(() => [{ languageTag: 'zh-Hans' }]),
-}));
-
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn().mockResolvedValue(null),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-}));
-
 import {
   formatDate,
   localDayKey,
   localMonthDayKey,
-} from '../../../../shared/formatting/date';
+} from '../../../../shared/formatting/localCalendar';
 
 describe('localDayKey', () => {
   it('equals formatDate for the same local timestamps', () => {

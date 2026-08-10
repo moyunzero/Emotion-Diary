@@ -3,7 +3,7 @@
  * Soft-delete first; local MM-DD via localMonthDayKey (never UTC day math).
  */
 
-import { localMonthDayKey } from "../formatting/date";
+import { localMonthDayKey } from "../formatting/localCalendar";
 import type { MoodEntry } from "../../types";
 import { Status } from "../../types";
 import { entriesForPerson } from "./personQueries";
