@@ -4,10 +4,11 @@ import {
   aggregateForPerson,
   listDistinctPeople,
 } from '@/shared/entries/personQueries';
+import { type Href, useRouter } from 'expo-router';
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
@@ -30,6 +31,7 @@ const renderPotIcon = (status: string, color: string) => {
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
   const { t } = useTranslation('insights');
+  const router = useRouter();
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -72,6 +74,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           alignItems: 'center',
           width: '48%',
           minWidth: 120,
+          minHeight: 44,
+          borderRadius: borderRadius.card,
+          paddingVertical: 4,
+        },
+        potItemPressed: {
+          backgroundColor: INSIGHTS_COLORS.needWaterColor + '14',
         },
         pot: {
           width: 56,
@@ -120,6 +128,24 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           color: '#9CA3AF',
           marginTop: 4,
         },
+        emptyCta: {
+          marginTop: 12,
+          minHeight: 44,
+          paddingHorizontal: 18,
+          paddingVertical: 12,
+          borderRadius: 14,
+          backgroundColor: INSIGHTS_COLORS.needWaterColor,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        emptyCtaPressed: {
+          opacity: 0.85,
+        },
+        emptyCtaText: {
+          fontSize: fontSize.body,
+          fontWeight: '700',
+          color: '#FFFFFF',
+        },
       }),
     [padding, fontSize, spacing, borderRadius, layout]
   );
@@ -151,6 +177,18 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           <Sprout size={40} color="#D1D5DB" />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.emptyCta,
+              pressed && styles.emptyCtaPressed,
+            ]}
+            onPress={() => router.push('/record')}
+            accessibilityRole="button"
+            accessibilityLabel={t('relationship.empty.ctaA11y')}
+            testID="relationship-garden-empty-cta"
+          >
+            <Text style={styles.emptyCtaText}>{t('relationship.empty.cta')}</Text>
+          </Pressable>
         </View>
       </View>
     );
@@ -171,15 +209,33 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             growingColor: INSIGHTS_COLORS.growingColor,
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
           }, t);
+          const displayName = resolvePeopleLabel(person.name);
           return (
-            <View key={person.name} style={styles.potItem}>
+            <Pressable
+              key={person.name}
+              style={({ pressed }) => [
+                styles.potItem,
+                pressed && styles.potItemPressed,
+              ]}
+              onPress={() =>
+                // Typed routes lag until Metro regenerates .expo/types (gitignored)
+                router.push({
+                  pathname: '/person-timeline',
+                  params: { person: person.name },
+                } as unknown as Href)
+              }
+              accessibilityRole="button"
+              accessibilityLabel={displayName}
+              accessibilityHint={t('relationship.potA11yHint', { name: displayName })}
+              testID={`relationship-garden-pot-${person.name}`}
+            >
               {/* 花盆图标 */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
                 {renderPotIcon(potStatus.status, potStatus.color)}
               </View>
               {/* 人名 */}
               <Text style={styles.personName} numberOfLines={1}>
-                {resolvePeopleLabel(person.name)}
+                {displayName}
               </Text>
               {/* 状态标签 */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
@@ -199,7 +255,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
                   total: person.total,
                 })}
               </Text>
-            </View>
+            </Pressable>
           );
         })}
       </View>
