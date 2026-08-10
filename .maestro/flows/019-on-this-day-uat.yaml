@@ -1,0 +1,94 @@
+appId: com.moyunzero.emotiondiary
+---
+# Phase 15 On This Day UAT（对齐 15-VALIDATION / REL-05·06·07）
+# 本地 only — 不进 CI。需模拟器 + __DEV__ build。
+# 造数：path-only deep link（无日记正文 query）
+#   emotiondiary://dev-seed-on-this-day?scenario=list|person&locale=zh-Hans
+# 截图：.maestro/acceptance/019-on-this-day/*.png
+# 运行：yarn test:maestro:preflight && maestro test .maestro/flows/019-on-this-day-uat.yaml
+
+# ── UAT 1 — Insights card → OTD empty（无先验年）──
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://insights
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- scrollUntilVisible:
+    element:
+      id: "on-this-day-insights-card"
+    direction: DOWN
+    timeout: 30000
+    visibilityPercentage: 40
+- takeScreenshot: .maestro/acceptance/019-on-this-day/01-insights-card
+- tapOn:
+    id: on-this-day-insights-card
+- extendedWaitUntil:
+    visible:
+      id: on-this-day-hero
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: on-this-day-empty
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/019-on-this-day/01-otd-empty
+- assertVisible:
+    id: on-this-day-empty
+
+# ── UAT 2 — __DEV__ seed list → Memory Lane entries（Pitfall 6）──
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: "emotiondiary://dev-seed-on-this-day?scenario=list&locale=zh-Hans"
+- extendedWaitUntil:
+    visible:
+      id: on-this-day-hero
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: mood-entry-card
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/019-on-this-day/02-otd-seeded-list
+- assertVisible:
+    id: mood-entry-card
+- assertVisible:
+    id: on-this-day-hero
+
+# ── UAT 3 — person seed → Person Timeline OTD slot（REL-07）──
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: "emotiondiary://dev-seed-on-this-day?scenario=person&locale=zh-Hans"
+- extendedWaitUntil:
+    visible:
+      id: on-this-day-hero
+    timeout: 45000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: "emotiondiary://person-timeline?person=other"
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-hero
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "person-timeline-otd-slot"
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 40
+- takeScreenshot: .maestro/acceptance/019-on-this-day/03-person-otd-slot
+- assertVisible:
+    id: person-timeline-otd-slot
+- assertVisible:
+    id: person-otd-row-maestro-otd-y1
