@@ -3,14 +3,14 @@
  */
 
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import {
+  growthStageFromRate,
+  type GrowthStageId,
+} from "@/shared/garden/growthStage";
 import { MoodEntry, Status } from "@/types";
 
-export type RevisitSubtitleStageId =
-  | "seed"
-  | "sprout"
-  | "seedling"
-  | "bud"
-  | "bloom";
+/** Alias of shared GrowthStageId for retention subtitle mapping. */
+export type RevisitSubtitleStageId = GrowthStageId;
 
 /** Mirrors `computeResolveRate` in `services/gardenMilestone.ts`. */
 function computeResolveRate(entries: readonly MoodEntry[]): number {
@@ -20,15 +20,6 @@ function computeResolveRate(entries: readonly MoodEntry[]): number {
   }
   const resolved = visible.filter((e) => e.status === Status.RESOLVED).length;
   return resolved / visible.length;
-}
-
-/** Mirrors `getGrowthStage` thresholds in `components/Insights/utils.tsx`. */
-function growthStageFromRate(rate: number): RevisitSubtitleStageId {
-  if (rate >= 0.8) return "bloom";
-  if (rate >= 0.6) return "bud";
-  if (rate >= 0.4) return "seedling";
-  if (rate >= 0.2) return "sprout";
-  return "seed";
 }
 
 export function resolveRevisitSubtitleKey(
