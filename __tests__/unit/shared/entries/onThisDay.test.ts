@@ -4,6 +4,16 @@
  * Fixtures use local Date(y, mIndex, d, …) — do not mutate process.env.TZ
  */
 
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'zh-Hans' }]),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
 import { entriesOnThisDayPriorYears } from '../../../../shared/entries/onThisDay';
 import type { MoodEntry } from '../../../../types';
 import { Status } from '../../../../types';
