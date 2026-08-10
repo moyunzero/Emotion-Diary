@@ -3,7 +3,10 @@
  * QUAL-01 soft-delete · D-02 statuses · A1 PROCESSING · D-03 exact · D-04 other
  */
 
-import type { GrowthStageId } from "@/shared/garden/growthStage";
+import {
+  growthStageFromRate,
+  type GrowthStageId,
+} from "@/shared/garden/growthStage";
 import type { MoodEntry } from "../../types";
 import { Status } from "../../types";
 import { excludeSoftDeletedEntries } from "./visibility";
@@ -62,17 +65,21 @@ export type PersonTimelineAggregate = {
   growthStage: GrowthStageId;
 };
 
-/** Stub — implemented in plan 13-03 task 2. */
+/** Aggregate from entriesForPerson only — inherits QUAL-01 / D-02 / D-03 / D-04 / A1. */
 export function aggregateForPerson(
-  _entries: readonly MoodEntry[],
+  entries: readonly MoodEntry[],
   person: string,
 ): PersonTimelineAggregate {
+  const list = entriesForPerson(entries, person);
+  const resolvedCount = list.filter((e) => e.status === Status.RESOLVED).length;
+  const entryCount = list.length;
+  const resolveRate = entryCount > 0 ? resolvedCount / entryCount : 0;
   return {
     person,
-    entryCount: -1,
-    latestTimestamp: null,
-    resolvedCount: -1,
-    resolveRate: -1,
-    growthStage: "seed",
+    entryCount,
+    latestTimestamp: list[0]?.timestamp ?? null,
+    resolvedCount,
+    resolveRate,
+    growthStage: growthStageFromRate(resolveRate),
   };
 }
