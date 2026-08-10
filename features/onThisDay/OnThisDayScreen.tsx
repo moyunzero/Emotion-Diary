@@ -55,7 +55,12 @@ export function OnThisDayScreen() {
   }, []);
 
   const handleBack = useCallback(() => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      // Deep link（无历史栈）时 back() 会抛 GO_BACK unhandled
+      router.replace("/insights");
+    }
   }, [router]);
 
   const heroDate = useMemo(

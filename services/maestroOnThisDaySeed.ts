@@ -1,5 +1,5 @@
 /**
- * Maestro 019 __DEV__ seed — prior-year same MM-DD guest entries for On This Day UAT.
+ * Maestro 019 __DEV__ seed — prior-year same MM-DD entries for On This Day UAT.
  * Diary body is never read from deep-link params (T-15-02).
  */
 
@@ -9,10 +9,8 @@ import {
   type LocalePreference,
 } from "@/services/localeSettings";
 import { setOnboardingMetaphorSeen } from "@/services/onboardingMetaphor";
-import { saveToStorage } from "@/store/modules/storage";
+import { getStorageKey, saveToStorage } from "@/store/modules/storage";
 import { MoodLevel, Status, type MoodEntry } from "@/types";
-
-const GUEST_STORAGE_KEY = "mood_entries_guest";
 
 /** Fixed person tag for person-slot UAT (matches 018 garden pot). */
 export const MAESTRO_OTD_PERSON = "other";
@@ -22,6 +20,8 @@ export type MaestroOnThisDayScenario = "list" | "person";
 export type MaestroOnThisDaySeedOptions = {
   scenario: MaestroOnThisDayScenario;
   locale?: AppLocale;
+  /** Active session user id; null/undefined → guest key (must match `_loadEntries`). */
+  userId?: string | null;
 };
 
 function parseLocale(raw: string | undefined): AppLocale | undefined {
@@ -83,17 +83,18 @@ export function parseMaestroOnThisDaySeedParams(params: {
 }
 
 /**
- * Write guest MoodEntry fixtures for OTD UAT. No-op outside __DEV__.
+ * Write MoodEntry fixtures for OTD UAT into the active storage key. No-op outside __DEV__.
+ * Returns the seeded entries (empty when no-op) so the route can hydrate the store.
  */
 export async function runMaestroOnThisDaySeed(
   options: MaestroOnThisDaySeedOptions,
-): Promise<void> {
+): Promise<MoodEntry[]> {
   if (!__DEV__) {
-    return;
+    return [];
   }
 
   if (options.scenario !== "list" && options.scenario !== "person") {
-    return;
+    return [];
   }
 
   await setOnboardingMetaphorSeen(true);
@@ -121,5 +122,7 @@ export async function runMaestroOnThisDaySeed(
     }),
   ];
 
-  await saveToStorage(GUEST_STORAGE_KEY, entries);
+  const storageKey = getStorageKey(options.userId ?? null);
+  await saveToStorage(storageKey, entries);
+  return entries;
 }

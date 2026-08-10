@@ -8,6 +8,7 @@ import { INSIGHTS_COLORS } from "@/components/Insights/constants";
 import { getFlowerPotStatus } from "@/components/Insights/utils";
 import { OnThisDayPersonSlot } from "@/components/onThisDay/OnThisDayPersonSlot";
 import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
+import { preparePlaybackAudioMode } from "@/shared/audio/coordinator";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
 import {
@@ -84,6 +85,8 @@ export function PersonTimelineScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      // 进入页先预热播放会话，避免「未在气象站播过 → 时间线点播无声」
+      void preparePlaybackAudioMode();
       return () => {
         useAppStore.getState().stopAudio();
         void forceCancelRecording();
@@ -121,7 +124,12 @@ export function PersonTimelineScreen() {
   }, []);
 
   const handleBack = useCallback(() => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      // Deep link（无历史栈）时 back() 会抛 GO_BACK unhandled
+      router.replace("/insights");
+    }
   }, [router]);
 
   const handleEmptyRecord = useCallback(() => {

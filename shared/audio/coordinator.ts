@@ -6,7 +6,11 @@
  * - 不 import store，避免循环依赖；由 useAppStore 创建时注册 sync。
  */
 
-import { AudioStatus, createAudioPlayer } from "expo-audio";
+import {
+  AudioStatus,
+  createAudioPlayer,
+  setAudioModeAsync,
+} from "expo-audio";
 import { getInfoAsync } from "expo-file-system";
 import type { AudioData } from "../../types";
 import { logger } from "../../utils/logger";
@@ -108,6 +112,31 @@ async function resolvePlayableUri(audio: AudioData): Promise<string | null> {
   return resolveRemote(source);
 }
 
+/**
+ * 播放前激活 AVAudioSession。
+ *
+ * 现象：冷路径直接进「关系时间线」点播无声；先在「情绪气象站」播过一次后再进时间线就正常。
+ * 气象站首播会把会话拉到可出声状态；从 Insights 进时间线时 blur 会 forceCancel，
+ * 但卡片 playEntryAudio 原先从不 setAudioMode，冷会话上 createAudioPlayer().play() 可能无声且不抛错。
+ */
+async function ensurePlaybackAudioMode(): Promise<void> {
+  try {
+    await setAudioModeAsync({
+      allowsRecording: false,
+      playsInSilentMode: true,
+      // 独占播放：比 mixWithOthers 更接近「气象站首播成功」后的可听会话
+      interruptionMode: "doNotMix",
+    });
+  } catch (e) {
+    logger.warn("audioCoordinator", "setAudioModeAsync 播放模式失败", e);
+  }
+}
+
+/** 供栈页 focus 时预热（与 play 入口共用同一套模式） */
+export async function preparePlaybackAudioMode(): Promise<void> {
+  await ensurePlaybackAudioMode();
+}
+
 export const audioCoordinator = {
   /**
    * 看板卡片：再次点击正在播的同一条 → 停止（与旧 EntryCard toggle 一致）
@@ -128,6 +157,7 @@ export const audioCoordinator = {
         return { ok: false, reason: "no_uri" };
       }
 
+      await ensurePlaybackAudioMode();
       disposePlayer();
 
       const p = createAudioPlayer(uri);
@@ -180,6 +210,7 @@ export const audioCoordinator = {
         return { ok: false, reason: "no_uri" };
       }
 
+      await ensurePlaybackAudioMode();
       disposePlayer();
 
       const p = createAudioPlayer(uri);

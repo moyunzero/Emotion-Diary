@@ -8,6 +8,8 @@ appId: com.moyunzero.emotiondiary
 # 运行：yarn test:maestro:preflight && maestro test .maestro/flows/019-on-this-day-uat.yaml
 
 # ── UAT 1 — Insights card → OTD empty（无先验年）──
+# 空花园走 EmptyGarden，不挂载 deferred 卡片（15-04）。先记一条「今天」以离开空态；
+# 同日新条目被 entriesOnThisDayPriorYears 排除 → OTD 仍为空。
 - launchApp:
     clearState: true
 - extendedWaitUntil:
@@ -16,6 +18,20 @@ appId: com.moyunzero.emotiondiary
     timeout: 90000
 - tapOn:
     id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- tapOn:
+    id: mood-content-input
+- inputText: "UAT15 today gate (not prior-year)"
+- tapOn: "记录这一刻"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 25000
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -28,9 +44,11 @@ appId: com.moyunzero.emotiondiary
     element:
       id: "on-this-day-insights-card"
     direction: DOWN
-    timeout: 30000
-    visibilityPercentage: 40
+    timeout: 45000
+    visibilityPercentage: 80
+    centerElement: true
 - takeScreenshot: .maestro/acceptance/019-on-this-day/01-insights-card
+# iOS ScrollView + removeClippedSubviews：未居中时 tap id 易未触发 onPress
 - tapOn:
     id: on-this-day-insights-card
 - extendedWaitUntil:
@@ -46,6 +64,15 @@ appId: com.moyunzero.emotiondiary
     id: on-this-day-empty
 
 # ── UAT 2 — __DEV__ seed list → Memory Lane entries（Pitfall 6）──
+# 先回首页再 seed，确保 deep link 会挂载 dev-seed 路由（已在 OTD 时 openLink 可能不换页）
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -54,10 +81,13 @@ appId: com.moyunzero.emotiondiary
     visible:
       id: on-this-day-hero
     timeout: 45000
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: mood-entry-card
+    direction: DOWN
     timeout: 30000
+    visibilityPercentage: 40
+    centerElement: true
 - takeScreenshot: .maestro/acceptance/019-on-this-day/02-otd-seeded-list
 - assertVisible:
     id: mood-entry-card
@@ -65,6 +95,14 @@ appId: com.moyunzero.emotiondiary
     id: on-this-day-hero
 
 # ── UAT 3 — person seed → Person Timeline OTD slot（REL-07）──
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -87,6 +125,7 @@ appId: com.moyunzero.emotiondiary
     direction: DOWN
     timeout: 20000
     visibilityPercentage: 40
+    centerElement: true
 - takeScreenshot: .maestro/acceptance/019-on-this-day/03-person-otd-slot
 - assertVisible:
     id: person-timeline-otd-slot
