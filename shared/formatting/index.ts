@@ -5,6 +5,8 @@ export {
   formatMonthDay,
   formatRelativeDayLabel,
   ensureMilliseconds,
+  localDayKey,
+  localMonthDayKey,
   toIntlLocale,
   type DateInput,
 } from './date';

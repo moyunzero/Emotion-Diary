@@ -55,6 +55,19 @@ export function formatDate(timestamp: number): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Local calendar day key (YYYY-MM-DD); delegates to formatDate. */
+export function localDayKey(timestampMs: number): string {
+  return formatDate(timestampMs);
+}
+
+/** Local month-day key (MM-DD) for On This Day matching — local getters only. */
+export function localMonthDayKey(timestampMs: number): string {
+  const date = new Date(timestampMs);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}-${day}`;
+}
+
 /**
  * 确保时间戳为毫秒格式（如果数据库返回秒级时间戳，转换为毫秒）
  */
