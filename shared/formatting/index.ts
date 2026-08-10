@@ -13,3 +13,4 @@ export {
   type DateInput,
 } from './date';
 export { formatRecentActivityLabel } from './recentActivity';
+export { formatOnThisDayHeroDate } from './onThisDayHeroDate';
