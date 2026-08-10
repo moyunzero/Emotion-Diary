@@ -155,6 +155,10 @@ export default function RootLayout() {
               name="recycle-bin"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="person-timeline"
+              options={{ headerShown: false }}
+            />
           </Stack>
           <MetaphorOnboardingHost />
         </SafeAreaProvider>
