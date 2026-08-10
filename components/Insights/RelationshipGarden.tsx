@@ -1,10 +1,14 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { resolvePeopleLabel } from '@/i18n/resolvePresetLabel';
+import {
+  aggregateForPerson,
+  listDistinctPeople,
+} from '@/shared/entries/personQueries';
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { MoodEntry, Status } from '../../types';
+import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
 
@@ -120,29 +124,18 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
     [padding, fontSize, spacing, borderRadius, layout]
   );
 
-  // 计算每个人的关系健康度
+  // Phase 13 helpers — same soft-delete / status / person contract as timeline header (D-06)
   const relationshipData = useMemo(() => {
-    const peopleStats: Record<string, { total: number; resolved: number }> = {};
-    
-    entries.forEach(e => {
-      e.people.forEach(p => {
-        if (!peopleStats[p]) {
-          peopleStats[p] = { total: 0, resolved: 0 };
-        }
-        peopleStats[p].total++;
-        if (e.status === Status.RESOLVED) {
-          peopleStats[p].resolved++;
-        }
-      });
-    });
-
-    return Object.entries(peopleStats)
-      .map(([name, stats]) => ({
-        name,
-        total: stats.total,
-        resolved: stats.resolved,
-        resolveRate: stats.total > 0 ? stats.resolved / stats.total : 0,
-      }))
+    return listDistinctPeople(entries)
+      .map((name) => {
+        const agg = aggregateForPerson(entries, name);
+        return {
+          name,
+          total: agg.entryCount,
+          resolved: agg.resolvedCount,
+          resolveRate: agg.resolveRate,
+        };
+      })
       .sort((a, b) => a.resolveRate - b.resolveRate) // 需要关注的排前面
       .slice(0, 5);
   }, [entries]);
