@@ -11,6 +11,7 @@ import type zhProfile from "../locales/zh-Hans/profile.json";
 import type zhRecord from "../locales/zh-Hans/record.json";
 import type zhRecycle from "../locales/zh-Hans/recycle.json";
 import type zhPersonTimeline from "../locales/zh-Hans/personTimeline.json";
+import type zhOnThisDay from "../locales/zh-Hans/onThisDay.json";
 import type zhRetention from "../locales/zh-Hans/retention.json";
 import type zhReview from "../locales/zh-Hans/review.json";
 import type zhRituals from "../locales/zh-Hans/rituals.json";
@@ -29,6 +30,7 @@ declare module "i18next" {
       retention: typeof zhRetention;
       recycle: typeof zhRecycle;
       personTimeline: typeof zhPersonTimeline;
+      onThisDay: typeof zhOnThisDay;
       tabs: typeof zhTabs;
       review: typeof zhReview;
       share: typeof zhShare;

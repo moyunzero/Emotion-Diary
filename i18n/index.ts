@@ -20,6 +20,7 @@ import enShare from "../locales/en-US/share.json";
 import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
 import enPersonTimeline from "../locales/en-US/personTimeline.json";
+import enOnThisDay from "../locales/en-US/onThisDay.json";
 import zhAi from "../locales/zh-Hans/ai.json";
 import zhOnboarding from "../locales/zh-Hans/onboarding.json";
 import zhRituals from "../locales/zh-Hans/rituals.json";
@@ -38,6 +39,7 @@ import zhShare from "../locales/zh-Hans/share.json";
 import zhSync from "../locales/zh-Hans/sync.json";
 import zhTabs from "../locales/zh-Hans/tabs.json";
 import zhPersonTimeline from "../locales/zh-Hans/personTimeline.json";
+import zhOnThisDay from "../locales/zh-Hans/onThisDay.json";
 import type { AppLocale } from "./mapDeviceLocale";
 import { resolveInitialLocale } from "./resolveInitialLocale";
 import {
@@ -76,6 +78,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           retention: zhRetention,
           recycle: zhRecycle,
           personTimeline: zhPersonTimeline,
+          onThisDay: zhOnThisDay,
           tabs: zhTabs,
           review: zhReview,
           share: zhShare,
@@ -96,6 +99,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           retention: enRetention,
           recycle: enRecycle,
           personTimeline: enPersonTimeline,
+          onThisDay: enOnThisDay,
           tabs: enTabs,
           review: enReview,
           share: enShare,
@@ -121,6 +125,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "retention",
         "recycle",
         "personTimeline",
+        "onThisDay",
         "tabs",
         "review",
         "share",
