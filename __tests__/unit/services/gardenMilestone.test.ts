@@ -1,24 +1,8 @@
 /**
  * NAR-02: gardenMilestone seen/pending persistence + stage crossing
+ *
+ * Stage ids come from shared/garden/growthStage (real pure helper — no Insights mock).
  */
-
-jest.mock('@/components/Insights/utils', () => ({
-  getGrowthStage: (rate: number) => {
-    if (rate >= 0.8) {
-      return { stage: 'bloom', label: 'bloom', icon: null };
-    }
-    if (rate >= 0.6) {
-      return { stage: 'bud', label: 'bud', icon: null };
-    }
-    if (rate >= 0.4) {
-      return { stage: 'seedling', label: 'seedling', icon: null };
-    }
-    if (rate >= 0.2) {
-      return { stage: 'sprout', label: 'sprout', icon: null };
-    }
-    return { stage: 'seed', label: 'seed', icon: null };
-  },
-}));
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MoodLevel, Status, type MoodEntry } from '@/types';
