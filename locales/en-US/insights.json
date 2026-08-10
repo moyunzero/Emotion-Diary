@@ -61,8 +61,11 @@
     "subtitle": "Needs your care",
     "empty": {
       "title": "No relationship seeds yet",
-      "hint": "Add people when you record"
+      "hint": "Add people when you record",
+      "cta": "Go record",
+      "ctaA11y": "Go record"
     },
+    "potA11yHint": "View {{name}}'s emotion timeline",
     "healedCount": "{{resolved}}/{{total}} done"
   },
   "triggers": {

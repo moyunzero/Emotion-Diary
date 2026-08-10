@@ -19,6 +19,7 @@ import enReview from "../locales/en-US/review.json";
 import enShare from "../locales/en-US/share.json";
 import enSync from "../locales/en-US/sync.json";
 import enTabs from "../locales/en-US/tabs.json";
+import enPersonTimeline from "../locales/en-US/personTimeline.json";
 import zhAi from "../locales/zh-Hans/ai.json";
 import zhOnboarding from "../locales/zh-Hans/onboarding.json";
 import zhRituals from "../locales/zh-Hans/rituals.json";
@@ -36,6 +37,7 @@ import zhReview from "../locales/zh-Hans/review.json";
 import zhShare from "../locales/zh-Hans/share.json";
 import zhSync from "../locales/zh-Hans/sync.json";
 import zhTabs from "../locales/zh-Hans/tabs.json";
+import zhPersonTimeline from "../locales/zh-Hans/personTimeline.json";
 import type { AppLocale } from "./mapDeviceLocale";
 import { resolveInitialLocale } from "./resolveInitialLocale";
 import {
@@ -73,6 +75,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           auth: zhAuth,
           retention: zhRetention,
           recycle: zhRecycle,
+          personTimeline: zhPersonTimeline,
           tabs: zhTabs,
           review: zhReview,
           share: zhShare,
@@ -92,6 +95,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           auth: enAuth,
           retention: enRetention,
           recycle: enRecycle,
+          personTimeline: enPersonTimeline,
           tabs: enTabs,
           review: enReview,
           share: enShare,
@@ -116,6 +120,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "auth",
         "retention",
         "recycle",
+        "personTimeline",
         "tabs",
         "review",
         "share",
