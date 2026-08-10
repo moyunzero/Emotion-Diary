@@ -12,3 +12,4 @@ export {
   toIntlLocale,
   type DateInput,
 } from './date';
+export { formatRecentActivityLabel } from './recentActivity';
