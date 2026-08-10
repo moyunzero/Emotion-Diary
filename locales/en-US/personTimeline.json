@@ -1,0 +1,35 @@
+{
+  "screen": {
+    "title": "Relationship timeline"
+  },
+  "section": {
+    "timeline": "Timeline trail"
+  },
+  "metrics": {
+    "count": "Related entries",
+    "latest": "Latest activity",
+    "pot": "Pot status",
+    "emDash": "—"
+  },
+  "empty": {
+    "timeline": {
+      "title": "No entries about them yet",
+      "body": "Tag people when you record a mood — a timeline will grow here over time.",
+      "cta": "Go record"
+    },
+    "missing": {
+      "title": "Person not found",
+      "body": "Try tapping a pot again from the relationship garden.",
+      "cta": "Back to garden"
+    }
+  },
+  "a11y": {
+    "potHint": "View {{name}}'s emotion timeline",
+    "back": "Back to relationship garden"
+  },
+  "error": {
+    "title": "Timeline unavailable",
+    "body": "Go back and try again. If it still fails, restart the app and retry.",
+    "action": "Back to garden"
+  }
+}
