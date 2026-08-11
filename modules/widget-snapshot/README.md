@@ -34,10 +34,10 @@ npx expo prebuild --platform android --no-install
 
 After prebuild, expect:
 
-- iOS: `EmotionDiaryWidget` target / sources under `ios/EmotionDiaryWidget/`
+- iOS: `EmotionDiaryWidget` target / sources under `ios/EmotionDiaryWidget/` (gitignored generated tree; SoT remains `ios-widget/`)
 - Android: `WidgetSnapshotProvider` + `widget_snapshot_small` / `widget_snapshot_info` in the merged app (or module) resources
 
-If local `android/` is absent, use the Android prebuild command above or an EAS `development` / `preview` APK build — that is the verification route (see `17-UAT.md`).
+**Plan 17-04 smoke:** iOS prebuild confirmed EmotionDiaryWidget sources + pbxproj target + App Group entitlements + host→extension target dependency. Local `android/` was absent — use the Android prebuild command above or an EAS `development` / `preview` APK (see `.planning/phases/17-widget-native-shell/17-UAT.md`).
 
 ### EAS profiles
 
