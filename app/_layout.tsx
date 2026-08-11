@@ -47,12 +47,12 @@ export default function RootLayout() {
         const { user, entries } = useAppStore.getState();
         if (user) {
           scheduleWidgetSnapshotOp(
-            publishWidgetSnapshot(entries),
+            () => publishWidgetSnapshot(entries),
             'AppState publishWidgetSnapshot failed',
           );
         } else {
           scheduleWidgetSnapshotOp(
-            clearWidgetSnapshot(),
+            () => clearWidgetSnapshot(),
             'AppState clearWidgetSnapshot failed',
           );
         }

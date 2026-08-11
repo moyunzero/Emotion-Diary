@@ -181,11 +181,23 @@ function updateWidgetTargetBuildSettings(project, hostVersion = '1.0') {
 
 /** node-xcode stores target names with quotes; lookup must try both forms. */
 function findWidgetTarget(project) {
-  return (
+  const byName =
     project.pbxTargetByName(WIDGET_TARGET_NAME) ||
-    project.pbxTargetByName(`"${WIDGET_TARGET_NAME}"`) ||
-    null
-  );
+    project.pbxTargetByName(`"${WIDGET_TARGET_NAME}"`);
+  if (!byName) return null;
+
+  // pbxTargetByName returns the target object without its PBXNativeTarget uuid.
+  const nativeTargets = project.hash.project.objects.PBXNativeTarget || {};
+  for (const key of Object.keys(nativeTargets)) {
+    if (key.endsWith('_comment')) continue;
+    const t = nativeTargets[key];
+    if (!t || typeof t !== 'object') continue;
+    const name = String(t.name || '').replace(/"/g, '');
+    if (name === WIDGET_TARGET_NAME) {
+      return { ...t, uuid: key };
+    }
+  }
+  return byName;
 }
 
 /**
@@ -215,6 +227,106 @@ function normalizeWidgetSourcePaths(project) {
   }
 }
 
+/**
+ * Ensure EmotionDiaryWidget/PrivacyInfo.xcprivacy is in the widget target's
+ * Resources phase (existing targets created before PrivacyInfo was added).
+ */
+function ensureWidgetPrivacyInfoResource(project, targetUuid) {
+  if (!targetUuid) return;
+  const objects = project.hash.project.objects;
+  const fileRefs = objects.PBXFileReference || {};
+  const buildFiles = objects.PBXBuildFile || {};
+  const privacyBase = 'PrivacyInfo.xcprivacy';
+  const privacyRel = `${WIDGET_TARGET_NAME}/${privacyBase}`;
+
+  let fileRefUuid = null;
+  for (const key of Object.keys(fileRefs)) {
+    if (key.endsWith('_comment')) continue;
+    const fr = fileRefs[key];
+    if (!fr || typeof fr !== 'object') continue;
+    const rawPath = String(fr.path || '').replace(/"/g, '');
+    const rawName = String(fr.name || '').replace(/"/g, '');
+    // Skip host MO/PrivacyInfo.xcprivacy
+    if (rawPath.includes('MO/') || rawPath.startsWith('MO')) continue;
+    if (
+      rawPath === privacyBase ||
+      rawPath === privacyRel ||
+      rawName === privacyBase
+    ) {
+      fileRefUuid = key;
+      break;
+    }
+  }
+
+  if (!fileRefUuid) {
+    fileRefUuid = project.generateUuid();
+    fileRefs[fileRefUuid] = {
+      isa: 'PBXFileReference',
+      lastKnownFileType: 'text.xml',
+      name: privacyBase,
+      path: privacyBase,
+      sourceTree: '"<group>"',
+      includeInIndex: 1,
+    };
+    fileRefs[`${fileRefUuid}_comment`] = privacyBase;
+
+    // Attach to EmotionDiaryWidget group when present
+    const groups = objects.PBXGroup || {};
+    for (const gKey of Object.keys(groups)) {
+      if (gKey.endsWith('_comment')) continue;
+      const g = groups[gKey];
+      if (!g || typeof g !== 'object') continue;
+      const gName = String(g.name || g.path || '').replace(/"/g, '');
+      if (gName !== WIDGET_TARGET_NAME) continue;
+      g.children = g.children || [];
+      const already = g.children.some((c) => c.value === fileRefUuid);
+      if (!already) {
+        g.children.push({ value: fileRefUuid, comment: privacyBase });
+      }
+      break;
+    }
+  }
+
+  // Find Resources build phase for this target
+  const nativeTargets = objects.PBXNativeTarget || {};
+  const targetEntry = nativeTargets[targetUuid];
+  if (!targetEntry || !targetEntry.buildPhases) return;
+
+  let resourcesPhaseUuid = null;
+  for (const phase of targetEntry.buildPhases) {
+    const comment = String(phase.comment || '');
+    const phaseObj = objects.PBXResourcesBuildPhase?.[phase.value];
+    if (phaseObj || comment === 'Resources') {
+      if (objects.PBXResourcesBuildPhase?.[phase.value]) {
+        resourcesPhaseUuid = phase.value;
+        break;
+      }
+    }
+  }
+  if (!resourcesPhaseUuid) return;
+
+  const phase = objects.PBXResourcesBuildPhase[resourcesPhaseUuid];
+  phase.files = phase.files || [];
+
+  const alreadyInPhase = phase.files.some((f) => {
+    const bf = buildFiles[f.value];
+    if (!bf) return false;
+    return String(bf.fileRef) === fileRefUuid;
+  });
+  if (alreadyInPhase) return;
+
+  const buildFileUuid = project.generateUuid();
+  buildFiles[buildFileUuid] = {
+    isa: 'PBXBuildFile',
+    fileRef: fileRefUuid,
+  };
+  buildFiles[`${buildFileUuid}_comment`] = `${privacyBase} in Resources`;
+  phase.files.push({
+    value: buildFileUuid,
+    comment: `${privacyBase} in Resources`,
+  });
+}
+
 function withIosWidgetXcodeTarget(config) {
   return withXcodeProject(config, (cfg) => {
     const project = cfg.modResults;
@@ -224,6 +336,8 @@ function withIosWidgetXcodeTarget(config) {
     if (existing) {
       if (existing.uuid) {
         ensureTargetDependency(project, existing.uuid);
+        ensureEmbedAppExtensions(project, existing.uuid);
+        ensureWidgetPrivacyInfoResource(project, existing.uuid);
       }
       updateWidgetTargetBuildSettings(project, hostVersion);
       normalizeWidgetSourcePaths(project);
@@ -251,7 +365,12 @@ function withIosWidgetXcodeTarget(config) {
       target.uuid,
     );
 
-    project.addBuildPhase([], 'PBXResourcesBuildPhase', 'Resources', target.uuid);
+    project.addBuildPhase(
+      [`${WIDGET_TARGET_NAME}/PrivacyInfo.xcprivacy`],
+      'PBXResourcesBuildPhase',
+      'Resources',
+      target.uuid,
+    );
 
     project.addBuildPhase(
       ['WidgetKit.framework', 'SwiftUI.framework'],
@@ -471,7 +590,7 @@ function writeModuleAndroidManifest(manifestPath) {
   const xml = `<manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <application>
     <receiver
-      android:name=".WidgetSnapshotProvider"
+      android:name="expo.modules.widgetsnapshot.WidgetSnapshotProvider"
       android:exported="true"
       android:label="@string/widget_snapshot_name">
       <intent-filter>
@@ -496,43 +615,42 @@ function withAndroidWidgetManifest(config) {
       application.receiver = [];
     }
 
-    const already = application.receiver.some((receiver) => {
+    // Keep a single receiver for the Soft Stack provider (FQCN).
+    application.receiver = application.receiver.filter((receiver) => {
       const name = receiver.$?.['android:name'] ?? '';
-      return (
+      return !(
         name === WIDGET_PROVIDER_CLASS ||
         name === '.WidgetSnapshotProvider' ||
         name.endsWith('.WidgetSnapshotProvider')
       );
     });
 
-    if (!already) {
-      application.receiver.push({
-        $: {
-          'android:name': WIDGET_PROVIDER_CLASS,
-          'android:exported': 'true',
-          'android:label': '@string/widget_snapshot_name',
-        },
-        'intent-filter': [
-          {
-            action: [
-              {
-                $: {
-                  'android:name': 'android.appwidget.action.APPWIDGET_UPDATE',
-                },
+    application.receiver.push({
+      $: {
+        'android:name': WIDGET_PROVIDER_CLASS,
+        'android:exported': 'true',
+        'android:label': '@string/widget_snapshot_name',
+      },
+      'intent-filter': [
+        {
+          action: [
+            {
+              $: {
+                'android:name': 'android.appwidget.action.APPWIDGET_UPDATE',
               },
-            ],
-          },
-        ],
-        'meta-data': [
-          {
-            $: {
-              'android:name': 'android.appwidget.provider',
-              'android:resource': '@xml/widget_snapshot_info',
             },
+          ],
+        },
+      ],
+      'meta-data': [
+        {
+          $: {
+            'android:name': 'android.appwidget.provider',
+            'android:resource': '@xml/widget_snapshot_info',
           },
-        ],
-      });
-    }
+        },
+      ],
+    });
 
     // Never set android:process isolation (MODE_PRIVATE prefs must stay same-UID).
     return cfg;

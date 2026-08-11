@@ -17,7 +17,6 @@ describe('priorYearTimestamps', () => {
   });
 
   it('keeps Feb 29 on prior leap years (not rolled to Mar 1)', () => {
-    const now = new Date(2025, 1, 29, 12, 0, 0, 0); // JS rolls 2025-02-29 → Mar 1!
     // Construct a true Feb 29 via a leap year "today"
     const leapDay = new Date(2024, 1, 29, 12, 0, 0, 0);
     expect(leapDay.getMonth()).toBe(1);

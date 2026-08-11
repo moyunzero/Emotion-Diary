@@ -413,6 +413,19 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               setIsExpanded(!isExpanded);
             }}
             onLongPress={handleDeleteAsh}
+            onAccessibilityAction={(event) => {
+              if (event.nativeEvent.actionName === "deleteAsh") {
+                handleDeleteAsh();
+              }
+            }}
+            accessibilityActions={[
+              {
+                name: "deleteAsh",
+                label: t("entryCard.deleteAshAction"),
+              },
+            ]}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: isExpanded }}
             activeOpacity={0.8}
           >
             <View style={styles.content}>

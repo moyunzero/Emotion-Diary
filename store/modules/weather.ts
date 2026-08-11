@@ -74,12 +74,12 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
     const { user, entries: allEntries } = get();
     if (user) {
       scheduleWidgetSnapshotOp(
-        publishWidgetSnapshot(allEntries),
+        () => publishWidgetSnapshot(allEntries),
         'weather publishWidgetSnapshot failed',
       );
     } else {
       scheduleWidgetSnapshotOp(
-        clearWidgetSnapshot(),
+        () => clearWidgetSnapshot(),
         'weather clearWidgetSnapshot failed',
       );
     }

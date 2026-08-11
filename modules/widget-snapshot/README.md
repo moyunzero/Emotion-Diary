@@ -20,7 +20,7 @@ On each prebuild the plugin:
 1. Ensures main-app App Group entitlement `group.com.moyunzero.emotiondiary`
 2. Declares EAS `extra.eas.build.experimental.ios.appExtensions` for **EmotionDiaryWidget** (`com.moyunzero.emotiondiary.widget`) + App Group (also mirrored in `app.json`)
 3. **iOS:** copies `ios-widget/` → `ios/EmotionDiaryWidget/`, writes extension entitlements, injects WidgetKit `app_extension` target via `withXcodeProject` (WidgetKit + SwiftUI frameworks)
-4. **Android:** copies `android-widget/` Kotlin + `res/` into the generated app (and syncs into this module’s `android/src/main`), registers `WidgetSnapshotProvider` via `withAndroidManifest` — never `android:process`
+4. **Android:** `withAndroidWidgetResources` copies Kotlin + `res/` only into this module’s `android/src/main` (autolinking); registers `WidgetSnapshotProvider` via `withAndroidManifest` — never `android:process`
 
 ### Prebuild smoke
 

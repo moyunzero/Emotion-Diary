@@ -21,6 +21,8 @@ cleanup() {
     kill "$METRO_PID" 2>/dev/null || true
     wait "$METRO_PID" 2>/dev/null || true
   fi
+  # Never leave Maestro test password on the pasteboard
+  printf '' | pbcopy 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -179,6 +181,8 @@ if ! assert_snapshot; then
       printf %s "$MAESTRO_PASSWORD" | pbcopy
       # Ensure clipboard is for pasteText (RN secure fields often ignore inputText)
       maestro test "$ROOT/.maestro/flows/_smoke-widget-publish.yaml" || true
+      # Overwrite pasteboard immediately after Maestro (success or fail)
+      printf '' | pbcopy 2>/dev/null || true
       background_and_publish
     fi
   fi

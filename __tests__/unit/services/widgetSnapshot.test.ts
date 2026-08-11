@@ -139,22 +139,108 @@ describe('services/widgetSnapshot', () => {
     await expect(sink.read!()).resolves.toBeNull();
   });
 
-  it('scheduleWidgetSnapshotOp logs rejection via logger.warn (no unhandled rejection)', async () => {
-    jest.resetModules();
+  it('scheduleWidgetSnapshotOp runs thunks serially so clear cannot be overwritten by a late publish', async () => {
     jest.doMock('@/utils/logger', () => ({
-      logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn(), debug: jest.fn() },
+      logger: {
+        warn: jest.fn(),
+        error: jest.fn(),
+        info: jest.fn(),
+        debug: jest.fn(),
+      },
+    }));
+    const {
+      __resetWidgetSnapshotOpQueueForTests,
+      __setWidgetSnapshotSinkForTests,
+      scheduleWidgetSnapshotOp,
+      publishWidgetSnapshot,
+      clearWidgetSnapshot,
+      getWidgetSnapshotSink,
+    } = await import('@/services/widgetSnapshot');
+
+    __resetWidgetSnapshotOpQueueForTests();
+    const sink = createMemoryWidgetSnapshotSink();
+    __setWidgetSnapshotSinkForTests(sink);
+
+    let releasePublish!: () => void;
+    const publishGate = new Promise<void>((resolve) => {
+      releasePublish = resolve;
+    });
+
+    scheduleWidgetSnapshotOp(async () => {
+      await publishGate;
+      await publishWidgetSnapshot([makeEntry({ id: 'late' })], 1);
+    }, 'late publish');
+
+    scheduleWidgetSnapshotOp(async () => {
+      await clearWidgetSnapshot();
+    }, 'clear after');
+
+    // Clear is queued behind publish; release publish then wait for queue drain.
+    releasePublish();
+    await new Promise((r) => setTimeout(r, 30));
+    await expect(getWidgetSnapshotSink().read!()).resolves.toBeNull();
+  });
+
+  it('scheduleWidgetSnapshotOp logs thunk rejection via logger.warn', async () => {
+    jest.doMock('@/utils/logger', () => ({
+      logger: {
+        warn: jest.fn(),
+        error: jest.fn(),
+        info: jest.fn(),
+        debug: jest.fn(),
+      },
     }));
     const { logger } = await import('@/utils/logger');
-    const { scheduleWidgetSnapshotOp } = await import('@/services/widgetSnapshot');
+    const {
+      __resetWidgetSnapshotOpQueueForTests,
+      scheduleWidgetSnapshotOp,
+    } = await import('@/services/widgetSnapshot');
 
+    __resetWidgetSnapshotOpQueueForTests();
     const rejection = new Error('sink boom');
-    scheduleWidgetSnapshotOp(Promise.reject(rejection), 'test op failed');
+    scheduleWidgetSnapshotOp(async () => {
+      throw rejection;
+    }, 'test op failed');
 
     await new Promise((r) => setImmediate(r));
     expect(logger.warn).toHaveBeenCalledWith(
       'widgetSnapshot',
       'test op failed',
       rejection,
+    );
+  });
+
+  it('enqueueClearWidgetSnapshot never throws when clear rejects', async () => {
+    jest.doMock('@/utils/logger', () => ({
+      logger: {
+        warn: jest.fn(),
+        error: jest.fn(),
+        info: jest.fn(),
+        debug: jest.fn(),
+      },
+    }));
+    const { logger } = await import('@/utils/logger');
+    const {
+      __resetWidgetSnapshotOpQueueForTests,
+      __setWidgetSnapshotSinkForTests,
+      enqueueClearWidgetSnapshot,
+    } = await import('@/services/widgetSnapshot');
+
+    __resetWidgetSnapshotOpQueueForTests();
+    __setWidgetSnapshotSinkForTests({
+      write: async () => undefined,
+      clear: async () => {
+        throw new Error('clear fail');
+      },
+    });
+
+    await expect(
+      enqueueClearWidgetSnapshot('guarded clear'),
+    ).resolves.toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'widgetSnapshot',
+      'guarded clear',
+      expect.any(Error),
     );
   });
 });

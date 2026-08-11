@@ -36,17 +36,19 @@ class WidgetSnapshotModule : Module() {
 
   /** Broadcast ACTION_APPWIDGET_UPDATE so WidgetSnapshotProvider rebuilds RemoteViews. */
   private fun notifyAppWidgets() {
-    val ctx = context
-    val manager = AppWidgetManager.getInstance(ctx)
-    val provider = ComponentName(ctx, PROVIDER_CLASS)
-    val ids = manager.getAppWidgetIds(provider)
-    if (ids.isEmpty()) return
-    ctx.sendBroadcast(
-      Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
-        component = provider
-        putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-      },
-    )
+    runCatching {
+      val ctx = context
+      val manager = AppWidgetManager.getInstance(ctx)
+      val provider = ComponentName(ctx, PROVIDER_CLASS)
+      val ids = manager.getAppWidgetIds(provider)
+      if (ids.isEmpty()) return
+      ctx.sendBroadcast(
+        Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+          component = provider
+          putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        },
+      )
+    }
   }
 
   override fun definition() = ModuleDefinition {

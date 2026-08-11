@@ -121,7 +121,6 @@ class WidgetSnapshotProvider : AppWidgetProvider() {
     }
 
     private fun bindStatus(context: Context, views: RemoteViews, chrome: Chrome.Status) {
-      val zh = prefersChinese(context)
       val bg = if (chrome.isEmptyGarden) R.drawable.widget_bg_empty else R.drawable.widget_bg_active
       views.setInt(R.id.widget_root, "setBackgroundResource", bg)
       views.setViewVisibility(R.id.widget_status_stack, View.VISIBLE)
@@ -135,10 +134,10 @@ class WidgetSnapshotProvider : AppWidgetProvider() {
       )
       views.setContentDescription(
         R.id.widget_weather,
-        weatherA11y(context, chrome.weatherBucket, zh),
+        weatherA11y(context, chrome.weatherBucket),
       )
 
-      val growthTitle = growthTitle(context, chrome.growthStage, zh)
+      val growthTitle = growthTitle(context, chrome.growthStage)
       views.setTextViewText(R.id.widget_growth, growthTitle)
       views.setTextColor(
         R.id.widget_growth,
@@ -149,23 +148,19 @@ class WidgetSnapshotProvider : AppWidgetProvider() {
 
       views.setTextViewText(
         R.id.widget_subtitle,
-        if (chrome.isEmptyGarden) {
-          if (zh) context.getString(R.string.widget_subtitle_empty_zh)
-          else context.getString(R.string.widget_subtitle_empty_en)
-        } else {
-          if (zh) context.getString(R.string.widget_subtitle_active_zh)
-          else context.getString(R.string.widget_subtitle_active_en)
-        },
+        context.getString(
+          if (chrome.isEmptyGarden) R.string.widget_subtitle_empty
+          else R.string.widget_subtitle_active,
+        ),
       )
       views.setTextViewText(R.id.widget_brand, context.getString(R.string.widget_brand))
 
-      val weatherLabel = weatherA11y(context, chrome.weatherBucket, zh)
-      val a11y = if (zh) {
-        "${context.getString(R.string.widget_brand)}，$weatherLabel，$growthTitle"
-      } else {
-        "Xinqing, $weatherLabel, $growthTitle"
-      }
-      views.setContentDescription(R.id.widget_root, a11y)
+      val weatherLabel = weatherA11y(context, chrome.weatherBucket)
+      val brand = context.getString(R.string.widget_brand)
+      views.setContentDescription(
+        R.id.widget_root,
+        "$brand, $weatherLabel, $growthTitle",
+      )
     }
 
     private fun weatherDrawable(bucket: String): Int = when (bucket) {
@@ -176,32 +171,27 @@ class WidgetSnapshotProvider : AppWidgetProvider() {
       else -> R.drawable.ic_weather_cloudy
     }
 
-    private fun weatherA11y(context: Context, bucket: String, zh: Boolean): String {
+    private fun weatherA11y(context: Context, bucket: String): String {
       val res = when (bucket) {
-        "sunny" -> if (zh) R.string.widget_weather_sunny_zh else R.string.widget_weather_sunny_en
-        "cloudy" -> if (zh) R.string.widget_weather_cloudy_zh else R.string.widget_weather_cloudy_en
-        "rainy" -> if (zh) R.string.widget_weather_rainy_zh else R.string.widget_weather_rainy_en
-        "stormy" -> if (zh) R.string.widget_weather_stormy_zh else R.string.widget_weather_stormy_en
-        else -> if (zh) R.string.widget_weather_cloudy_zh else R.string.widget_weather_cloudy_en
+        "sunny" -> R.string.widget_weather_sunny
+        "cloudy" -> R.string.widget_weather_cloudy
+        "rainy" -> R.string.widget_weather_rainy
+        "stormy" -> R.string.widget_weather_stormy
+        else -> R.string.widget_weather_cloudy
       }
       return context.getString(res)
     }
 
-    private fun growthTitle(context: Context, stage: String, zh: Boolean): String {
+    private fun growthTitle(context: Context, stage: String): String {
       val res = when (stage) {
-        "seed" -> if (zh) R.string.widget_stage_seed_zh else R.string.widget_stage_seed_en
-        "sprout" -> if (zh) R.string.widget_stage_sprout_zh else R.string.widget_stage_sprout_en
-        "seedling" -> if (zh) R.string.widget_stage_seedling_zh else R.string.widget_stage_seedling_en
-        "bud" -> if (zh) R.string.widget_stage_bud_zh else R.string.widget_stage_bud_en
-        "bloom" -> if (zh) R.string.widget_stage_bloom_zh else R.string.widget_stage_bloom_en
-        else -> if (zh) R.string.widget_stage_seed_zh else R.string.widget_stage_seed_en
+        "seed" -> R.string.widget_stage_seed
+        "sprout" -> R.string.widget_stage_sprout
+        "seedling" -> R.string.widget_stage_seedling
+        "bud" -> R.string.widget_stage_bud
+        "bloom" -> R.string.widget_stage_bloom
+        else -> R.string.widget_stage_seed
       }
       return context.getString(res)
-    }
-
-    private fun prefersChinese(context: Context): Boolean {
-      val locale = context.resources.configuration.locales[0]
-      return locale.language.startsWith("zh")
     }
   }
 

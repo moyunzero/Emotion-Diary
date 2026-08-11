@@ -5,8 +5,8 @@
 jest.mock("@/services/widgetSnapshot", () => ({
   publishWidgetSnapshot: jest.fn(() => Promise.resolve()),
   clearWidgetSnapshot: jest.fn(() => Promise.resolve()),
-  scheduleWidgetSnapshotOp: jest.fn((op: Promise<void>) => {
-    void op.catch(() => undefined);
+  scheduleWidgetSnapshotOp: jest.fn((thunk: () => Promise<void>) => {
+    void thunk().catch(() => undefined);
   }),
 }));
 

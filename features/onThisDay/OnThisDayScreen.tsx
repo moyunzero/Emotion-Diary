@@ -5,6 +5,7 @@
 import { AppScreenShell } from "@/components/AppScreenShell";
 import EntryCard from "@/components/EntryCard/EntryCard";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
+import { preparePlaybackAudioMode } from "@/shared/audio/coordinator";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
 import {
   buildOnThisDaySections,
@@ -43,6 +44,7 @@ export function OnThisDayScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      void preparePlaybackAudioMode();
       return () => {
         useAppStore.getState().stopAudio();
         void forceCancelRecording();

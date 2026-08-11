@@ -26,7 +26,11 @@ Pod::Spec.new do |s|
   }
 
   s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
+  # Module + Soft Stack extension share the UserDefaults App Group reason (1C8F.1).
   s.resource_bundles = {
-    'WidgetSnapshotPrivacyInfo' => ['PrivacyInfo.xcprivacy']
+    'WidgetSnapshotPrivacyInfo' => [
+      'PrivacyInfo.xcprivacy',
+      '../ios-widget/PrivacyInfo.xcprivacy',
+    ]
   }
 end

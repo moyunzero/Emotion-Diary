@@ -21,6 +21,12 @@ let injectedSink: WidgetSnapshotSink | null = null;
 let cachedSink: WidgetSnapshotSink | null = null;
 
 /**
+ * Serialized widget sink ops — publish/clear must not overlap so a late
+ * publish cannot overwrite a subsequent clear (logout / D-10).
+ */
+let opChain: Promise<void> = Promise.resolve();
+
+/**
  * Jest/unit injection so tests do not need the native module.
  * Pass null to clear injection and reset the factory cache.
  */
@@ -29,6 +35,11 @@ export function __setWidgetSnapshotSinkForTests(
 ): void {
   injectedSink = sink;
   cachedSink = null;
+}
+
+/** @internal unit tests — reset the serial queue between cases. */
+export function __resetWidgetSnapshotOpQueueForTests(): void {
+  opChain = Promise.resolve();
 }
 
 function isJestEnv(): boolean {
@@ -44,11 +55,27 @@ function tryCreateNativeSink(): WidgetSnapshotSink | null {
     // yarn-linked so autolinking registers WidgetSnapshotModule; else this falls to NoOp.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require('widget-snapshot') as {
-      createNativeWidgetSnapshotSink?: () => WidgetSnapshotSink;
+      createNativeWidgetSnapshotSink?: () => {
+        write?: (snapshot: unknown) => Promise<void>;
+        clear?: () => Promise<void>;
+      };
     };
-    if (typeof mod.createNativeWidgetSnapshotSink === 'function') {
-      return mod.createNativeWidgetSnapshotSink();
+    if (typeof mod.createNativeWidgetSnapshotSink !== 'function') {
+      return null;
     }
+    const native = mod.createNativeWidgetSnapshotSink();
+    if (
+      !native ||
+      typeof native.write !== 'function' ||
+      typeof native.clear !== 'function'
+    ) {
+      return null;
+    }
+    // Adapt write/clear only — do not trust native read as WidgetSnapshot.
+    return {
+      write: (snapshot) => native.write!(snapshot),
+      clear: () => native.clear!(),
+    };
   } catch (error) {
     if (typeof __DEV__ !== 'undefined' && __DEV__) {
       logger.warn('widgetSnapshot', 'native module unavailable', error);
@@ -105,14 +132,34 @@ export async function clearWidgetSnapshot(): Promise<void> {
 }
 
 /**
- * Fire-and-forget widget sink ops from AppState / weather hooks.
- * Attaches a rejection handler so discarded promises cannot become unhandled.
+ * Enqueue a widget sink thunk on the shared serial queue.
+ * The thunk runs only after prior ops finish; rejections are logged, never thrown to callers.
  */
 export function scheduleWidgetSnapshotOp(
-  op: Promise<void>,
+  thunk: () => Promise<void>,
   label: string,
 ): void {
-  void op.catch((error) => {
-    logger.warn('widgetSnapshot', label, error);
+  opChain = opChain.then(async () => {
+    try {
+      await thunk();
+    } catch (error) {
+      logger.warn('widgetSnapshot', label, error);
+    }
   });
+}
+
+/**
+ * Enqueue clear and await this clear finishing.
+ * Logs failures; never propagates (logout / deleteAccount / persist-fail paths).
+ */
+export function enqueueClearWidgetSnapshot(label: string): Promise<void> {
+  const run = opChain.then(async () => {
+    try {
+      await clearWidgetSnapshot();
+    } catch (error) {
+      logger.warn('widgetSnapshot', label, error);
+    }
+  });
+  opChain = run;
+  return run;
 }
