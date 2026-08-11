@@ -9568,6 +9568,9 @@ which@^2.0.1:
   dependencies:
     isexe "^2.0.0"
 
+"widget-snapshot@file:./modules/widget-snapshot":
+  version "0.1.0"
+
 wonka@^6.3.2:
   version "6.3.5"
   resolved "https://registry.npmjs.org/wonka/-/wonka-6.3.5.tgz"

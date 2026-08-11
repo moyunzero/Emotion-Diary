@@ -62,6 +62,26 @@ describe('services/widgetSnapshot', () => {
     expect(source).not.toMatch(/\bAsyncStorage\b/);
   });
 
+  it('package.json links widget-snapshot for Expo autolinking (avoids silent NoOp)', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf8'),
+    );
+    expect(pkg.dependencies['widget-snapshot']).toMatch(
+      /modules\/widget-snapshot/,
+    );
+    expect(pkg.scripts['verify:widget-native']).toBe(
+      'node scripts/verify-widget-native-link.js',
+    );
+  });
+
+  it('native sink require uses package name widget-snapshot', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '../../../services/widgetSnapshot.ts'),
+      'utf8',
+    );
+    expect(source).toMatch(/require\(['"]widget-snapshot['"]\)/);
+  });
+
   it('publishWidgetSnapshot writes whitelist snapshot via Memory sink; clear empties', async () => {
     const {
       __setWidgetSnapshotSinkForTests,

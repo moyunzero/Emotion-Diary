@@ -40,9 +40,10 @@ function isJestEnv(): boolean {
 
 function tryCreateNativeSink(): WidgetSnapshotSink | null {
   try {
-    // Local Expo module bridge (modules/widget-snapshot) — lazy so web/Jest never hard-fail.
+    // Local Expo module (package.json → file:./modules/widget-snapshot) — must be
+    // yarn-linked so autolinking registers WidgetSnapshotModule; else this falls to NoOp.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('../modules/widget-snapshot/src') as {
+    const mod = require('widget-snapshot') as {
       createNativeWidgetSnapshotSink?: () => WidgetSnapshotSink;
     };
     if (typeof mod.createNativeWidgetSnapshotSink === 'function') {

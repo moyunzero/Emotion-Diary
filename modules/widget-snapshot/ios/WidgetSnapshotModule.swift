@@ -24,6 +24,8 @@ public class WidgetSnapshotModule: Module {
         )
       }
       defaults.set(json, forKey: Self.snapshotKey)
+      // Flush so the widget extension process can read immediately (sim + App Group).
+      defaults.synchronize()
       WidgetCenter.shared.reloadAllTimelines()
     }
 
@@ -35,6 +37,7 @@ public class WidgetSnapshotModule: Module {
         )
       }
       defaults.removeObject(forKey: Self.snapshotKey)
+      defaults.synchronize()
       WidgetCenter.shared.reloadAllTimelines()
     }
 

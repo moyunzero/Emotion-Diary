@@ -3,7 +3,10 @@
  * 负责计算和管理情绪天气状态
  */
 
-import { publishWidgetSnapshot } from '../../services/widgetSnapshot';
+import {
+  clearWidgetSnapshot,
+  publishWidgetSnapshot,
+} from '../../services/widgetSnapshot';
 import { isSoftDeleted } from '../../shared/entries/visibility';
 import { Status, WeatherState } from '../../types';
 import { ModuleCreator, WeatherModule } from './types';
@@ -64,8 +67,15 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
     }
 
     set({ weather: { score, condition } });
-    // D-05 / open-Q #3: single publish hook covers all weather-recalc entry paths
-    void publishWidgetSnapshot(get().entries);
+    // D-05 / open-Q #3: single publish hook covers weather-recalc entry paths.
+    // D-10 / Phase 18 Walk B: logged-out must not republish Soft Stack over clear
+    // (guest/local entries may still sit in memory after logout).
+    const { user, entries: allEntries } = get();
+    if (user) {
+      void publishWidgetSnapshot(allEntries);
+    } else {
+      void clearWidgetSnapshot();
+    }
   },
 });
 

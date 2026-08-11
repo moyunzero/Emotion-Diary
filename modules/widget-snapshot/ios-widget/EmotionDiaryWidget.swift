@@ -53,18 +53,19 @@ struct SoftStackWidgetView: View {
   }
 
   var body: some View {
-    ZStack {
-      SoftStackBackground(chrome: entry.chrome)
-      Group {
-        switch entry.chrome {
-        case .cleared:
-          clearedChrome
-        case .status(let weather, let growth, let isEmpty):
-          statusChrome(weather: weather, growth: growth, isEmpty: isEmpty)
-        }
+    Group {
+      switch entry.chrome {
+      case .cleared:
+        clearedChrome
+      case .status(let weather, let growth, let isEmpty):
+        statusChrome(weather: weather, growth: growth, isEmpty: isEmpty)
       }
-      .padding(16)
     }
+    .padding(16)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    // Background must use containerBackground (iOS 17+) so it fills under
+    // the system chrome; drawing only inside ZStack leaves a white frame.
+    .modifier(SoftStackContainerBackground(chrome: entry.chrome))
     .widgetURL(widgetDeepLinkURL)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)
@@ -121,7 +122,6 @@ struct SoftStackWidgetView: View {
       Text(SoftStackCopy.brand)
         .font(.system(size: 12, weight: .bold, design: .rounded))
         .foregroundStyle(SoftStackColors.brand)
-        .kerning(1.0)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -177,6 +177,23 @@ struct SoftStackBackground: View {
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
+    }
+  }
+}
+
+/// Applies edge-to-edge wash; falls back for extension targets below iOS 17.
+private struct SoftStackContainerBackground: ViewModifier {
+  let chrome: SnapshotReader.Chrome
+
+  func body(content: Content) -> some View {
+    if #available(iOSApplicationExtension 17.0, *) {
+      content.containerBackground(for: .widget) {
+        SoftStackBackground(chrome: chrome)
+      }
+    } else {
+      content.background {
+        SoftStackBackground(chrome: chrome)
+      }
     }
   }
 }

@@ -42,7 +42,7 @@ enum SnapshotReader {
   }
 
   static func mapToChrome(_ candidate: [String: Any]) -> Chrome {
-    guard let version = candidate["schemaVersion"] as? Int, version == schemaVersion else {
+    guard let version = numericInt(candidate["schemaVersion"]), version == schemaVersion else {
       return .cleared
     }
     guard candidate["updatedAt"] is NSNumber || candidate["updatedAt"] is Int || candidate["updatedAt"] is Double else {

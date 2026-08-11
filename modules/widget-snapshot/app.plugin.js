@@ -144,10 +144,11 @@ function withIosWidgetSources(config) {
   ]);
 }
 
-function updateWidgetTargetBuildSettings(project, targetUuid) {
+function updateWidgetTargetBuildSettings(project, hostVersion = '1.0') {
   const configs = project.pbxXCBuildConfigurationSection();
   const entitlementsRel = `${WIDGET_TARGET_NAME}/${WIDGET_TARGET_NAME}.entitlements`;
   const infoPlistRel = `${WIDGET_TARGET_NAME}/Info.plist`;
+  const marketing = String(hostVersion || '1.0').replace(/"/g, '');
 
   for (const key of Object.keys(configs)) {
     const entry = configs[key];
@@ -172,22 +173,60 @@ function updateWidgetTargetBuildSettings(project, targetUuid) {
     entry.buildSettings.APPLICATION_EXTENSION_API_ONLY = 'YES';
     entry.buildSettings.LD_RUNPATH_SEARCH_PATHS =
       '"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"';
-    entry.buildSettings.MARKETING_VERSION = entry.buildSettings.MARKETING_VERSION || '1.0';
+    entry.buildSettings.MARKETING_VERSION = `"${marketing}"`;
     entry.buildSettings.CURRENT_PROJECT_VERSION =
       entry.buildSettings.CURRENT_PROJECT_VERSION || '1';
+  }
+}
+
+/** node-xcode stores target names with quotes; lookup must try both forms. */
+function findWidgetTarget(project) {
+  return (
+    project.pbxTargetByName(WIDGET_TARGET_NAME) ||
+    project.pbxTargetByName(`"${WIDGET_TARGET_NAME}"`) ||
+    null
+  );
+}
+
+/**
+ * addBuildPhase often stores path as EmotionDiaryWidget/Foo.swift while the
+ * group path is also EmotionDiaryWidget → Xcode looks for nested dir. Collapse
+ * to basename and attach refs under the widget group when missing.
+ */
+function normalizeWidgetSourcePaths(project) {
+  const objects = project.hash.project.objects;
+  const fileRefs = objects.PBXFileReference || {};
+  const basenames = new Set([
+    'EmotionDiaryWidget.swift',
+    'EmotionDiaryWidgetBundle.swift',
+    'SnapshotReader.swift',
+  ]);
+
+  for (const key of Object.keys(fileRefs)) {
+    const fr = fileRefs[key];
+    if (!fr || typeof fr !== 'object' || !fr.path) continue;
+    const raw = String(fr.path).replace(/"/g, '');
+    const base = raw.split('/').pop();
+    if (!basenames.has(base)) continue;
+    if (raw !== base) {
+      fr.path = base;
+    }
+    fr.sourceTree = '"<group>"';
   }
 }
 
 function withIosWidgetXcodeTarget(config) {
   return withXcodeProject(config, (cfg) => {
     const project = cfg.modResults;
+    const hostVersion = cfg.modRequest?.config?.version || config.version || '1.0';
 
-    if (project.pbxTargetByName(WIDGET_TARGET_NAME)) {
-      const existing = project.pbxTargetByName(WIDGET_TARGET_NAME);
-      if (existing?.uuid) {
+    const existing = findWidgetTarget(project);
+    if (existing) {
+      if (existing.uuid) {
         ensureTargetDependency(project, existing.uuid);
       }
-      updateWidgetTargetBuildSettings(project);
+      updateWidgetTargetBuildSettings(project, hostVersion);
+      normalizeWidgetSourcePaths(project);
       return cfg;
     }
 
@@ -198,14 +237,15 @@ function withIosWidgetXcodeTarget(config) {
       WIDGET_BUNDLE_ID,
     );
 
+    // Filenames only — group path is EmotionDiaryWidget/ (avoid double nesting).
     const swiftFiles = [
       'EmotionDiaryWidget.swift',
       'EmotionDiaryWidgetBundle.swift',
       'SnapshotReader.swift',
-    ].map((name) => `${WIDGET_TARGET_NAME}/${name}`);
+    ];
 
     project.addBuildPhase(
-      swiftFiles,
+      swiftFiles.map((name) => `${WIDGET_TARGET_NAME}/${name}`),
       'PBXSourcesBuildPhase',
       'Sources',
       target.uuid,
@@ -229,10 +269,13 @@ function withIosWidgetXcodeTarget(config) {
     const mainGroupId = project.getFirstProject().firstProject.mainGroup;
     project.addToPbxGroup(widgetGroup.uuid, mainGroupId);
 
+    // Normalize source fileRef paths to basename under the widget group.
+    normalizeWidgetSourcePaths(project);
+
     // node-xcode skips dependency wiring when PBXTargetDependency section is absent.
     ensureTargetDependency(project, target.uuid);
 
-    updateWidgetTargetBuildSettings(project, target.uuid);
+    updateWidgetTargetBuildSettings(project, hostVersion);
     return cfg;
   });
 }

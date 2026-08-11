@@ -9,7 +9,11 @@ jest.mock("@/services/widgetSnapshot", () => ({
 
 import { createWeatherModule } from "@/store/modules/weather";
 import type { AppState, WeatherModule } from "@/store/modules/types";
-import { MoodLevel, Status, type MoodEntry } from "@/types";
+import { MoodLevel, Status, type MoodEntry, type User } from "@/types";
+import {
+  clearWidgetSnapshot,
+  publishWidgetSnapshot,
+} from "@/services/widgetSnapshot";
 
 function entry(partial: Partial<MoodEntry> & Pick<MoodEntry, "id" | "moodLevel">): MoodEntry {
   return {
@@ -26,12 +30,14 @@ function entry(partial: Partial<MoodEntry> & Pick<MoodEntry, "id" | "moodLevel">
 
 function createWeatherSlice(
   entries: MoodEntry[],
+  user: User | null = { id: "u1", name: "t" },
 ): WeatherModule & { getWeather: () => WeatherModule["weather"] } {
   let weather: WeatherModule["weather"] = { score: 0, condition: "sunny" };
   const get = () =>
     ({
       entries,
       weather,
+      user,
     }) as AppState;
   const set = (
     partial:
@@ -49,6 +55,11 @@ function createWeatherSlice(
 }
 
 describe("createWeatherModule._calculateWeather", () => {
+  beforeEach(() => {
+    jest.mocked(publishWidgetSnapshot).mockClear();
+    jest.mocked(clearWidgetSnapshot).mockClear();
+  });
+
   it("maps score thresholds: sunny ≤10, cloudy ≤20, rainy ≤30, stormy >30", () => {
     // moodLevel * 2 per entry
     const sunny = createWeatherSlice([
@@ -109,5 +120,24 @@ describe("createWeatherModule._calculateWeather", () => {
     expect(w).toEqual({ score: 4, condition: "sunny" });
     expect(Object.keys(w).sort()).toEqual(["condition", "score"]);
     expect("description" in w).toBe(false);
+  });
+
+  it("publishes widget snapshot when signed in", () => {
+    const slice = createWeatherSlice([
+      entry({ id: "1", moodLevel: MoodLevel.ANNOYED }),
+    ]);
+    slice._calculateWeather();
+    expect(publishWidgetSnapshot).toHaveBeenCalled();
+    expect(clearWidgetSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("clears widget snapshot when logged out (D-10 — no Soft Stack republish)", () => {
+    const slice = createWeatherSlice(
+      [entry({ id: "1", moodLevel: MoodLevel.ANNOYED })],
+      null,
+    );
+    slice._calculateWeather();
+    expect(clearWidgetSnapshot).toHaveBeenCalled();
+    expect(publishWidgetSnapshot).not.toHaveBeenCalled();
   });
 });
