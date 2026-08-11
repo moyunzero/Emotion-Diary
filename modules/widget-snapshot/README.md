@@ -56,6 +56,10 @@ Hand-rolled AppWidget Soft Stack sources live under `modules/widget-snapshot/and
 
 Provider class (for Plan 17-04): `expo.modules.widgetsnapshot.WidgetSnapshotProvider`. Do **not** install `react-native-android-widget` or `expo-widgets`.
 
+## AppWidget refresh (Android)
+
+`WidgetSnapshotModule.writeSnapshot` and `clearSnapshot` both notify `AppWidgetManager` via `ACTION_APPWIDGET_UPDATE` for `WidgetSnapshotProvider` after mutating the MODE_PRIVATE key. JS publish / logout clear therefore refreshes home-screen Soft Stack chrome (same intent as iOS `reloadAllTimelines`). Prefs key `widget_snapshot_v1` and file suffix `.widget_snapshot` are shared constants with the provider.
+
 ## JS API
 
 - `createNativeWidgetSnapshotSink()` → `{ write, clear, read? }` wrapping one JSON string under `widget_snapshot_v1`
