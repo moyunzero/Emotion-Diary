@@ -12,6 +12,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
+import { buildRelationshipPotA11yLabel } from './relationshipPotA11y';
 
 interface RelationshipGardenProps {
   readonly entries: MoodEntry[];
@@ -210,6 +211,10 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
           }, t);
           const displayName = resolvePeopleLabel(person.name);
+          const healedCountText = t('relationship.healedCount', {
+            resolved: person.resolved,
+            total: person.total,
+          });
           return (
             <Pressable
               key={person.name}
@@ -225,7 +230,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
                 } as unknown as Href)
               }
               accessibilityRole="button"
-              accessibilityLabel={displayName}
+              accessibilityLabel={buildRelationshipPotA11yLabel(
+                displayName,
+                potStatus.label,
+                healedCountText,
+              )}
               accessibilityHint={t('relationship.potA11yHint', { name: displayName })}
               testID={`relationship-garden-pot-${person.name}`}
             >
@@ -250,10 +259,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               </View>
               {/* 统计 */}
               <Text style={styles.statsText} numberOfLines={1}>
-                {t('relationship.healedCount', {
-                  resolved: person.resolved,
-                  total: person.total,
-                })}
+                {healedCountText}
               </Text>
             </Pressable>
           );

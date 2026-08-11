@@ -51,6 +51,9 @@ enum SnapshotReader {
     guard let entryCount = numericInt(candidate["entryCountActive"]) else {
       return .cleared
     }
+    if entryCount < 0 {
+      return .cleared
+    }
     guard let weather = candidate["weatherBucket"] as? String,
           weatherBuckets.contains(weather)
     else {

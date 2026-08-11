@@ -227,4 +227,24 @@ describe('recordingCoordinator clipHandler ownership (real dispatch)', () => {
     expect(recorder.record).toHaveBeenCalled();
     expect(recordingState).toBe('recording');
   });
+
+  it('forceCancel without recorder logs setAudioModeAsync failures then still idles', async () => {
+    const { logger } = await import('../../../../utils/logger');
+    const recorder = makeRecorder(false);
+    registerRecordingRecorder(recorder as never);
+    unregisterRecordingRecorder(recorder as never);
+    await Promise.resolve();
+
+    jest.mocked(logger.warn).mockClear();
+    (setAudioModeAsync as jest.Mock).mockRejectedValueOnce(new Error('mode'));
+
+    await forceCancelRecording();
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'recordingCoordinator',
+      'forceCancel setAudioModeAsync 恢复失败',
+      expect.any(Error),
+    );
+    expect(recordingState).toBe('idle');
+  });
 });

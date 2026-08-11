@@ -119,7 +119,7 @@ async function resolvePlayableUri(audio: AudioData): Promise<string | null> {
  * 气象站首播会把会话拉到可出声状态；从 Insights 进时间线时 blur 会 forceCancel，
  * 但卡片 playEntryAudio 原先从不 setAudioMode，冷会话上 createAudioPlayer().play() 可能无声且不抛错。
  */
-async function ensurePlaybackAudioMode(): Promise<void> {
+async function ensurePlaybackAudioMode(): Promise<boolean> {
   try {
     await setAudioModeAsync({
       allowsRecording: false,
@@ -127,8 +127,10 @@ async function ensurePlaybackAudioMode(): Promise<void> {
       // 独占播放：比 mixWithOthers 更接近「气象站首播成功」后的可听会话
       interruptionMode: "doNotMix",
     });
+    return true;
   } catch (e) {
     logger.warn("audioCoordinator", "setAudioModeAsync 播放模式失败", e);
+    return false;
   }
 }
 
@@ -157,7 +159,10 @@ export const audioCoordinator = {
         return { ok: false, reason: "no_uri" };
       }
 
-      await ensurePlaybackAudioMode();
+      const modeOk = await ensurePlaybackAudioMode();
+      if (!modeOk) {
+        return { ok: false, reason: "error" };
+      }
       disposePlayer();
 
       const p = createAudioPlayer(uri);
@@ -210,7 +215,10 @@ export const audioCoordinator = {
         return { ok: false, reason: "no_uri" };
       }
 
-      await ensurePlaybackAudioMode();
+      const modeOk = await ensurePlaybackAudioMode();
+      if (!modeOk) {
+        return { ok: false, reason: "error" };
+      }
       disposePlayer();
 
       const p = createAudioPlayer(uri);

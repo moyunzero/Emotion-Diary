@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_snapshot_name">Xinqing</string>
+    <string name="widget_snapshot_description">See garden weather and growth</string>
+    <string name="widget_open_cta">Open Xinqing</string>
+    <string name="widget_cleared_hint">Sign in to sync garden weather</string>
+</resources>

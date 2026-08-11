@@ -5,6 +5,9 @@
 jest.mock("@/services/widgetSnapshot", () => ({
   publishWidgetSnapshot: jest.fn(() => Promise.resolve()),
   clearWidgetSnapshot: jest.fn(() => Promise.resolve()),
+  scheduleWidgetSnapshotOp: jest.fn((op: Promise<void>) => {
+    void op.catch(() => undefined);
+  }),
 }));
 
 import { createWeatherModule } from "@/store/modules/weather";
@@ -13,6 +16,7 @@ import { MoodLevel, Status, type MoodEntry, type User } from "@/types";
 import {
   clearWidgetSnapshot,
   publishWidgetSnapshot,
+  scheduleWidgetSnapshotOp,
 } from "@/services/widgetSnapshot";
 
 function entry(partial: Partial<MoodEntry> & Pick<MoodEntry, "id" | "moodLevel">): MoodEntry {
@@ -58,6 +62,7 @@ describe("createWeatherModule._calculateWeather", () => {
   beforeEach(() => {
     jest.mocked(publishWidgetSnapshot).mockClear();
     jest.mocked(clearWidgetSnapshot).mockClear();
+    jest.mocked(scheduleWidgetSnapshotOp).mockClear();
   });
 
   it("maps score thresholds: sunny ≤10, cloudy ≤20, rainy ≤30, stormy >30", () => {
@@ -127,6 +132,7 @@ describe("createWeatherModule._calculateWeather", () => {
       entry({ id: "1", moodLevel: MoodLevel.ANNOYED }),
     ]);
     slice._calculateWeather();
+    expect(scheduleWidgetSnapshotOp).toHaveBeenCalled();
     expect(publishWidgetSnapshot).toHaveBeenCalled();
     expect(clearWidgetSnapshot).not.toHaveBeenCalled();
   });
@@ -137,6 +143,7 @@ describe("createWeatherModule._calculateWeather", () => {
       null,
     );
     slice._calculateWeather();
+    expect(scheduleWidgetSnapshotOp).toHaveBeenCalled();
     expect(clearWidgetSnapshot).toHaveBeenCalled();
     expect(publishWidgetSnapshot).not.toHaveBeenCalled();
   });

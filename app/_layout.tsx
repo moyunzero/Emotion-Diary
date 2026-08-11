@@ -16,7 +16,11 @@ import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
-import { publishWidgetSnapshot, clearWidgetSnapshot } from '../services/widgetSnapshot';
+import {
+  publishWidgetSnapshot,
+  clearWidgetSnapshot,
+  scheduleWidgetSnapshotOp,
+} from '../services/widgetSnapshot';
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 
@@ -42,9 +46,15 @@ export default function RootLayout() {
         // D-10: only publish Soft Stack while signed in; logged-out stays cleared
         const { user, entries } = useAppStore.getState();
         if (user) {
-          void publishWidgetSnapshot(entries);
+          scheduleWidgetSnapshotOp(
+            publishWidgetSnapshot(entries),
+            'AppState publishWidgetSnapshot failed',
+          );
         } else {
-          void clearWidgetSnapshot();
+          scheduleWidgetSnapshotOp(
+            clearWidgetSnapshot(),
+            'AppState clearWidgetSnapshot failed',
+          );
         }
         return;
       }

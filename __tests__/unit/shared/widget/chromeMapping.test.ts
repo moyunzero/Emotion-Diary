@@ -47,6 +47,13 @@ describe('mapSnapshotToChrome', () => {
     ['missing weatherBucket', { schemaVersion: 1, updatedAt: 1, growthStage: 'seed', entryCountActive: 0 }],
     ['invalid weatherBucket', makeValidSnapshot({ weatherBucket: 'foggy' as never })],
     ['invalid growthStage', makeValidSnapshot({ growthStage: 'tree' as never })],
+    ['NaN updatedAt', makeValidSnapshot({ updatedAt: Number.NaN })],
+    ['Infinity updatedAt', makeValidSnapshot({ updatedAt: Number.POSITIVE_INFINITY })],
+    ['negative updatedAt', makeValidSnapshot({ updatedAt: -1 })],
+    ['NaN entryCountActive', makeValidSnapshot({ entryCountActive: Number.NaN })],
+    ['Infinity entryCountActive', makeValidSnapshot({ entryCountActive: Number.POSITIVE_INFINITY })],
+    ['negative entryCountActive', makeValidSnapshot({ entryCountActive: -1 })],
+    ['non-integer entryCountActive', makeValidSnapshot({ entryCountActive: 1.5 })],
   ])('returns cleared Soft Stack for %s (D-10/D-11)', (_label, input) => {
     const chrome = mapSnapshotToChrome(input);
     expect(chrome.mode).toBe('cleared');

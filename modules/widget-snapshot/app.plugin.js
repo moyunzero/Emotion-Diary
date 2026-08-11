@@ -274,6 +274,7 @@ function withIosWidgetXcodeTarget(config) {
 
     // node-xcode skips dependency wiring when PBXTargetDependency section is absent.
     ensureTargetDependency(project, target.uuid);
+    ensureEmbedAppExtensions(project, target.uuid);
 
     updateWidgetTargetBuildSettings(project, hostVersion);
     return cfg;
@@ -312,21 +313,111 @@ function ensureTargetDependency(project, extensionTargetUuid) {
   }
 }
 
+/**
+ * Ensure host Embed App Extensions (PlugIns) copies EmotionDiaryWidget.appex once.
+ * Reuses an existing PlugIns copy phase (dstSubfolderSpec 13) when present.
+ */
+function ensureEmbedAppExtensions(project, extensionTargetUuid) {
+  const first = project.getFirstTarget();
+  if (!first?.uuid) return;
+
+  const objects = project.hash.project.objects;
+  const nativeTargets = project.pbxNativeTargetSection();
+  const host = nativeTargets[first.uuid];
+  const extensionTarget = nativeTargets[extensionTargetUuid];
+  if (!host || !extensionTarget) return;
+
+  if (!objects.PBXCopyFilesBuildPhase) {
+    objects.PBXCopyFilesBuildPhase = {};
+  }
+
+  const productRef = extensionTarget.productReference;
+  if (!productRef) return;
+
+  const unquote = (value) =>
+    typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+
+  const findPlugInsPhaseUuid = () => {
+    for (const phase of host.buildPhases || []) {
+      const phaseObj = objects.PBXCopyFilesBuildPhase[phase.value];
+      if (!phaseObj || typeof phaseObj !== 'object') continue;
+      const name = unquote(phaseObj.name);
+      const dst = Number(phaseObj.dstSubfolderSpec);
+      if (name === 'Embed App Extensions' || dst === 13) {
+        return phase.value;
+      }
+    }
+    return null;
+  };
+
+  let phaseUuid = findPlugInsPhaseUuid();
+  if (!phaseUuid) {
+    try {
+      const created = project.addBuildPhase(
+        [],
+        'PBXCopyFilesBuildPhase',
+        'Embed App Extensions',
+        first.uuid,
+        'app_extension',
+      );
+      phaseUuid = created?.uuid ?? findPlugInsPhaseUuid();
+    } catch (error) {
+      console.warn(
+        '[widget-snapshot] Could not create Embed App Extensions phase:',
+        error?.message || error,
+      );
+      return;
+    }
+  }
+
+  const phase = objects.PBXCopyFilesBuildPhase[phaseUuid];
+  if (!phase || typeof phase !== 'object') return;
+
+  phase.name = '"Embed App Extensions"';
+  phase.dstPath = phase.dstPath ?? '""';
+  phase.dstSubfolderSpec = 13;
+
+  const files = Array.isArray(phase.files) ? phase.files : [];
+  const alreadyEmbedded = files.some((entry) => {
+    const buildFile = objects.PBXBuildFile?.[entry.value];
+    return buildFile && buildFile.fileRef === productRef;
+  });
+  if (alreadyEmbedded) return;
+
+  if (!objects.PBXBuildFile) {
+    objects.PBXBuildFile = {};
+  }
+
+  const buildFileUuid = project.generateUuid();
+  objects.PBXBuildFile[buildFileUuid] = {
+    isa: 'PBXBuildFile',
+    fileRef: productRef,
+    settings: {
+      ATTRIBUTES: ['RemoveHeadersOnCopy'],
+    },
+  };
+  objects.PBXBuildFile[`${buildFileUuid}_comment`] =
+    'EmotionDiaryWidget.appex in Embed App Extensions';
+
+  files.push({
+    value: buildFileUuid,
+    comment: 'EmotionDiaryWidget.appex in Embed App Extensions',
+  });
+  phase.files = files;
+
+  if (!(host.buildPhases || []).some((p) => p.value === phaseUuid)) {
+    host.buildPhases = host.buildPhases || [];
+    host.buildPhases.push({
+      value: phaseUuid,
+      comment: 'Embed App Extensions',
+    });
+  }
+}
+
 function withAndroidWidgetResources(config) {
   return withDangerousMod(config, [
     'android',
     async (cfg) => {
-      const projectRoot = cfg.modRequest.platformProjectRoot;
-      const appSrcMain = path.join(projectRoot, 'app', 'src', 'main');
-      const javaDest = path.join(
-        appSrcMain,
-        'java',
-        'expo',
-        'modules',
-        'widgetsnapshot',
-      );
-      const resDest = path.join(appSrcMain, 'res');
-
       if (!fs.existsSync(ANDROID_WIDGET_SRC)) {
         console.warn(
           `[widget-snapshot] Missing android-widget sources at ${ANDROID_WIDGET_SRC}`,
@@ -334,24 +425,13 @@ function withAndroidWidgetResources(config) {
         return cfg;
       }
 
+      // Single source set: sync provider + res into the Expo module only
+      // (autolinking). Avoid also copying into app/src/main (duplicate class).
       const providerSrc = path.join(
         ANDROID_WIDGET_SRC,
         'WidgetSnapshotProvider.kt',
       );
-      if (fs.existsSync(providerSrc)) {
-        copyFile(
-          providerSrc,
-          path.join(javaDest, 'WidgetSnapshotProvider.kt'),
-        );
-      }
-
       const resSrc = path.join(ANDROID_WIDGET_SRC, 'res');
-      if (fs.existsSync(resSrc)) {
-        copyDirRecursive(resSrc, resDest);
-      }
-
-      // Also sync into the local Expo module so autolinking builds the provider
-      // when the host app does not own the Kotlin source set alone.
       const moduleJava = path.join(
         MODULE_ROOT,
         'android',
@@ -470,3 +550,5 @@ function withWidgetSnapshot(config) {
 }
 
 module.exports = withWidgetSnapshot;
+module.exports.ensureEmbedAppExtensions = ensureEmbedAppExtensions;
+module.exports.ensureTargetDependency = ensureTargetDependency;

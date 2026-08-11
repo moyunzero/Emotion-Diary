@@ -6,6 +6,7 @@
 import {
   clearWidgetSnapshot,
   publishWidgetSnapshot,
+  scheduleWidgetSnapshotOp,
 } from '../../services/widgetSnapshot';
 import { isSoftDeleted } from '../../shared/entries/visibility';
 import { Status, WeatherState } from '../../types';
@@ -72,9 +73,15 @@ export const createWeatherModule: ModuleCreator<WeatherModule> = (set, get) => (
     // (guest/local entries may still sit in memory after logout).
     const { user, entries: allEntries } = get();
     if (user) {
-      void publishWidgetSnapshot(allEntries);
+      scheduleWidgetSnapshotOp(
+        publishWidgetSnapshot(allEntries),
+        'weather publishWidgetSnapshot failed',
+      );
     } else {
-      void clearWidgetSnapshot();
+      scheduleWidgetSnapshotOp(
+        clearWidgetSnapshot(),
+        'weather clearWidgetSnapshot failed',
+      );
     }
   },
 });

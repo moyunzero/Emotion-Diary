@@ -418,8 +418,12 @@ export async function forceCancelRecording(): Promise<void> {
           playsInSilentMode: true,
           interruptionMode: "mixWithOthers",
         });
-      } catch {
-        // ignore
+      } catch (e) {
+        logger.warn(
+          "recordingCoordinator",
+          "forceCancel setAudioModeAsync 恢复失败",
+          e,
+        );
       }
       applyIdle();
       return;

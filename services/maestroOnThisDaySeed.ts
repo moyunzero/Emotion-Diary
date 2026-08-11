@@ -51,10 +51,42 @@ function priorYearTimestamps(now: Date): { y1: number; y2: number } {
   const y = now.getFullYear();
   const m = now.getMonth();
   const d = now.getDate();
+
+  // Feb 29: pick the two most recent prior leap years so Date stays Feb 29 (not Mar 1).
+  if (m === 1 && d === 29) {
+    const leaps = priorLeapYearsBefore(y, 2);
+    return {
+      y1: new Date(leaps[0], 1, 29, 10, 0, 0, 0).getTime(),
+      y2: new Date(leaps[1], 1, 29, 11, 0, 0, 0).getTime(),
+    };
+  }
+
   return {
     y1: new Date(y - 1, m, d, 10, 0, 0, 0).getTime(),
     y2: new Date(y - 2, m, d, 11, 0, 0, 0).getTime(),
   };
+}
+
+function isGregorianLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+/** Most recent prior leap years strictly before `fromYear` (newest first). */
+function priorLeapYearsBefore(fromYear: number, count: number): number[] {
+  const years: number[] = [];
+  let year = fromYear - 1;
+  while (years.length < count) {
+    if (isGregorianLeapYear(year)) {
+      years.push(year);
+    }
+    year -= 1;
+  }
+  return years;
+}
+
+/** @internal unit tests */
+export function __priorYearTimestampsForTest(now: Date): { y1: number; y2: number } {
+  return priorYearTimestamps(now);
 }
 
 async function setMaestroLocale(locale: AppLocale): Promise<void> {

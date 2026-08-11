@@ -4,7 +4,7 @@
   },
   "insightsCard": {
     "title": "On This Day",
-    "hint": "Walk the memory lane and meet your past self",
+    "hint": "Walk down memory lane and meet your past self.",
     "hintCount": "{{n}} past moments waiting for you",
     "cta": "Enter memories"
   },

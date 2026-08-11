@@ -103,24 +103,20 @@ class WidgetSnapshotProvider : AppWidgetProvider() {
     }
 
     private fun bindCleared(context: Context, views: RemoteViews) {
-      val zh = prefersChinese(context)
       views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_bg_cleared)
       views.setViewVisibility(R.id.widget_status_stack, View.GONE)
       views.setViewVisibility(R.id.widget_cleared_stack, View.VISIBLE)
       views.setTextViewText(
         R.id.widget_cleared_cta,
-        if (zh) context.getString(R.string.widget_open_cta_zh)
-        else context.getString(R.string.widget_open_cta_en),
+        context.getString(R.string.widget_open_cta),
       )
       views.setTextViewText(
         R.id.widget_cleared_hint,
-        if (zh) context.getString(R.string.widget_cleared_hint_zh)
-        else context.getString(R.string.widget_cleared_hint_en),
+        context.getString(R.string.widget_cleared_hint),
       )
       views.setContentDescription(
         R.id.widget_root,
-        if (zh) context.getString(R.string.widget_open_cta_zh)
-        else context.getString(R.string.widget_open_cta_en),
+        context.getString(R.string.widget_open_cta),
       )
     }
 

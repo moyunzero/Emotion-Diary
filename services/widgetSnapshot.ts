@@ -103,3 +103,16 @@ export async function publishWidgetSnapshot(
 export async function clearWidgetSnapshot(): Promise<void> {
   await getWidgetSnapshotSink().clear();
 }
+
+/**
+ * Fire-and-forget widget sink ops from AppState / weather hooks.
+ * Attaches a rejection handler so discarded promises cannot become unhandled.
+ */
+export function scheduleWidgetSnapshotOp(
+  op: Promise<void>,
+  label: string,
+): void {
+  void op.catch((error) => {
+    logger.warn('widgetSnapshot', label, error);
+  });
+}

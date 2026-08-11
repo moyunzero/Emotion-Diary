@@ -77,7 +77,17 @@ function isValidSnapshot(input: unknown): input is WidgetSnapshot {
   if (typeof candidate.updatedAt !== 'number') {
     return false;
   }
+  if (!Number.isFinite(candidate.updatedAt) || candidate.updatedAt < 0) {
+    return false;
+  }
   if (typeof candidate.entryCountActive !== 'number') {
+    return false;
+  }
+  if (
+    !Number.isFinite(candidate.entryCountActive) ||
+    candidate.entryCountActive < 0 ||
+    !Number.isInteger(candidate.entryCountActive)
+  ) {
     return false;
   }
   if (

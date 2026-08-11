@@ -53,13 +53,19 @@ class WidgetSnapshotModule : Module() {
     Name("WidgetSnapshot")
 
     AsyncFunction("writeSnapshot") { json: String ->
-      getPreferences().edit().putString(SNAPSHOT_KEY, json).commit()
+      val committed = getPreferences().edit().putString(SNAPSHOT_KEY, json).commit()
+      if (!committed) {
+        throw Exception("widget_snapshot write commit failed")
+      }
       // D-10: AppWidgetManager.ACTION_APPWIDGET_UPDATE → WidgetSnapshotProvider.onUpdate
       notifyAppWidgets()
     }
 
     AsyncFunction("clearSnapshot") {
-      getPreferences().edit().remove(SNAPSHOT_KEY).commit()
+      val committed = getPreferences().edit().remove(SNAPSHOT_KEY).commit()
+      if (!committed) {
+        throw Exception("widget_snapshot clear commit failed")
+      }
       // D-10: AppWidgetManager.ACTION_APPWIDGET_UPDATE → WidgetSnapshotProvider.onUpdate
       notifyAppWidgets()
     }

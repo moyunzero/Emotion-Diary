@@ -138,4 +138,23 @@ describe('services/widgetSnapshot', () => {
     await clearWidgetSnapshot();
     await expect(sink.read!()).resolves.toBeNull();
   });
+
+  it('scheduleWidgetSnapshotOp logs rejection via logger.warn (no unhandled rejection)', async () => {
+    jest.resetModules();
+    jest.doMock('@/utils/logger', () => ({
+      logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn(), debug: jest.fn() },
+    }));
+    const { logger } = await import('@/utils/logger');
+    const { scheduleWidgetSnapshotOp } = await import('@/services/widgetSnapshot');
+
+    const rejection = new Error('sink boom');
+    scheduleWidgetSnapshotOp(Promise.reject(rejection), 'test op failed');
+
+    await new Promise((r) => setImmediate(r));
+    expect(logger.warn).toHaveBeenCalledWith(
+      'widgetSnapshot',
+      'test op failed',
+      rejection,
+    );
+  });
 });

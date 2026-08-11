@@ -9,6 +9,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const root = path.join(__dirname, '..');
 let failed = 0;
@@ -20,6 +21,41 @@ function fail(msg) {
 
 function ok(msg) {
   console.log(`OK: ${msg}`);
+}
+
+function assertAutolinkingResolves(platform) {
+  let output = '';
+  try {
+    output = execFileSync(
+      'npx',
+      ['expo-modules-autolinking', 'resolve', '--platform', platform],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
+  } catch (error) {
+    const stderr = error && error.stderr ? String(error.stderr) : '';
+    fail(
+      `expo-modules-autolinking resolve --platform ${platform} failed${stderr ? `: ${stderr.trim()}` : ''}`,
+    );
+    return;
+  }
+
+  const haystack = String(output);
+  const mentionsModule =
+    /WidgetSnapshotModule/.test(haystack) ||
+    /widget-snapshot/.test(haystack) ||
+    /WidgetSnapshot/.test(haystack);
+
+  if (!mentionsModule) {
+    fail(
+      `autolinking resolve (${platform}) output missing WidgetSnapshotModule/widget-snapshot`,
+    );
+  } else {
+    ok(`autolinking resolve (${platform}) includes widget-snapshot`);
+  }
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -73,6 +109,9 @@ if (!fs.existsSync(provider)) {
     ok('ExpoModulesProvider.swift imports WidgetSnapshot');
   }
 }
+
+assertAutolinkingResolves('apple');
+assertAutolinkingResolves('android');
 
 if (failed > 0) {
   console.error(`\nverify-widget-native-link: ${failed} failure(s)`);
