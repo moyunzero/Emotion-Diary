@@ -2,6 +2,11 @@
  * Weather module — score thresholds, soft-delete / inactive exclusion, no description.
  */
 
+jest.mock("@/services/widgetSnapshot", () => ({
+  publishWidgetSnapshot: jest.fn(() => Promise.resolve()),
+  clearWidgetSnapshot: jest.fn(() => Promise.resolve()),
+}));
+
 import { createWeatherModule } from "@/store/modules/weather";
 import type { AppState, WeatherModule } from "@/store/modules/types";
 import { MoodLevel, Status, type MoodEntry } from "@/types";

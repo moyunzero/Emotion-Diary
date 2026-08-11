@@ -10,6 +10,7 @@ import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
 import { i18n } from "../../i18n";
+import { clearWidgetSnapshot } from "../../services/widgetSnapshot";
 import { stripAudiosFromEntries } from "../../shared/audio/guestAudioStrip";
 import { isSoftDeleted } from "../../shared/entries/visibility";
 import type { MoodEntry, User } from "../../types";
@@ -623,6 +624,8 @@ export const createUserSlice: StateCreator<
 
         if (!user) {
           set({ user: null });
+          // D-07 / open-Q #1: clear lock-screen snapshot eagerly (idempotent)
+          await clearWidgetSnapshot();
           await AsyncStorage.removeItem("user_session");
           await get()._loadEntries();
           return;
@@ -648,12 +651,15 @@ export const createUserSlice: StateCreator<
 
         // 清除 profile 缓存
         await clearCachedProfile(user.id);
+        // D-07 / D-08 / open-Q #1: clear eagerly; do not force republish here
+        await clearWidgetSnapshot();
 
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
       } catch (error) {
         logger.error("user", "Logout error", error);
         set({ user: null });
+        await clearWidgetSnapshot();
         await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
       }
@@ -735,6 +741,8 @@ export const createUserSlice: StateCreator<
         // 本地登出、清除状态
         await supabase.auth.signOut();
         set({ user: null });
+        // D-07: clear App Group / native key with same sink as publish
+        await clearWidgetSnapshot();
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
         await clearCachedProfile(user.id);

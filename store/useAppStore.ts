@@ -22,6 +22,7 @@ import {
   resolvePlayableRemoteUrl,
 } from "../services/audioSync";
 import { rescheduleEmotionRemindersFromStorage } from "../services/emotionReminders";
+import { clearWidgetSnapshot } from "../services/widgetSnapshot";
 import {
   initAudioCoordinator,
   setAudioRemoteResolver,
@@ -135,6 +136,12 @@ export const useAppStore = create<AppState>()((...args) => {
           await AsyncStorage.removeItem("user_session");
         } catch (error) {
           logger.warn("store", "clear user_session after SecureStore persist failure", error);
+        }
+        try {
+          // D-07 / D-08: clear widget sink on SecureStore-fail signOut
+          await clearWidgetSnapshot();
+        } catch (error) {
+          logger.warn("store", "clearWidgetSnapshot after SecureStore persist failure", error);
         }
       })();
     });
