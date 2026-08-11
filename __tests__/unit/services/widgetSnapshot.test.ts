@@ -58,7 +58,8 @@ describe('services/widgetSnapshot', () => {
     );
     expect(source).not.toMatch(/from ['"].*store/);
     expect(source).not.toMatch(/from ['"].*components/);
-    expect(source).not.toMatch(/AsyncStorage/);
+    // Acceptance: no AsyncStorage identifier anywhere (sole-sink prohibition).
+    expect(source).not.toMatch(/\bAsyncStorage\b/);
   });
 
   it('publishWidgetSnapshot writes whitelist snapshot via Memory sink; clear empties', async () => {
