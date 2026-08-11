@@ -72,9 +72,23 @@ enum SnapshotReader {
   }
 
   /// Accept only finite, exact integers in Int range. Reject Bool NSNumber, fractions, overflow.
+  ///
+  /// Important: check NSNumber **before** `is Bool`. On Apple platforms every NSNumber
+  /// bridges to Bool (`1 is Bool == true`), which would reject all JSON numbers.
   static func numericInt(_ value: Any?) -> Int? {
-    if value == nil { return nil }
-    if value is Bool { return nil }
+    guard let value else { return nil }
+
+    if let n = value as? NSNumber {
+      // JSON true/false → __NSCFBoolean; reject those only.
+      if CFGetTypeID(n as CFTypeRef) == CFBooleanGetTypeID() {
+        return nil
+      }
+      return exactInt(from: n.doubleValue)
+    }
+
+    if value is Bool {
+      return nil
+    }
 
     if let n = value as? Int {
       return n
@@ -86,14 +100,6 @@ enum SnapshotReader {
 
     if let n = value as? Float {
       return exactInt(from: Double(n))
-    }
-
-    if let n = value as? NSNumber {
-      // Bool bridges to NSNumber — reject CFBoolean.
-      if CFGetTypeID(n as CFTypeRef) == CFBooleanGetTypeID() {
-        return nil
-      }
-      return exactInt(from: n.doubleValue)
     }
 
     return nil

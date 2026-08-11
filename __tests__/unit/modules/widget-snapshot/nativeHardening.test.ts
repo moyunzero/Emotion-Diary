@@ -93,13 +93,18 @@ describe('widget-snapshot native hardening (source gates)', () => {
       path.join(moduleRoot, 'ios-widget/SnapshotReader.swift'),
       'utf8',
     );
-    expect(swift).toContain('if value is Bool { return nil }');
+    // Must classify NSNumber before `is Bool` (NSNumber bridges to Bool on Apple).
+    expect(swift).toContain('check NSNumber **before** `is Bool`');
     expect(swift).toContain('CFBooleanGetTypeID()');
     expect(swift).toContain('exactInt(from:');
     expect(swift).toContain('double.rounded(.towardZero) == double');
     expect(swift).toContain('Double(Int.min)');
     expect(swift).toContain('Double(Int.max)');
-    // updatedAt / schemaVersion / entryCountActive all go through numericInt
+    const numericIdx = swift.indexOf('static func numericInt');
+    const nsNumberIdx = swift.indexOf('as? NSNumber', numericIdx);
+    const isBoolIdx = swift.indexOf('value is Bool', numericIdx);
+    expect(nsNumberIdx).toBeGreaterThan(numericIdx);
+    expect(isBoolIdx).toBeGreaterThan(nsNumberIdx);
     expect(swift).toMatch(
       /guard numericInt\(candidate\["updatedAt"\]\) != nil/,
     );
