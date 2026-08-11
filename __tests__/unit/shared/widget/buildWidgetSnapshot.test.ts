@@ -167,7 +167,7 @@ describe('buildWidgetSnapshot', () => {
 
   it('counts visible ACTIVE only and maps weather / growth from domain math', () => {
     // One ACTIVE ANNOYED (level 1) → score 2 → sunny; entryCountActive 1
-    // One RESOLVED → not in weather/count; rate 1/2 → sprout (≥0.2)
+    // One RESOLVED → not in weather/count; rate 1/2 = 0.5 → seedling (≥0.4)
     const snapshot = buildWidgetSnapshot(
       [
         makeEntry({
@@ -186,7 +186,7 @@ describe('buildWidgetSnapshot', () => {
     );
     expect(snapshot.entryCountActive).toBe(1);
     expect(snapshot.weatherBucket).toBe('sunny');
-    expect(snapshot.growthStage).toBe('sprout');
+    expect(snapshot.growthStage).toBe('seedling');
     assertNoPiiInJson(snapshot);
   });
 });
