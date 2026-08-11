@@ -183,6 +183,10 @@ function withIosWidgetXcodeTarget(config) {
     const project = cfg.modResults;
 
     if (project.pbxTargetByName(WIDGET_TARGET_NAME)) {
+      const existing = project.pbxTargetByName(WIDGET_TARGET_NAME);
+      if (existing?.uuid) {
+        ensureTargetDependency(project, existing.uuid);
+      }
       updateWidgetTargetBuildSettings(project);
       return cfg;
     }
@@ -216,24 +220,53 @@ function withIosWidgetXcodeTarget(config) {
       target.uuid,
     );
 
-    // Navigator group for copied sources (paths relative to ios/)
-    const groupFiles = [
-      ...swiftFiles.map((p) => path.basename(p)),
-      'Info.plist',
-      `${WIDGET_TARGET_NAME}-Info.plist`,
-      `${WIDGET_TARGET_NAME}.entitlements`,
-    ];
+    // Navigator folder only (sources already in Sources phase — avoid duplicate file refs).
     const widgetGroup = project.addPbxGroup(
-      groupFiles,
+      [],
       WIDGET_TARGET_NAME,
       WIDGET_TARGET_NAME,
     );
     const mainGroupId = project.getFirstProject().firstProject.mainGroup;
     project.addToPbxGroup(widgetGroup.uuid, mainGroupId);
 
+    // node-xcode skips dependency wiring when PBXTargetDependency section is absent.
+    ensureTargetDependency(project, target.uuid);
+
     updateWidgetTargetBuildSettings(project, target.uuid);
     return cfg;
   });
+}
+
+function ensureTargetDependency(project, extensionTargetUuid) {
+  const objects = project.hash.project.objects;
+  if (!objects.PBXTargetDependency) {
+    objects.PBXTargetDependency = {};
+  }
+  if (!objects.PBXContainerItemProxy) {
+    objects.PBXContainerItemProxy = {};
+  }
+
+  const first = project.getFirstTarget();
+  if (!first?.uuid) return;
+
+  const nativeTargets = project.pbxNativeTargetSection();
+  const host = nativeTargets[first.uuid];
+  if (!host) return;
+
+  const already = (host.dependencies || []).some((dep) => {
+    const depObj = objects.PBXTargetDependency[dep.value];
+    return depObj && depObj.target === extensionTargetUuid;
+  });
+  if (already) return;
+
+  try {
+    project.addTargetDependency(first.uuid, [extensionTargetUuid]);
+  } catch (error) {
+    console.warn(
+      '[widget-snapshot] Could not add EmotionDiaryWidget target dependency:',
+      error?.message || error,
+    );
+  }
 }
 
 function withAndroidWidgetResources(config) {
