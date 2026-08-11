@@ -1,8 +1,10 @@
 import ExpoModulesCore
+import WidgetKit
 
 /// QUAL-03: single JSON string under App Group UserDefaults.
 /// Suite + key must match shared/widget/sink.ts (WIDGET_SNAPSHOT_*).
 /// Privacy Manifest reason for UserDefaults: 1C8F.1 (see PrivacyInfo.xcprivacy / README).
+/// After write/clear, reload WidgetKit timelines so Soft Stack chrome stays in sync (D-10 / D-16).
 public class WidgetSnapshotModule: Module {
   private static let appGroupId = "group.com.moyunzero.emotiondiary"
   private static let snapshotKey = "widget_snapshot_v1"
@@ -22,6 +24,7 @@ public class WidgetSnapshotModule: Module {
         )
       }
       defaults.set(json, forKey: Self.snapshotKey)
+      WidgetCenter.shared.reloadAllTimelines()
     }
 
     AsyncFunction("clearSnapshot") { () in
@@ -32,6 +35,7 @@ public class WidgetSnapshotModule: Module {
         )
       }
       defaults.removeObject(forKey: Self.snapshotKey)
+      WidgetCenter.shared.reloadAllTimelines()
     }
 
     AsyncFunction("readSnapshot") { () -> String? in

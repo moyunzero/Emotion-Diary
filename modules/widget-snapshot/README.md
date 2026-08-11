@@ -37,6 +37,10 @@ Portal: **Apple Developer → Identifiers → App Groups / App ID capabilities**
 
 App Group `UserDefaults` access should declare Privacy Manifest reason **`1C8F.1`** (`NSPrivacyAccessedAPICategoryUserDefaults`) when shipping App Store builds that call this API. See `ios/PrivacyInfo.xcprivacy` in this module (merged/consumed at prebuild/EAS as applicable). Confirm reason codes against current Apple docs before release.
 
+## Timeline reload (iOS)
+
+`WidgetSnapshotModule.writeSnapshot` and `clearSnapshot` both call `WidgetCenter.shared.reloadAllTimelines()` after mutating the App Group key. Publish from the app process and logout clear therefore refresh home-screen Soft Stack chrome without waiting for the coarse timeline policy.
+
 ## JS API
 
 - `createNativeWidgetSnapshotSink()` → `{ write, clear, read? }` wrapping one JSON string under `widget_snapshot_v1`
