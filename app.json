@@ -21,6 +21,11 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.moyunzero.emotiondiary"
+        ]
       }
     },
     "android": {
@@ -86,7 +91,8 @@
             "android": ["zh", "en"]
           }
         }
-      ]
+      ],
+      "./modules/widget-snapshot/app.plugin.js"
     ],
     "experiments": {
       "typedRoutes": true,
