@@ -40,6 +40,7 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
         <StackScreenHeader
           leading="close"
           onBack={onClose}
+          backTestID="edit-entry-close"
           headerCenter={
             <View style={styles.headerTitleContainer}>
               <AppIcon name={Edit} size={20} color="#1F2937" />

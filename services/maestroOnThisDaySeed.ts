@@ -13,9 +13,9 @@ import { getStorageKey, saveToStorage } from "@/store/modules/storage";
 import { MoodLevel, Status, type MoodEntry } from "@/types";
 
 /** Fixed person tag for person-slot UAT (matches 018 garden pot). */
-export const MAESTRO_OTD_PERSON = "other";
+const MAESTRO_OTD_PERSON = "other";
 
-export type MaestroOnThisDayScenario = "list" | "person";
+type MaestroOnThisDayScenario = "list" | "person";
 
 export type MaestroOnThisDaySeedOptions = {
   scenario: MaestroOnThisDayScenario;

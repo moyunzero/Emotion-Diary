@@ -6,7 +6,7 @@ import 'react-native-url-polyfill/auto';
 /** 初始尝试 + 最多 2 次重试（D-18） */
 export const SECURE_STORE_SET_MAX_ATTEMPTS = 3;
 /** 重试前短退避（毫秒） */
-export const SECURE_STORE_SET_BACKOFF_MS = 50;
+const SECURE_STORE_SET_BACKOFF_MS = 50;
 
 export type SecureStorePersistFailureHandler = (() => void) | null;
 

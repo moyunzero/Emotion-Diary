@@ -61,7 +61,7 @@ yarn test              # Jest 单测（不含 e2e/）
 | Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
 | iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
 
-Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
+Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`；人物时间线 / On This Day：`maestro test .maestro/flows/018-person-timeline-uat.yaml` / `019-on-this-day-uat.yaml`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
 
 ### 文档与社区
 
@@ -94,7 +94,10 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 
 - **本周情绪天气**：7天情绪状态一目了然，每天显示天气图标和花朵状态
 - **治愈进度**：环形进度条展示情绪解决率，从种子到开花的成长阶段
-- **关系花盆**：每个人对应一个花盆，显示关系健康度（繁花盛开/正常生长/需要浇水）
+- **关系花盆**：每个人对应一个花盆，显示关系健康度（繁花盛开/正常生长/需要浇水）；点开花盆进入**人物时间线**
+- **人物时间线**：按人浏览相关情绪记录，含摘要头与空态引导
+- **往年今日（On This Day）**：按本地日回看往年同日日记；人物时间线内可看与某人相关的薄切片
+- **主屏 Soft Stack 小组件**（iOS / Android）：脱敏展示花园天气与成长阶段，轻触打开应用（不含日记正文）
 - **情绪触发洞察**：分析 Top 3 情绪触发器，配合温暖的"园艺建议"
 - **底部鼓励语**：动态生成的正向反馈，让用户感受到成长
 - **周/月回顾与导出**：9:16 竖版分享卡（关系天气 + 心灵花园 + AI 结语），可保存到系统相册（路由：`review-export`）
@@ -428,6 +431,23 @@ eas build --platform ios --profile production
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。
 
+### [1.6.0] - 2026-08-11 · App Store 更新
+
+> v1.6「关系洞察与轻触达」（Phase 13–18）；把人物标签升级为可回看的关系记忆，并加最小主屏小组件。
+
+#### 新增
+
+- **人物时间线**：心灵花园花盆可点开，浏览与某人相关的情绪记录（摘要头、时间线、空态引导）
+- **往年今日（On This Day）**：按设备本地日回看往年同日日记；人物时间线内提供与某人相关的薄切片
+- **主屏 Soft Stack 小组件**（iOS / Android）：脱敏展示关系天气与花园成长；轻触打开应用；登出 / 删号清空快照；英文环境显示 Xinqing 品牌文案
+- **质量门闩**：软删条目不进人物 / 往年今日查询；小组件快照白名单契约（不含日记正文）
+
+#### 开发与质量
+
+- Expo 模块 `widget-snapshot` + config plugin（App Group / App Widget）；`yarn verify:widget-native`、`scripts/sim-widget-smoke.sh`
+- Maestro：`018`（人物时间线）、`019`（On This Day）；单测覆盖 personQueries / onThisDay / widget snapshot / chrome mapping
+- App Store「此版本的新增内容」草稿：`app-store-submission/metadata/whats-new-1.6.0-zh.md` / `whats-new-1.6.0-en.md`
+
 ### [1.5.0] - 2026-07-31 · App Store 更新
 
 > v1.5「CONCERNS 可清债务清零」（Phase 6–12）；面向用户的重点是账号隐私、云同步与稳定性。
@@ -542,6 +562,18 @@ eas build --platform ios --profile production
 | **1.3.0** | 完整双语 i18n | `.planning/phases/01-i18n` … `07-*` | ✅ App Store |
 | **1.4.0** | 隐喻体验优先 | Phase 1–5（011–015） | ✅ App Store |
 | **1.5.0** | 隐私 / 同步 / 可清债清零 | Phase 6–12；`milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
+| **1.6.0** | 关系洞察与轻触达 | Phase 13–18 | ✅ App Store 提审 / Tag `v1.6.0` |
+
+#### v1.6 Phase 明细（均已合入 `master`）
+
+| Phase | 目录 | 交付 |
+| --- | --- | --- |
+| 13 | `phases/13-rel-foundation` | person / OTD 查询共享软删与本地日界 |
+| 14 | `phases/14-person-timeline` | 花盆 → 人物时间线 UI |
+| 15 | `phases/15-on-this-day` | 往年今日 + 人物维薄切片 |
+| 16 | `phases/16-widget-snapshot` | 脱敏快照契约与 publish/clear |
+| 17 | `phases/17-widget-native-shell` | iOS WidgetKit + Android AppWidget Soft Stack |
+| 18 | `phases/18-verify-uat` | 质量门闩与 UAT 收口 |
 
 #### v1.5 Phase 明细（均已合入 `master`）
 
@@ -567,7 +599,7 @@ eas build --platform ios --profile production
 
 #### v2 候选（未排期 · Defer）
 
-- 关系时间线、On This Day、Year-in-pixels 关系天气图、桌面 Widget
+- Year-in-Pixels / 关系像素历、快捷语音入口、全面 UI 焕新
 
 #### 明确不做
 
