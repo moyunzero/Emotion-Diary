@@ -412,6 +412,19 @@ export async function forceCancelRecording(): Promise<void> {
   try {
     const r = recorderRef;
     if (!r) {
+      try {
+        await setAudioModeAsync({
+          allowsRecording: false,
+          playsInSilentMode: true,
+          interruptionMode: "mixWithOthers",
+        });
+      } catch (e) {
+        logger.warn(
+          "recordingCoordinator",
+          "forceCancel setAudioModeAsync 恢复失败",
+          e,
+        );
+      }
       applyIdle();
       return;
     }

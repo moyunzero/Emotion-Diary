@@ -3,6 +3,7 @@
  */
 
 import { isSoftDeleted } from '@/shared/entries/visibility';
+import { localDayKey } from '@/shared/formatting/localCalendar';
 import { MoodEntry, MoodLevel } from '../types';
 import { filterEntriesInRange } from './reviewStats';
 
@@ -31,14 +32,6 @@ export function moodLevelToExportWeatherBucket(
   if (n === 2) return 'cloudy';
   if (n === 3) return 'rainy';
   return 'stormy';
-}
-
-function localDayKey(timestampMs: number): string {
-  const d = new Date(timestampMs);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
 }
 
 /**

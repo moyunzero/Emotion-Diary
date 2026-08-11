@@ -1,0 +1,61 @@
+appId: com.moyunzero.emotiondiary
+---
+# Soft Stack smoke helper: login then return home.
+# Requires: MAESTRO_EMAIL, and password already on clipboard (pbcopy).
+
+- launchApp
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings."
+    commands:
+      - tapOn: "Open debugger to view warnings."
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 45000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- runFlow:
+    when:
+      visible:
+        id: profile-tap-to-login
+    commands:
+      - tapOn:
+          id: profile-tap-to-login
+      - extendedWaitUntil:
+          visible:
+            id: login-email-input
+          timeout: 10000
+      - tapOn:
+          id: login-email-input
+      - eraseText
+      - inputText: ${MAESTRO_EMAIL}
+      - tapOn:
+          id: login-password-input
+      - eraseText
+      - pasteText
+      - tapOn:
+          id: login-submit-button
+      - extendedWaitUntil:
+          visible:
+            id: profile-sync-pull
+          timeout: 60000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000

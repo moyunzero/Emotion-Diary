@@ -1,0 +1,179 @@
+appId: com.moyunzero.emotiondiary
+---
+# Phase 14 Person Timeline UAT（对齐 14-UAT.md）
+# 造数：默认 people=["other"]（不展开补充项，避免 Maestro 标签树不稳定）
+# 截图：.maestro/acceptance/014-person-timeline/*.png
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- tapOn:
+    id: mood-content-input
+- inputText: "UAT14 person-timeline seed (other)"
+- tapOn: "记录这一刻"
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 25000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 60000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/00-seed-dashboard
+
+# UAT 1 — pot → timeline
+- tapOn:
+    id: tab-insights
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- scrollUntilVisible:
+    element:
+      id: "relationship-garden-pot-other"
+    direction: DOWN
+    timeout: 30000
+    visibilityPercentage: 40
+- takeScreenshot: .maestro/acceptance/014-person-timeline/01-garden-pots
+- tapOn:
+    id: "relationship-garden-pot-other"
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-hero
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-metrics
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/01-pot-opens-timeline
+
+# UAT 2 — Garden Hero header
+- assertVisible:
+    id: person-timeline-hero
+- assertVisible:
+    id: person-timeline-metrics
+- takeScreenshot: .maestro/acceptance/014-person-timeline/02-garden-hero-header
+
+# UAT 3 — expand EntryCard → Edit → EditEntryModal
+- scrollUntilVisible:
+    element:
+      id: mood-entry-card
+    direction: DOWN
+    timeout: 20000
+    visibilityPercentage: 40
+- takeScreenshot: .maestro/acceptance/014-person-timeline/03a-timeline-entry
+- tapOn:
+    id: entry-card-pressable
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: entry-edit-button
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: entry-edit-button
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- takeScreenshot: .maestro/acceptance/014-person-timeline/03a2-entry-expanded
+- tapOn:
+    id: entry-edit-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/03b-edit-modal
+- tapOn: "关闭"
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-hero
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/03c-back-from-edit
+
+# UAT 6 — missing person param
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://person-timeline
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-missing-person
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/06-missing-person
+- tapOn:
+    id: person-timeline-missing-cta
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/06b-after-missing-cta
+
+# UAT 4 — empty timeline for unused person tag
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: "emotiondiary://person-timeline?person=girlfriend"
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-empty
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/04-timeline-empty
+- tapOn:
+    id: person-timeline-empty-cta
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/04b-empty-cta-to-record
+
+# UAT 5 — zero visible entries → Insights EmptyGarden（非整页 RelationshipGarden empty CTA）
+# 说明：visibleEntries===0 时 Insights 短路 EmptyGarden，不会挂载 relationship-garden-empty-cta；
+# 且创建/编辑路径会默认 people=["other"]，UI 无法造「有日记但无人标签」的花园空态。
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://insights
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- extendedWaitUntil:
+    visible: "你的心灵花园"
+    timeout: 15000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/05-insights-empty-garden
+- assertVisible: "还在等待第一颗种子"
+- tapOn:
+    id: tab-record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/014-person-timeline/05b-empty-to-record-tab
+
+# UAT 7/8 — audio stop & VoiceOver require human ear; capture note frame
+- takeScreenshot: .maestro/acceptance/014-person-timeline/07-08-manual-audio-a11y-note
+- assertVisible:
+    id: mood-content-input

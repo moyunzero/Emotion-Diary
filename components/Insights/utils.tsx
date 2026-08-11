@@ -2,9 +2,24 @@ import { Flower2, Leaf, Sprout, Sun, TreeDeciduous } from 'lucide-react-native';
 import type { TFunction } from 'i18next';
 import React from 'react';
 import { MOOD_CONFIG } from '../../constants';
+import {
+  growthStageFromRate,
+  type GrowthStageId,
+} from '../../shared/garden/growthStage';
 import { getMondayWeekRangeContaining } from '../../shared/time-range';
 import { MoodLevel } from '../../types';
 import { getMoodIcon } from '../../utils/moodIconUtils';
+
+const GROWTH_STAGE_ICONS: Record<
+  GrowthStageId,
+  typeof Flower2 | typeof TreeDeciduous | typeof Leaf | typeof Sprout
+> = {
+  bloom: Flower2,
+  bud: TreeDeciduous,
+  seedling: Leaf,
+  sprout: Sprout,
+  seed: Sprout,
+};
 
 type InsightsT = TFunction<'insights'>;
 
@@ -90,39 +105,12 @@ export const getFlowerPotStatus = (
   }
 };
 
-// 获取成长阶段
+// 获取成长阶段（stage id 来自 shared/garden；label/icon 留在 UI）
 export const getGrowthStage = (rate: number, t: InsightsT) => {
-  if (rate >= 0.8) {
-    return {
-      stage: 'bloom',
-      label: t('utils.growthStage.bloom'),
-      icon: Flower2,
-    };
-  }
-  if (rate >= 0.6) {
-    return {
-      stage: 'bud',
-      label: t('utils.growthStage.bud'),
-      icon: TreeDeciduous,
-    };
-  }
-  if (rate >= 0.4) {
-    return {
-      stage: 'seedling',
-      label: t('utils.growthStage.seedling'),
-      icon: Leaf,
-    };
-  }
-  if (rate >= 0.2) {
-    return {
-      stage: 'sprout',
-      label: t('utils.growthStage.sprout'),
-      icon: Sprout,
-    };
-  }
+  const stage = growthStageFromRate(rate);
   return {
-    stage: 'seed',
-    label: t('utils.growthStage.seed'),
-    icon: Sprout,
+    stage,
+    label: t(`utils.growthStage.${stage}`),
+    icon: GROWTH_STAGE_ICONS[stage],
   };
 };

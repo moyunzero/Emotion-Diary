@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- OS picker (17-UI-SPEC) — default zh; English in values-en/ -->
+    <string name="widget_snapshot_name">心晴</string>
+    <string name="widget_snapshot_description">查看花园天气与成长</string>
+
+    <string name="widget_brand">心晴</string>
+    <string name="widget_open_cta">打开心晴</string>
+    <string name="widget_cleared_hint">登录后同步花园天气</string>
+    <string name="widget_subtitle_empty">安静的花园</string>
+    <string name="widget_subtitle_active">心灵花园</string>
+
+    <string name="widget_weather_sunny">晴</string>
+    <string name="widget_weather_cloudy">多云</string>
+    <string name="widget_weather_rainy">雨</string>
+    <string name="widget_weather_stormy">雷雨</string>
+
+    <string name="widget_stage_seed">种子</string>
+    <string name="widget_stage_sprout">发芽</string>
+    <string name="widget_stage_seedling">幼苗</string>
+    <string name="widget_stage_bud">花苞</string>
+    <string name="widget_stage_bloom">开花</string>
+</resources>

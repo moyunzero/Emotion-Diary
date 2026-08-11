@@ -61,8 +61,11 @@
     "subtitle": "需要你的关注",
     "empty": {
       "title": "还没有关系的种子",
-      "hint": "记录时添加相关的人吧"
+      "hint": "记录时添加相关的人吧",
+      "cta": "去记一笔",
+      "ctaA11y": "去记一笔"
     },
+    "potA11yHint": "查看{{name}}的情绪时间线",
     "healedCount": "{{resolved}}/{{total}} 和解"
   },
   "triggers": {

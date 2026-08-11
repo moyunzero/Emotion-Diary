@@ -7,6 +7,7 @@ import {
   resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
 import { formatLocaleDate } from "@/shared/formatting";
+import { useRecyclingState } from "@shopify/flash-list";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import React, {
   useEffect,
@@ -142,7 +143,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const burnEntry = useAppStore((state) => state.burnEntry);
   const deleteEntry = useAppStore((state) => state.deleteEntry);
   const { trigger: triggerHaptic } = useHapticFeedback();
-  const [isExpanded, setIsExpanded] = useState(false);
+  // FlashList v2：展开变高必须通知列表，否则下方播放行可能画得出但点不着
+  const [isExpanded, setIsExpanded] = useRecyclingState(false, [entry.id]);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const isResolved = entry.status === Status.RESOLVED;
   const isBurned = entry.status === Status.BURNED;
@@ -185,11 +187,16 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     (s) => s.playbackEntryId === entry.id,
   );
 
+  // 只在「用户从展开→收起」时停播。FlashList 重挂载时 isExpanded 会回到 false，
+  // 若按 !isExpanded 直接 stop，会出现 play ok 但立刻无声、图标不变。
+  const wasExpandedRef = useRef(isExpanded);
   useEffect(() => {
-    if (!isExpanded && isActivePlaybackEntry) {
+    const becameCollapsed = wasExpandedRef.current && !isExpanded;
+    wasExpandedRef.current = isExpanded;
+    if (becameCollapsed && isActivePlaybackEntry) {
       useAppStore.getState().stopAudio();
     }
-  }, [isExpanded, isActivePlaybackEntry, entry.id]);
+  }, [isExpanded, isActivePlaybackEntry]);
 
   const handleResolvePress = () => {
     triggerHaptic("light");
@@ -396,69 +403,90 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   if (isBurned) {
     return (
       <View style={styles.wrapper} testID="mood-entry-card">
-        <TouchableOpacity
-          onPress={() => {
-            ensureLayoutAnimationEnabled();
-            LayoutAnimation.configureNext(
-              LayoutAnimation.Presets.easeInEaseOut,
-            );
-            setIsExpanded(!isExpanded);
-          }}
-          onLongPress={handleDeleteAsh}
-          activeOpacity={0.8}
-          style={[styles.container, styles.burnedContainer]}
-        >
-          <View style={styles.content}>
-            {/* 灰烬图标 */}
-            <View style={[styles.moodIconBadge, styles.ashIconBadge]}>
-              <AshIcon size={24} opacity={0.6} color="#9CA3AF" />
-            </View>
+        <View style={[styles.container, styles.burnedContainer]}>
+          <TouchableOpacity
+            onPress={() => {
+              ensureLayoutAnimationEnabled();
+              LayoutAnimation.configureNext(
+                LayoutAnimation.Presets.easeInEaseOut,
+              );
+              setIsExpanded(!isExpanded);
+            }}
+            onLongPress={handleDeleteAsh}
+            onAccessibilityAction={(event) => {
+              if (event.nativeEvent.actionName === "deleteAsh") {
+                handleDeleteAsh();
+              }
+            }}
+            accessibilityActions={[
+              {
+                name: "deleteAsh",
+                label: t("entryCard.deleteAshAction"),
+              },
+            ]}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: isExpanded }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.content}>
+              {/* 灰烬图标 */}
+              <View style={[styles.moodIconBadge, styles.ashIconBadge]}>
+                <AshIcon size={24} opacity={0.6} color="#9CA3AF" />
+              </View>
 
-            {/* 灰烬内容 */}
-            <View style={styles.textContainer}>
-              <Text style={styles.burnedTitle}>
-                {t("entryCard.burnedTitle")}
-              </Text>
-              <Text style={styles.burnedDate}>
-                {t("entryCard.burnedAt", {
-                  date: formatEntryDate(entry.burnedAt || entry.timestamp),
-                })}
-              </Text>
-              {isExpanded && (
-                <View style={styles.burnedContentContainer}>
-                  <Text style={styles.burnedContentLabel}>
-                    {t("entryCard.burnedContentLabel")}
-                  </Text>
-                  <Text style={styles.burnedContent}>{entry.content}</Text>
-                  <View style={styles.burnedMetaContainer}>
-                    <Text style={styles.burnedMeta}>
-                      {t("entryCard.burnedMetaPeople", {
-                        people: peopleDisplay,
-                      })}
+              {/* 灰烬内容 */}
+              <View style={styles.textContainer}>
+                <Text style={styles.burnedTitle}>
+                  {t("entryCard.burnedTitle")}
+                </Text>
+                <Text style={styles.burnedDate}>
+                  {t("entryCard.burnedAt", {
+                    date: formatEntryDate(entry.burnedAt || entry.timestamp),
+                  })}
+                </Text>
+                {isExpanded && (
+                  <View style={styles.burnedContentContainer}>
+                    <Text style={styles.burnedContentLabel}>
+                      {t("entryCard.burnedContentLabel")}
                     </Text>
-                    <Text style={styles.burnedMeta}>
-                      {t("entryCard.burnedMetaTriggers", {
-                        triggers: resolvedTriggerLabels
-                          .map((label) => `#${label}`)
-                          .join(" "),
-                      })}
-                    </Text>
+                    <Text style={styles.burnedContent}>{entry.content}</Text>
+                    <View style={styles.burnedMetaContainer}>
+                      <Text style={styles.burnedMeta}>
+                        {t("entryCard.burnedMetaPeople", {
+                          people: peopleDisplay,
+                        })}
+                      </Text>
+                      <Text style={styles.burnedMeta}>
+                        {t("entryCard.burnedMetaTriggers", {
+                          triggers: resolvedTriggerLabels
+                            .map((label) => `#${label}`)
+                            .join(" "),
+                        })}
+                      </Text>
+                    </View>
                   </View>
-                  <EntryCardBurnedPlayback
-                    entry={entry}
-                    styles={styles}
-                    isExpanded={isExpanded}
-                  />
-                </View>
-              )}
-              <Text style={styles.burnedHint}>
-                {isExpanded
-                  ? t("entryCard.burnedHintExpanded")
-                  : t("entryCard.burnedHintCollapsed")}
-              </Text>
+                )}
+                <Text style={styles.burnedHint}>
+                  {isExpanded
+                    ? t("entryCard.burnedHintExpanded")
+                    : t("entryCard.burnedHintCollapsed")}
+                </Text>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+          {isExpanded ? (
+            <View style={styles.content}>
+              <View style={{ width: 44 }} />
+              <View style={styles.textContainer}>
+                <EntryCardBurnedPlayback
+                  entry={entry}
+                  styles={styles}
+                  isExpanded={isExpanded}
+                />
+              </View>
+            </View>
+          ) : null}
+        </View>
       </View>
     );
   }
@@ -544,7 +572,15 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   ))}
                   <EntryCardAudioTag entry={entry} styles={styles} />
                 </View>
+              </View>
+            </View>
+          </TouchableOpacity>
 
+          {/* 与 EntryCardActions 同级：勿放在展开 TouchableOpacity 内，否则时间线列表里点播常无响应 */}
+          {isExpanded ? (
+            <View style={styles.content}>
+              <View style={{ width: 44 }} />
+              <View style={styles.textContainer}>
                 <EntryCardPlayback
                   entry={entry}
                   styles={styles}
@@ -552,7 +588,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 />
               </View>
             </View>
-          </TouchableOpacity>
+          ) : null}
 
           <EntryCardActions
             styles={styles}

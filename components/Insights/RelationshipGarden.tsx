@@ -1,12 +1,18 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { resolvePeopleLabel } from '@/i18n/resolvePresetLabel';
+import {
+  aggregateForPerson,
+  listDistinctPeople,
+} from '@/shared/entries/personQueries';
+import { type Href, useRouter } from 'expo-router';
 import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
-import { MoodEntry, Status } from '../../types';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
+import { buildRelationshipPotA11yLabel } from './relationshipPotA11y';
 
 interface RelationshipGardenProps {
   readonly entries: MoodEntry[];
@@ -26,6 +32,7 @@ const renderPotIcon = (status: string, color: string) => {
 
 const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entries }) => {
   const { t } = useTranslation('insights');
+  const router = useRouter();
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
   const styles = useMemo(
     () =>
@@ -68,6 +75,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           alignItems: 'center',
           width: '48%',
           minWidth: 120,
+          minHeight: 44,
+          borderRadius: borderRadius.card,
+          paddingVertical: 4,
+        },
+        potItemPressed: {
+          backgroundColor: INSIGHTS_COLORS.needWaterColor + '14',
         },
         pot: {
           width: 56,
@@ -116,33 +129,40 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           color: '#9CA3AF',
           marginTop: 4,
         },
+        emptyCta: {
+          marginTop: 12,
+          minHeight: 44,
+          paddingHorizontal: 18,
+          paddingVertical: 12,
+          borderRadius: 14,
+          backgroundColor: INSIGHTS_COLORS.needWaterColor,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        emptyCtaPressed: {
+          opacity: 0.85,
+        },
+        emptyCtaText: {
+          fontSize: fontSize.body,
+          fontWeight: '700',
+          color: '#FFFFFF',
+        },
       }),
     [padding, fontSize, spacing, borderRadius, layout]
   );
 
-  // 计算每个人的关系健康度
+  // Phase 13 helpers — same soft-delete / status / person contract as timeline header (D-06)
   const relationshipData = useMemo(() => {
-    const peopleStats: Record<string, { total: number; resolved: number }> = {};
-    
-    entries.forEach(e => {
-      e.people.forEach(p => {
-        if (!peopleStats[p]) {
-          peopleStats[p] = { total: 0, resolved: 0 };
-        }
-        peopleStats[p].total++;
-        if (e.status === Status.RESOLVED) {
-          peopleStats[p].resolved++;
-        }
-      });
-    });
-
-    return Object.entries(peopleStats)
-      .map(([name, stats]) => ({
-        name,
-        total: stats.total,
-        resolved: stats.resolved,
-        resolveRate: stats.total > 0 ? stats.resolved / stats.total : 0,
-      }))
+    return listDistinctPeople(entries)
+      .map((name) => {
+        const agg = aggregateForPerson(entries, name);
+        return {
+          name,
+          total: agg.entryCount,
+          resolved: agg.resolvedCount,
+          resolveRate: agg.resolveRate,
+        };
+      })
       .sort((a, b) => a.resolveRate - b.resolveRate) // 需要关注的排前面
       .slice(0, 5);
   }, [entries]);
@@ -158,6 +178,18 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           <Sprout size={40} color="#D1D5DB" />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.emptyCta,
+              pressed && styles.emptyCtaPressed,
+            ]}
+            onPress={() => router.push('/record')}
+            accessibilityRole="button"
+            accessibilityLabel={t('relationship.empty.ctaA11y')}
+            testID="relationship-garden-empty-cta"
+          >
+            <Text style={styles.emptyCtaText}>{t('relationship.empty.cta')}</Text>
+          </Pressable>
         </View>
       </View>
     );
@@ -178,15 +210,41 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             growingColor: INSIGHTS_COLORS.growingColor,
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
           }, t);
+          const displayName = resolvePeopleLabel(person.name);
+          const healedCountText = t('relationship.healedCount', {
+            resolved: person.resolved,
+            total: person.total,
+          });
           return (
-            <View key={person.name} style={styles.potItem}>
+            <Pressable
+              key={person.name}
+              style={({ pressed }) => [
+                styles.potItem,
+                pressed && styles.potItemPressed,
+              ]}
+              onPress={() =>
+                // Typed routes lag until Metro regenerates .expo/types (gitignored)
+                router.push({
+                  pathname: '/person-timeline',
+                  params: { person: person.name },
+                } as unknown as Href)
+              }
+              accessibilityRole="button"
+              accessibilityLabel={buildRelationshipPotA11yLabel(
+                displayName,
+                potStatus.label,
+                healedCountText,
+              )}
+              accessibilityHint={t('relationship.potA11yHint', { name: displayName })}
+              testID={`relationship-garden-pot-${person.name}`}
+            >
               {/* 花盆图标 */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
                 {renderPotIcon(potStatus.status, potStatus.color)}
               </View>
               {/* 人名 */}
               <Text style={styles.personName} numberOfLines={1}>
-                {resolvePeopleLabel(person.name)}
+                {displayName}
               </Text>
               {/* 状态标签 */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
@@ -201,12 +259,9 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               </View>
               {/* 统计 */}
               <Text style={styles.statsText} numberOfLines={1}>
-                {t('relationship.healedCount', {
-                  resolved: person.resolved,
-                  total: person.total,
-                })}
+                {healedCountText}
               </Text>
-            </View>
+            </Pressable>
           );
         })}
       </View>

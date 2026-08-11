@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <receiver
+      android:name="expo.modules.widgetsnapshot.WidgetSnapshotProvider"
+      android:exported="false"
+      android:label="@string/widget_snapshot_name">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_snapshot_info" />
+    </receiver>
+  </application>
+</manifest>

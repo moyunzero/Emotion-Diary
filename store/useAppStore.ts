@@ -22,6 +22,7 @@ import {
   resolvePlayableRemoteUrl,
 } from "../services/audioSync";
 import { rescheduleEmotionRemindersFromStorage } from "../services/emotionReminders";
+import { enqueueClearWidgetSnapshot } from "../services/widgetSnapshot";
 import {
   initAudioCoordinator,
   setAudioRemoteResolver,
@@ -125,6 +126,14 @@ export const useAppStore = create<AppState>()((...args) => {
         i18n.t("sessionPersistFailed.message", { ns: "auth" }),
       );
       void (async () => {
+        try {
+          // D-07 / D-08: clear widget sink before remote signOut
+          await enqueueClearWidgetSnapshot(
+            "clearWidgetSnapshot after SecureStore persist failure",
+          );
+        } catch (error) {
+          logger.warn("store", "clearWidgetSnapshot after SecureStore persist failure", error);
+        }
         try {
           await supabase.auth.signOut();
         } catch (error) {

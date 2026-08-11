@@ -4,7 +4,7 @@ import { audioCoordinator } from "@/shared/audio/coordinator";
 import { Mic, Pause, Play } from "lucide-react-native";
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useAppStore } from "../../store/useAppStore";
 import { createEntryCardStyles } from "../../styles/components/EntryCard.styles";
 import { AudioData, MoodEntry } from "../../types";
@@ -111,17 +111,22 @@ function useAudioRowRenderer(
   const renderAudioRow = useCallback(
     (audio: AudioData) => (
       <View key={audio.id} style={styles.audioPlayRow}>
-        <TouchableOpacity
-          style={[
+        <Pressable
+          style={({ pressed }) => [
             styles.audioPlayItem,
+            { minHeight: 44 },
             isAudioRowActive(audio) && styles.audioPlayItemActive,
+            pressed && { opacity: 0.7 },
           ]}
-          onPress={() => handlePlayAudio(audio)}
+          onPress={() => {
+            void handlePlayAudio(audio);
+          }}
           accessibilityRole="button"
           accessibilityLabel={tRecord("audio.list.playA11y", {
             label: getAudioDisplayLabel(audio),
           })}
           testID="entry-audio-play"
+          hitSlop={8}
         >
           {isAudioRowActive(audio) && isPlayingGlobal ? (
             <Pause size={16} color={COLORS.audio.primary} />
@@ -143,7 +148,7 @@ function useAudioRowRenderer(
               {formatDuration(audio.duration)}
             </Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
         {audio.syncStatus === "pending" && (
           <View style={styles.audioSyncMeta}>
             <Text style={styles.audioSyncPending}>

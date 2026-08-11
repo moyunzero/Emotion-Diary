@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Soft Stack A ~2×2: weather TOP / growth MIDDLE / brand BOTTOM; padding 16dp -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_cleared"
+    android:padding="16dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:id="@+id/widget_status_stack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/widget_weather"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_weather_cloudy" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/widget_growth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingTop="4dp"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/widget_brand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.08"
+            android:text="@string/widget_brand"
+            android:textColor="@color/widget_brand"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_cleared_stack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/widget_cleared_cta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="@string/widget_open_cta"
+            android:textColor="@color/widget_brand"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_cleared_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:text="@string/widget_cleared_hint"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+</FrameLayout>

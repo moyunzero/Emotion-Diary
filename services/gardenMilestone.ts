@@ -3,15 +3,17 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { TFunction } from 'i18next';
-import { getGrowthStage } from '../components/Insights/utils';
+import {
+  growthStageFromRate,
+  type GrowthStageId,
+} from '../shared/garden/growthStage';
 import { excludeSoftDeletedEntries } from '../shared/entries/visibility';
 import { MoodEntry, Status } from '../types';
 
+export type { GrowthStageId };
+
 const GARDEN_MILESTONE_V1_SEEN_PREFIX = 'garden_milestone_v1_seen_';
 const GARDEN_MILESTONE_V1_PENDING = 'garden_milestone_v1_pending';
-
-export type GrowthStageId = 'seed' | 'sprout' | 'seedling' | 'bud' | 'bloom';
 
 export type PendingMilestone = {
   stage: GrowthStageId;
@@ -24,8 +26,6 @@ const STAGE_RANK: Record<GrowthStageId, number> = {
   bud: 3,
   bloom: 4,
 };
-
-const noopT = ((key: string) => key) as TFunction<'insights'>;
 
 function milestoneUserSuffix(userId: string | null): string {
   return userId ?? 'guest';
@@ -59,8 +59,8 @@ export function detectStageCrossing(
   beforeRate: number,
   afterRate: number,
 ): GrowthStageId | null {
-  const beforeStage = getGrowthStage(beforeRate, noopT).stage as GrowthStageId;
-  const afterStage = getGrowthStage(afterRate, noopT).stage as GrowthStageId;
+  const beforeStage = growthStageFromRate(beforeRate);
+  const afterStage = growthStageFromRate(afterRate);
 
   if (afterStage === 'seed') {
     return null;

@@ -1,0 +1,20 @@
+{
+  "name": "widget-snapshot",
+  "version": "0.1.0",
+  "description": "QUAL-03 widget privacy snapshot sink (iOS App Group UserDefaults / Android MODE_PRIVATE SharedPreferences)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "MIT",
+  "author": "moyun",
+  "homepage": "https://github.com/moyun/Emotion-Diary",
+  "keywords": [
+    "react-native",
+    "expo",
+    "widget-snapshot"
+  ],
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

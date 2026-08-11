@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_brand">#E11D48</color>
+    <color name="widget_weather_active">#FB7185</color>
+    <color name="widget_text_primary">#1F2937</color>
+    <color name="widget_text_secondary">#6B7280</color>
+    <color name="widget_active_top">#FFF1F2</color>
+    <color name="widget_active_mid">#FECDD3</color>
+    <color name="widget_active_bottom">#FDA4AF</color>
+    <color name="widget_empty_top">#F9FAFB</color>
+    <color name="widget_empty_bottom">#F3F4F6</color>
+    <color name="widget_cleared_top">#FFFFFF</color>
+    <color name="widget_cleared_bottom">#59FECDD3</color>
+</resources>

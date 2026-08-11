@@ -10,6 +10,7 @@ import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
 import { i18n } from "../../i18n";
+import { enqueueClearWidgetSnapshot } from "../../services/widgetSnapshot";
 import { stripAudiosFromEntries } from "../../shared/audio/guestAudioStrip";
 import { isSoftDeleted } from "../../shared/entries/visibility";
 import type { MoodEntry, User } from "../../types";
@@ -593,6 +594,7 @@ export const createUserSlice: StateCreator<
 
           if (isUserSwitching) {
             if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
+            await enqueueClearWidgetSnapshot("account switch clear");
             set({ entries: [] });
           }
 
@@ -622,6 +624,8 @@ export const createUserSlice: StateCreator<
         const { user } = get();
 
         if (!user) {
+          // D-07 / open-Q #1: clear lock-screen snapshot eagerly (idempotent)
+          await enqueueClearWidgetSnapshot("logout clear (no user)");
           set({ user: null });
           await AsyncStorage.removeItem("user_session");
           await get()._loadEntries();
@@ -640,19 +644,20 @@ export const createUserSlice: StateCreator<
           snapshot,
         );
 
-        // 登出
+        // 登出前先清 Soft Stack，避免 signOut 竞态窗口残留快照
+        await clearCachedProfile(user.id);
+        await enqueueClearWidgetSnapshot("logout clear");
+
         const { error } = await supabase.auth.signOut();
         if (error) {
           logger.error("user", "Logout error", error);
         }
 
-        // 清除 profile 缓存
-        await clearCachedProfile(user.id);
-
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
       } catch (error) {
         logger.error("user", "Logout error", error);
+        await enqueueClearWidgetSnapshot("logout clear (catch)");
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
@@ -732,7 +737,8 @@ export const createUserSlice: StateCreator<
           });
         }
 
-        // 本地登出、清除状态
+        // 本地登出、清除状态 — clear Soft Stack before remote sign-out
+        await enqueueClearWidgetSnapshot("deleteAccount clear");
         await supabase.auth.signOut();
         set({ user: null });
         await AsyncStorage.removeItem("user_session");

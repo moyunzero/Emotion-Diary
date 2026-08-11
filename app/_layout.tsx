@@ -16,6 +16,11 @@ import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
+import {
+  publishWidgetSnapshot,
+  clearWidgetSnapshot,
+  scheduleWidgetSnapshotOp,
+} from '../services/widgetSnapshot';
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 
@@ -38,6 +43,19 @@ export default function RootLayout() {
       if (next === 'background' || next === 'inactive') {
         useAppStore.getState().stopAudio();
         void forceCancelRecording();
+        // D-10: only publish Soft Stack while signed in; logged-out stays cleared
+        const { user, entries } = useAppStore.getState();
+        if (user) {
+          scheduleWidgetSnapshotOp(
+            () => publishWidgetSnapshot(entries),
+            'AppState publishWidgetSnapshot failed',
+          );
+        } else {
+          scheduleWidgetSnapshotOp(
+            () => clearWidgetSnapshot(),
+            'AppState clearWidgetSnapshot failed',
+          );
+        }
         return;
       }
 
@@ -153,6 +171,14 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="recycle-bin"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="person-timeline"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="on-this-day"
               options={{ headerShown: false }}
             />
           </Stack>

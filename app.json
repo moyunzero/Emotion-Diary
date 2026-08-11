@@ -21,6 +21,11 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.moyunzero.emotiondiary"
+        ]
       }
     },
     "android": {
@@ -86,7 +91,8 @@
             "android": ["zh", "en"]
           }
         }
-      ]
+      ],
+      "./modules/widget-snapshot/app.plugin.js"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -95,7 +101,24 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "267ba426-3cba-4e7e-bc99-83bb98c57000"
+        "projectId": "267ba426-3cba-4e7e-bc99-83bb98c57000",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "EmotionDiaryWidget",
+                  "bundleIdentifier": "com.moyunzero.emotiondiary.widget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.moyunzero.emotiondiary"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     }
   }

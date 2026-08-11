@@ -35,9 +35,11 @@
     "verify:privacy-manifest": "node scripts/verify-privacy-manifest.js",
     "verify:eas-config": "node scripts/verify-eas-config.js",
     "verify:all": "node scripts/verify-all-configs.js",
-    "verify:governance": "node scripts/verify-governance.js"
+    "verify:governance": "node scripts/verify-governance.js",
+    "verify:widget-native": "node scripts/verify-widget-native-link.js"
   },
   "dependencies": {
+    "widget-snapshot": "file:./modules/widget-snapshot",
     "@expo-google-fonts/lato": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "^2.2.0",

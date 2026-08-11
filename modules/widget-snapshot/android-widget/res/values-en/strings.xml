@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_snapshot_name">Xinqing</string>
+    <string name="widget_snapshot_description">See garden weather and growth</string>
+    <string name="widget_brand">Xinqing</string>
+    <string name="widget_open_cta">Open Xinqing</string>
+    <string name="widget_cleared_hint">Sign in to sync garden weather</string>
+    <string name="widget_subtitle_empty">Quiet garden</string>
+    <string name="widget_subtitle_active">Garden</string>
+
+    <string name="widget_weather_sunny">Sunny</string>
+    <string name="widget_weather_cloudy">Cloudy</string>
+    <string name="widget_weather_rainy">Rainy</string>
+    <string name="widget_weather_stormy">Stormy</string>
+
+    <string name="widget_stage_seed">Seed</string>
+    <string name="widget_stage_sprout">Sprout</string>
+    <string name="widget_stage_seedling">Seedling</string>
+    <string name="widget_stage_bud">Bud</string>
+    <string name="widget_stage_bloom">Bloom</string>
+</resources>

@@ -1,5 +1,9 @@
 export {
   formatDate,
+  localDayKey,
+  localMonthDayKey,
+} from './localCalendar';
+export {
   formatDateChinese,
   formatLocaleDate,
   formatMonthDay,
@@ -8,3 +12,5 @@ export {
   toIntlLocale,
   type DateInput,
 } from './date';
+export { formatRecentActivityLabel } from './recentActivity';
+export { formatOnThisDayHeroDate } from './onThisDayHeroDate';

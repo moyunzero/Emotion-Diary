@@ -1,0 +1,32 @@
+{
+  "screen": {
+    "title": "On This Day"
+  },
+  "insightsCard": {
+    "title": "On This Day",
+    "hint": "Walk down memory lane and meet your past self.",
+    "hintCount": "{{n}} past moments waiting for you",
+    "cta": "Enter memories"
+  },
+  "hero": {
+    "subtitle": "{{n}} past moments · newest first",
+    "subtitleEmpty": "No entries from this day in prior years"
+  },
+  "empty": {
+    "title": "This day is still quiet",
+    "body": "If you left feelings on this day before, they'll gently appear here. No need to force a new entry."
+  },
+  "personSlot": {
+    "label": "On this day · with them",
+    "rowA11y": "View entries from this day in {{year}}"
+  },
+  "a11y": {
+    "back": "Back to Insights",
+    "open": "Open On This Day"
+  },
+  "error": {
+    "title": "On This Day is temporarily unavailable",
+    "body": "Go back and try again. If it still fails, restart the app and retry.",
+    "action": "Back to Insights"
+  }
+}

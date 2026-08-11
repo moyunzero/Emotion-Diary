@@ -1,11 +1,15 @@
 import type { AppLocale } from "../../i18n/mapDeviceLocale";
 import { formatLocaleDate } from "../formatting";
+import {
+  growthStageFromRate,
+  type GrowthStageId,
+} from "../garden/growthStage";
 import type { WeatherCondition } from "../weather/weatherNarrative";
 import type { MoodEntry } from "../../types";
 import type { ReviewExportDerivedState } from "../../utils/reviewExportDerived";
 import type { ExportWeatherBucket } from "../../utils/reviewStatsWeather";
 
-export type GrowthStageId = "seed" | "sprout" | "seedling" | "bud" | "bloom";
+export type { GrowthStageId };
 
 export type ShareCardVariant = "week";
 
@@ -55,16 +59,7 @@ function resolveGrowthStage(
   locale: AppLocale,
 ): { stage: GrowthStageId; label: string } {
   const t = insightsT(locale);
-  const stage: GrowthStageId =
-    (rate ?? 0) >= 0.8
-      ? "bloom"
-      : (rate ?? 0) >= 0.6
-        ? "bud"
-        : (rate ?? 0) >= 0.4
-          ? "seedling"
-          : (rate ?? 0) >= 0.2
-            ? "sprout"
-            : "seed";
+  const stage = growthStageFromRate(rate);
   return { stage, label: t(`utils.growthStage.${stage}`) };
 }
 

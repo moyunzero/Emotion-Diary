@@ -151,6 +151,7 @@
     "burnHint": "Burn this entry to release the feeling — content cannot be restored",
     "deleteA11y": "Delete this mood entry",
     "deleteHint": "Delete this entry — it cannot be undone",
+    "deleteAshAction": "Delete ash forever",
     "relatedPersonFallback": "someone",
     "peopleJoiner": " and "
   },

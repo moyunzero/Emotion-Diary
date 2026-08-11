@@ -151,6 +151,7 @@
     "burnHint": "点击焚烧这条情绪记录，释放负面情绪，内容将无法恢复",
     "deleteA11y": "删除这条情绪记录",
     "deleteHint": "点击删除这条记录，删除后将无法恢复",
+    "deleteAshAction": "彻底删除灰烬",
     "relatedPersonFallback": "相关人",
     "peopleJoiner": "和"
   },
