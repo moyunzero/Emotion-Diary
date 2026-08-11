@@ -10,7 +10,6 @@ const GROQ_MODEL = 'llama-3.1-8b-instant';
  * 错误类型枚举（用于 AI 服务特定的错误分类）
  */
 export enum AIErrorType {
-  NO_TOKEN = 'NO_TOKEN',
   INVALID_TOKEN = 'INVALID_TOKEN',
   RATE_LIMIT = 'RATE_LIMIT',
   MODEL_ERROR = 'MODEL_ERROR',

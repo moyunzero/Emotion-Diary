@@ -200,30 +200,89 @@ function findWidgetTarget(project) {
   return byName;
 }
 
+const WIDGET_SWIFT_SOURCES = [
+  'EmotionDiaryWidget.swift',
+  'EmotionDiaryWidgetBundle.swift',
+  'SnapshotReader.swift',
+];
+
+function findWidgetPbxGroup(project) {
+  const groups = project.hash.project.objects.PBXGroup || {};
+  for (const gKey of Object.keys(groups)) {
+    if (gKey.endsWith('_comment')) continue;
+    const g = groups[gKey];
+    if (!g || typeof g !== 'object') continue;
+    const gName = String(g.name || '').replace(/"/g, '');
+    const gPath = String(g.path || '').replace(/"/g, '');
+    if (gName === WIDGET_TARGET_NAME || gPath === WIDGET_TARGET_NAME) {
+      return { uuid: gKey, group: g };
+    }
+  }
+  return null;
+}
+
 /**
  * addBuildPhase often stores path as EmotionDiaryWidget/Foo.swift while the
- * group path is also EmotionDiaryWidget → Xcode looks for nested dir. Collapse
- * to basename and attach refs under the widget group when missing.
+ * group path is also EmotionDiaryWidget → Xcode looks for nested dir.
+ * Collapse to basename AND keep file refs as children of the widget group.
+ * Without group membership, basename resolves under ios/ and EAS fails with
+ * "Build input files cannot be found: .../ios/EmotionDiaryWidget.swift".
  */
-function normalizeWidgetSourcePaths(project) {
+function ensureWidgetSwiftSourcesInGroup(project) {
   const objects = project.hash.project.objects;
   const fileRefs = objects.PBXFileReference || {};
-  const basenames = new Set([
-    'EmotionDiaryWidget.swift',
-    'EmotionDiaryWidgetBundle.swift',
-    'SnapshotReader.swift',
-  ]);
+  const groups = objects.PBXGroup || {};
+  const basenames = new Set(WIDGET_SWIFT_SOURCES);
 
+  const swiftRefs = [];
   for (const key of Object.keys(fileRefs)) {
+    if (key.endsWith('_comment')) continue;
     const fr = fileRefs[key];
     if (!fr || typeof fr !== 'object' || !fr.path) continue;
     const raw = String(fr.path).replace(/"/g, '');
     const base = raw.split('/').pop();
     if (!basenames.has(base)) continue;
-    if (raw !== base) {
-      fr.path = base;
-    }
+    fr.path = base;
+    if (!fr.name) fr.name = base;
     fr.sourceTree = '"<group>"';
+    swiftRefs.push({ uuid: key, base });
+  }
+
+  if (swiftRefs.length === 0) return;
+
+  let widgetGroupEntry = findWidgetPbxGroup(project);
+  if (!widgetGroupEntry) {
+    const created = project.addPbxGroup(
+      [],
+      WIDGET_TARGET_NAME,
+      WIDGET_TARGET_NAME,
+    );
+    const mainGroupId = project.getFirstProject().firstProject.mainGroup;
+    project.addToPbxGroup(created.uuid, mainGroupId);
+    widgetGroupEntry = { uuid: created.uuid, group: groups[created.uuid] };
+  }
+
+  const { uuid: widgetGroupUuid, group: widgetGroup } = widgetGroupEntry;
+  if (!widgetGroup) return;
+
+  widgetGroup.path = WIDGET_TARGET_NAME;
+  if (!widgetGroup.name) widgetGroup.name = WIDGET_TARGET_NAME;
+  widgetGroup.children = widgetGroup.children || [];
+
+  const uuidSet = new Set(swiftRefs.map((s) => s.uuid));
+
+  // Drop orphan membership under main / other groups (wrong path resolution).
+  for (const gKey of Object.keys(groups)) {
+    if (gKey.endsWith('_comment') || gKey === widgetGroupUuid) continue;
+    const g = groups[gKey];
+    if (!g || !Array.isArray(g.children)) continue;
+    g.children = g.children.filter((c) => !uuidSet.has(c.value));
+  }
+
+  for (const { uuid, base } of swiftRefs) {
+    if (!widgetGroup.children.some((c) => c.value === uuid)) {
+      widgetGroup.children.push({ value: uuid, comment: base });
+    }
   }
 }
 
@@ -436,7 +495,7 @@ function withIosWidgetXcodeTarget(config) {
         ensureWidgetLocalizableStrings(project, existing.uuid);
       }
       updateWidgetTargetBuildSettings(project, hostVersion);
-      normalizeWidgetSourcePaths(project);
+      ensureWidgetSwiftSourcesInGroup(project);
       return cfg;
     }
 
@@ -447,15 +506,10 @@ function withIosWidgetXcodeTarget(config) {
       WIDGET_BUNDLE_ID,
     );
 
-    // Filenames only — group path is EmotionDiaryWidget/ (avoid double nesting).
-    const swiftFiles = [
-      'EmotionDiaryWidget.swift',
-      'EmotionDiaryWidgetBundle.swift',
-      'SnapshotReader.swift',
-    ];
-
+    // Paths include folder for addBuildPhase; ensureWidgetSwiftSourcesInGroup
+    // collapses to basename under the EmotionDiaryWidget PBXGroup.
     project.addBuildPhase(
-      swiftFiles.map((name) => `${WIDGET_TARGET_NAME}/${name}`),
+      WIDGET_SWIFT_SOURCES.map((name) => `${WIDGET_TARGET_NAME}/${name}`),
       'PBXSourcesBuildPhase',
       'Sources',
       target.uuid,
@@ -479,7 +533,7 @@ function withIosWidgetXcodeTarget(config) {
       target.uuid,
     );
 
-    // Navigator folder only (sources already in Sources phase — avoid duplicate file refs).
+    // Navigator folder; swift file refs are attached by ensureWidgetSwiftSourcesInGroup.
     const widgetGroup = project.addPbxGroup(
       [],
       WIDGET_TARGET_NAME,
@@ -488,8 +542,7 @@ function withIosWidgetXcodeTarget(config) {
     const mainGroupId = project.getFirstProject().firstProject.mainGroup;
     project.addToPbxGroup(widgetGroup.uuid, mainGroupId);
 
-    // Normalize source fileRef paths to basename under the widget group.
-    normalizeWidgetSourcePaths(project);
+    ensureWidgetSwiftSourcesInGroup(project);
 
     // node-xcode skips dependency wiring when PBXTargetDependency section is absent.
     ensureTargetDependency(project, target.uuid);
@@ -770,3 +823,4 @@ function withWidgetSnapshot(config) {
 module.exports = withWidgetSnapshot;
 module.exports.ensureEmbedAppExtensions = ensureEmbedAppExtensions;
 module.exports.ensureTargetDependency = ensureTargetDependency;
+module.exports.ensureWidgetSwiftSourcesInGroup = ensureWidgetSwiftSourcesInGroup;

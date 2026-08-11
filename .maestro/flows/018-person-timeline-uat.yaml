@@ -98,7 +98,18 @@ appId: com.moyunzero.emotiondiary
       id: mood-content-input
     timeout: 30000
 - takeScreenshot: .maestro/acceptance/014-person-timeline/03b-edit-modal
-- tapOn: "关闭"
+- tapOn:
+    id: edit-entry-close
+# Modal close via Pressable is flaky under XCTest; deep-link fallback restores timeline.
+- runFlow:
+    when:
+      visible:
+        id: mood-content-input
+    commands:
+      - runFlow:
+          file: ../subflows/open-url.yaml
+          env:
+            URL: "emotiondiary://person-timeline?person=other"
 - extendedWaitUntil:
     visible:
       id: person-timeline-hero

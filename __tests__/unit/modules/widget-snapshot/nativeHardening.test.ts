@@ -187,8 +187,13 @@ describe('widget-snapshot native hardening (source gates)', () => {
     // existing-target branch also embeds + PrivacyInfo resource
     expect(plugin).toContain('ensureWidgetPrivacyInfoResource');
     expect(plugin).toContain('ensureWidgetLocalizableStrings');
+    expect(plugin).toContain('ensureWidgetSwiftSourcesInGroup');
     expect(plugin).toMatch(
       /ensureTargetDependency\(project, existing\.uuid\);\s*ensureEmbedAppExtensions\(project, existing\.uuid\);\s*ensureWidgetPrivacyInfoResource\(project, existing\.uuid\);\s*ensureWidgetLocalizableStrings\(project, existing\.uuid\);/,
+    );
+    // Basename alone under main group → EAS looks for ios/*.swift; must keep widget group kids
+    expect(plugin).toMatch(
+      /Build input files cannot be found|keep file refs as children of the widget group/,
     );
     // pbxTargetByName omits uuid — findWidgetTarget must resolve PBXNativeTarget key
     expect(plugin).toMatch(/return \{ \.\.\.t, uuid: key \}/);
@@ -242,6 +247,90 @@ describe('widget-snapshot native hardening (source gates)', () => {
     expect(json.insightsCard.hint).toBe(
       'Walk down memory lane and meet your past self.',
     );
+  });
+
+  it('ensureWidgetSwiftSourcesInGroup keeps basename refs under EmotionDiaryWidget group', () => {
+    // Simulate EAS prebuild: Sources phase created basename paths under main group.
+    // Without re-parenting, Xcode resolves ios/EmotionDiaryWidget.swift (missing).
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { ensureWidgetSwiftSourcesInGroup } = require(path.join(
+      moduleRoot,
+      'app.plugin.js',
+    ));
+
+    const swiftUuid = 'SWIFT001';
+    const bundleUuid = 'SWIFT002';
+    const readerUuid = 'SWIFT003';
+    const mainGroupUuid = 'MAINGROUP';
+    const widgetGroupUuid = 'WIDGETGROUP';
+
+    const project = {
+      hash: {
+        project: {
+          objects: {
+            PBXFileReference: {
+              [swiftUuid]: {
+                isa: 'PBXFileReference',
+                path: 'EmotionDiaryWidget.swift',
+                sourceTree: '"<group>"',
+              },
+              [bundleUuid]: {
+                isa: 'PBXFileReference',
+                path: 'EmotionDiaryWidget/EmotionDiaryWidgetBundle.swift',
+                sourceTree: '"<group>"',
+              },
+              [readerUuid]: {
+                isa: 'PBXFileReference',
+                path: 'SnapshotReader.swift',
+                sourceTree: '"<group>"',
+              },
+            },
+            PBXGroup: {
+              [mainGroupUuid]: {
+                isa: 'PBXGroup',
+                children: [
+                  { value: swiftUuid, comment: 'EmotionDiaryWidget.swift' },
+                  { value: bundleUuid, comment: 'EmotionDiaryWidgetBundle.swift' },
+                  { value: readerUuid, comment: 'SnapshotReader.swift' },
+                  { value: widgetGroupUuid, comment: 'EmotionDiaryWidget' },
+                ],
+              },
+              [widgetGroupUuid]: {
+                isa: 'PBXGroup',
+                name: 'EmotionDiaryWidget',
+                path: 'EmotionDiaryWidget',
+                children: [],
+              },
+            },
+          },
+        },
+      },
+      getFirstProject: () => ({ firstProject: { mainGroup: mainGroupUuid } }),
+      addPbxGroup: jest.fn(),
+      addToPbxGroup: jest.fn(),
+    };
+
+    ensureWidgetSwiftSourcesInGroup(project);
+
+    const refs = project.hash.project.objects.PBXFileReference;
+    expect(refs[swiftUuid].path).toBe('EmotionDiaryWidget.swift');
+    expect(refs[bundleUuid].path).toBe('EmotionDiaryWidgetBundle.swift');
+    expect(refs[readerUuid].path).toBe('SnapshotReader.swift');
+
+    const widgetKids = project.hash.project.objects.PBXGroup[widgetGroupUuid].children.map(
+      (c: { value: string }) => c.value,
+    );
+    expect(widgetKids).toEqual(
+      expect.arrayContaining([swiftUuid, bundleUuid, readerUuid]),
+    );
+
+    const mainKids = project.hash.project.objects.PBXGroup[mainGroupUuid].children.map(
+      (c: { value: string }) => c.value,
+    );
+    expect(mainKids).not.toContain(swiftUuid);
+    expect(mainKids).not.toContain(bundleUuid);
+    expect(mainKids).not.toContain(readerUuid);
+    expect(mainKids).toContain(widgetGroupUuid);
   });
 
   it('README documents module-only Android resource sync', () => {

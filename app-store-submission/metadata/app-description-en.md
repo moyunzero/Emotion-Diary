@@ -1,9 +1,9 @@
 # App Store Connect Metadata — English (U.S.)
 
-> **Version**: 1.3.0 · **Updated**: 2026-06-19  
+> **Version**: 1.6.0 · **Updated**: 2026-08-11  
 > **Bundle ID**: `com.moyunzero.emotiondiary`  
 > **App Store listing**: [心晴MO on the App Store](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)  
-> **Display name on device**: 心晴MO · English marketing name: **MoodMO**
+> **Display name on device**: 心晴MO · English marketing name: **MoodMO** / **Xinqing MO**
 
 Use this file when editing the **English (U.S.)** localization in App Store Connect. Primary app name may remain 心晴MO; English subtitle, description, and keywords apply to the English storefront.
 
@@ -18,7 +18,7 @@ Use this file when editing the **English (U.S.)** localization in App Store Conn
 | Promotional Text | 170 chars | Promotional Text (editable without new build) |
 | Description | 4000 chars | Description |
 | Keywords | 100 chars | Keywords |
-| What’s New in This Version | 4000 chars | `whats-new-1.3.0-en.md` |
+| What’s New in This Version | 4000 chars | `whats-new-1.6.0-en.md` |
 | Support URL | required | Support URL |
 | Marketing URL | optional | Marketing URL |
 | Privacy Policy URL | required | Privacy Policy URL |
@@ -35,52 +35,43 @@ Mood journal & mind garden
 
 ## Promotional Text (max 170 characters, optional)
 
-MoodMO 1.3: Full English & Chinese UI. Follow system language or pick your locale in Profile—record moods, grow your Mind Garden, export weekly reviews.
+MoodMO 1.6: Relationship Timeline, On This Day, Soft Stack widget—revisit moments with someone, tend your Mind Garden at a glance.
 
-(149 characters)
+(128 characters)
 
 ---
 
 ## Keywords (max 100 characters; comma-separated, no space after commas)
 
-mood,diary,journal,emotion,mental health,wellness,self care,mindfulness,tracker,voice notes
+mood,diary,journal,emotion,mental health,wellness,self care,mindfulness,relationships,memories
 
-(99 characters)
+(98 characters)
 
 ---
 
 ## Description
 
-MoodMO (心晴MO) is a healing-focused mood diary that turns emotional self-care into tending a mind garden.
+MoodMO (心晴MO) turns feelings into a Mind Garden you can tend: weather to read emotion, pots to see relationships, and reviews to keep your growth in view.
 
-🌤 **Emotion Weather Station**  
-See relationship and mood health as weather—sunny, cloudy, or stormy skies that make patterns easier to notice.
+Log a moment in minutes. Look back by week or month. Open a pot to revisit someone—and meet yourself on this day in years past.
 
-✍️ **Warm, low-friction logging**  
-Five mood levels, people and trigger tags, gentle deadlines, and voice notes. Drafts save automatically; edit history shows how feelings evolved.
+WHAT YOU GET
+• Emotion Weather Station & warm logging: intensity, people/trigger tags, voice notes, auto-saved drafts
+• Mind Garden: weekly weather, healing progress, relationship pots, trigger insights & gardening tips
+• Relationship Timeline & On This Day: revisit by person; same day, different years
+• Weekly/monthly review images saved to Photos (no built-in third-party sharing)
+• Vent & Release: calming burn + release archive
+• Soft Stack home widget: garden weather at a glance (no diary body); clears on sign-out or account deletion
+• Optional AI (your own Groq key): forecasts, podcasts, prescriptions, review closing line—with on-device fallbacks
+• Offline-first, optional cloud sync; English & Simplified Chinese
 
-🌱 **Mind Garden (Insights)**  
-Weekly mood weather, healing progress, relationship pots for people who matter, trigger insights with gardening advice, and shareable weekly/monthly review images saved to Photos.
-
-🔥 **Vent & Release**  
-A calming burn animation for heated words, plus a release archive to revisit what you let go.
-
-🤖 **Optional AI companion** (bring your own Groq API key)  
-Mood forecasts, AI-generated emotional podcasts, trigger “prescriptions,” and an optional closing line on review exports—with thoughtful on-device fallbacks when AI is unavailable.
-
-☁️ **Your data, your choice**  
-Offline-first local storage by default. Optional Supabase sync across devices. Deletes are soft by default—entries move to a recycle bin before permanent removal.
-
-🌍 **English & Chinese (new in 1.3)**  
-Full bilingual interface. Follow system language or choose Simplified Chinese or English in Profile → Language.
-
-MoodMO is for anyone who wants to understand their emotions without judgment. It is not a substitute for professional mental health care. If you are in crisis, please contact a qualified professional or local emergency services.
+MoodMO supports self-observation only. It is not medical advice and does not replace professional care. If you are in crisis, please seek qualified help.
 
 ---
 
-## What’s New in Version 1.3.0
+## What’s New in Version 1.6.0
 
-See [`whats-new-1.3.0-en.md`](./whats-new-1.3.0-en.md) for paste-ready release notes.
+See [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md) for paste-ready release notes.
 
 ---
 
@@ -132,12 +123,12 @@ No restricted content; user-generated diary text; optional account for cloud syn
 
 ---
 
-## Screenshot captions (optional, for marketing)
+## Screenshot captions (optional, for marketing · 1.6)
 
-1. **Dashboard** — Your emotion weather at a glance  
-2. **Record** — Log mood, tags, and voice in seconds  
-3. **Mind Garden** — Healing progress and trigger insights  
-4. **Review export** — Share a weekly mood recap image  
-5. **Profile** — Language, sync, and gentle reminders  
+1. **Relationship Timeline** — Open a pot; revisit every mood tied to someone  
+2. **On This Day** — Same day, different years—gently reunited  
+3. **Mind Garden** — When a relationship pot needs watering, a soft nudge to care  
+4. **Log a moment** — Mood, people tags, and voice in seconds  
+5. **Soft Stack widget** — Garden weather on your Home Screen (no diary text)  
 
 See [`screenshot-guide.md`](./screenshot-guide.md) for sizes and capture tips.

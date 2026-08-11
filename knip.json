@@ -74,7 +74,7 @@
     "types.ts": ["exports", "types", "enumMembers"],
     "types/**": ["exports", "types"],
     "components/EditEntryModal/**": ["types"],
-    "components/EntryCard.tsx": ["types", "exports"],
+    "components/EntryCard/**": ["types", "exports"],
     "components/icons/**": ["types", "exports"],
     "components/ReviewExport/**": ["types"],
     "components/ScreenContainer.tsx": ["exports", "duplicates"],

@@ -54,7 +54,7 @@ yarn test              # Jest unit tests (excludes e2e/)
 - **Pull requests / push to `master`:** `yarn typecheck` → `yarn lint` → `yarn test` (Node 22).
 - **Push to `master` only:** also runs `yarn verify:governance` and `node scripts/verify-governance-smoke.js`.
 
-**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`. See [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4.
+**E2E (local, not in CI):** Web `yarn test:e2e` (Playwright); iOS/Android `yarn test:maestro` (Maestro CLI + dev build). Per-flow: `yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`; person timeline / On This Day: `maestro test .maestro/flows/018-person-timeline-uat.yaml` / `019-on-this-day-uat.yaml`. See [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4.
 
 ### Community & docs
 
@@ -92,7 +92,10 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 
 - **Weekly Emotion Weather**: 7-day emotion status at a glance, each day showing weather icon and flower status
 - **Healing Progress**: Circular progress bar showing emotion resolution rate, growth stages from seed to bloom
-- **Relationship Pots**: Each person corresponds to a flower pot, showing relationship health (Blooming/Growing/Needs Water)
+- **Relationship Pots**: Each person corresponds to a flower pot, showing relationship health (Blooming/Growing/Needs Water); tap a pot to open the **person timeline**
+- **Person Timeline**: Browse mood entries related to someone, with summary header and empty-state guidance
+- **On This Day**: Recall prior-year same calendar day (local timezone); thin person-scoped slice on the timeline
+- **Soft Stack home widget** (iOS / Android): Glanceable garden weather & growth stage only (no diary body); tap opens the app
 - **Trigger Insights**: Analyze Top 3 emotion triggers with warm "gardening advice"
 - **Encouraging Footer**: Dynamically generated positive feedback to show growth
 - **Weekly/Monthly Review & Export**: 9:16 vertical share cards (relationship weather + mind garden + AI closing line), save to Photos (`review-export` route)
@@ -343,6 +346,23 @@ eas build --platform ios --profile production
 
 Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
 
+### [1.6.0] - 2026-08-11 · App Store update
+
+> v1.6 “relationship insight & light reach” (Phases 13–18): turn people tags into browsable relationship memory, plus a minimal home-screen widget.
+
+#### Added
+
+- **Person Timeline**: Open a relationship pot to browse that person’s mood history (summary header, timeline, empty guidance)
+- **On This Day**: Prior-year same local calendar day; thin person-scoped slice on the timeline
+- **Soft Stack home widget** (iOS / Android): Privacy-safe weather/growth glance; tap opens the app; logout/delete clears the snapshot; English chrome uses “Xinqing”
+- **Quality gates**: Soft-deleted entries excluded from person / On This Day queries; widget snapshot whitelist (no diary body)
+
+#### Developer / quality
+
+- Expo module `widget-snapshot` + config plugin; `yarn verify:widget-native`, `scripts/sim-widget-smoke.sh`
+- Maestro: `018` (person timeline), `019` (On This Day); unit coverage for personQueries / onThisDay / widget snapshot
+- App Store What’s New drafts: `app-store-submission/metadata/whats-new-1.6.0-zh.md` / `whats-new-1.6.0-en.md`
+
 ### [1.5.0] - 2026-07-31 · App Store update
 
 > v1.5 “clearable CONCERNS debt zero” (Phases 6–12). User-facing focus: account privacy, cloud sync, and reliability.
@@ -457,6 +477,18 @@ Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planni
 | **1.3.0** | Full bilingual i18n | Phase 7 / i18n sweep | ✅ App Store |
 | **1.4.0** | Metaphor experience first | `011`–`015` (visual → onboarding → narrative → share card → retention loop) | ✅ App Store |
 | **1.5.0** | Privacy / sync / clearable debt zero | Phases 6–12; `milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
+| **1.6.0** | Relationship insight & light reach | Phases 13–18 | ✅ App Store submission / Tag `v1.6.0` |
+
+#### v1.6 phases (13–18, all merged to `master`)
+
+| Phase | Directory | Delivery |
+| --- | --- | --- |
+| 13 | `phases/13-rel-foundation` | Shared person / OTD queries (soft-delete + local day) |
+| 14 | `phases/14-person-timeline` | Pot → person timeline UI |
+| 15 | `phases/15-on-this-day` | On This Day + person-scoped thin slice |
+| 16 | `phases/16-widget-snapshot` | Privacy whitelist snapshot + publish/clear |
+| 17 | `phases/17-widget-native-shell` | iOS WidgetKit + Android Soft Stack AppWidget |
+| 18 | `phases/18-verify-uat` | Quality gates and UAT closeout |
 
 #### v1.5 phases (6–12, all merged to `master`)
 
@@ -482,7 +514,7 @@ Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planni
 
 #### v2 candidates (not scheduled · defer)
 
-- Relationship timeline, On This Day, year-in-pixels relationship weather, home-screen Widget
+- Year-in-Pixels / relationship pixel calendar, quick-voice entry, full UI refresh
 
 #### Explicit non-goals
 
