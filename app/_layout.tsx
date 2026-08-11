@@ -16,6 +16,7 @@ import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
+import { publishWidgetSnapshot } from '../services/widgetSnapshot';
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 
@@ -38,6 +39,7 @@ export default function RootLayout() {
       if (next === 'background' || next === 'inactive') {
         useAppStore.getState().stopAudio();
         void forceCancelRecording();
+        void publishWidgetSnapshot(useAppStore.getState().entries);
         return;
       }
 
