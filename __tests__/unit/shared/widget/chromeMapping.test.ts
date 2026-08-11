@@ -50,6 +50,9 @@ describe('mapSnapshotToChrome', () => {
   ])('returns cleared Soft Stack for %s (D-10/D-11)', (_label, input) => {
     const chrome = mapSnapshotToChrome(input);
     expect(chrome.mode).toBe('cleared');
+    if (chrome.mode !== 'cleared') {
+      throw new Error('expected cleared');
+    }
     expect(chrome).not.toHaveProperty('weatherIconKey');
     expect(chrome).not.toHaveProperty('growthStageTitleZh');
     expect(chrome).not.toHaveProperty('growthStageTitleEn');

@@ -17,3 +17,12 @@ export {
   NoOpWidgetSnapshotSink,
   createNoOpWidgetSnapshotSink,
 } from './noopSink';
+export { WIDGET_DEEP_LINK_URL } from './deepLink';
+export {
+  WIDGET_GROWTH_STAGE_TITLES,
+  WIDGET_WEATHER_ICON_KEYS,
+  mapSnapshotToChrome,
+  type WidgetChrome,
+  type WidgetChromeCleared,
+  type WidgetChromeStatus,
+} from './chromeMapping';
