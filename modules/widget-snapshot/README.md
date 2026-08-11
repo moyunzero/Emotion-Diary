@@ -1,6 +1,6 @@
 # Widget Snapshot (local Expo module)
 
-QUAL-03 native sink for the privacy whitelist snapshot, plus **iOS WidgetKit Soft Stack** sources (Phase 17 Plan 02). Android AppWidget UI lands in Plan 17-03; config-plugin injection in Plan 17-04.
+QUAL-03 native sink for the privacy whitelist snapshot, plus **iOS WidgetKit Soft Stack** (Phase 17 Plan 02) and **Android AppWidget Soft Stack** sources (Phase 17 Plan 03). Config-plugin manifest/layout injection lands in Plan 17-04.
 
 ## Storage
 
@@ -9,7 +9,7 @@ QUAL-03 native sink for the privacy whitelist snapshot, plus **iOS WidgetKit Sof
 | iOS | `UserDefaults(suiteName:)` App Group | `widget_snapshot_v1` | Suite: `group.com.moyunzero.emotiondiary` |
 | Android | `SharedPreferences` `MODE_PRIVATE` | `widget_snapshot_v1` | File: `{packageName}.widget_snapshot` |
 
-Must **not** use AsyncStorage as the sole/permanent SoT. Must **not** use world-readable external storage on Android.
+Must **not** use AsyncStorage as the sole/permanent SoT. Must **not** use world-readable external storage on Android. Must **not** set `android:process` isolation on the AppWidget provider (MODE_PRIVATE would become unreachable).
 
 ## iOS widget (`ios-widget/`)
 
@@ -40,6 +40,21 @@ App Group `UserDefaults` access should declare Privacy Manifest reason **`1C8F.1
 ## Timeline reload (iOS)
 
 `WidgetSnapshotModule.writeSnapshot` and `clearSnapshot` both call `WidgetCenter.shared.reloadAllTimelines()` after mutating the App Group key. Publish from the app process and logout clear therefore refresh home-screen Soft Stack chrome without waiting for the coarse timeline policy.
+
+## Android widget (`android-widget/`)
+
+Hand-rolled AppWidget Soft Stack sources live under `modules/widget-snapshot/android-widget/` — **not** under generated `android/` (that tree is not the source of truth). Plan 17-04 / prebuild / EAS must merge these Kotlin + `res/` assets into the host app and register the receiver in the manifest.
+
+| File / path | Role |
+|-------------|------|
+| `WidgetSnapshotProvider.kt` | `AppWidgetProvider`; reads `{packageName}.widget_snapshot` + `widget_snapshot_v1` with `MODE_PRIVATE`; Soft Stack chrome; root `PendingIntent` → `emotiondiary:///` |
+| `res/layout/widget_snapshot_small.xml` | RemoteViews Soft Stack (~2×2); padding 16dp |
+| `res/xml/widget_snapshot_info.xml` | `minWidth`/`minHeight` ~110dp; `targetCellWidth`/`Height` = 2 |
+| `res/drawable/ic_weather_*.xml` | Material-style vector weather glyphs (no production emoji) |
+| `res/drawable/widget_bg_*.xml` | Active rose / empty gray / cleared washes |
+| `res/values/strings.xml` | OS picker name/description + Soft Stack copy |
+
+Provider class (for Plan 17-04): `expo.modules.widgetsnapshot.WidgetSnapshotProvider`. Do **not** install `react-native-android-widget` or `expo-widgets`.
 
 ## JS API
 
