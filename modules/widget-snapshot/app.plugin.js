@@ -327,6 +327,101 @@ function ensureWidgetPrivacyInfoResource(project, targetUuid) {
   });
 }
 
+/** Ensure en / zh-Hans Localizable.strings are in the widget Resources phase. */
+function ensureWidgetLocalizableStrings(project, targetUuid) {
+  if (!targetUuid) return;
+  const locales = ['en', 'zh-Hans'];
+  for (const locale of locales) {
+    ensureWidgetResourceFile(
+      project,
+      targetUuid,
+      `${locale}.lproj/Localizable.strings`,
+      'text.plist.strings',
+    );
+  }
+}
+
+function ensureWidgetResourceFile(project, targetUuid, relativePath, lastKnownFileType) {
+  const objects = project.hash.project.objects;
+  const fileRefs = objects.PBXFileReference || {};
+  const buildFiles = objects.PBXBuildFile || {};
+  const base = relativePath.split('/').pop();
+
+  let fileRefUuid = null;
+  for (const key of Object.keys(fileRefs)) {
+    if (key.endsWith('_comment')) continue;
+    const fr = fileRefs[key];
+    if (!fr || typeof fr !== 'object') continue;
+    const rawPath = String(fr.path || '').replace(/"/g, '');
+    if (rawPath === relativePath || rawPath.endsWith(`/${relativePath}`)) {
+      fileRefUuid = key;
+      break;
+    }
+  }
+
+  if (!fileRefUuid) {
+    fileRefUuid = project.generateUuid();
+    fileRefs[fileRefUuid] = {
+      isa: 'PBXFileReference',
+      lastKnownFileType,
+      name: base,
+      path: relativePath,
+      sourceTree: '"<group>"',
+      includeInIndex: 1,
+    };
+    fileRefs[`${fileRefUuid}_comment`] = relativePath;
+
+    const groups = objects.PBXGroup || {};
+    for (const gKey of Object.keys(groups)) {
+      if (gKey.endsWith('_comment')) continue;
+      const g = groups[gKey];
+      if (!g || typeof g !== 'object') continue;
+      const gName = String(g.name || g.path || '').replace(/"/g, '');
+      if (gName !== WIDGET_TARGET_NAME) continue;
+      g.children = g.children || [];
+      if (!g.children.some((c) => c.value === fileRefUuid)) {
+        g.children.push({ value: fileRefUuid, comment: relativePath });
+      }
+      break;
+    }
+  }
+
+  const nativeTargets = objects.PBXNativeTarget || {};
+  const targetEntry = nativeTargets[targetUuid];
+  if (!targetEntry || !targetEntry.buildPhases) return;
+
+  let resourcesPhaseUuid = null;
+  for (const phase of targetEntry.buildPhases) {
+    if (objects.PBXResourcesBuildPhase?.[phase.value]) {
+      resourcesPhaseUuid = phase.value;
+      break;
+    }
+  }
+  if (!resourcesPhaseUuid) return;
+
+  const phase = objects.PBXResourcesBuildPhase[resourcesPhaseUuid];
+  phase.files = phase.files || [];
+  if (
+    phase.files.some((f) => {
+      const bf = buildFiles[f.value];
+      return bf && String(bf.fileRef) === fileRefUuid;
+    })
+  ) {
+    return;
+  }
+
+  const buildFileUuid = project.generateUuid();
+  buildFiles[buildFileUuid] = {
+    isa: 'PBXBuildFile',
+    fileRef: fileRefUuid,
+  };
+  buildFiles[`${buildFileUuid}_comment`] = `${base} in Resources`;
+  phase.files.push({
+    value: buildFileUuid,
+    comment: `${base} in Resources`,
+  });
+}
+
 function withIosWidgetXcodeTarget(config) {
   return withXcodeProject(config, (cfg) => {
     const project = cfg.modResults;
@@ -338,6 +433,7 @@ function withIosWidgetXcodeTarget(config) {
         ensureTargetDependency(project, existing.uuid);
         ensureEmbedAppExtensions(project, existing.uuid);
         ensureWidgetPrivacyInfoResource(project, existing.uuid);
+        ensureWidgetLocalizableStrings(project, existing.uuid);
       }
       updateWidgetTargetBuildSettings(project, hostVersion);
       normalizeWidgetSourcePaths(project);
@@ -366,7 +462,11 @@ function withIosWidgetXcodeTarget(config) {
     );
 
     project.addBuildPhase(
-      [`${WIDGET_TARGET_NAME}/PrivacyInfo.xcprivacy`],
+      [
+        `${WIDGET_TARGET_NAME}/PrivacyInfo.xcprivacy`,
+        `${WIDGET_TARGET_NAME}/en.lproj/Localizable.strings`,
+        `${WIDGET_TARGET_NAME}/zh-Hans.lproj/Localizable.strings`,
+      ],
       'PBXResourcesBuildPhase',
       'Resources',
       target.uuid,
@@ -591,7 +691,7 @@ function writeModuleAndroidManifest(manifestPath) {
   <application>
     <receiver
       android:name="expo.modules.widgetsnapshot.WidgetSnapshotProvider"
-      android:exported="true"
+      android:exported="false"
       android:label="@string/widget_snapshot_name">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -628,7 +728,7 @@ function withAndroidWidgetManifest(config) {
     application.receiver.push({
       $: {
         'android:name': WIDGET_PROVIDER_CLASS,
-        'android:exported': 'true',
+        'android:exported': 'false',
         'android:label': '@string/widget_snapshot_name',
       },
       'intent-filter': [

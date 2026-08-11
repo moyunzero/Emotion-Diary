@@ -119,7 +119,7 @@ struct SoftStackWidgetView: View {
 
       Spacer(minLength: 8)
 
-      Text(SoftStackCopy.brand)
+      Text(SoftStackCopy.brand(prefersChinese: prefersChinese))
         .font(.system(size: 12, weight: .bold, design: .rounded))
         .foregroundStyle(SoftStackColors.brand)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -132,12 +132,13 @@ struct SoftStackWidgetView: View {
     case .cleared:
       return SoftStackCopy.openAppCTA(prefersChinese: prefersChinese)
     case .status(let weather, let growth, _):
+      let brand = SoftStackCopy.brand(prefersChinese: prefersChinese)
       let w = SoftStackCopy.weatherA11y(weather, prefersChinese: prefersChinese)
       let g = SoftStackCopy.growthTitle(growth, prefersChinese: prefersChinese)
       if prefersChinese {
-        return "\(SoftStackCopy.brand)，\(w)，\(g)"
+        return "\(brand)，\(w)，\(g)"
       }
-      return "Xinqing, \(w), \(g)"
+      return "\(brand), \(w), \(g)"
     }
   }
 }
@@ -228,9 +229,31 @@ private enum SoftStackIcons {
 }
 
 private enum SoftStackCopy {
-  static let brand = "心晴"
-  static let widgetDisplayName = "心晴"
-  static let widgetDescription = "查看花园天气与成长"
+  /// Soft Stack bottom brand — zh「心晴」/ en「Xinqing」.
+  static func brand(prefersChinese: Bool) -> String {
+    prefersChinese ? "心晴" : "Xinqing"
+  }
+
+  /// Gallery title/description — extension Localizable.strings (zh-Hans / en).
+  static var widgetDisplayName: String {
+    NSLocalizedString(
+      "widget_display_name",
+      tableName: "Localizable",
+      bundle: .main,
+      value: "心晴",
+      comment: "Soft Stack widget gallery display name"
+    )
+  }
+
+  static var widgetDescription: String {
+    NSLocalizedString(
+      "widget_description",
+      tableName: "Localizable",
+      bundle: .main,
+      value: "查看花园天气与成长",
+      comment: "Soft Stack widget gallery description"
+    )
+  }
 
   static func openAppCTA(prefersChinese: Bool) -> String {
     prefersChinese ? "打开心晴" : "Open Xinqing"

@@ -117,6 +117,10 @@ appId: com.moyunzero.emotiondiary
 - takeScreenshot: .maestro/acceptance/014-person-timeline/06-missing-person
 - tapOn:
     id: person-timeline-missing-cta
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 30000
 - takeScreenshot: .maestro/acceptance/014-person-timeline/06b-after-missing-cta
 
 # UAT 4 — empty timeline for unused person tag

@@ -594,6 +594,7 @@ export const createUserSlice: StateCreator<
 
           if (isUserSwitching) {
             if (__DEV__) console.log("检测到用户切换，清除旧账号数据");
+            await enqueueClearWidgetSnapshot("account switch clear");
             set({ entries: [] });
           }
 
@@ -623,9 +624,9 @@ export const createUserSlice: StateCreator<
         const { user } = get();
 
         if (!user) {
-          set({ user: null });
           // D-07 / open-Q #1: clear lock-screen snapshot eagerly (idempotent)
           await enqueueClearWidgetSnapshot("logout clear (no user)");
+          set({ user: null });
           await AsyncStorage.removeItem("user_session");
           await get()._loadEntries();
           return;
@@ -643,23 +644,21 @@ export const createUserSlice: StateCreator<
           snapshot,
         );
 
-        // 登出
+        // 登出前先清 Soft Stack，避免 signOut 竞态窗口残留快照
+        await clearCachedProfile(user.id);
+        await enqueueClearWidgetSnapshot("logout clear");
+
         const { error } = await supabase.auth.signOut();
         if (error) {
           logger.error("user", "Logout error", error);
         }
 
-        // 清除 profile 缓存
-        await clearCachedProfile(user.id);
-        // D-07 / D-08 / open-Q #1: clear eagerly; do not force republish here
-        await enqueueClearWidgetSnapshot("logout clear");
-
         set({ user: null });
         await AsyncStorage.removeItem("user_session");
       } catch (error) {
         logger.error("user", "Logout error", error);
-        set({ user: null });
         await enqueueClearWidgetSnapshot("logout clear (catch)");
+        set({ user: null });
         await AsyncStorage.removeItem("user_session");
         await get()._loadEntries();
       }
@@ -738,11 +737,10 @@ export const createUserSlice: StateCreator<
           });
         }
 
-        // 本地登出、清除状态
+        // 本地登出、清除状态 — clear Soft Stack before remote sign-out
+        await enqueueClearWidgetSnapshot("deleteAccount clear");
         await supabase.auth.signOut();
         set({ user: null });
-        // D-07: clear App Group / native key with same sink as publish
-        await enqueueClearWidgetSnapshot("deleteAccount clear");
         await AsyncStorage.removeItem("user_session");
         await removeFromStorage(getStorageKey(user.id));
         await clearCachedProfile(user.id);

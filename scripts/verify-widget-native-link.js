@@ -33,6 +33,9 @@ function assertAutolinkingResolves(platform) {
         cwd: root,
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
+        // Full module graph can exceed default 1MB; stall after 2 minutes.
+        maxBuffer: 10 * 1024 * 1024,
+        timeout: 120_000,
       },
     );
   } catch (error) {

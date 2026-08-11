@@ -2,7 +2,7 @@
   <application>
     <receiver
       android:name="expo.modules.widgetsnapshot.WidgetSnapshotProvider"
-      android:exported="true"
+      android:exported="false"
       android:label="@string/widget_snapshot_name">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

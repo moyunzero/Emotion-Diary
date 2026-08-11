@@ -88,6 +88,80 @@ describe('widget-snapshot native hardening (source gates)', () => {
     );
   });
 
+  it('SnapshotReader.numericInt rejects Bool, fractions, and overflow', () => {
+    const swift = fs.readFileSync(
+      path.join(moduleRoot, 'ios-widget/SnapshotReader.swift'),
+      'utf8',
+    );
+    expect(swift).toContain('if value is Bool { return nil }');
+    expect(swift).toContain('CFBooleanGetTypeID()');
+    expect(swift).toContain('exactInt(from:');
+    expect(swift).toContain('double.rounded(.towardZero) == double');
+    expect(swift).toContain('Double(Int.min)');
+    expect(swift).toContain('Double(Int.max)');
+    // updatedAt / schemaVersion / entryCountActive all go through numericInt
+    expect(swift).toMatch(
+      /guard numericInt\(candidate\["updatedAt"\]\) != nil/,
+    );
+    expect(swift).toMatch(
+      /guard let version = numericInt\(candidate\["schemaVersion"\]\)/,
+    );
+  });
+
+  it('module AndroidManifest + plugin set AppWidget receiver exported=false', () => {
+    const manifest = fs.readFileSync(
+      path.join(moduleRoot, 'android/src/main/AndroidManifest.xml'),
+      'utf8',
+    );
+    expect(manifest).toContain('android:exported="false"');
+    expect(manifest).not.toMatch(
+      /WidgetSnapshotProvider[\s\S]{0,120}android:exported="true"/,
+    );
+    const plugin = fs.readFileSync(
+      path.join(moduleRoot, 'app.plugin.js'),
+      'utf8',
+    );
+    expect(plugin).toContain("android:exported=\"false\"");
+    expect(plugin).toContain("'android:exported': 'false'");
+  });
+
+  it('Soft Stack gallery copy uses extension Localizable.strings', () => {
+    const swift = fs.readFileSync(
+      path.join(moduleRoot, 'ios-widget/EmotionDiaryWidget.swift'),
+      'utf8',
+    );
+    expect(swift).toContain('NSLocalizedString');
+    expect(swift).toContain('widget_description');
+    expect(swift).toContain(
+      'static func brand(prefersChinese: Bool) -> String',
+    );
+    expect(swift).toMatch(/prefersChinese \? "心晴" : "Xinqing"/);
+    expect(swift).not.toMatch(/static let brand = "心晴"/);
+    const en = fs.readFileSync(
+      path.join(moduleRoot, 'ios-widget/en.lproj/Localizable.strings'),
+      'utf8',
+    );
+    const zh = fs.readFileSync(
+      path.join(moduleRoot, 'ios-widget/zh-Hans.lproj/Localizable.strings'),
+      'utf8',
+    );
+    expect(en).toContain('"widget_description" = "See garden weather and growth"');
+    expect(zh).toContain('"widget_description" = "查看花园天气与成长"');
+  });
+
+  it('Android values-en overrides Soft Stack brand to Xinqing', () => {
+    const en = fs.readFileSync(
+      path.join(moduleRoot, 'android-widget/res/values-en/strings.xml'),
+      'utf8',
+    );
+    const zh = fs.readFileSync(
+      path.join(moduleRoot, 'android-widget/res/values/strings.xml'),
+      'utf8',
+    );
+    expect(zh).toMatch(/widget_brand">心晴</);
+    expect(en).toMatch(/widget_brand">Xinqing</);
+  });
+
   it('app.plugin syncs Android provider only into the Expo module (no host duplicate)', () => {
     const plugin = fs.readFileSync(
       path.join(moduleRoot, 'app.plugin.js'),
@@ -107,8 +181,9 @@ describe('widget-snapshot native hardening (source gates)', () => {
     );
     // existing-target branch also embeds + PrivacyInfo resource
     expect(plugin).toContain('ensureWidgetPrivacyInfoResource');
+    expect(plugin).toContain('ensureWidgetLocalizableStrings');
     expect(plugin).toMatch(
-      /ensureTargetDependency\(project, existing\.uuid\);\s*ensureEmbedAppExtensions\(project, existing\.uuid\);\s*ensureWidgetPrivacyInfoResource\(project, existing\.uuid\);/,
+      /ensureTargetDependency\(project, existing\.uuid\);\s*ensureEmbedAppExtensions\(project, existing\.uuid\);\s*ensureWidgetPrivacyInfoResource\(project, existing\.uuid\);\s*ensureWidgetLocalizableStrings\(project, existing\.uuid\);/,
     );
     // pbxTargetByName omits uuid — findWidgetTarget must resolve PBXNativeTarget key
     expect(plugin).toMatch(/return \{ \.\.\.t, uuid: key \}/);
@@ -151,6 +226,8 @@ describe('widget-snapshot native hardening (source gates)', () => {
     );
     expect(script).toContain("assertAutolinkingResolves('apple')");
     expect(script).toContain("assertAutolinkingResolves('android')");
+    expect(script).toContain('maxBuffer: 10 * 1024 * 1024');
+    expect(script).toContain('timeout: 120_000');
   });
 
   it('en-US onThisDay hint uses Walk down memory lane idiom', () => {

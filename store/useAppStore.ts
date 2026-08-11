@@ -127,6 +127,14 @@ export const useAppStore = create<AppState>()((...args) => {
       );
       void (async () => {
         try {
+          // D-07 / D-08: clear widget sink before remote signOut
+          await enqueueClearWidgetSnapshot(
+            "clearWidgetSnapshot after SecureStore persist failure",
+          );
+        } catch (error) {
+          logger.warn("store", "clearWidgetSnapshot after SecureStore persist failure", error);
+        }
+        try {
           await supabase.auth.signOut();
         } catch (error) {
           logger.warn("store", "signOut after SecureStore persist failure", error);
@@ -136,14 +144,6 @@ export const useAppStore = create<AppState>()((...args) => {
           await AsyncStorage.removeItem("user_session");
         } catch (error) {
           logger.warn("store", "clear user_session after SecureStore persist failure", error);
-        }
-        try {
-          // D-07 / D-08: clear widget sink on SecureStore-fail signOut
-          await enqueueClearWidgetSnapshot(
-            "clearWidgetSnapshot after SecureStore persist failure",
-          );
-        } catch (error) {
-          logger.warn("store", "clearWidgetSnapshot after SecureStore persist failure", error);
         }
       })();
     });

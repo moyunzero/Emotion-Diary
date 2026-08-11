@@ -16,7 +16,7 @@ describe('OnThisDayScreen audio focus parity', () => {
     );
     expect(src).toContain('preparePlaybackAudioMode');
     expect(src).toMatch(
-      /useFocusEffect\([\s\S]*preparePlaybackAudioMode\(\)[\s\S]*stopAudio/,
+      /useFocusEffect\([\s\S]*setAnchorMs\(Date\.now\(\)\)[\s\S]*preparePlaybackAudioMode\(\)[\s\S]*stopAudio/,
     );
   });
 });

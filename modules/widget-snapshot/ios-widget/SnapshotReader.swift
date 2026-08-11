@@ -45,7 +45,7 @@ enum SnapshotReader {
     guard let version = numericInt(candidate["schemaVersion"]), version == schemaVersion else {
       return .cleared
     }
-    guard candidate["updatedAt"] is NSNumber || candidate["updatedAt"] is Int || candidate["updatedAt"] is Double else {
+    guard numericInt(candidate["updatedAt"]) != nil else {
       return .cleared
     }
     guard let entryCount = numericInt(candidate["entryCountActive"]) else {
@@ -71,9 +71,38 @@ enum SnapshotReader {
     )
   }
 
-  private static func numericInt(_ value: Any?) -> Int? {
-    if let n = value as? Int { return n }
-    if let n = value as? NSNumber { return n.intValue }
+  /// Accept only finite, exact integers in Int range. Reject Bool NSNumber, fractions, overflow.
+  static func numericInt(_ value: Any?) -> Int? {
+    if value == nil { return nil }
+    if value is Bool { return nil }
+
+    if let n = value as? Int {
+      return n
+    }
+
+    if let n = value as? Double {
+      return exactInt(from: n)
+    }
+
+    if let n = value as? Float {
+      return exactInt(from: Double(n))
+    }
+
+    if let n = value as? NSNumber {
+      // Bool bridges to NSNumber — reject CFBoolean.
+      if CFGetTypeID(n as CFTypeRef) == CFBooleanGetTypeID() {
+        return nil
+      }
+      return exactInt(from: n.doubleValue)
+    }
+
     return nil
+  }
+
+  private static func exactInt(from double: Double) -> Int? {
+    guard double.isFinite else { return nil }
+    guard double.rounded(.towardZero) == double else { return nil }
+    guard double >= Double(Int.min), double <= Double(Int.max) else { return nil }
+    return Int(double)
   }
 }

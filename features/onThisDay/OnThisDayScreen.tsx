@@ -16,7 +16,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { FlashList, type ListRenderItem } from "@shopify/flash-list";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Clock, Sprout } from "lucide-react-native";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View, useWindowDimensions } from "react-native";
 import { createOnThisDayStyles } from "./onThisDay.styles";
@@ -33,7 +33,8 @@ export function OnThisDayScreen() {
   const entries = useAppStore((s) => s.entries);
   const effectiveLocale = useAppStore((s) => s.effectiveLocale);
 
-  const anchorMs = useMemo(() => Date.now(), []);
+  // Retained screens keep mount across midnight — refresh on every focus.
+  const [anchorMs, setAnchorMs] = useState(() => Date.now());
 
   const rows = useMemo(
     () => entriesOnThisDayPriorYears(entries, anchorMs),
@@ -44,6 +45,7 @@ export function OnThisDayScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      setAnchorMs(Date.now());
       void preparePlaybackAudioMode();
       return () => {
         useAppStore.getState().stopAudio();
