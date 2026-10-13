@@ -1,0 +1,112 @@
+appId: com.moyunzero.emotiondiary
+---
+# App Store 预览片（约 20–30s 观感）
+# 配合：bash scripts/record-aso-preview.sh
+# 前置：模拟器已装 com.moyunzero.emotiondiary + Metro（dev client）或独立 release 模拟器包
+
+- launchApp
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+
+# 1) 首页 / 气象站
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 2500
+
+# 2) 记一笔
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://record
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- waitForAnimationToEnd:
+    timeout: 1500
+- tapOn:
+    id: mood-content-input
+- inputText: "今天天空还亮着，给自己留一点柔软。"
+- waitForAnimationToEnd:
+    timeout: 1200
+- tapOn:
+    id: mood-submit-button
+- extendedWaitUntil:
+    notVisible:
+      id: mood-content-input
+    timeout: 25000
+
+# 3) 回首页看成长感
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 2500
+
+# 4) 心灵花园 / 洞察
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://insights
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 45000
+- waitForAnimationToEnd:
+    timeout: 2000
+- runFlow:
+    when:
+      visible:
+        id: relationship-garden-pot-other
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "relationship-garden-pot-other"
+          direction: DOWN
+          timeout: 15000
+          visibilityPercentage: 40
+      - waitForAnimationToEnd:
+          timeout: 1500
+      - tapOn:
+          id: "relationship-garden-pot-other"
+      - extendedWaitUntil:
+          visible:
+            id: person-timeline-hero
+          timeout: 20000
+      - waitForAnimationToEnd:
+          timeout: 2500
+
+# 5) 往年今日（有卡片则进入）
+- runFlow:
+    when:
+      visible:
+        id: on-this-day-insights-card
+    commands:
+      - tapOn:
+          id: on-this-day-insights-card
+      - extendedWaitUntil:
+          visible:
+            id: on-this-day-hero
+          timeout: 20000
+      - waitForAnimationToEnd:
+          timeout: 2500
+
+- waitForAnimationToEnd:
+    timeout: 2000

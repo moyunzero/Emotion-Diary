@@ -1,6 +1,6 @@
 # App Store Connect 元数据 — 简体中文
 
-> **版本**：1.6.0 · **更新日期**：2026-08-11  
+> **版本**：1.6.1 · **更新日期**：2026-10-13  
 > **Bundle ID**：`com.moyunzero.emotiondiary`  
 > **App Store**：https://apps.apple.com/us/app/心晴mo/id6759703686
 
@@ -15,7 +15,7 @@
 | 推广文本 | 170 字符 | 见下（可随时改，无需新版本） |
 | 描述 | 4000 字符 | 见下 |
 | 关键词 | 100 字符 | 见下 |
-| 此版本的新增内容 | 4000 字符 | `whats-new-1.6.0-zh.md` |
+| 此版本的新增内容 | 4000 字符 | `whats-new-1.6.1-zh.md` |
 | 支持 URL | — | 见下 |
 | 隐私政策 URL | — | 见下 |
 
@@ -29,7 +29,7 @@
 
 ## 推广文本（170 字符以内，可选）
 
-心晴MO 1.6：关系时间线、往年今日，主屏 Soft Stack 小组件——回看与 TA 的点滴，轻触照料心灵花园。
+本地优先的情绪日记：用天气读懂心情，用花园看见关系。关系时间线·往年今日·主屏小组件——温柔记录，隐私安心。
 
 ---
 
@@ -96,6 +96,10 @@ https://github.com/moyunzero/Emotion-Diary/blob/master/PRIVACY.md
 
 ---
 
-## 版本 1.6.0 新增内容（摘要）
+## 版本 1.6.1 新增内容（摘要）
 
-见 [`whats-new-1.6.0-zh.md`](./whats-new-1.6.0-zh.md)。
+见 [`whats-new-1.6.1-zh.md`](./whats-new-1.6.1-zh.md)。功能基线说明仍见 [`whats-new-1.6.0-zh.md`](./whats-new-1.6.0-zh.md)。
+
+## 产品叙事（大众 / 投资人）
+
+见 [`product-narrative-1.6.1.md`](./product-narrative-1.6.1.md)。

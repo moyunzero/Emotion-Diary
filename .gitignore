@@ -37,6 +37,9 @@ Desktop.ini
 # Cursor
 .cursor/
 
+# Claude Code 本地 skill / references（小红书小工具等，不入库）
+.claude/
+
 # ==============================================
 # Node.js & Dependencies
 # ==============================================
@@ -55,6 +58,10 @@ app-store-submission/*
 !app-store-submission/metadata/
 !app-store-submission/metadata/**
 agent-transcripts/
+
+# 小红书小工具本地产物与参考文档（非 App 源码）
+minitool-dist/
+小红书小工具操作指南.pdf
 
 # Lockfiles (Project uses yarn, ignore npm/pnpm locks to avoid confusion)
 package-lock.json
