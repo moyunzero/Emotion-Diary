@@ -1,6 +1,6 @@
 # App Store Connect Metadata — English (U.S.)
 
-> **Version**: 1.6.0 · **Updated**: 2026-08-11  
+> **Version**: 1.6.1 · **Updated**: 2026-10-13  
 > **Bundle ID**: `com.moyunzero.emotiondiary`  
 > **App Store listing**: [心晴MO on the App Store](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)  
 > **Display name on device**: 心晴MO · English marketing name: **MoodMO** / **Xinqing MO**
@@ -35,9 +35,9 @@ Mood journal & mind garden
 
 ## Promotional Text (max 170 characters, optional)
 
-MoodMO 1.6: Relationship Timeline, On This Day, Soft Stack widget—revisit moments with someone, tend your Mind Garden at a glance.
+Offline-first mood journal: weather for feelings, a garden for relationships. Timeline, On This Day, home widget—private by default.
 
-(128 characters)
+(≈130 characters)
 
 ---
 
@@ -69,9 +69,13 @@ MoodMO supports self-observation only. It is not medical advice and does not rep
 
 ---
 
-## What’s New in Version 1.6.0
+## What’s New in Version 1.6.1
 
-See [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md) for paste-ready release notes.
+See [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md). Feature baseline notes remain in [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md).
+
+## Product narrative (consumer / investor)
+
+See [`product-narrative-1.6.1.md`](./product-narrative-1.6.1.md).
 
 ---
 

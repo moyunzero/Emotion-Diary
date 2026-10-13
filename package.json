@@ -1,12 +1,12 @@
 {
   "name": "emotion-diary",
   "main": "expo-router/entry",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
-    "ios": "expo run:ios",
+    "ios": "node ./scripts/patch-expo-devicehub.js && expo run:ios && bash scripts/ensure-sim-app.sh",
     "web": "expo start --web",
     "lint": "eslint app components constants features hooks lib services store utils shared types types.ts constants.ts --ext .ts,.tsx,.js,.jsx --cache --cache-location .expo/cache/eslint/",
     "typecheck": "tsc --noEmit",
@@ -36,7 +36,9 @@
     "verify:eas-config": "node scripts/verify-eas-config.js",
     "verify:all": "node scripts/verify-all-configs.js",
     "verify:governance": "node scripts/verify-governance.js",
-    "verify:widget-native": "node scripts/verify-widget-native-link.js"
+    "verify:widget-native": "node scripts/verify-widget-native-link.js",
+    "aso:preview": "bash scripts/record-aso-preview.sh",
+    "aso:preview:ensure": "bash scripts/ensure-sim-app.sh"
   },
   "dependencies": {
     "widget-snapshot": "file:./modules/widget-snapshot",
