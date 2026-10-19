@@ -32,8 +32,13 @@ export function countReplaceableSharedIds(
     localById.set(row.id, row);
   }
 
+  const lastCloudById = new Map<string, CloudRevisionRow>();
+  for (const row of cloudRows) {
+    lastCloudById.set(row.id, row);
+  }
+
   let total = 0;
-  for (const cloud of cloudRows) {
+  for (const cloud of lastCloudById.values()) {
     if (tombstoneIds.has(cloud.id)) {
       continue;
     }
@@ -41,7 +46,10 @@ export function countReplaceableSharedIds(
     if (!local) {
       continue;
     }
-    if (typeof local.updatedAt !== "number" || typeof cloud.updatedat !== "number") {
+    if (typeof local.updatedAt !== "number" || local.updatedAt <= 0) {
+      continue;
+    }
+    if (typeof cloud.updatedat !== "number") {
       continue;
     }
     if (
