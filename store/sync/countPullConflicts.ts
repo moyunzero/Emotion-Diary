@@ -15,6 +15,31 @@ import { isNetworkError } from "../../utils/errorHandler";
 import { logger } from "../../utils/logger";
 import { getSyncErrorMessage } from "./syncErrors";
 
+/** Raw PostgREST message. Do not pass getSyncErrorMessage output into isNetworkError. */
+function rawErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: unknown }).message === "string"
+  ) {
+    return (error as { message: string }).message;
+  }
+  return String(error);
+}
+
+/** Coerce a numeric string in the query step. The compare function still skips non-numbers. */
+function updatedatForCount(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+  const coerced = Number(value);
+  return Number.isFinite(coerced) ? coerced : undefined;
+}
+
 /** Store fields this preview reads. Diary body is not required. */
 type CountPullState = {
   user: { id: string } | null;
@@ -68,7 +93,7 @@ export async function countPullConflicts(
     .eq("user_id", currentUserId);
 
   if (error) {
-    if (isNetworkError(error)) {
+    if (isNetworkError(rawErrorMessage(error))) {
       return { status: "unknown" };
     }
     throw new Error(getSyncErrorMessage(error));
@@ -76,7 +101,7 @@ export async function countPullConflicts(
 
   const cloudRows: CloudRevisionRow[] = (data ?? []).map((row) => ({
     id: String(row.id),
-    updatedat: row.updatedat,
+    updatedat: updatedatForCount(row.updatedat),
   }));
   const localRows = entries.map((entry) => ({
     id: entry.id,
