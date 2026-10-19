@@ -2,6 +2,10 @@
  * shared/sync/pullConflictCount.ts — shared ids whose local revision is newer.
  */
 
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'zh-Hans' }]),
+}));
+
 import { countReplaceableSharedIds } from '../../../../shared/sync/pullConflictCount';
 
 describe('countReplaceableSharedIds', () => {

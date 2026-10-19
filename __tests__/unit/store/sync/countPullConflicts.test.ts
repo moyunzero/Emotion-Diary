@@ -2,6 +2,10 @@
  * store/sync/countPullConflicts.ts — read-only id and updatedat preview.
  */
 
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageTag: 'zh-Hans' }]),
+}));
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { countPullConflicts } from '../../../../store/sync/countPullConflicts';
