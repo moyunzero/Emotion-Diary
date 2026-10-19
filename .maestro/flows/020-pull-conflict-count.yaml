@@ -1,0 +1,75 @@
+appId: com.moyunzero.emotiondiary
+---
+# Phase 19 拉取冲突计数全链路（__DEV__ 深链，不进 CI）
+# 生产确认框属于 Phase 20。这里打开 dev-pull-conflict，走 countPullConflicts。
+# 断言一行：status:total:select
+# 运行：yarn test:maestro:preflight && yarn test:maestro:020
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=shared-newer
+- extendedWaitUntil:
+    visible: "shared-newer:ready:1:id, updatedat"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=equal
+- extendedWaitUntil:
+    visible: "equal:ready:0:id, updatedat"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=local-only
+- extendedWaitUntil:
+    visible: "local-only:ready:0:id, updatedat"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=network
+- extendedWaitUntil:
+    visible: "network:unknown::id, updatedat"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=no-user
+- extendedWaitUntil:
+    visible: "no-user:error::"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=session-mismatch
+- extendedWaitUntil:
+    visible: "session-mismatch:error::"
+    timeout: 20000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-pull-conflict?case=permission
+- extendedWaitUntil:
+    visible: "permission:error::id, updatedat"
+    timeout: 20000

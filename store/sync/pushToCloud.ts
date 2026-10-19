@@ -1,6 +1,9 @@
 import type { StoreApi } from "zustand";
 import { supabase } from "../../lib/supabase";
-import { uploadPendingAudios } from "../../services/audioSync";
+import {
+  audioNeedsCloudUpload,
+  uploadPendingAudios,
+} from "../../services/audioSync";
 import { fetchUserTombstoneEntryIds } from "../../services/entryTombstones";
 import { applyAudioUploadResults } from "../../shared/audio/sync";
 import {
@@ -289,10 +292,7 @@ export async function runPushToCloud(
     try {
       const allAudios = entries
         .flatMap((e) => e.audios || [])
-        .filter(
-          (a) =>
-            a.syncStatus === "pending" || a.syncStatus === "failed",
-        );
+        .filter(audioNeedsCloudUpload);
 
       if (allAudios.length > 0) {
         const uploadResult = await uploadPendingAudios(

@@ -6,11 +6,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import { Alert } from "react-native";
 import { i18n } from "@/i18n";
+import { supabase } from "@/lib/supabase";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import { countPullConflicts } from "@/store/sync/countPullConflicts";
 import { useAppStore } from "@/store/useAppStore";
 import { logger } from "@/utils/logger";
 import { formatLastSyncTimeValue } from "../utils/formatLastSyncTime";
 import { SYNC_FLASH_MS, flashSyncProgress } from "../utils/syncChrome";
+import { mergeConfirmForCount, presentMergeConfirm } from "./mergeConfirm";
 import type { MutableRefObject } from "react";
 
 type StateRef = {
@@ -141,21 +144,43 @@ export function useProfileSyncHandlers(state: StateRef) {
   }, [runSyncAction]);
 
   const handleSyncPull = useCallback(() => {
-    Alert.alert(
-      i18n.t("pull.confirmTitle", { ns: "sync" }),
-      i18n.t("pull.confirmMessage", { ns: "sync" }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("pull.confirmOk", { ns: "sync" }),
-          onPress: () => void runSyncAction("download"),
-        },
-      ],
-    );
-  }, [runSyncAction]);
+    if (!user) {
+      state.setIsRegisterMode(false);
+      state.setIsLoginModalOpen(true);
+      return;
+    }
+    if (state.isSyncingRef.current) return;
+
+    state.isSyncingRef.current = true;
+    void countPullConflicts(supabase, () => useAppStore.getState())
+      .then((result) => {
+        state.isSyncingRef.current = false;
+        presentMergeConfirm(
+          mergeConfirmForCount(result),
+          (action) => {
+            if (action === "upload") void runSyncAction("upload");
+            if (action === "download") void runSyncAction("download");
+          },
+          {
+            alert: Alert.alert,
+            t: (key, options) =>
+              String(i18n.t(key as never, options as never)),
+          },
+        );
+      })
+      .catch((error: unknown) => {
+        state.isSyncingRef.current = false;
+        const message =
+          error instanceof Error
+            ? error.message
+            : i18n.t("sync.operationFailed", { ns: "system" });
+        flashSyncProgress(
+          useAppStore.setState.bind(useAppStore),
+          { syncStatus: "error", syncProgress: message },
+          3000,
+        );
+      });
+  }, [runSyncAction, state, user]);
 
   const formatLastSyncTime = useCallback(
     (timestamp: number | null) =>

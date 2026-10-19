@@ -20,6 +20,12 @@ jest.mock('../../../shared/audio/uploadRetry', () => {
 
 const mockUpload = jest.fn();
 const mockCreateSignedUrl = jest.fn();
+
+jest.mock('expo-file-system', () => ({
+  EncodingType: { Base64: 'base64' },
+  readAsStringAsync: jest.fn(async () => Buffer.from('audio').toString('base64')),
+  getInfoAsync: jest.fn(async () => ({ exists: true, size: 5 })),
+}));
 const mockFrom = jest.fn((_bucket?: string) => ({
   upload: mockUpload,
   createSignedUrl: mockCreateSignedUrl,
@@ -109,8 +115,8 @@ describe('uploadPendingAudios concurrency (D-10)', () => {
 
 describe('uploadPendingAudios fail-continue (D-11)', () => {
   it('one failure still yields success remoteUrls for others and lists failed id', async () => {
-    mockUpload.mockImplementation((_path: string, localUri: string) => {
-      if (String(localUri).includes('bad')) {
+    mockUpload.mockImplementation((path: string) => {
+      if (String(path).includes('/bad.')) {
         return Promise.resolve({ error: { message: 'upload failed' } });
       }
       return Promise.resolve({ error: null });

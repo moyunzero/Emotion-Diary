@@ -13,6 +13,10 @@
     "confirmTitle": "Merge from cloud",
     "confirmMessage": "Cloud entries will merge with this device. If the same entry exists on both sides, the cloud version wins (you can recover entries deleted on this device). Entries only on this device stay. Continue?",
     "confirmOk": "Merge",
+    "confirmReplace": "{{count}} local edits will be replaced by the full cloud row. Back up first, or merge anyway.",
+    "confirmUnknown": "This device could not check how many local edits would be replaced. Back up first, or merge anyway.",
+    "uploadFirst": "Back up first",
+    "mergeAnyway": "Merge anyway",
     "success": "Merged {{count}} entries"
   },
   "pendingMessage": "A sync is already in progress; backup will retry when it finishes",

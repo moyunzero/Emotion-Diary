@@ -1,0 +1,78 @@
+appId: com.moyunzero.emotiondiary
+---
+# 录音补传边界 + 应用内每条录音都能出声（__DEV__ 深链，不进 CI）
+# 补传决策走 repairActionForAudio，不上传、不改日记。
+# 播放走 audioCoordinator：进度前进或短片段播完才算通过，只亮 isPlaying 不算。
+# 通过条件：至少一条真的出声，且没有「播放成功但进度不动」。
+# 云端仍是路径文本的对象会被拒绝，记入 fail，不把整次验收判失败。
+# 前置：模拟器 + dev build + yarn start；.maestro.env 里有 MAESTRO_EMAIL / MAESTRO_PASSWORD
+# 运行：yarn test:maestro:preflight && yarn test:maestro:021
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-audio-repair?mode=repair
+- extendedWaitUntil:
+    visible: "repair:synced-https-missing=skip-missing|synced-https-empty=skip-missing|synced-object-path=skip|synced-file-url=skip|synced-spaced-https=skip|synced-no-remote=skip|uppercase-http=upload|pending-file=upload|failed-file=upload|pending-null-remote=upload|pending-missing=fail-missing|failed-empty=fail-missing|pending-unicode-missing=fail-missing|no-local=skip"
+    timeout: 30000
+- takeScreenshot: .maestro/acceptance/021-audio-repair-playback/01-repair-boundaries
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- runFlow:
+    file: ../subflows/login.yaml
+- scrollUntilVisible:
+    element:
+      id: profile-sync-pull
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: profile-sync-pull
+- extendedWaitUntil:
+    visible: "继续合并"
+    timeout: 10000
+- tapOn: "继续合并"
+- extendedWaitUntil:
+    visible: "正在从云端合并"
+    timeout: 15000
+    optional: true
+- extendedWaitUntil:
+    notVisible: "正在从云端合并"
+    timeout: 120000
+- takeScreenshot: .maestro/acceptance/021-audio-repair-playback/02-after-pull
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-audio-repair?mode=play
+- extendedWaitUntil:
+    visible:
+      id: audio-playback-status
+      text: "playback:pass"
+    timeout: 300000
+- takeScreenshot: .maestro/acceptance/021-audio-repair-playback/03-playback-pass

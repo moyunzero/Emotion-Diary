@@ -35,6 +35,7 @@ import {
     createEntriesSlice,
 } from "./modules/entries";
 import { AppState } from "./modules/types";
+import { repairCloudAudios } from "./sync/repairCloudAudios";
 import { createUserSlice, hydrateEntriesAfterGuestMigration } from "./modules/user";
 import { createLocaleModule } from "./modules/locale";
 import { createWeatherModule } from "./modules/weather";
@@ -288,6 +289,16 @@ export const initializeStore = (): (() => void) => {
                   (partial) => useAppStore.setState(partial),
                   session.user.id,
                 );
+                void repairCloudAudios(
+                  () => useAppStore.getState(),
+                  (partial) => useAppStore.setState(partial),
+                  () =>
+                    scheduleProcessPendingSync(() =>
+                      useAppStore.getState().syncToCloud(),
+                    ),
+                ).catch((error) => {
+                  logger.warn("store", "自动补传录音失败", error);
+                });
               } catch (error) {
                 console.error("加载本地数据失败:", error);
               }

@@ -1,0 +1,101 @@
+appId: com.moyunzero.emotiondiary
+---
+# Phase 20 合并确认（__DEV__ 深链，不进 CI）
+# 与个人页「从云端合并」共用 presentMergeConfirm。这里不上传、不合并。
+# 运行：yarn test:maestro:preflight && yarn test:maestro:023
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-merge-confirm?case=counted&n=1
+- extendedWaitUntil:
+    visible: "本机有 2 条修改会在合并时被云端整行覆盖。可以先备份，或仍要合并。"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "先备份"
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "仍要合并"
+    timeout: 5000
+- tapOn: "取消"
+- extendedWaitUntil:
+    visible:
+      id: merge-confirm-result
+      text: "action:cancel"
+    timeout: 10000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-merge-confirm?case=counted&n=2
+- extendedWaitUntil:
+    visible: "先备份"
+    timeout: 20000
+- tapOn: "先备份"
+- extendedWaitUntil:
+    visible:
+      id: merge-confirm-result
+      text: "action:upload"
+    timeout: 10000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-merge-confirm?case=counted&n=3
+- extendedWaitUntil:
+    visible: "仍要合并"
+    timeout: 20000
+- tapOn: "仍要合并"
+- extendedWaitUntil:
+    visible:
+      id: merge-confirm-result
+      text: "action:download"
+    timeout: 10000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-merge-confirm?case=zero&n=1
+- extendedWaitUntil:
+    visible: "继续合并"
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: "先备份"
+    timeout: 5000
+- tapOn: "继续合并"
+- extendedWaitUntil:
+    visible:
+      id: merge-confirm-result
+      text: "action:download"
+    timeout: 10000
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-merge-confirm?case=unknown&n=1
+- extendedWaitUntil:
+    visible: "暂时无法确认有多少条本机修改会被覆盖。可以先备份，或仍要合并。"
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: "本机有 0 条"
+    timeout: 5000
+- tapOn: "取消"
+- extendedWaitUntil:
+    visible:
+      id: merge-confirm-result
+      text: "action:cancel"
+    timeout: 10000
+- takeScreenshot: .maestro/acceptance/023-merge-confirm/01-unknown-cancel
