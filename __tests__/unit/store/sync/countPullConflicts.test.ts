@@ -9,6 +9,7 @@ jest.mock('expo-localization', () => ({
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { countPullConflicts } from '../../../../store/sync/countPullConflicts';
+import { logger } from '../../../../utils/logger';
 
 const USER_ID = 'user-1';
 const ENTRY_ID = 'shared';
@@ -49,9 +50,19 @@ function localEntry(id: string, updatedAt: number) {
 }
 
 describe('countPullConflicts', () => {
+  let warn: jest.SpyInstance;
+
   beforeAll(async () => {
     const { initI18n } = await import('../../../../i18n');
     await initI18n();
+  });
+
+  beforeEach(() => {
+    warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warn.mockRestore();
   });
 
   it('returns ready total 1 for one strictly newer shared id (D-01)', async () => {
@@ -216,5 +227,57 @@ describe('countPullConflicts', () => {
     }));
 
     expect(result).toEqual({ status: 'ready', total: 1 });
+  });
+
+  it('excludes only returned tombstone ids when that read errors (D-08)', async () => {
+    const { client } = signedInClient(
+      {
+        data: [
+          { id: ENTRY_ID, updatedat: 1_700_000_000_000 },
+          { id: OTHER_ID, updatedat: 1_700_000_000_000 },
+        ],
+        error: null,
+      },
+      {
+        data: [{ entry_id: ENTRY_ID }],
+        error: { message: 'network' },
+      },
+    );
+
+    const result = await countPullConflicts(client, () => ({
+      user: { id: USER_ID },
+      entries: [
+        {
+          ...localEntry(ENTRY_ID, 1_700_000_000_001),
+          content: 'secret diary body',
+        },
+        localEntry(OTHER_ID, 1_700_000_000_001),
+      ],
+    }));
+
+    expect(result).toEqual({ status: 'ready', total: 1 });
+    expect(warn.mock.calls).toEqual([['countPullConflicts', 'network']]);
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('secret diary body');
+  });
+
+  it('excludes nothing when a tombstone error returns no ids (D-08)', async () => {
+    const { client } = signedInClient(
+      {
+        data: [{ id: ENTRY_ID, updatedat: 1_700_000_000_000 }],
+        error: null,
+      },
+      {
+        data: null,
+        error: { message: 'network' },
+      },
+    );
+
+    const result = await countPullConflicts(client, () => ({
+      user: { id: USER_ID },
+      entries: [localEntry(ENTRY_ID, 1_700_000_000_001)],
+    }));
+
+    expect(result).toEqual({ status: 'ready', total: 1 });
+    expect(warn.mock.calls).toEqual([['countPullConflicts', 'network']]);
   });
 });
