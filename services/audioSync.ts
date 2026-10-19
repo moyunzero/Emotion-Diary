@@ -4,10 +4,16 @@
  */
 
 import {
+  EncodingType,
+  getInfoAsync,
+  readAsStringAsync,
+} from "expo-file-system";
+import {
   AUDIO_UPLOAD_MAX_ATTEMPTS,
   computeUploadRetryDelayMs,
   sleepMs,
 } from "../shared/audio/uploadRetry";
+import { looksLikeM4a } from "../shared/audio/playback";
 import { extractAudiosObjectPath } from "../shared/audio/storagePath";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AudioData } from "../types";
@@ -24,8 +30,20 @@ export interface PendingAudioUploadResult {
   failedAudioIds: string[];
 }
 
+/** 把 expo-file-system 读出的 base64 还原成上传用的二进制。 */
+function decodeBase64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64.replace(/\s/g, ""));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
 /**
  * 上传单个音频文件到云端。
+ * 必须读取 localUri 指向的文件字节。Storage 把普通字符串当成正文，
+ * 传路径字符串会在云端存下一份不可播放的文本。
  * 成功时 remoteUrl 为 Storage object path（非公有/签名 URL）— D-08/D-10。
  */
 export const uploadAudio = async (
@@ -43,9 +61,21 @@ export const uploadAudio = async (
   const filePath = `${userId}/${audioData.id}.m4a`;
 
   try {
+    const base64 = await readAsStringAsync(audioData.localUri, {
+      encoding: EncodingType.Base64,
+    });
+    const body = decodeBase64ToArrayBuffer(base64);
+    if (body.byteLength === 0) {
+      return { success: false, error: "本地文件为空" };
+    }
+    const prefix = new Uint8Array(body, 0, Math.min(body.byteLength, 7));
+    if (String.fromCharCode(...prefix) === "file://") {
+      return { success: false, error: "文件内容不是音频" };
+    }
+
     const { error } = await supabase.storage
       .from(AUDIO_BUCKET)
-      .upload(filePath, audioData.localUri, {
+      .upload(filePath, body, {
         contentType: "audio/m4a",
         upsert: true,
       });
@@ -91,6 +121,30 @@ export async function resolvePlayableRemoteUrl(
       return null;
     }
 
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    let response: Response;
+    try {
+      response = await fetch(data.signedUrl, {
+        headers: { Range: "bytes=0-15" },
+        signal: controller.signal,
+      });
+    } catch (error) {
+      logger.warn("audioSync", "读取云端音频头失败", error);
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!response.ok && response.status !== 206) {
+      logger.warn("audioSync", "读取云端音频头失败", { status: response.status });
+      return null;
+    }
+    const header = new Uint8Array(await response.arrayBuffer());
+    if (!looksLikeM4a(header)) {
+      logger.warn("audioSync", "云端对象不是 m4a");
+      return null;
+    }
+
     return data.signedUrl;
   } catch (error) {
     logger.warn("audioSync", "createSignedUrl 异常", error);
@@ -125,6 +179,52 @@ export async function uploadAudioWithRetry(
   return { success: false };
 }
 
+/**
+ * 本机还有文件、且云端还没有可用对象时需要上传。
+ * 已同步但 remoteUrl 仍是 http(s) 公有链接的，是旧数据：桶改为私有后这些链接签不出文件。
+ * 只有本机还留着录音时才能补传；传成功后 remoteUrl 会改成对象路径，不会每次备份都重传。
+ */
+export function audioNeedsCloudUpload(audio: {
+  localUri?: string;
+  remoteUrl?: string;
+  syncStatus?: string;
+}): boolean {
+  if (!audio.localUri) return false;
+  if (audio.syncStatus === "pending" || audio.syncStatus === "failed") {
+    return true;
+  }
+  return typeof audio.remoteUrl === "string" && /^https?:\/\//i.test(audio.remoteUrl);
+}
+
+async function localAudioExists(uri: string): Promise<boolean> {
+  try {
+    const info = await getInfoAsync(uri);
+    return info.exists && info.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+export type RepairAction = "skip" | "skip-missing" | "upload" | "fail-missing";
+
+/** 补传决策：本机没有可读文件时，待上传记失败，旧公有链接只跳过。 */
+export async function repairActionForAudio(audio: {
+  localUri?: string;
+  remoteUrl?: string;
+  syncStatus?: string;
+}): Promise<RepairAction> {
+  if (!audioNeedsCloudUpload(audio) || !audio.localUri) {
+    return "skip";
+  }
+  if (!(await localAudioExists(audio.localUri))) {
+    if (audio.syncStatus === "pending" || audio.syncStatus === "failed") {
+      return "fail-missing";
+    }
+    return "skip-missing";
+  }
+  return "upload";
+}
+
 /** D-10: pending audio upload concurrency cap (hand-rolled pool; no p-limit). */
 const UPLOAD_CONCURRENCY = 3;
 
@@ -142,10 +242,7 @@ export const uploadPendingAudios = async (
   let success = 0;
   let failed = 0;
 
-  const pendingAudios = audios.filter(
-    (a) =>
-      (a.syncStatus === "pending" || a.syncStatus === "failed") && a.localUri,
-  );
+  const pendingAudios = audios.filter(audioNeedsCloudUpload);
 
   let nextIndex = 0;
 
@@ -155,6 +252,16 @@ export const uploadPendingAudios = async (
       if (i >= pendingAudios.length) break;
 
       const audio = pendingAudios[i];
+      const action = await repairActionForAudio(audio);
+      if (action === "fail-missing") {
+        failed++;
+        failedAudioIds.push(audio.id);
+        logger.error("audioSync", "本地录音文件不存在", { audioId: audio.id });
+        continue;
+      }
+      if (action !== "upload") {
+        continue;
+      }
       const outcome = await uploadAudioWithRetry(audio, userId);
       if (outcome.success) {
         results.set(audio.id, outcome.remoteUrl);

@@ -13,6 +13,10 @@
     "confirmTitle": "从云端合并",
     "confirmMessage": "将把云端记录与本机合并。若同一条在两边都存在，以云端内容为准（可找回本机已删条目）。仅本机独有的记录会保留。确定继续？",
     "confirmOk": "继续合并",
+    "confirmReplace": "本机有 {{count}} 条修改会在合并时被云端整行覆盖。可以先备份，或仍要合并。",
+    "confirmUnknown": "暂时无法确认有多少条本机修改会被覆盖。可以先备份，或仍要合并。",
+    "uploadFirst": "先备份",
+    "mergeAnyway": "仍要合并",
     "success": "已合并 {{count}} 条记录"
   },
   "pendingMessage": "已有同步进行中，完成后将自动尝试备份",

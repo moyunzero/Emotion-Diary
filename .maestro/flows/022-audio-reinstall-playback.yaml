@@ -1,0 +1,86 @@
+appId: com.moyunzero.emotiondiary
+---
+# 卸载重装后播放已备份的录音（__DEV__，不进 CI）
+# 先用生产 syncToCloud 把一条真 m4a 传到云端，再 clearState 模拟卸载。
+# 重装后的播放步骤调用生产 syncFromCloud，再只播这一条。
+# 运行：yarn test:maestro:preflight && yarn test:maestro:022
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- runFlow:
+    file: ../subflows/login.yaml
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-audio-reinstall?step=backup
+- extendedWaitUntil:
+    visible:
+      id: audio-reinstall-result
+      text: "backup:ok"
+    timeout: 120000
+- takeScreenshot: .maestro/acceptance/022-audio-reinstall-playback/01-backed-up
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: onboarding-skip-button
+    timeout: 90000
+- tapOn:
+    id: onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: mood-content-input
+    timeout: 45000
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 30000
+- tapOn:
+    id: avatar
+- extendedWaitUntil:
+    visible:
+      id: profile-screen
+    timeout: 15000
+- runFlow:
+    file: ../subflows/login.yaml
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-audio-reinstall?step=play
+- extendedWaitUntil:
+    visible:
+      id: audio-reinstall-result
+      text: "reinstall:pass"
+    timeout: 180000
+- takeScreenshot: .maestro/acceptance/022-audio-reinstall-playback/02-played-after-reinstall

@@ -61,7 +61,7 @@ yarn test              # Jest 单测（不含 e2e/）
 | Expo Web | `yarn test:e2e` | Playwright 会自动起 `expo start --web` |
 | iOS/Android 原生 | `yarn test:maestro` | [Maestro CLI](https://maestro.mobile.dev)、`yarn start`、模拟器已 Boot、已 `yarn ios` 安装 dev build |
 
-Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`；人物时间线 / On This Day：`maestro test .maestro/flows/018-person-timeline-uat.yaml` / `019-on-this-day-uat.yaml`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
+Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestro:011` / `:012` / `:014` / `:015` / `:016` / `:017`；人物时间线 / On This Day：`maestro test .maestro/flows/018-person-timeline-uat.yaml` / `019-on-this-day-uat.yaml`。拉取覆盖条数、录音补传与播放、卸载后拉回、合并确认：`yarn test:maestro:020` / `:021` / `:022` / `:023`。Flow 见 `e2e/`、`.maestro/`。详情见 [.planning/codebase/TESTING.md](./.planning/codebase/TESTING.md) §4。
 
 ### 文档与社区
 
@@ -124,6 +124,8 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 - **智能数据迁移**：支持访客数据与登录用户数据无缝切换
 - **隐私加固（v1.5）**：账号删除会清理云端语音文件；已同步音频以私密签名链接播放；会话安全存储失败时提示重新登录
 - **同步体验（v1.5）**：日记修订识别更准确；待上传语音有限并发；个人中心同步状态与真实进度一致
+- **合并前确认（v1.7）**：从云端合并前先数出会被云端整行覆盖的本机修改。0 条仍是原来的短确认；大于 0 时说出条数，不含日记正文。可以先备份、仍要合并或取消。暂时数不清时不会写成 0 条
+- **录音上传（v1.7）**：备份上传的是音频字节，不再把本机路径文字存成文件。对象不是 m4a 时不假装能播放；本机文件还在时，登录后会补传真正的录音
 
 ### 🔔 回访与提醒（v1.4）
 
@@ -429,7 +431,25 @@ eas build --platform ios --profile production
 
 ## 📋 版本历史
 
-格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。
+格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。商店版本仍是 **1.6.1**。
+
+### [Unreleased] — v1.7.0 拉取前看见会被覆盖的本地修改
+
+> 尚未上架。同 id 合并仍以云端整行为准。
+
+#### 新增
+
+- 从云端合并前显示会被覆盖的本机条数，并提供先备份、仍要合并、取消
+- 可替换数为 0 时仍使用原来的短确认；暂时无法计数时不显示成 0 条
+
+#### 修复
+
+- 云端录音上传文件内容。旧对象若只是路径文字，播放时会提示录音文件已丢失，而不是无声播放
+
+#### 开发与质量
+
+- 单测覆盖共享 id 计数、合并确认文案，以及录音补传边界
+- Maestro：`020` 计数、`021` 补传与播放、`022` 卸载后拉回、`023` 合并确认。本地运行，不进 CI
 
 ### [1.6.0] - 2026-08-11 · App Store 更新
 
@@ -553,6 +573,12 @@ eas build --platform ios --profile production
 ### 产品开发路线
 
 权威路线图：[`.planning/archive/iteration-roadmap-2026.md`](./.planning/archive/iteration-roadmap-2026.md)
+
+#### 进行中
+
+| 版本 | 主题 | 说明 |
+| --- | --- | --- |
+| **1.7.0** | 拉取前看见会被覆盖的本地修改 | 本分支已实现，未上架；规划在本地 `.planning/` |
 
 #### 已交付里程碑
 

@@ -10,6 +10,7 @@
 
 import {
   isLocalPlaybackSource,
+  looksLikeM4a,
   resolveAudioSource,
 } from '../../../../shared/audio/playback';
 
@@ -100,6 +101,18 @@ describe('resolveAudioSource (H6 回归)', () => {
       checkLocalExists,
     );
     expect(uri).toBeNull();
+  });
+});
+
+describe('looksLikeM4a', () => {
+  it('accepts an ftyp box and rejects a stored path string', () => {
+    const header = new Uint8Array(16);
+    header.set([0x66, 0x74, 0x79, 0x70], 4);
+    expect(looksLikeM4a(header)).toBe(true);
+    expect(looksLikeM4a(new Uint8Array(Buffer.from('file:///clip.m4a')))).toBe(
+      false,
+    );
+    expect(looksLikeM4a(new Uint8Array(4))).toBe(false);
   });
 });
 

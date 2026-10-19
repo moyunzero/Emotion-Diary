@@ -62,10 +62,16 @@ jest.mock('react-native', () => ({
 
 const mockUploadPendingAudios = jest.fn();
 
-jest.mock('@/services/audioSync', () => ({
-  uploadPendingAudios: (...args: unknown[]) => mockUploadPendingAudios(...args),
-  resolvePlayableRemoteUrl: jest.fn(),
-}));
+jest.mock('@/services/audioSync', () => {
+  const actual = jest.requireActual<typeof import('@/services/audioSync')>(
+    '@/services/audioSync',
+  );
+  return {
+    ...actual,
+    uploadPendingAudios: (...args: unknown[]) => mockUploadPendingAudios(...args),
+    resolvePlayableRemoteUrl: jest.fn(),
+  };
+});
 
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store: Record<string, string> = {};

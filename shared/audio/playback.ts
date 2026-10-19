@@ -30,6 +30,20 @@ export async function resolveAudioSource(
 }
 
 /**
+ * ISO BMFF 音频（m4a / mp4）在第 4 个字节起是 `ftyp`。
+ * 旧上传把 `file://` 路径字符串存进了对象，这种正文不是音频。
+ */
+export function looksLikeM4a(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 8 &&
+    bytes[4] === 0x66 &&
+    bytes[5] === 0x74 &&
+    bytes[6] === 0x79 &&
+    bytes[7] === 0x70
+  );
+}
+
+/**
  * True when resolveAudioSource returned the verified local file (skip remote sign).
  */
 export function isLocalPlaybackSource(
