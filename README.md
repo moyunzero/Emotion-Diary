@@ -431,7 +431,7 @@ eas build --platform ios --profile production
 
 ## 📋 版本历史
 
-格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。商店版本仍是 **1.6.1**。
+格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。商店版本为 **1.7.0**。
 
 ### [Unreleased] — v1.7.0 拉取前看见会被覆盖的本地修改
 
