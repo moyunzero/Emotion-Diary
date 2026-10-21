@@ -119,6 +119,8 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 - **Smart Data Migration**: Seamless switching between guest data and logged-in user data
 - **Privacy hardening (v1.5)**: Account deletion clears cloud voice files; synced audio plays via private signed URLs; SecureStore write failures prompt re-login
 - **Sync experience (v1.5)**: Clearer diary revision tracking; bounded concurrency for pending audio uploads; Profile sync chrome matches real store progress
+- **Merge confirm (v1.7)**: Before merging from the cloud, count how many local edits would be fully overwritten. Zero keeps the short confirm; a positive count is spoken without diary body. Backup first, merge anyway, or cancel. Unknown never displays as zero
+- **Recording upload (v1.7)**: Backup uploads audio bytes, not local path text. Non-m4a objects are not pretended playable; when the local file still exists, the real recording is re-uploaded after sign-in
 
 ### 🔔 Revisit & Reminders (v1.4)
 
@@ -344,7 +346,26 @@ eas build --platform ios --profile production
 
 ## 📋 Version History
 
-Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`.
+Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`. Store version: **1.7.0**.
+
+### [1.7.0] - 2026-10-21 · App Store update
+
+> v1.7 “see what local edits would be overwritten before pull” (Phases 19–20). Same-id merge still cloud-wins; this release only adds visibility before overwrite.
+
+#### Added
+
+- Before merging from the cloud, show how many local entries would be overwritten, with Backup first / Merge anyway / Cancel
+- Zero overwrites keep the previous short confirm; unknown counts never display as zero
+
+#### Fixed
+
+- Cloud recording uploads store audio bytes. Legacy objects that were only path text prompt that the file is missing instead of silent playback
+
+#### Developer / quality
+
+- Unit coverage for shared-id count, merge-confirm copy, and audio re-upload edges
+- Maestro: `020` count, `021` repair playback, `022` reinstall pullback, `023` merge confirm (local only, not in CI)
+- App Store What’s New drafts: `app-store-submission/metadata/whats-new-1.7.0-zh.md` / `whats-new-1.7.0-en.md`
 
 ### [1.6.0] - 2026-08-11 · App Store update
 
@@ -469,6 +490,12 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `
 
 Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planning/archive/iteration-roadmap-2026.md)
 
+#### In progress
+
+| Version | Theme | Notes |
+| --- | --- | --- |
+| (next milestone) | Not started | Plan with `/gsd-new-milestone`; details live in local `.planning/` |
+
 #### Shipped milestones
 
 | Version | Theme | Docs | Status |
@@ -477,7 +504,15 @@ Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planni
 | **1.3.0** | Full bilingual i18n | Phase 7 / i18n sweep | ✅ App Store |
 | **1.4.0** | Metaphor experience first | `011`–`015` (visual → onboarding → narrative → share card → retention loop) | ✅ App Store |
 | **1.5.0** | Privacy / sync / clearable debt zero | Phases 6–12; `milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
-| **1.6.0** | Relationship insight & light reach | Phases 13–18 | ✅ App Store submission / Tag `v1.6.0` |
+| **1.6.0** | Relationship insight & light reach | Phases 13–18; `milestones/v1.6.0-*` | ✅ App Store / Tag `v1.6.0` |
+| **1.7.0** | See overwrite count before pull | Phases 19–20; `milestones/v1.7.0-*` | ✅ App Store |
+
+#### v1.7 phases (19–20, all merged to `master`)
+
+| Phase | Directory | Delivery |
+| --- | --- | --- |
+| 19 | `milestones/v1.7.0-phases/19-pull-conflict-set` | Count unsynced local edits sharing cloud ids (id / updatedAt only) |
+| 20 | `milestones/v1.7.0-phases/20-merge-confirm` | Merge confirm: Backup / Merge / Cancel; no diary body |
 
 #### v1.6 phases (13–18, all merged to `master`)
 

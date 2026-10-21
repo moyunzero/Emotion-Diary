@@ -433,9 +433,9 @@ eas build --platform ios --profile production
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。商店版本为 **1.7.0**。
 
-### [Unreleased] — v1.7.0 拉取前看见会被覆盖的本地修改
+### [1.7.0] - 2026-10-21 · App Store 更新
 
-> 尚未上架。同 id 合并仍以云端整行为准。
+> v1.7「拉取前看见会被覆盖的本地修改」（Phase 19–20）。同 id 合并仍以云端整行为准；本版只增加覆盖前可见性。
 
 #### 新增
 
@@ -450,6 +450,7 @@ eas build --platform ios --profile production
 
 - 单测覆盖共享 id 计数、合并确认文案，以及录音补传边界
 - Maestro：`020` 计数、`021` 补传与播放、`022` 卸载后拉回、`023` 合并确认。本地运行，不进 CI
+- App Store「此版本的新增内容」草稿：`app-store-submission/metadata/whats-new-1.7.0-zh.md` / `whats-new-1.7.0-en.md`
 
 ### [1.6.0] - 2026-08-11 · App Store 更新
 
@@ -578,7 +579,7 @@ eas build --platform ios --profile production
 
 | 版本 | 主题 | 说明 |
 | --- | --- | --- |
-| **1.7.0** | 拉取前看见会被覆盖的本地修改 | 本分支已实现，未上架；规划在本地 `.planning/` |
+| （下一里程碑） | 未立项 | 用 `/gsd-new-milestone` 规划；正文在本地 `.planning/` |
 
 #### 已交付里程碑
 
@@ -588,7 +589,15 @@ eas build --platform ios --profile production
 | **1.3.0** | 完整双语 i18n | `.planning/phases/01-i18n` … `07-*` | ✅ App Store |
 | **1.4.0** | 隐喻体验优先 | Phase 1–5（011–015） | ✅ App Store |
 | **1.5.0** | 隐私 / 同步 / 可清债清零 | Phase 6–12；`milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
-| **1.6.0** | 关系洞察与轻触达 | Phase 13–18 | ✅ App Store 提审 / Tag `v1.6.0` |
+| **1.6.0** | 关系洞察与轻触达 | Phase 13–18；`milestones/v1.6.0-*` | ✅ App Store / Tag `v1.6.0` |
+| **1.7.0** | 拉取前看见会被覆盖的本地修改 | Phase 19–20；`milestones/v1.7.0-*` | ✅ App Store |
+
+#### v1.7 Phase 明细（均已合入 `master`）
+
+| Phase | 目录 | 交付 |
+| --- | --- | --- |
+| 19 | `milestones/v1.7.0-phases/19-pull-conflict-set` | 同 id 未备份本机修改条数（仅 id / updatedAt） |
+| 20 | `milestones/v1.7.0-phases/20-merge-confirm` | 合并确认：先备份 / 仍要合并 / 取消；不含日记正文 |
 
 #### v1.6 Phase 明细（均已合入 `master`）
 

@@ -1,6 +1,7 @@
-# 心晴MO 产品叙事文案 · 大众版 / 投资人版
+# 心晴MO 产品叙事文案 · 大众版 / 投资人版（1.6.1 历史稿）
 
-> **依据**：代码与商店元数据（`app.json` / `package.json` = **1.6.1**）、`README.md`、`.planning/PROJECT.md`、`.planning/research/2026-08-10-competitive-differentiation.md`、现有 App Store 描述。  
+> **状态（2026-10-21）**：现网已为 **1.7.0**。请改用 [`product-narrative-1.7.0.md`](./product-narrative-1.7.0.md)。下文保留为 1.6.1 时期档案。  
+> **依据（当时）**：代码与商店元数据（`app.json` / `package.json` = **1.6.1**）、`README.md`、`.planning/PROJECT.md`、`.planning/research/2026-08-10-competitive-differentiation.md`、现有 App Store 描述。  
 > **原则**：只写已实现能力；未验证的 traction / 财务用「待填」标出，禁止编造用户量与评分。  
 > **产品边界（红线）**：非医疗；无对话式 AI 教练；无情侣共写；无应用内社交 feed；不上报日记正文。
 

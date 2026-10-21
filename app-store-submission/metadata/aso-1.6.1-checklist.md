@@ -1,8 +1,9 @@
-# ASO 执行清单 · 心晴MO（无需新功能）
+# ASO 执行清单 · 心晴MO（1.6.1 历史 · 已完成）
 
-> **目标**：先改推广文本（今天），再提 `1.6.1` 纯商店页更新（截图/副标题/关键词等）。  
+> **状态（2026-10-21）**：商店现网已为 **1.7.0**。本文件保留为 1.6.1 ASO / 截图执行档案，勿再按此升版。  
+> **当前元数据**：`app-description-*.md` · `whats-new-1.7.0-*.md` · `product-narrative-1.7.0.md`  
 > **现网**：https://apps.apple.com/cn/app/心晴mo/id6759703686  
-> **Bundle**：`com.moyunzero.emotiondiary` · 代码版本 `1.6.1`（功能基线 1.6.0）
+> **Bundle**：`com.moyunzero.emotiondiary` · 当时代码版本 `1.6.1`（功能基线 1.6.0）
 
 ---
 

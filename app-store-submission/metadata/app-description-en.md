@@ -1,6 +1,6 @@
 # App Store Connect Metadata — English (U.S.)
 
-> **Version**: 1.6.1 · **Updated**: 2026-10-13  
+> **Version**: 1.7.0 · **Updated**: 2026-10-21  
 > **Bundle ID**: `com.moyunzero.emotiondiary`  
 > **App Store listing**: [心晴MO on the App Store](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)  
 > **Display name on device**: 心晴MO · English marketing name: **MoodMO** / **Xinqing MO**
@@ -18,7 +18,7 @@ Use this file when editing the **English (U.S.)** localization in App Store Conn
 | Promotional Text | 170 chars | Promotional Text (editable without new build) |
 | Description | 4000 chars | Description |
 | Keywords | 100 chars | Keywords |
-| What’s New in This Version | 4000 chars | `whats-new-1.6.0-en.md` |
+| What’s New in This Version | 4000 chars | `whats-new-1.7.0-en.md` |
 | Support URL | required | Support URL |
 | Marketing URL | optional | Marketing URL |
 | Privacy Policy URL | required | Privacy Policy URL |
@@ -35,7 +35,7 @@ Mood journal & mind garden
 
 ## Promotional Text (max 170 characters, optional)
 
-Offline-first mood journal: weather for feelings, a garden for relationships. Timeline, On This Day, home widget—private by default.
+Offline-first mood journal: weather for feelings, a garden for relationships. See overwrite risk before cloud merge; timeline, On This Day, home widget—private by default.
 
 (≈130 characters)
 
@@ -62,6 +62,7 @@ WHAT YOU GET
 • Weekly/monthly review images saved to Photos (no built-in third-party sharing)
 • Vent & Release: calming burn + release archive
 • Soft Stack home widget: garden weather at a glance (no diary body); clears on sign-out or account deletion
+• Cloud merge confirm: see how many local edits would be overwritten; Backup first, Merge, or Cancel
 • Optional AI (your own Groq key): forecasts, podcasts, prescriptions, review closing line—with on-device fallbacks
 • Offline-first, optional cloud sync; English & Simplified Chinese
 
@@ -69,13 +70,13 @@ MoodMO supports self-observation only. It is not medical advice and does not rep
 
 ---
 
-## What’s New in Version 1.6.1
+## What’s New in Version 1.7.0
 
-See [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md). Feature baseline notes remain in [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md).
+See [`whats-new-1.7.0-en.md`](./whats-new-1.7.0-en.md). Prior notes: [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md), [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md).
 
 ## Product narrative (consumer / investor)
 
-See [`product-narrative-1.6.1.md`](./product-narrative-1.6.1.md).
+See [`product-narrative-1.7.0.md`](./product-narrative-1.7.0.md) (bumped from the 1.6.1 narrative).
 
 ---
 
