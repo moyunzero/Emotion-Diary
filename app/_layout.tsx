@@ -23,9 +23,15 @@ import {
 } from '../services/widgetSnapshot';
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
+import { enableAsoPreviewQuiet } from '../services/asoPreviewQuiet';
 
 if (Platform.OS === 'web') {
   installWebAlertPolyfill();
+}
+
+// App Preview 录屏：启动即静音 LogBox，避免黄条进成片
+if (__DEV__ && process.env.EXPO_PUBLIC_ASO_PREVIEW === '1') {
+  enableAsoPreviewQuiet();
 }
 
 // 防止启动画面自动隐藏

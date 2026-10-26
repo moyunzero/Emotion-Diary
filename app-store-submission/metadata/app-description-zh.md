@@ -1,6 +1,6 @@
 # App Store Connect 元数据 — 简体中文
 
-> **版本**：1.7.0 · **更新日期**：2026-10-21  
+> **版本**：1.7.1 · **更新日期**：2026-10-26  
 > **Bundle ID**：`com.moyunzero.emotiondiary`  
 > **App Store**：https://apps.apple.com/us/app/心晴mo/id6759703686
 
@@ -15,7 +15,7 @@
 | 推广文本 | 170 字符 | 见下（可随时改，无需新版本） |
 | 描述 | 4000 字符 | 见下 |
 | 关键词 | 100 字符 | 见下 |
-| 此版本的新增内容 | 4000 字符 | `whats-new-1.7.0-zh.md` |
+| 此版本的新增内容 | 4000 字符 | `whats-new-1.7.1-zh.md` |
 | 支持 URL | — | 见下 |
 | 隐私政策 URL | — | 见下 |
 
@@ -97,9 +97,9 @@ https://github.com/moyunzero/Emotion-Diary/blob/master/PRIVACY.md
 
 ---
 
-## 版本 1.7.0 新增内容（摘要）
+## 版本 1.7.1 新增内容（摘要）
 
-见 [`whats-new-1.7.0-zh.md`](./whats-new-1.7.0-zh.md)。此前版本：[`whats-new-1.6.1-zh.md`](./whats-new-1.6.1-zh.md)、[`whats-new-1.6.0-zh.md`](./whats-new-1.6.0-zh.md)。
+见 [`whats-new-1.7.1-zh.md`](./whats-new-1.7.1-zh.md)。此前版本：[`whats-new-1.7.0-zh.md`](./whats-new-1.7.0-zh.md)、[`whats-new-1.6.1-zh.md`](./whats-new-1.6.1-zh.md)。
 
 ## 产品叙事（大众 / 投资人）
 

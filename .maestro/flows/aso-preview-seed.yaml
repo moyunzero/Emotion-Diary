@@ -1,0 +1,48 @@
+appId: com.moyunzero.emotiondiary
+---
+# 录屏前准备：写入 ASO 演示数据 + 关 LogBox 黄条（本段不进成片）
+# 配合：scripts/record-aso-preview.sh 先跑本文件，再开录 aso-preview.yaml
+
+- launchApp
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://dev-seed-aso?locale=zh-Hans
+- waitForAnimationToEnd:
+    timeout: 3000
+- runFlow:
+    when:
+      visible:
+        id: onboarding-skip-button
+    commands:
+      - tapOn:
+          id: onboarding-skip-button
+
+- runFlow:
+    file: ../subflows/open-url.yaml
+    env:
+      URL: emotiondiary://
+- extendedWaitUntil:
+    visible:
+      id: dashboard-header
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# 若仍有原生 LogBox 黄条：点右下角关闭（hierarchy 常不暴露该条）
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings."
+    commands:
+      - tapOn:
+          point: "92%,93%"
+- waitForAnimationToEnd:
+    timeout: 500
