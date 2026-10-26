@@ -1,6 +1,6 @@
 # App Store Connect Metadata — English (U.S.)
 
-> **Version**: 1.7.0 · **Updated**: 2026-10-21  
+> **Version**: 1.7.1 · **Updated**: 2026-10-26  
 > **Bundle ID**: `com.moyunzero.emotiondiary`  
 > **App Store listing**: [心晴MO on the App Store](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)  
 > **Display name on device**: 心晴MO · English marketing name: **MoodMO** / **Xinqing MO**
@@ -18,7 +18,7 @@ Use this file when editing the **English (U.S.)** localization in App Store Conn
 | Promotional Text | 170 chars | Promotional Text (editable without new build) |
 | Description | 4000 chars | Description |
 | Keywords | 100 chars | Keywords |
-| What’s New in This Version | 4000 chars | `whats-new-1.7.0-en.md` |
+| What’s New in This Version | 4000 chars | `whats-new-1.7.1-en.md` |
 | Support URL | required | Support URL |
 | Marketing URL | optional | Marketing URL |
 | Privacy Policy URL | required | Privacy Policy URL |
@@ -70,9 +70,9 @@ MoodMO supports self-observation only. It is not medical advice and does not rep
 
 ---
 
-## What’s New in Version 1.7.0
+## What’s New in Version 1.7.1
 
-See [`whats-new-1.7.0-en.md`](./whats-new-1.7.0-en.md). Prior notes: [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md), [`whats-new-1.6.0-en.md`](./whats-new-1.6.0-en.md).
+See [`whats-new-1.7.1-en.md`](./whats-new-1.7.1-en.md). Prior notes: [`whats-new-1.7.0-en.md`](./whats-new-1.7.0-en.md), [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md).
 
 ## Product narrative (consumer / investor)
 

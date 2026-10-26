@@ -431,7 +431,13 @@ eas build --platform ios --profile production
 
 ## 📋 版本历史
 
-格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。商店版本为 **1.7.0**。
+格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。代码版本为 **1.7.1**（商店现网仍为 1.7.0，直至本版提审通过）。
+
+### [1.7.1] - 待提审
+
+- 修复若干小问题（含开发环境下首页头像点击被遮挡）。
+- 版本号 bump（`app.json` / `package.json` → 1.7.1）。构建号由 EAS production `autoIncrement` 管理。
+- App Store「此版本的新增内容」：`app-store-submission/metadata/whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`。
 
 ### [1.7.0] - 2026-10-21 · App Store 更新
 

@@ -346,7 +346,13 @@ eas build --platform ios --profile production
 
 ## 📋 Version History
 
-Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`. Store version: **1.7.0**.
+Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`. Code version: **1.7.1** (store remains 1.7.0 until this build is approved).
+
+### [1.7.1] - pending submission
+
+- Small fixes (including home avatar tap blocked in development).
+- Version bump (`app.json` / `package.json` → 1.7.1). Build number via EAS production `autoIncrement`.
+- App Store What’s New: `whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`.
 
 ### [1.7.0] - 2026-10-21 · App Store update
 
