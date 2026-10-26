@@ -6,7 +6,7 @@ import {
 } from "@/shared/entries/dashboardFilter";
 import { computeWeatherNarrative } from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FlashList, ListRenderItem } from "@shopify/flash-list";
+import { FlashList, FlashListRef, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Filter, CloudSun, Flame, Leaf, Sprout } from "lucide-react-native";
 import React, {
@@ -17,7 +17,13 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import {
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/shallow";
 import { COLORS } from "@/constants/colors";
@@ -26,6 +32,10 @@ import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
 import { calculateResponsiveDimension } from "../styles/constants";
 import { MoodEntry } from "../types";
+import {
+  registerAsoDashboardScroller,
+  requestAsoDashboardScroll,
+} from "@/services/asoPreviewScroll";
 import { AppScreenShell } from "./AppScreenShell";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
@@ -124,6 +134,27 @@ const Dashboard: React.FC = () => {
     height: number;
   } | null>(null);
   const filterButtonRef = useRef<View>(null);
+  const listRef = useRef<FlashListRef<MoodEntry>>(null);
+  /** App Preview：下滑时强制刷屏，避免 simctl 静止不写帧 */
+  const [asoFramePulse, setAsoFramePulse] = useState(0);
+  const asoPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // App Preview：aso-scroll-trigger → animated 下滑 + 帧脉冲
+  useEffect(() => {
+    if (!__DEV__) {
+      return;
+    }
+    registerAsoDashboardScroller((offset, animated) => {
+      listRef.current?.scrollToOffset({ offset, animated });
+    });
+    return () => {
+      registerAsoDashboardScroller(null);
+      if (asoPulseRef.current) {
+        clearInterval(asoPulseRef.current);
+        asoPulseRef.current = null;
+      }
+    };
+  }, []);
 
   // 加载过滤偏好
   useEffect(() => {
@@ -254,6 +285,52 @@ const Dashboard: React.FC = () => {
           onPress={() => router.push("/profile")}
           style={styles.avatar}
         />
+        {/* App Preview：隐形触发，避免深链卸掉 Dashboard 导致滚动空跑 */}
+        {__DEV__ ? (
+          <Pressable
+            testID="aso-scroll-trigger"
+            accessibilityLabel="aso-scroll-trigger"
+            onPress={() => {
+              if (asoPulseRef.current) clearInterval(asoPulseRef.current);
+              let n = 0;
+              asoPulseRef.current = setInterval(() => {
+                n += 1;
+                setAsoFramePulse(n);
+                if (n >= 90) {
+                  if (asoPulseRef.current) {
+                    clearInterval(asoPulseRef.current);
+                    asoPulseRef.current = null;
+                  }
+                }
+              }, 40);
+              requestAsoDashboardScroll();
+            }}
+            // 放左上角，勿盖住右侧头像（否则 DEV 下点头像进不了 /profile）
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: 56,
+              height: 56,
+              opacity: 0.03,
+              zIndex: 20,
+            }}
+          />
+        ) : null}
+        {__DEV__ && asoFramePulse > 0 ? (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: 0,
+              bottom: 0,
+              width: 2,
+              height: 2,
+              opacity: 0.04,
+              backgroundColor: asoFramePulse % 2 === 0 ? "#000" : "#fff",
+            }}
+          />
+        ) : null}
       </View>
 
       {/* 筛选条 - sticky 在 header 下方，不随列表滚动（避免按钮 measure 坐标随滚动漂移导致下拉错位） */}
@@ -293,6 +370,7 @@ const Dashboard: React.FC = () => {
 
       {/* List - 包含天气站作为头部 */}
       <FlashList
+        ref={listRef}
         contentContainerStyle={styles.flashListContent}
         data={filteredEntries}
         renderItem={renderEntry}

@@ -1,31 +1,39 @@
 appId: com.moyunzero.emotiondiary
 ---
-# App Store 预览片（约 20–30s 观感）
-# 配合：bash scripts/record-aso-preview.sh
-# 前置：模拟器已装 com.moyunzero.emotiondiary + Metro（dev client）或独立 release 模拟器包
+# App Store 预览片实录
+# 前置：aso-preview-seed 已跑完，且当前停在首页气象站（勿停在记一笔）
+# 转场：后期 dissolve 淡入淡出（assemble-aso-preview.sh）
 
-- launchApp
+# 若仍有系统键盘教程，先关掉
 - runFlow:
     when:
-      visible:
-        id: onboarding-skip-button
+      visible: "Continue"
     commands:
-      - tapOn:
-          id: onboarding-skip-button
-
-# 1) 首页 / 气象站
+      - tapOn: "Continue"
 - runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://
+    when:
+      visible: "继续"
+    commands:
+      - tapOn: "继续"
+
+# ── 幕1 情绪气象站：点隐形触发程序化下滑（FlashList 触控滑不动；深链会卸页）──
 - extendedWaitUntil:
     visible:
       id: dashboard-header
-    timeout: 60000
+    timeout: 20000
 - waitForAnimationToEnd:
-    timeout: 2500
+    timeout: 250
+- tapOn:
+    id: aso-scroll-trigger
+# waitForAnimationToEnd 无动画会立刻返回；点 header 多次做真实延时（勿长按列表区，会打断下滑）
+- tapOn:
+    id: dashboard-header
+    repeat: 10
+    delay: 450
+- waitForAnimationToEnd:
+    timeout: 400
 
-# 2) 记一笔
+# ── 幕2 记录这一刻 ──
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -33,34 +41,41 @@ appId: com.moyunzero.emotiondiary
 - extendedWaitUntil:
     visible:
       id: mood-content-input
-    timeout: 45000
+    timeout: 20000
 - waitForAnimationToEnd:
-    timeout: 1500
+    timeout: 300
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- tapOn: "选择情绪等级：委屈"
+- waitForAnimationToEnd:
+    timeout: 200
 - tapOn:
     id: mood-content-input
-- inputText: "今天天空还亮着，给自己留一点柔软。"
+- eraseText
+- inputText: "把委屈轻轻放下。"
 - waitForAnimationToEnd:
-    timeout: 1200
+    timeout: 150
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- tapOn: "记录这一刻"
+- waitForAnimationToEnd:
+    timeout: 250
 - tapOn:
     id: mood-submit-button
 - extendedWaitUntil:
     notVisible:
       id: mood-content-input
-    timeout: 25000
-
-# 3) 回首页看成长感
-- runFlow:
-    file: ../subflows/open-url.yaml
-    env:
-      URL: emotiondiary://
-- extendedWaitUntil:
-    visible:
-      id: dashboard-header
-    timeout: 30000
+    timeout: 15000
 - waitForAnimationToEnd:
-    timeout: 2500
+    timeout: 250
 
-# 4) 心灵花园 / 洞察
+# ── 幕3 心灵花园 ──
 - runFlow:
     file: ../subflows/open-url.yaml
     env:
@@ -68,45 +83,44 @@ appId: com.moyunzero.emotiondiary
 - extendedWaitUntil:
     visible:
       id: insights-screen
-    timeout: 45000
+    timeout: 20000
 - waitForAnimationToEnd:
-    timeout: 2000
-- runFlow:
-    when:
-      visible:
-        id: relationship-garden-pot-other
-    commands:
-      - scrollUntilVisible:
-          element:
-            id: "relationship-garden-pot-other"
-          direction: DOWN
-          timeout: 15000
-          visibilityPercentage: 40
-      - waitForAnimationToEnd:
-          timeout: 1500
-      - tapOn:
-          id: "relationship-garden-pot-other"
-      - extendedWaitUntil:
-          visible:
-            id: person-timeline-hero
-          timeout: 20000
-      - waitForAnimationToEnd:
-          timeout: 2500
-
-# 5) 往年今日（有卡片则进入）
-- runFlow:
-    when:
-      visible:
-        id: on-this-day-insights-card
-    commands:
-      - tapOn:
-          id: on-this-day-insights-card
-      - extendedWaitUntil:
-          visible:
-            id: on-this-day-hero
-          timeout: 20000
-      - waitForAnimationToEnd:
-          timeout: 2500
-
+    timeout: 300
+- swipe:
+    direction: UP
+    duration: 600
 - waitForAnimationToEnd:
-    timeout: 2000
+    timeout: 350
+- swipe:
+    direction: UP
+    duration: 550
+- waitForAnimationToEnd:
+    timeout: 300
+- scrollUntilVisible:
+    element:
+      id: "relationship-garden-pot-朋友"
+    direction: DOWN
+    timeout: 12000
+    visibilityPercentage: 40
+- waitForAnimationToEnd:
+    timeout: 200
+- tapOn:
+    id: "relationship-garden-pot-朋友"
+- extendedWaitUntil:
+    visible:
+      id: person-timeline-hero
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 300
+
+# ── 幕4 时间线翻阅 ──
+- swipe:
+    direction: UP
+    duration: 550
+- waitForAnimationToEnd:
+    timeout: 300
+- swipe:
+    direction: UP
+    duration: 500
+- waitForAnimationToEnd:
+    timeout: 700

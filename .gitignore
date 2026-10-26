@@ -322,3 +322,4 @@ START_HERE.txt
 #
 # For production:
 # Use EAS Secrets: eas secret:create --scope project --name KEY_NAME --value "value"
+.tmp-aso-venv/
