@@ -3,6 +3,7 @@ import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '@/constants/colors';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
@@ -23,7 +24,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: '#000',
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -52,7 +53,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           borderRadius: 12,
         },
         todayCard: {
-          backgroundColor: '#FFF1F2',
+          backgroundColor: COLORS.mood.level1,
         },
         weekday: {
           fontSize: fontSize.small,

@@ -58,7 +58,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           {t("releaseArchive.subtitleEmpty")}
         </Text>
         <View style={styles.emptyCard}>
-          <Wind size={28} color="#9CA3AF" />
+          <Wind size={28} color={COLORS.gray[400]} />
           <Text
             style={[
               styles.emptyText,
@@ -167,7 +167,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: INSIGHTS_COLORS.cardBg,
-    shadowColor: "#000",
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   metricPill: {
     flex: 1,
-    backgroundColor: '#FFF7ED',
+    backgroundColor: COLORS.atmosphere.sunny,
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 10,

@@ -7,6 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { getActionLoopDateLine } from '../../shared/entries/actionLoopDateLine';
 import { formatLocaleDate } from '../../shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
+import { COLORS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
@@ -27,7 +28,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: '#000',
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -138,7 +139,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         progressBar: {
           width: '80%',
           height: 8,
-          backgroundColor: '#E5E7EB',
+          backgroundColor: COLORS.gray[200],
           borderRadius: 4,
           overflow: 'hidden',
           marginBottom: 8,
@@ -210,7 +211,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           <Text style={styles.title}>{t('triggers.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={COLORS.gray[300]} />
           <Text style={styles.emptyText}>
             {remaining > 0 
               ? t('triggers.empty.needMore', { remaining })

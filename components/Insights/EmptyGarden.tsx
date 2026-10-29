@@ -2,6 +2,7 @@ import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
@@ -49,7 +50,7 @@ const EmptyGardenComponent: React.FC = () => {
           backgroundColor: INSIGHTS_COLORS.cardBg,
           padding: 16,
           borderRadius: borderRadius.large,
-          shadowColor: '#000',
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -59,7 +60,7 @@ const EmptyGardenComponent: React.FC = () => {
           width: 44,
           height: 44,
           borderRadius: 12,
-          backgroundColor: '#F9FAFB',
+          backgroundColor: COLORS.gray[50],
           alignItems: 'center',
           justifyContent: 'center',
           marginRight: 14,

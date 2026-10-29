@@ -79,7 +79,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         },
         container: {
           marginTop: 12,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: COLORS.surface,
           borderRadius: 12,
           padding: 12,
           borderWidth: 1,

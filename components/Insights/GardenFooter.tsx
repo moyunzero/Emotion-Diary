@@ -2,6 +2,7 @@ import { Flower2, Leaf } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
@@ -26,7 +27,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
           marginBottom: 24,
           alignItems: 'center',
           borderWidth: 1,
-          borderColor: '#FECACA',
+          borderColor: COLORS.mood.level2,
           borderRadius: borderRadius.card,
         },
         iconRow: {
@@ -44,7 +45,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
         },
         subText: {
           fontSize: fontSize.small,
-          color: '#BE123C',
+          color: COLORS.mood.level5,
           textAlign: 'center',
           marginTop: 6,
           fontStyle: 'italic',

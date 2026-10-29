@@ -9,6 +9,7 @@ import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
@@ -42,7 +43,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: '#000',
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -126,7 +127,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         },
         emptySubtext: {
           fontSize: fontSize.small,
-          color: '#9CA3AF',
+          color: COLORS.gray[400],
           marginTop: 4,
         },
         emptyCta: {
@@ -145,7 +146,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         emptyCtaText: {
           fontSize: fontSize.body,
           fontWeight: '700',
-          color: '#FFFFFF',
+          color: COLORS.text.inverse,
         },
       }),
     [padding, fontSize, spacing, borderRadius, layout]
@@ -175,7 +176,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           <Text style={styles.title}>{t('relationship.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={COLORS.gray[300]} />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
           <Pressable

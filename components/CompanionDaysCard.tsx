@@ -3,6 +3,7 @@
  * 显示用户的陪伴天数，包含数字增长动画
  */
 
+import { COLORS } from '@/constants/colors';
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -70,12 +71,12 @@ export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -87,13 +88,13 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#1F2937',
+    color: COLORS.gray[800],
     marginBottom: 4,
     fontFamily: 'Lato_700Bold',
   },
   label: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: COLORS.gray[400],
     fontFamily: 'Lato_400Regular',
   },
 });

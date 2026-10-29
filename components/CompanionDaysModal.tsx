@@ -45,7 +45,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <X size={24} color="#9CA3AF" />
+            <X size={24} color={COLORS.gray[400]} />
           </TouchableOpacity>
           
           <ScrollView 
@@ -94,7 +94,7 @@ export default function CompanionDaysModal({ visible, onClose }: CompanionDaysMo
                   <MilestoneIcon 
                     emoji={nextMilestone.icon} 
                     size={28} 
-                    color="#6B7280"
+                    color={COLORS.gray[500]}
                     testID="next-milestone-icon"
                   />
                   <Text style={styles.nextTitle}>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modal: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 24,
     width: '100%',
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
+    color: COLORS.gray[800],
     textAlign: 'center',
     marginBottom: 24,
     marginTop: 8,
@@ -166,12 +166,12 @@ const styles = StyleSheet.create({
   daysLabel: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#6B7280',
+    color: COLORS.gray[500],
     marginLeft: 8,
   },
   startDate: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: COLORS.gray[400],
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4B5563',
+    color: COLORS.gray[600],
     marginBottom: 12,
   },
   milestoneCard: {
@@ -193,19 +193,19 @@ const styles = StyleSheet.create({
   milestoneTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
+    color: COLORS.gray[800],
     marginBottom: 4,
     marginTop: 8,
   },
   milestoneDesc: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.gray[500],
   },
   nextSection: {
     marginTop: 20,
   },
   nextCard: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.gray[50],
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -213,13 +213,13 @@ const styles = StyleSheet.create({
   nextTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: COLORS.gray[800],
     marginBottom: 4,
     marginTop: 8,
   },
   nextDays: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.gray[500],
   },
   maxSection: {
     marginTop: 20,
