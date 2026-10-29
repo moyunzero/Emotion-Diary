@@ -4,7 +4,7 @@ import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background.primary,
   },
   keyboardContainer: {
     flex: 1,

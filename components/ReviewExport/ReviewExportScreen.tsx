@@ -43,6 +43,7 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
 import { logger } from '../../utils/logger';
+import { COLORS } from '../../constants/colors';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -319,7 +320,7 @@ export const ReviewExportScreen: React.FC = () => {
             disabled={saveDisabled}
           >
             {isBusy ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={COLORS.text.inverse} />
             ) : (
               <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
                 {saveLabel}
@@ -554,6 +555,6 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     fontFamily: 'Lato_700Bold',
-    color: '#fff',
+    color: COLORS.text.inverse,
   },
 });

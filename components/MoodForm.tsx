@@ -15,6 +15,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { COLORS } from "../constants/colors";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
 import { getDeadlineLabel, getMoodDescription, getMoodLabel } from "@/i18n/moodLabels";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -256,7 +257,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           multiline
           numberOfLines={4}
           style={styles.contentInput}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={COLORS.gray[400]}
           returnKeyType="default"
           blurOnSubmit={false}
           textAlignVertical="top"
@@ -339,7 +340,11 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             accessibilityState={{ selected: isCustomDeadline }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <AppIcon name={Edit} size={14} color={isCustomDeadline ? '#FFFFFF' : '#6B7280'} />
+              <AppIcon
+                name={Edit}
+                size={14}
+                color={isCustomDeadline ? COLORS.text.inverse : COLORS.gray[500]}
+              />
               <Text
                 style={[
                   styles.deadlineText,
@@ -358,7 +363,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             onChangeText={(text) => onCustomDeadlineChange(true, text)}
             placeholder={tRecord("customDeadline.placeholder")}
             style={styles.customDeadlineInput}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={COLORS.gray[400]}
             autoFocus
             returnKeyType="done"
             blurOnSubmit={true}

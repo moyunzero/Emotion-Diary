@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { COLORS } from '../../constants/colors';
 import type { EditEntryModalProps } from '../../types/components';
 import { EntryEditor } from '../EntryEditor';
 import { StackScreenHeader } from '../StackScreenHeader';
@@ -43,7 +44,7 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
           backTestID="edit-entry-close"
           headerCenter={
             <View style={styles.headerTitleContainer}>
-              <AppIcon name={Edit} size={20} color="#1F2937" />
+              <AppIcon name={Edit} size={20} color={COLORS.gray[800]} />
               <Text style={styles.headerTitle}>{editTitle}</Text>
             </View>
           }

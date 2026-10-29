@@ -336,7 +336,10 @@ const Dashboard: React.FC = () => {
               width: 2,
               height: 2,
               opacity: 0.04,
-              backgroundColor: asoFramePulse % 2 === 0 ? "#000" : "#fff",
+              backgroundColor:
+                asoFramePulse % 2 === 0
+                  ? COLORS.shadow.primary
+                  : COLORS.text.inverse,
             }}
           />
         ) : null}

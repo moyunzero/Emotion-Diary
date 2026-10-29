@@ -356,7 +356,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return (
       <SimpleBurnAnimation onComplete={handleBurnComplete}>
         <View style={styles.wrapper}>
-          <View style={[styles.container, { backgroundColor: "#FEE2E2" }]}>
+          <View
+            style={[
+              styles.container,
+              { backgroundColor: COLORS.mood.level1 },
+            ]}
+          >
             <View style={styles.content}>
               <View
                 style={[
@@ -364,7 +369,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   { backgroundColor: getMoodColor() },
                 ]}
               >
-                {getMoodIcon(moodConfig.iconName, "#FFFFFF", 20)}
+                {getMoodIcon(moodConfig.iconName, COLORS.text.inverse, 20)}
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.contentText} numberOfLines={3}>
@@ -431,7 +436,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             <View style={styles.content}>
               {/* 灰烬图标 */}
               <View style={[styles.moodIconBadge, styles.ashIconBadge]}>
-                <AshIcon size={24} opacity={0.6} color="#9CA3AF" />
+                <AshIcon size={24} opacity={0.6} color={COLORS.gray[400]} />
               </View>
 
               {/* 灰烬内容 */}
@@ -537,7 +542,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                   { backgroundColor: getMoodColor() },
                 ]}
               >
-                {getMoodIcon(moodConfig.iconName, "#FFFFFF", 20)}
+                {getMoodIcon(moodConfig.iconName, COLORS.text.inverse, 20)}
               </View>
 
               {/* Content */}

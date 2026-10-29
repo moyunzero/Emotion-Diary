@@ -224,7 +224,7 @@ const WeatherStationComponent: React.FC = () => {
             <Text style={styles.forecastTitle}>{t('weatherStation.forecast.title')}</Text>
             {emotionForecast && highCount > 0 && (
               <View style={styles.warningBadge}>
-                <Heart size={12} color="#FFFFFF" />
+                <Heart size={12} color={COLORS.text.inverse} />
                 <Text style={styles.warningBadgeText}>{highCount}</Text>
               </View>
             )}

@@ -447,7 +447,7 @@ export function EntryEditor(props: EntryEditorProps) {
     >
       {embedded ? (
         <View style={embeddedStyles.submitButtonContent}>
-          <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
+          <AppIcon name={Sparkles} size={20} color={COLORS.text.inverse} />
           <Text style={embeddedStyles.submitText}>{submitButtonLabel}</Text>
         </View>
       ) : (
@@ -459,7 +459,7 @@ export function EntryEditor(props: EntryEditorProps) {
             justifyContent: "center",
           }}
         >
-          <AppIcon name={Sparkles} size={20} color="#FFFFFF" />
+          <AppIcon name={Sparkles} size={20} color={COLORS.text.inverse} />
           <Text style={fullscreenStyles.submitText}>{submitButtonLabel}</Text>
         </View>
       )}

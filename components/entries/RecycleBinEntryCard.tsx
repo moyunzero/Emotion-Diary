@@ -231,7 +231,7 @@ export function RecycleBinEntryCard({
                 { backgroundColor: getMoodBadgeColor(entry.moodLevel) },
               ]}
             >
-              {getMoodIcon(mood.iconName, "#FFFFFF", 20)}
+              {getMoodIcon(mood.iconName, COLORS.text.inverse, 20)}
             </View>
             <View style={styles.textContainer}>
               <View style={styles.header}>

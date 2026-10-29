@@ -131,7 +131,7 @@ function useAudioRowRenderer(
           {isAudioRowActive(audio) && isPlayingGlobal ? (
             <Pause size={16} color={COLORS.audio.primary} />
           ) : (
-            <Play size={16} color="#9CA3AF" />
+            <Play size={16} color={COLORS.gray[400]} />
           )}
           <Text
             style={[
