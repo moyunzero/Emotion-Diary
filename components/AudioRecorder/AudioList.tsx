@@ -6,6 +6,7 @@
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { COLORS } from "@/constants/colors";
 import { AudioData } from "../../types";
 import { AudioPreview } from "./AudioPreview";
 
@@ -127,15 +128,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.text.primary,
   },
   headerCount: {
     fontSize: 12,
-    color: "#666",
+    color: COLORS.text.secondary,
   },
   headerCountOnly: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.gray[400],
     fontVariant: ["tabular-nums"],
   },
-  });
+});

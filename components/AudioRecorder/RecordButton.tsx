@@ -70,7 +70,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     if (disabled) {
       return (
         <View style={styles.buttonContent}>
-          <MicOff size={iconSize} color="#999" />
+          <MicOff size={iconSize} color={COLORS.text.tertiary} />
           <RecordButtonLabel
             style={[
               styles.buttonTextDisabled,
@@ -87,7 +87,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "recording":
         return (
           <View style={styles.buttonContent}>
-            <StopCircle size={iconSize} color="#fff" />
+            <StopCircle size={iconSize} color={COLORS.text.inverse} />
             <RecordButtonLabel style={textStyle}>
               {t("audio.recordButton.releaseToStop")}
             </RecordButtonLabel>
@@ -107,7 +107,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "canceling":
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color="#fff" />
+            <Mic size={iconSize} color={COLORS.text.inverse} />
             <RecordButtonLabel style={[...textStyle, styles.cancelText]}>
               {t("audio.recordButton.releaseToCancel")}
             </RecordButtonLabel>
@@ -138,7 +138,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       default:
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color="#fff" />
+            <Mic size={iconSize} color={COLORS.text.inverse} />
             <RecordButtonLabel style={textStyle}>
               {t("audio.recordButton.holdToTalk")}
             </RecordButtonLabel>
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.accent,
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: COLORS.gray[300],
   },
   buttonContent: {
     flexDirection: "row",
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   buttonText: {
-    color: "#fff",
+    color: COLORS.text.inverse,
     fontSize: 15,
     fontWeight: "600",
     flexShrink: 1,
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     maxWidth: 132,
   },
   buttonTextDisabled: {
-    color: "#999",
+    color: COLORS.text.tertiary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -266,17 +266,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   cancelText: {
-    color: "#fff",
+    color: COLORS.text.inverse,
   },
   previewText: {
-    color: "#fff",
+    color: COLORS.text.inverse,
   },
   processingIndicator: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: COLORS.text.inverse,
     borderTopColor: "transparent",
   },
 });

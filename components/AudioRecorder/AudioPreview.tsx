@@ -151,7 +151,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
                     onPress={() => setIsEditing(true)}
                     style={styles.actionButton}
                   >
-                    <Edit3 size={14} color="#666" />
+                    <Edit3 size={14} color={COLORS.text.secondary} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleDelete}
@@ -214,7 +214,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: COLORS.gray[100],
     borderRadius: 12,
     padding: 12,
     marginVertical: 4,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.surface,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   audioName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.text.primary,
     flex: 1,
     marginRight: 8,
   },
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.text.primary,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.audio.primary,
     paddingVertical: 2,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 4,
-    backgroundColor: "#ddd",
+    backgroundColor: COLORS.gray[300],
     borderRadius: 2,
   },
   progressFill: {
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 12,
-    color: "#666",
+    color: COLORS.text.secondary,
     minWidth: 70,
   },
   modalOverlay: {
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 24,
     width: "80%",
@@ -302,13 +302,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: COLORS.text.primary,
     marginBottom: 12,
     textAlign: "center",
   },
   modalMessage: {
     fontSize: 14,
-    color: "#666",
+    color: COLORS.text.secondary,
     marginBottom: 20,
     textAlign: "center",
     lineHeight: 20,
@@ -324,12 +324,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: COLORS.gray[100],
   },
   cancelButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#666",
+    color: COLORS.text.secondary,
   },
   deleteButton: {
     backgroundColor: COLORS.error,
@@ -337,6 +337,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#fff",
+    color: COLORS.text.inverse,
   },
 });

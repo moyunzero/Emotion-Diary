@@ -7,6 +7,7 @@ import { AudioModule } from "expo-audio";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { COLORS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { audioCoordinator } from "../../shared/audio/coordinator";
 import {
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.text.primary,
     fontVariant: ["tabular-nums"],
   },
 });
