@@ -171,35 +171,71 @@ export const COLORS = {
   },
 } as const;
 
-// 设计 Token
+/**
+ * Design tokens — VISUAL-SYSTEM §四–五 / D-07·D-08·D-09.
+ * Spacing legal set: 4/8/12/16/24/32/48 + pageX 20.
+ * Pitfall 1: DESIGN_TOKENS.spacing.md (12) ≠ SPACING.md (16) in spacing.ts.
+ */
+const SHADOW_NONE = {
+  shadowColor: 'transparent',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0,
+  shadowRadius: 0,
+  elevation: 0,
+} as const;
+
+/** Sheet / Toast / drag float only — not card default (D-09). */
+const SHADOW_FLOAT = {
+  shadowColor: 'rgb(67, 28, 42)',
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.12,
+  shadowRadius: 28,
+  elevation: 8,
+} as const;
+
 export const DESIGN_TOKENS = {
   borderRadius: {
-    xs: 4,
+    /** Legacy micro → nearest chrome r-sm */
+    xs: 8,
     small: 8,
-    medium: 12,
-    large: 16,
-    xl: 20,
-    xxl: 24,
+    medium: 14,
+    large: 14,
+    xl: 22,
+    xxl: 22,
     full: 9999,
+    sm: 8,
+    md: 14,
+    lg: 22,
   },
   spacing: {
     xs: 4,
     sm: 8,
+    /** Card / block gap — NOT SPACING.md (16). See spacing.ts + Pitfall 1. */
     md: 12,
     lg: 16,
+    /** Legacy page gutter; prefer pageX for new code. */
     xl: 20,
+    pageX: 20,
     xxl: 24,
     xxxl: 32,
+    huge: 48,
   },
   fontSize: {
-    xs: 10,
+    /** Footnote min 12 (VISUAL-SYSTEM); was product 10. */
+    xs: 12,
     sm: 12,
     base: 14,
     md: 16,
-    lg: 18,
+    lg: 17,
     xl: 20,
-    xxl: 24,
+    xxl: 22,
     xxxl: 32,
+    footnote: 12,
+    caption: 14,
+    body: 16,
+    subtitle: 17,
+    title: 20,
+    display: 32,
   },
   iconSize: {
     xs: 12,
@@ -210,34 +246,14 @@ export const DESIGN_TOKENS = {
     xxl: 48,
   },
   shadow: {
-    sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 1,
-    },
-    md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 12,
-      elevation: 8,
-    },
+    none: SHADOW_NONE,
+    /** Card default: hairline / no elevation (D-09). */
+    sm: SHADOW_NONE,
+    md: SHADOW_NONE,
+    /** Float reserved for sheet / Toast / drag. */
+    lg: SHADOW_FLOAT,
+    xl: SHADOW_FLOAT,
+    float: SHADOW_FLOAT,
   },
 } as const;
 
