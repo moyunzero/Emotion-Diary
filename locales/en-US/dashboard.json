@@ -181,9 +181,9 @@
       "trendTitle": "7-day outlook"
     },
     "risk": {
-      "high": "High risk",
-      "medium": "Medium risk",
-      "low": "Low risk"
+      "high": "Extra care",
+      "medium": "Gentle day",
+      "low": "Steady"
     },
     "dates": {
       "today": "Today",

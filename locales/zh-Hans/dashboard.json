@@ -181,9 +181,9 @@
       "trendTitle": "未来7天趋势"
     },
     "risk": {
-      "high": "高风险",
-      "medium": "中风险",
-      "low": "低风险"
+      "high": "多照顾自己",
+      "medium": "留点空间",
+      "low": "平稳"
     },
     "dates": {
       "today": "今天",

@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Sun, TrendingUp } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Heart, Sun, TrendingUp } from 'lucide-react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,9 @@ const WeatherStationComponent: React.FC = () => {
     () => excludeSoftDeletedEntries(entries),
     [entries],
   );
+
+  const highCount =
+    emotionForecast?.warnings.filter((w) => w.severity === 'high').length ?? 0;
 
   const [isForecastExpanded, setIsForecastExpanded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -219,12 +222,10 @@ const WeatherStationComponent: React.FC = () => {
           <View style={styles.forecastHeaderLeft}>
             <TrendingUp size={20} color={COLORS.primary} />
             <Text style={styles.forecastTitle}>{t('weatherStation.forecast.title')}</Text>
-            {emotionForecast && emotionForecast.warnings.length > 0 && (
+            {emotionForecast && highCount > 0 && (
               <View style={styles.warningBadge}>
-                <AlertTriangle size={12} color="#FFFFFF" />
-                <Text style={styles.warningBadgeText}>
-                  {emotionForecast.warnings.filter(w => w.severity === 'high').length}
-                </Text>
+                <Heart size={12} color="#FFFFFF" />
+                <Text style={styles.warningBadgeText}>{highCount}</Text>
               </View>
             )}
           </View>
