@@ -20,7 +20,7 @@ export function createDashboardStyles(width: number, height: number) {
     title: {
       fontSize: m.fontSize.title,
       fontWeight: '700',
-      lineHeight: 33.6,
+      lineHeight: m.fontSize.title * 1.2,
       letterSpacing: -0.5,
       color: COLORS.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
@@ -28,7 +28,7 @@ export function createDashboardStyles(width: number, height: number) {
     subtitle: {
       fontSize: m.fontSize.small,
       fontWeight: '400',
-      lineHeight: 16.8,
+      lineHeight: m.fontSize.small * 1.2,
       letterSpacing: 0,
       color: COLORS.text.secondary,
       marginTop: DESIGN_TOKENS.spacing.xs,
@@ -158,7 +158,7 @@ export function createDashboardStyles(width: number, height: number) {
     emptyTitle: {
       fontSize: m.fontSize.cardTitle,
       fontWeight: '700',
-      lineHeight: 25.2,
+      lineHeight: m.fontSize.cardTitle * 1.2,
       letterSpacing: 0,
       color: COLORS.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.sm,
@@ -167,7 +167,7 @@ export function createDashboardStyles(width: number, height: number) {
     emptyText: {
       fontSize: m.fontSize.body,
       fontWeight: '400',
-      lineHeight: 20,
+      lineHeight: m.fontSize.body * 1.2,
       letterSpacing: 0,
       color: COLORS.text.secondary,
       textAlign: 'center',

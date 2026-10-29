@@ -19,7 +19,7 @@ export function createMoodFormStyles(width: number, height: number) {
     firstEntryHint: {
       fontSize: m.fontSize.body,
       color: COLORS.text.secondary,
-      lineHeight: 22,
+      lineHeight: m.fontSize.body * 1.2,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
     moodContainer: {
@@ -125,7 +125,7 @@ export function createMoodFormStyles(width: number, height: number) {
     moodTipDescription: {
       fontSize: m.fontSize.body,
       color: COLORS.text.secondary,
-      lineHeight: 20,
+      lineHeight: m.fontSize.body * 1.2,
       textAlign: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xl,
     },
