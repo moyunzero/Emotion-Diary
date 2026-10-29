@@ -6,7 +6,10 @@ import { COLORS } from '@/constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { formatLocaleDate } from '@/shared/formatting/date';
-import { computeWeatherNarrative } from '@/shared/weather/weatherNarrative';
+import {
+  computeWeatherNarrative,
+  getWeatherEmptyReason,
+} from '@/shared/weather/weatherNarrative';
 
 const WeatherStationComponent: React.FC = () => {
   const { t } = useTranslation('dashboard');
@@ -68,9 +71,17 @@ const WeatherStationComponent: React.FC = () => {
     },
   }), []);
 
+  const emptyReason = useMemo(
+    () => getWeatherEmptyReason(entries),
+    [entries],
+  );
+
   const currentWeather = useMemo(
-    () => weatherConfig[weather.condition] || weatherConfig.sunny,
-    [weather.condition, weatherConfig]
+    () =>
+      emptyReason != null
+        ? weatherConfig.cloudy
+        : weatherConfig[weather.condition] || weatherConfig.sunny,
+    [emptyReason, weather.condition, weatherConfig],
   );
 
   /**
@@ -142,6 +153,9 @@ const WeatherStationComponent: React.FC = () => {
   }, [weather.condition, t]);
 
   const narrativeLabel = useMemo((): string => {
+    if (emptyReason != null) {
+      return t(`weatherStation.empty.${emptyReason}`);
+    }
     const { narrativeKey } = computeWeatherNarrative(entries, weather.condition);
     const translated = String(t(narrativeKey as never));
     if (translated !== narrativeKey) {
@@ -152,7 +166,7 @@ const WeatherStationComponent: React.FC = () => {
     return fallback === fallbackKey
       ? t('weatherStation.descriptions.sunny')
       : fallback;
-  }, [entries, weather.condition, t]);
+  }, [emptyReason, entries, weather.condition, t]);
 
   return (
     <View>
@@ -171,20 +185,22 @@ const WeatherStationComponent: React.FC = () => {
           {narrativeLabel}
         </Text>
         
-        <View style={styles.details}>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>{t('weatherStation.emotionIndex')}</Text>
-            <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
-              {weather.score}
-            </Text>
+        {emptyReason == null ? (
+          <View style={styles.details}>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>{t('weatherStation.emotionIndex')}</Text>
+              <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
+                {weather.score}
+              </Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>{t('weatherStation.conditionLabel')}</Text>
+              <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
+                {conditionLabel}
+              </Text>
+            </View>
           </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>{t('weatherStation.conditionLabel')}</Text>
-            <Text style={[styles.detailValue, { color: currentWeather.textColor }]}>
-              {conditionLabel}
-            </Text>
-          </View>
-        </View>
+        ) : null}
       </Animated.View>
 
       {/* Emotion forecast section */}

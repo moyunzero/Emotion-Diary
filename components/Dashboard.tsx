@@ -4,7 +4,10 @@ import {
   getDashboardEntryItemType,
   type DashboardFilterType,
 } from "@/shared/entries/dashboardFilter";
-import { computeWeatherNarrative } from "@/shared/weather/weatherNarrative";
+import {
+  computeWeatherNarrative,
+  getWeatherEmptyReason,
+} from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList, FlashListRef, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -216,6 +219,10 @@ const Dashboard: React.FC = () => {
   );
 
   const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
+  const weatherEmptyReason = useMemo(
+    () => getWeatherEmptyReason(entries),
+    [entries],
+  );
   const weatherAdvice = useMemo((): string => {
     const { adviceKey } = computeWeatherNarrative(entries, weather.condition);
     const translated = String(t(adviceKey as never));
@@ -275,7 +282,9 @@ const Dashboard: React.FC = () => {
             {t("header.title")}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {formatLocaleDate(Date.now(), effectiveLocale)} · {weatherAdvice}
+            {weatherEmptyReason != null
+              ? formatLocaleDate(Date.now(), effectiveLocale)
+              : `${formatLocaleDate(Date.now(), effectiveLocale)} · ${weatherAdvice}`}
           </Text>
         </View>
         <Avatar
