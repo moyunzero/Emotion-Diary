@@ -50,7 +50,7 @@ function getMoodBadgeColor(level: MoodLevel): string {
 
 function createRecycleBinEntryCardStyles(width: number, height: number) {
   const m = createResponsiveMetrics(width, height);
-  const { spacing, borderRadius, fontSize, shadow } = DESIGN_TOKENS;
+  const { spacing, borderRadius, fontSize } = DESIGN_TOKENS;
 
   return StyleSheet.create({
     wrapper: {
@@ -61,7 +61,8 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.background.primary,
       borderRadius: borderRadius.xl,
       overflow: "hidden",
-      ...shadow.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: COLORS.hairline,
     },
     body: {
       padding: spacing.lg,

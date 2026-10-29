@@ -56,7 +56,6 @@ export function createSharedStyles(width: number, height: number) {
         backgroundColor: COLORS.primaryDark,
         borderRadius: DESIGN_TOKENS.borderRadius.large,
         alignItems: 'center',
-        ...DESIGN_TOKENS.shadow.xl,
       },
       submitButtonDisabled: {
         opacity: 0.5,
@@ -78,7 +77,8 @@ export function createSharedStyles(width: number, height: number) {
         backgroundColor: COLORS.background.primary,
         borderRadius: DESIGN_TOKENS.borderRadius.large,
         padding: DESIGN_TOKENS.spacing.lg,
-        ...DESIGN_TOKENS.shadow.md,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: COLORS.hairline,
       },
       cardTitle: {
         fontSize: m.fontSize.cardTitle,

@@ -13,7 +13,8 @@ export function createEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.background.primary,
       borderRadius: DESIGN_TOKENS.borderRadius.xl,
       padding: DESIGN_TOKENS.spacing.lg,
-      ...DESIGN_TOKENS.shadow.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: COLORS.hairline,
     },
     resolvedContainer: {
       opacity: 0.5,
