@@ -60,7 +60,8 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           fontWeight: '500',
           color: INSIGHTS_COLORS.textSecondary,
           marginBottom: 8,
-          height: 16,
+          alignSelf: 'stretch',
+          textAlign: 'center',
         },
         todayText: {
           color: INSIGHTS_COLORS.accent,
@@ -77,8 +78,8 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           fontSize: fontSize.small,
           color: INSIGHTS_COLORS.textSecondary,
           textAlign: 'center',
-          height: 28,
-          lineHeight: 14,
+          alignSelf: 'stretch',
+          lineHeight: fontSize.small * 1.2,
         },
       }),
     [padding, fontSize, spacing, borderRadius]
