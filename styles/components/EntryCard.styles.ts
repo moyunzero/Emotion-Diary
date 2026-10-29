@@ -153,14 +153,14 @@ export function createEntryCardStyles(width: number, height: number) {
       fontWeight: '600',
     },
     triggerTag: {
-      backgroundColor: '#FDF2F8',
+      backgroundColor: COLORS.brandSoft,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
       borderRadius: 10,
     },
     triggerText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.primaryDark,
+      color: COLORS.brandPressed,
       fontWeight: '600',
     },
     audioTag: {

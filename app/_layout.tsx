@@ -24,6 +24,7 @@ import {
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 import { enableAsoPreviewQuiet } from '../services/asoPreviewQuiet';
+import { COLORS } from '../constants/colors';
 
 if (Platform.OS === 'web') {
   installWebAlertPolyfill();
@@ -151,7 +152,7 @@ export default function RootLayout() {
   }
 
   const statusBarStyle = 'dark-content';
-  const statusBarBackground = '#FFFFFF';
+  const statusBarBackground = COLORS.surface;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
