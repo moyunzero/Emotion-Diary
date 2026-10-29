@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import {
   Play,
   Pause,
@@ -215,7 +215,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.gray[100],
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     marginVertical: 4,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   playButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: COLORS.surface,
     alignItems: "center",
     justifyContent: "center",
@@ -274,12 +274,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 4,
     backgroundColor: COLORS.gray[300],
-    borderRadius: 2,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
   },
   progressFill: {
     height: "100%",
     backgroundColor: COLORS.audio.primary,
-    borderRadius: 2,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
   },
   duration: {
     fontSize: 12,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 24,
     width: "80%",
     maxWidth: 320,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     alignItems: "center",
   },
   cancelButton: {

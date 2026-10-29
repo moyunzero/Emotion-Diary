@@ -4,7 +4,7 @@
  */
 
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { formatLocaleDate } from '@/shared/formatting/date';
 import { useAppStore } from '@/store/useAppStore';
 import { PartyPopper, X } from 'lucide-react-native';
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.lg,
     padding: 24,
     width: '100%',
     maxWidth: 400,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   milestoneCard: {
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     alignItems: 'center',
   },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   nextCard: {
     backgroundColor: COLORS.gray[50],
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     alignItems: 'center',
   },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 16,
     backgroundColor: COLORS.background.page,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
   },
   maxContent: {
     flexDirection: 'row',

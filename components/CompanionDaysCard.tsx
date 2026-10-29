@@ -3,7 +3,7 @@
  * 显示用户的陪伴天数，包含数字增长动画
  */
 
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     alignItems: 'center',
     justifyContent: 'center',

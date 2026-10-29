@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { createStackScreenHeaderStyle } from "@/styles/stackScreenHeader";
 
 /** Phase 14 UI-SPEC B spacing — multiples of 4 only */
@@ -49,7 +49,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     pot: {
       width: 88,
       height: 88,
-      borderRadius: 44,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: S.sm,
@@ -67,7 +67,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     ribbon: {
       paddingHorizontal: S.md,
       paddingVertical: S.xs,
-      borderRadius: 999,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
     },
     ribbonText: {
       fontSize: 12,
@@ -77,7 +77,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     metricStrip: {
       flexDirection: "row",
       backgroundColor: CARD,
-      borderRadius: 16,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
       paddingVertical: S.md,
       paddingHorizontal: S.sm,
       marginBottom: S.lg,
@@ -139,7 +139,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     spineDot: {
       width: 10,
       height: 10,
-      borderRadius: 5,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       backgroundColor: ACCENT,
       borderWidth: 2,
       borderColor: CARD,
@@ -178,7 +178,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
       minHeight: 44,
       paddingHorizontal: 18,
       paddingVertical: 12,
-      borderRadius: 14,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
       backgroundColor: ACCENT,
       alignItems: "center",
       justifyContent: "center",

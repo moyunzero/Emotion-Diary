@@ -4,7 +4,7 @@
  */
 
 import { EditEntryModal } from "@/components/entries";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { useAppStore } from "@/store/useAppStore";
 import type { MoodEntry } from "@/types";
@@ -97,7 +97,7 @@ function OnThisDayPersonSlotComponent({ entries }: OnThisDayPersonSlotProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.background.primary,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: DASHED_BORDER,

@@ -1,4 +1,4 @@
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { Plus, X } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     fontSize: 12,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
     borderColor: COLORS.mood.level3,
     backgroundColor: COLORS.surface,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
     borderColor: COLORS.gray[300],
     borderStyle: 'dashed',

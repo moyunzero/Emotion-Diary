@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { createStackScreenHeaderStyle } from "@/styles/stackScreenHeader";
 
 /** Phase 15 UI-SPEC B spacing — multiples of 4 only */
@@ -49,7 +49,7 @@ export function createOnThisDayStyles(_width: number, height: number) {
     orbit: {
       width: 72,
       height: 72,
-      borderRadius: 36,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: S.sm,
@@ -96,7 +96,7 @@ export function createOnThisDayStyles(_width: number, height: number) {
     yearBead: {
       width: 12,
       height: 12,
-      borderRadius: 6,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       backgroundColor: ACCENT,
       borderWidth: 2,
       borderColor: CARD,
@@ -129,7 +129,7 @@ export function createOnThisDayStyles(_width: number, height: number) {
     spineDot: {
       width: 10,
       height: 10,
-      borderRadius: 5,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       backgroundColor: ACCENT,
       borderWidth: 2,
       borderColor: CARD,

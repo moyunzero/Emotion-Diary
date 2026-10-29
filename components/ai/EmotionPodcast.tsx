@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { formatLocaleDate } from '@/shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 
 /**
  * Emotion podcast card — AI-generated mood recap
@@ -54,7 +54,7 @@ const EmotionPodcast: React.FC = () => {
           flex: 1,
           paddingVertical: 10,
           paddingHorizontal: 16,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           backgroundColor: COLORS.gray[100],
           alignItems: 'center',
         },
@@ -89,7 +89,7 @@ const EmotionPodcast: React.FC = () => {
         },
         podcastCard: {
           backgroundColor: COLORS.background.secondary,
-          borderRadius: 16,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           padding: 16,
         },
         podcastHeader: {
@@ -114,7 +114,7 @@ const EmotionPodcast: React.FC = () => {
         },
         actionButton: {
           padding: 6,
-          borderRadius: 8,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
           backgroundColor: COLORS.background.primary,
         },
         podcastContent: {

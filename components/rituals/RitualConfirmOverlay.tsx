@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.background.primary,
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.lg,
     padding: DESIGN_TOKENS.spacing.xl,
     alignItems: "center",
     ...DESIGN_TOKENS.shadow.xl,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   confirmButton: {
     width: "100%",
     height: 48,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
   },

@@ -3,7 +3,7 @@
  */
 
 import { StyleSheet } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 
 export const profileScreenModalStyles = StyleSheet.create({
   modalOverlay: {
@@ -44,7 +44,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     width: "100%",
     maxWidth: 340,
     backgroundColor: COLORS.surface,
-    borderRadius: 24,
+    borderRadius: DESIGN_TOKENS.borderRadius.lg,
     padding: 32,
     alignItems: "stretch",
     overflow: "hidden",
@@ -67,7 +67,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     padding: 8,
     zIndex: 1000,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -82,7 +82,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   loginIconBox: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: COLORS.mood.level1,
     justifyContent: "center",
     alignItems: "center",
@@ -105,7 +105,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     width: "100%",
     backgroundColor: COLORS.brandPressed,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     alignItems: "center",
     shadowColor: COLORS.brandPressed,
     shadowOffset: { width: 0, height: 4 },
@@ -148,7 +148,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   previewAvatar: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     marginBottom: 16,
     borderWidth: 3,
     borderColor: COLORS.mood.level3,
@@ -161,7 +161,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   avatarOption: {
     marginHorizontal: 6,
-    borderRadius: 25,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     padding: 2,
     borderWidth: 2,
     borderColor: "transparent",
@@ -172,7 +172,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   avatarOptionImage: {
     width: 46,
     height: 46,
-    borderRadius: 23,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: COLORS.mood.level1,
     overflow: "hidden",
   },
@@ -191,7 +191,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     backgroundColor: COLORS.gray[50],
     borderWidth: 1,
     borderColor: COLORS.border.medium,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     fontSize: 16,
     color: COLORS.text.primary,

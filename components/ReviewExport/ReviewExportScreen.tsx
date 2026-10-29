@@ -43,7 +43,7 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
 import { logger } from '../../utils/logger';
-import { COLORS } from '../../constants/colors';
+import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 14,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     backgroundColor: INSIGHTS_COLORS.cardBg,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: INSIGHTS_COLORS.primary + '28',
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1,
     borderColor: INSIGHTS_COLORS.primary + '40',
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: 14,
