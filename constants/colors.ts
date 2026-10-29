@@ -36,23 +36,24 @@ export const COLORS = {
     },
   },
   
-  // 状态颜色
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
-  
-  // 功能性颜色（submit 仅 destructive，品牌 CTA 用 brandPressed / primaryDark）
-  submit: '#EF4444',
-  accent: '#86EFAC',
+  // Semantic status (sketch --resolve / --burn / --danger)
+  danger: '#C93A3A',
+  success: '#2F8F6A',
+  warning: '#C2541D',
+  error: '#C93A3A',
+  info: '#5B7FA6',
 
-  // 录音 UI（映射粉系，替代旧 #6C63FF）
+  // submit → danger; accent → resolve (was candy/Tailwind leftovers)
+  submit: '#C93A3A',
+  accent: '#2F8F6A',
+
+  // 录音 UI — brand chrome, not purple wash
   audio: {
-    primary: '#FB7185',
-    surface: '#F5F3FF',
+    primary: '#A8355B',
+    surface: '#FCE4EB',
   },
   
-  // 中性色
+  // 中性色（保留灰度阶；语义文字见 text.*）
   gray: {
     50: '#F9FAFB',
     100: '#F3F4F6',
@@ -79,97 +80,93 @@ export const COLORS = {
   // Tab 导航 — active aliases brandPressed
   tab: {
     active: '#A8355B',
-    inactive: '#9CA3AF',
+    inactive: '#8C8084',
   },
 
-  // 页面氛围叠层（气象站 / 花园，粉系柔光）
+  // 页面氛围叠层 — sketch weather fills (no purple wash)
   atmosphere: {
-    sunny: '#FFF1F2',
-    cloudy: '#FAF5FF',
-    rainy: '#F5F3FF',
-    stormy: '#FFE4E6',
+    sunny: '#FBF3E4',
+    cloudy: '#F0F2F4',
+    rainy: '#ECF2F8',
+    stormy: '#F2EDF6',
   },
 
-  // 关系天气卡片（内层卡片，与页面粉调一致）
+  // 关系天气卡片 — four-hue sketch (amber/grey/blue/mauve)
   weatherCard: {
     sunny: {
-      bg: '#FFF1F2',
-      text: '#9F1239',
-      icon: '#FB7185',
+      bg: '#FBF3E4',
+      text: '#2B2326',
+      icon: '#B57A12',
     },
     cloudy: {
-      bg: '#FAF5FF',
-      text: '#6B21A8',
-      icon: '#C084FC',
+      bg: '#F0F2F4',
+      text: '#2B2326',
+      icon: '#7A8794',
     },
     rainy: {
-      bg: '#EDE9FE',
-      text: '#5B21B6',
-      icon: '#A78BFA',
+      bg: '#ECF2F8',
+      text: '#2B2326',
+      icon: '#5B7FA6',
     },
     stormy: {
-      bg: '#FFE4E6',
-      text: '#BE123C',
-      icon: '#FB7185',
+      bg: '#F2EDF6',
+      text: '#2B2326',
+      icon: '#7A5C8E',
     },
   },
 
-  // 仪式语义色
   ritual: {
-    resolve: '#86EFAC',
-    burn: '#F97316',
+    resolve: '#2F8F6A',
+    burn: '#C2541D',
   },
   
-  // 文本颜色
   text: {
-    primary: '#1F2937',
-    secondary: '#6B7280',
-    tertiary: '#9CA3AF',
-    inverse: '#FFFFFF',
+    primary: '#2B2326',
+    secondary: '#6B5F63',
+    tertiary: '#8C8084',
+    inverse: '#FFFFFF', // --on-brand
   },
   
-  // 边框颜色
+  // border.light aliases hairline
   border: {
-    light: '#E5E7EB',
-    medium: '#D1D5DB',
-    dark: '#9CA3AF',
+    light: '#F0E0E4',
+    medium: '#E5E7EB',
+    dark: '#8C8084',
   },
   
-  // 阴影颜色
   shadow: {
     primary: '#000000',
-    submit: '#FB7185',
+    submit: '#C2416B',
   },
   
-  // 天气图标 / 光斑（粉紫柔色，避免黄绿跳色）
+  // Weather icon + fill (sketch --w-*; not candy purple)
   weather: {
-    sunny: '#FDA4AF',
-    cloudy: '#C084FC',
-    rainy: '#A78BFA',
-    stormy: '#FB7185',
+    sunny: { icon: '#B57A12', bg: '#FBF3E4' },
+    cloudy: { icon: '#7A8794', bg: '#F0F2F4' },
+    rainy: { icon: '#5B7FA6', bg: '#ECF2F8' },
+    stormy: { icon: '#7A5C8E', bg: '#F2EDF6' },
   },
   
-  // 截止日期颜色
   deadline: {
     today: {
-      bg: '#FEE2E2',
-      text: '#991B1B',
+      bg: '#FCE4EB',
+      text: '#C93A3A',
     },
     week: {
-      bg: '#FED7AA',
-      text: '#9A3412',
+      bg: '#FBF3E4',
+      text: '#C2541D',
     },
     month: {
-      bg: '#FFE4E6',
-      text: '#BE123C',
+      bg: '#FCEEF1',
+      text: '#C2416B',
     },
     later: {
-      bg: '#FAF5FF',
-      text: '#6B21A8',
+      bg: '#F0F2F4',
+      text: '#6B5F63',
     },
     self: {
       bg: '#F3F4F6',
-      text: '#374151',
+      text: '#2B2326',
     },
   },
 } as const;
