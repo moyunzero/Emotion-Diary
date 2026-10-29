@@ -1,13 +1,23 @@
 /**
  * 颜色常量
- * 统一管理应用中使用的所有颜色
+ * 语义角色对齐 sketch default.css（粉纸玫瑰）；旧键为别名（D-03），非第二套调色板。
  */
 
 export const COLORS = {
-  // 主色调
-  primary: '#FDA4AF',
-  primaryDark: '#FB7185',
-  primaryLight: '#FECDD3',
+  // —— Semantic roles (default.css / D-01 · D-02) ——
+  bg: '#FFF8F9',
+  surface: '#FFFFFF',
+  surface2: '#FCEEF1',
+  hairline: '#F0E0E4',
+  brand: '#C2416B',
+  brandPressed: '#A8355B',
+  brandSoft: '#FCE4EB',
+
+  // Legacy aliases → same literals as brand / brandPressed / brandSoft (D-03)
+  primary: '#C2416B',
+  primaryDark: '#A8355B',
+  /** Soft wash — historically candy primaryLight; alias brandSoft (Pitfall 2) */
+  primaryLight: '#FCE4EB',
   
   // 情绪等级颜色（粉系递进，与疗愈基调一致）
   mood: {
@@ -32,7 +42,7 @@ export const COLORS = {
   error: '#EF4444',
   info: '#3B82F6',
   
-  // 功能性颜色（submit 仅 destructive，品牌 CTA 用 primaryDark）
+  // 功能性颜色（submit 仅 destructive，品牌 CTA 用 brandPressed / primaryDark）
   submit: '#EF4444',
   accent: '#86EFAC',
 
@@ -56,19 +66,19 @@ export const COLORS = {
     900: '#111827',
   },
   
-  // 背景色（粉色疗愈基调）
+  // 背景色 — page aliases semantic bg (D-03); surface washes → surface / surface2
   background: {
     primary: '#FFFFFF',
-    secondary: '#FFF5F7',
-    tertiary: '#FFE4E6',
-    page: '#FFF5F7',
-    gradientStart: '#FFF5F7',
-    gradientEnd: '#FFE4E6',
+    secondary: '#FCEEF1',
+    tertiary: '#FCE4EB',
+    page: '#FFF8F9',
+    gradientStart: '#FFF8F9',
+    gradientEnd: '#FCEEF1',
   },
 
-  // Tab 导航
+  // Tab 导航 — active aliases brandPressed
   tab: {
-    active: '#FB7185',
+    active: '#A8355B',
     inactive: '#9CA3AF',
   },
 
