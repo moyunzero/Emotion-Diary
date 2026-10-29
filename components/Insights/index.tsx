@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   reviewCtaText: {
     textAlign: "center",
-    fontFamily: "Lato_700Bold",
+    fontWeight: '700',
     fontSize: 16,
     color: INSIGHTS_COLORS.accent,
   },

@@ -36,7 +36,7 @@ export function createRecycleBinStyles(width: number, height: number) {
     emptyTitle: {
       fontSize: fontSize.lg,
       color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
     emptyDesc: {
       fontSize: fontSize.sm,

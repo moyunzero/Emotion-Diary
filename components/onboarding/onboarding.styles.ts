@@ -37,14 +37,13 @@ export function createOnboardingStyles(width: number, height: number) {
     title: {
       fontSize: fontSize.xl,
       color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
       textAlign: "center",
       marginBottom: spacing.sm,
     },
     body: {
       fontSize: fontSize.md,
       color: COLORS.text.secondary,
-      fontFamily: "Lato_400Regular",
       textAlign: "center",
       lineHeight: 24,
       maxWidth: 320,
@@ -83,7 +82,6 @@ export function createOnboardingStyles(width: number, height: number) {
     skipText: {
       fontSize: fontSize.base,
       color: COLORS.text.tertiary,
-      fontFamily: "Lato_400Regular",
     },
     primaryButton: {
       flex: 1,
@@ -101,7 +99,7 @@ export function createOnboardingStyles(width: number, height: number) {
     primaryButtonText: {
       fontSize: fontSize.md,
       color: COLORS.text.inverse,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
   });
 }

@@ -28,7 +28,7 @@ export function createRevisitBannerStyles(width: number, height: number) {
     title: {
       fontSize: fontSize.sm,
       color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
       marginBottom: 2,
     },
     subtitle: {
@@ -49,7 +49,7 @@ export function createRevisitBannerStyles(width: number, height: number) {
     actionText: {
       fontSize: fontSize.sm,
       color: COLORS.text.inverse,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
   });
 }
@@ -78,7 +78,7 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
     title: {
       fontSize: fontSize.sm,
       color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
       marginBottom: 2,
     },
     body: {
@@ -99,7 +99,7 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
     actionText: {
       fontSize: fontSize.sm,
       color: COLORS.text.inverse,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
   });
 }

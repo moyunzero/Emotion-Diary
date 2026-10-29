@@ -18,7 +18,6 @@ export function createDashboardStyles(width: number, height: number) {
       paddingBottom: DESIGN_TOKENS.spacing.xxl,
     },
     title: {
-      fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.title,
       fontWeight: '700',
       lineHeight: 33.6,
@@ -27,7 +26,6 @@ export function createDashboardStyles(width: number, height: number) {
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
     subtitle: {
-      fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.small,
       fontWeight: '400',
       lineHeight: 16.8,
@@ -78,14 +76,12 @@ export function createDashboardStyles(width: number, height: number) {
       flexShrink: 1,
     },
     listTitle: {
-      fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.cardTitle,
       fontWeight: '600',
       letterSpacing: 0,
       color: COLORS.text.primary,
     },
     count: {
-      fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.small,
       fontWeight: '400',
       letterSpacing: 0,
@@ -130,7 +126,6 @@ export function createDashboardStyles(width: number, height: number) {
       backgroundColor: COLORS.background.page,
     },
     filterOptionText: {
-      fontFamily: 'Lato_400Regular',
       fontSize: DESIGN_TOKENS.fontSize.base,
       fontWeight: '500',
       lineHeight: 21,
@@ -139,7 +134,6 @@ export function createDashboardStyles(width: number, height: number) {
       textAlign: 'center',
     },
     filterOptionTextActive: {
-      fontFamily: 'Lato_700Bold',
       fontWeight: '700',
       color: COLORS.primaryDark,
     },
@@ -162,7 +156,6 @@ export function createDashboardStyles(width: number, height: number) {
       marginBottom: DESIGN_TOKENS.spacing.xxl,
     },
     emptyTitle: {
-      fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.cardTitle,
       fontWeight: '700',
       lineHeight: 25.2,
@@ -172,7 +165,6 @@ export function createDashboardStyles(width: number, height: number) {
       textAlign: 'center',
     },
     emptyText: {
-      fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.body,
       fontWeight: '400',
       lineHeight: 20,
@@ -189,7 +181,6 @@ export function createDashboardStyles(width: number, height: number) {
       ...DESIGN_TOKENS.shadow.lg,
     },
     emptyButtonText: {
-      fontFamily: 'Lato_700Bold',
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: '700',
       color: COLORS.text.inverse,

@@ -1,4 +1,3 @@
-import { Lato_400Regular, Lato_700Bold, useFonts } from '@expo-google-fonts/lato';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
@@ -39,11 +38,7 @@ if (__DEV__ && process.env.EXPO_PUBLIC_ASO_PREVIEW === '1') {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // 加载Lato字体
-  const [fontsLoaded, fontError] = useFonts({
-    'Lato_400Regular': Lato_400Regular,
-    'Lato_700Bold': Lato_700Bold,
-  });
+  // TOKEN-04 / Pitfall 4: system UI fonts — never block splash on webfont load
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next) => {
@@ -136,16 +131,12 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && isI18nReady && isInitialized) {
+    if (isI18nReady && isInitialized) {
       SplashScreen.hideAsync().catch((error) => {
         logger.warn('RootLayout', '隐藏启动画面失败', error);
       });
     }
-  }, [fontsLoaded, fontError, isI18nReady, isInitialized]);
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  }, [isI18nReady, isInitialized]);
 
   if (!isI18nReady || !isInitialized) {
     return null;

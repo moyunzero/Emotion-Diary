@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
   watermark: {
     fontSize: 11,
     lineHeight: 15.4,
-    fontFamily: "Lato_400Regular",
     color: COLORS.text.secondary,
     textAlign: "center",
     letterSpacing: 0.2,

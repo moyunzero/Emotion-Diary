@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { COLORS, DESIGN_TOKENS, SERIF_STACK } from "../../constants/colors";
 import type {
   GrowthStageId,
   ShareCardModel,
@@ -149,14 +149,14 @@ const styles = StyleSheet.create({
     marginBottom: DESIGN_TOKENS.spacing.md,
   },
   title: {
-    fontFamily: "Lato_700Bold",
+    fontFamily: SERIF_STACK,
+    fontWeight: '700',
     fontSize: 20,
     lineHeight: 27,
     color: INSIGHTS_COLORS.text,
   },
   dateRange: {
     marginTop: 4,
-    fontFamily: "Lato_400Regular",
     fontSize: 14,
     lineHeight: 20,
     color: INSIGHTS_COLORS.textSecondary,
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     marginBottom: DESIGN_TOKENS.spacing.xs,
-    fontFamily: "Lato_700Bold",
+    fontWeight: '700',
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0.4,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   narrative: {
     flex: 1,
-    fontFamily: "Lato_400Regular",
+    fontFamily: SERIF_STACK,
     fontSize: 16,
     lineHeight: 24,
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   gardenLabel: {
     flex: 1,
-    fontFamily: "Lato_700Bold",
+    fontWeight: '700',
     fontSize: 16,
     lineHeight: 24,
     color: INSIGHTS_COLORS.text,
@@ -230,14 +230,13 @@ const styles = StyleSheet.create({
     borderColor: `${INSIGHTS_COLORS.primary}25`,
   },
   aiLoading: {
-    fontFamily: "Lato_400Regular",
     fontSize: 13,
     lineHeight: 18,
     color: INSIGHTS_COLORS.textSecondary,
     marginBottom: DESIGN_TOKENS.spacing.xs,
   },
   closingLine: {
-    fontFamily: "Lato_400Regular",
+    fontFamily: SERIF_STACK,
     fontSize: 17,
     lineHeight: 26,
     color: INSIGHTS_COLORS.text,
@@ -249,7 +248,6 @@ const styles = StyleSheet.create({
     paddingLeft: DESIGN_TOKENS.spacing.sm,
   },
   userSnippet: {
-    fontFamily: "Lato_400Regular",
     fontSize: 15,
     lineHeight: 22,
     fontStyle: "italic",

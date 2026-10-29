@@ -176,12 +176,12 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
     restoreText: {
       fontSize: fontSize.base,
       color: COLORS.primaryDark,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
     purgeText: {
       fontSize: fontSize.base,
       color: COLORS.error,
-      fontFamily: "Lato_700Bold",
+      fontWeight: '700',
     },
   });
 }

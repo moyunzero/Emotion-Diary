@@ -283,7 +283,6 @@ export const ReviewExportScreen: React.FC = () => {
       onBack={handleBack}
       backTestID="review-export-back-button"
       titleColor={INSIGHTS_COLORS.text}
-      titleFontFamily="Lato_700Bold"
       titleFontSize={responsiveLayout.headerTitleFontSize}
       headerStyle={{
         ...createStackScreenHeaderStyle(width, height),
@@ -468,12 +467,11 @@ const styles = StyleSheet.create({
     borderColor: INSIGHTS_COLORS.accent,
   },
   chipText: {
-    fontFamily: 'Lato_400Regular',
     color: INSIGHTS_COLORS.textSecondary,
   },
   chipTextSelected: {
     color: INSIGHTS_COLORS.accent,
-    fontFamily: 'Lato_700Bold',
+    fontWeight: '700',
   },
   scroll: {
     flex: 1,
@@ -509,7 +507,6 @@ const styles = StyleSheet.create({
   },
   optInLabel: {
     flex: 1,
-    fontFamily: 'Lato_400Regular',
     fontSize: 16,
     color: INSIGHTS_COLORS.text,
     marginRight: 12,
@@ -521,7 +518,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    fontFamily: 'Lato_400Regular',
     fontSize: 14,
     lineHeight: 21,
     color: INSIGHTS_COLORS.text,
@@ -530,14 +526,12 @@ const styles = StyleSheet.create({
   },
   optInHint: {
     marginTop: 8,
-    fontFamily: 'Lato_400Regular',
     fontSize: 12,
     lineHeight: 16.8,
     color: INSIGHTS_COLORS.textSecondary,
   },
   optInOff: {
     marginTop: 4,
-    fontFamily: 'Lato_400Regular',
     fontSize: 12,
     color: INSIGHTS_COLORS.textSecondary,
   },
@@ -554,7 +548,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   saveBtnText: {
-    fontFamily: 'Lato_700Bold',
+    fontWeight: '700',
     color: COLORS.text.inverse,
   },
 });

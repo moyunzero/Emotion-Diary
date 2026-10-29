@@ -90,11 +90,9 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.gray[800],
     marginBottom: 4,
-    fontFamily: 'Lato_700Bold',
   },
   label: {
     fontSize: 12,
     color: COLORS.gray[400],
-    fontFamily: 'Lato_400Regular',
   },
 });
