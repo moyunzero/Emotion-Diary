@@ -19,6 +19,7 @@ import { Clock, Sprout } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View, useWindowDimensions } from "react-native";
+import { COLORS } from "@/constants/colors";
 import { createOnThisDayStyles } from "./onThisDay.styles";
 
 export function OnThisDayScreen() {
@@ -85,7 +86,7 @@ export function OnThisDayScreen() {
           accessibilityRole="image"
           accessibilityLabel={heroDate}
         >
-          <Clock size={32} color="#FB7185" />
+          <Clock size={32} color={COLORS.mood.level4} />
         </View>
         <Text style={styles.heroDate}>{heroDate}</Text>
         <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
@@ -149,7 +150,7 @@ export function OnThisDayScreen() {
           <View style={styles.listContent}>
             {listHeader}
             <View style={styles.empty}>
-              <Sprout size={40} color="#D1D5DB" />
+              <Sprout size={40} color={COLORS.gray[300]} />
               <Text style={styles.emptyTitle}>{t("empty.title")}</Text>
               <Text style={styles.emptyBody}>{t("empty.body")}</Text>
             </View>

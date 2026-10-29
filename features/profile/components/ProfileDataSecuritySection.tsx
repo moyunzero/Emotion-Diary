@@ -116,7 +116,7 @@ export function ProfileDataSecuritySection({
       >
         <ProfileMenuItem
           icon={<CloudUpload size={20} color={COLORS.primaryDark} />}
-          iconBgColor="#FEF2F2"
+          iconBgColor={COLORS.mood.level1}
           title={tSync("uploadTitle")}
           subtext={
             storeSyncStatus === "syncing" || isLoading
@@ -131,7 +131,7 @@ export function ProfileDataSecuritySection({
         <ProfileMenuItem
           testID="profile-sync-pull"
           icon={<CloudDownload size={20} color={COLORS.primaryDark} />}
-          iconBgColor="#EFF6FF"
+          iconBgColor={COLORS.atmosphere.rainy}
           title={tSync("pullTitle")}
           subtext={
             storeSyncStatus === "syncing" || isLoading
@@ -145,7 +145,7 @@ export function ProfileDataSecuritySection({
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
           testID="profile-recycle-bin-item"
-          icon={<Archive size={20} color="#6B7280" />}
+          icon={<Archive size={20} color={COLORS.gray[500]} />}
           iconBgColor={COLORS.gray[50]}
           title={tProfile("recycleBin.title")}
           subtext={

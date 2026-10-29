@@ -92,7 +92,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     },
     metricDivider: {
       width: 1,
-      backgroundColor: "#F3F4F6",
+      backgroundColor: COLORS.gray[100],
       marginVertical: S.xs,
     },
     metricValue: {
@@ -186,7 +186,7 @@ export function createPersonTimelineStyles(_width: number, height: number) {
     emptyCtaText: {
       fontSize: 14,
       fontWeight: "700",
-      color: "#FFFFFF",
+      color: COLORS.text.inverse,
     },
   });
 }

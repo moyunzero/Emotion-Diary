@@ -45,10 +45,10 @@ export function ProfileRetentionSection({
           <View
             style={[
               profileStyles.menuIcon,
-              { backgroundColor: "#FEF2F2" },
+              { backgroundColor: COLORS.mood.level1 },
             ]}
           >
-            <Bell size={20} color={COLORS.primaryDark} />
+            <Bell size={20} color={COLORS.brandPressed} />
           </View>
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
@@ -78,9 +78,11 @@ export function ProfileRetentionSection({
               value={reminderSettings.dailyReminderEnabled}
               onValueChange={() => onToggleDailyReminder()}
               disabled={isLoading || reminderLoading}
-              trackColor={{ false: COLORS.gray[200], true: COLORS.primaryLight }}
+              trackColor={{ false: COLORS.gray[200], true: COLORS.brandSoft }}
               thumbColor={
-                reminderSettings.dailyReminderEnabled ? COLORS.primaryDark : "#f4f3f4"
+                reminderSettings.dailyReminderEnabled
+                  ? COLORS.brandPressed
+                  : COLORS.gray[100]
               }
             />
           ) : null}
@@ -92,10 +94,10 @@ export function ProfileRetentionSection({
               <View
                 style={[
                   profileStyles.menuIcon,
-                  { backgroundColor: "#EFF6FF" },
+                  { backgroundColor: COLORS.atmosphere.rainy },
                 ]}
               >
-                <History size={20} color={COLORS.primaryDark} />
+                <History size={20} color={COLORS.brandPressed} />
               </View>
               <View style={profileStyles.menuTextContainer}>
                 <Text style={profileStyles.menuText}>
@@ -112,11 +114,11 @@ export function ProfileRetentionSection({
                 value={reminderSettings.weeklyReviewNotificationEnabled}
                 onValueChange={() => onToggleWeeklyReviewNotification()}
                 disabled={isLoading || reminderLoading}
-                trackColor={{ false: COLORS.gray[200], true: COLORS.primaryLight }}
+                trackColor={{ false: COLORS.gray[200], true: COLORS.brandSoft }}
                 thumbColor={
                   reminderSettings.weeklyReviewNotificationEnabled
-                    ? COLORS.primaryDark
-                    : "#f4f3f4"
+                    ? COLORS.brandPressed
+                    : COLORS.gray[100]
                 }
               />
             </View>

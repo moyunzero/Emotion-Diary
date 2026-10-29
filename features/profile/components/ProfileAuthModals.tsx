@@ -188,7 +188,7 @@ export function ProfileAuthModals({
                 setRegisterConfirmPasswordError("");
               }}
             >
-              <X size={24} color="#9CA3AF" />
+              <X size={24} color={COLORS.gray[400]} />
             </TouchableOpacity>
 
             <ScrollView
@@ -486,7 +486,7 @@ export function ProfileAuthModals({
                 }
               >
                 {isLoading ? (
-                  <ActivityIndicator color="#FFFFFF" />
+                  <ActivityIndicator color={COLORS.text.inverse} />
                 ) : (
                   <Text style={ms.primaryButtonText}>
                     {isRegisterMode

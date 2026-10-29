@@ -5,6 +5,7 @@
 import { AppScreenShell } from "@/components/AppScreenShell";
 import EntryCard from "@/components/EntryCard/EntryCard";
 import { INSIGHTS_COLORS } from "@/components/Insights/constants";
+import { COLORS } from "@/constants/colors";
 import { getFlowerPotStatus } from "@/components/Insights/utils";
 import { OnThisDayPersonSlot } from "@/components/onThisDay/OnThisDayPersonSlot";
 import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
@@ -224,7 +225,7 @@ export function PersonTimelineScreen() {
           style={styles.empty}
           testID="person-timeline-missing-person"
         >
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={COLORS.gray[300]} />
           <Text style={styles.emptyTitle}>{t("empty.missing.title")}</Text>
           <Text style={styles.emptyBody}>{t("empty.missing.body")}</Text>
           <TouchableOpacity
@@ -245,7 +246,7 @@ export function PersonTimelineScreen() {
     return (
       <AppScreenShell {...shellProps}>
         <View style={styles.empty} testID="person-timeline-empty">
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={COLORS.gray[300]} />
           <Text style={styles.emptyTitle}>{t("empty.timeline.title")}</Text>
           <Text style={styles.emptyBody}>{t("empty.timeline.body")}</Text>
           <TouchableOpacity

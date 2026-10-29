@@ -75,7 +75,7 @@ export function ProfileAccountSection({
       <GroupedSettingsCard>
         <ProfileMenuItem
           icon={<LogOut size={20} color={COLORS.error} />}
-          iconBgColor="#FEF2F2"
+          iconBgColor={COLORS.mood.level1}
           title={tProfile("account.logout")}
           showChevron={false}
           danger
@@ -84,7 +84,7 @@ export function ProfileAccountSection({
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
           icon={<UserX size={20} color={COLORS.error} />}
-          iconBgColor="#FEF2F2"
+          iconBgColor={COLORS.mood.level1}
           title={tProfile("account.deleteAccount")}
           subtext={tProfile("account.deleteAccountSubtext")}
           showChevron={false}
@@ -136,7 +136,7 @@ export function ProfileAccountSection({
                   style={ms.closeButton}
                   onPress={onCloseEditProfileModal}
                 >
-                  <X size={24} color="#9CA3AF" />
+                  <X size={24} color={COLORS.gray[400]} />
                 </TouchableOpacity>
 
                 <Text style={ms.modalTitle}>{tAuth("editProfile.modalTitle")}</Text>
@@ -203,7 +203,7 @@ export function ProfileAccountSection({
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <ActivityIndicator color="#FFFFFF" />
+                    <ActivityIndicator color={COLORS.text.inverse} />
                   ) : (
                     <Text style={ms.primaryButtonText}>
                       {tAuth("editProfile.save")}

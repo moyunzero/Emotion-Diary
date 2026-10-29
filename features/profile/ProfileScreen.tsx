@@ -212,9 +212,9 @@ export function ProfileScreen() {
           moodIcon={
             user ? (
               weather.score > 20 ? (
-                <CloudRain size={16} color="#6B7280" />
+                <CloudRain size={16} color={COLORS.gray[500]} />
               ) : (
-                <Sun size={16} color="#F59E0B" />
+                <Sun size={16} color={COLORS.weather.sunny.icon} />
               )
             ) : undefined
           }
