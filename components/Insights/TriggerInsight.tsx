@@ -57,7 +57,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         loopContainer: {
           marginTop: 14,
           backgroundColor: INSIGHTS_COLORS.bgEnd,
-          borderRadius: 10,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
           padding: 12,
           gap: 6,
         },
@@ -73,7 +73,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         card: {
           backgroundColor: INSIGHTS_COLORS.bgStart,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           padding: 14,
         },
         cardHeader: {
@@ -85,7 +85,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           backgroundColor: INSIGHTS_COLORS.primary + '30',
           paddingHorizontal: 8,
           paddingVertical: 2,
-          borderRadius: 8,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
           marginRight: 10,
         },
         rankText: {
@@ -109,7 +109,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           gap: 8,
           backgroundColor: INSIGHTS_COLORS.bgEnd,
           padding: padding.vertical,
-          borderRadius: 8,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
         },
         adviceText: {
           flex: 1,
@@ -140,14 +140,14 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           width: '80%',
           height: 8,
           backgroundColor: COLORS.gray[200],
-          borderRadius: 4,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
           overflow: 'hidden',
           marginBottom: 8,
         },
         progressFill: {
           height: '100%',
           backgroundColor: INSIGHTS_COLORS.accent,
-          borderRadius: 4,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
         },
         progressText: {
           fontSize: fontSize.small,

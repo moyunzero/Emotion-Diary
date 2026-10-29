@@ -75,7 +75,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
     moodIconBadge: {
       width: 44,
       height: 44,
-      borderRadius: 14,
+      borderRadius: borderRadius.md,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -118,7 +118,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.gray[100],
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
     },
     deadlineText: {
       fontSize: fontSize.xs,
@@ -129,7 +129,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.background.page,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
     },
     triggerText: {
       fontSize: fontSize.xs,
@@ -140,7 +140,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
       flexDirection: "row",
       alignItems: "center",
       gap: 4,

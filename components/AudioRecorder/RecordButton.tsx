@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { recordingCoordinator } from "../../shared/audio/recordingCoordinator";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { useAppStore } from "../../store/useAppStore";
 
 interface RecordButtonProps {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     height: 50,
     paddingHorizontal: 16,
     backgroundColor: COLORS.audio.primary,
-    borderRadius: 25,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     maxWidth: 210,
     height: 42,
     paddingHorizontal: 12,
-    borderRadius: 21,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: COLORS.audio.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   processingIndicator: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     borderWidth: 2,
     borderColor: COLORS.text.inverse,
     borderTopColor: "transparent",

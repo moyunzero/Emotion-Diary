@@ -103,7 +103,7 @@ export function createEntryCardStyles(width: number, height: number) {
     moodIconBadge: {
       width: 44,
       height: 44,
-      borderRadius: 14,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
       backgroundColor: COLORS.background.tertiary,
       alignItems: 'center',
       justifyContent: 'center',
@@ -146,7 +146,7 @@ export function createEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.gray[100],
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
-      borderRadius: 10,
+      borderRadius: DESIGN_TOKENS.borderRadius.sm,
     },
     deadlineText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
@@ -157,7 +157,7 @@ export function createEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.brandSoft,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
-      borderRadius: 10,
+      borderRadius: DESIGN_TOKENS.borderRadius.sm,
     },
     triggerText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
@@ -168,7 +168,7 @@ export function createEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
-      borderRadius: 10,
+      borderRadius: DESIGN_TOKENS.borderRadius.sm,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
@@ -247,7 +247,7 @@ export function createEntryCardStyles(width: number, height: number) {
     actionIcon: {
       width: 42,
       height: 42,
-      borderRadius: 14,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
       backgroundColor: COLORS.background.secondary,
       alignItems: 'center',
       justifyContent: 'center',

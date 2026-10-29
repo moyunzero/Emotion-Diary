@@ -7,7 +7,7 @@ import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
 import { MoodEntry, Status } from "../../types";
 import { formatLocaleDate } from "@/shared/formatting";
 import { useAppStore } from "@/store/useAppStore";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { INSIGHTS_COLORS } from "./constants";
 
 interface EmotionReleaseArchiveProps {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   metricPill: {
     flex: 1,
     backgroundColor: COLORS.atmosphere.sunny,
-    borderRadius: 10,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     paddingVertical: 8,
     paddingHorizontal: 10,
   },
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   recordCard: {
     backgroundColor: COLORS.background.secondary,
-    borderRadius: 10,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     padding: 12,
   },
   recordDate: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 6,
     backgroundColor: INSIGHTS_COLORS.bgEnd,
-    borderRadius: 8,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     paddingVertical: 8,
     paddingHorizontal: 10,
   },
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   emptyCard: {
     marginTop: 4,
     backgroundColor: COLORS.background.secondary,
-    borderRadius: 10,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     padding: 16,
     alignItems: "center",
     gap: 8,

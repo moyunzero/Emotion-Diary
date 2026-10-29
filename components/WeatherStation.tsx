@@ -310,7 +310,7 @@ const WeatherStationComponent: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 20,
     marginHorizontal: 16,
     shadowColor: COLORS.shadow.primary,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   forecastContainer: {
     backgroundColor: COLORS.background.primary,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     marginHorizontal: 16,
     marginTop: 12,
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryDark,
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
   },
   warningBadgeText: {
     fontSize: DESIGN_TOKENS.fontSize.footnote,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   warningItem: {
     padding: 12,
     backgroundColor: COLORS.background.page,
-    borderRadius: 8,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     borderLeftWidth: 3,
   },
   warningDate: {
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   predictionIndicator: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 6,

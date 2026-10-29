@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   weatherIconWrap: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: "rgba(255,255,255,0.55)",
     alignItems: "center",
     justifyContent: "center",
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   gardenIconWrap: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: `${COLORS.ritual.resolve}14`,
     alignItems: "center",
     justifyContent: "center",

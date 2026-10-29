@@ -36,7 +36,7 @@ export function createDashboardStyles(width: number, height: number) {
     avatar: {
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       overflow: 'hidden',
       backgroundColor: COLORS.background.primary,
       ...DESIGN_TOKENS.shadow.md,
@@ -149,7 +149,7 @@ export function createDashboardStyles(width: number, height: number) {
     emptyIconContainer: {
       width: 96,
       height: 96,
-      borderRadius: 48,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       backgroundColor: COLORS.background.secondary,
       alignItems: 'center',
       justifyContent: 'center',

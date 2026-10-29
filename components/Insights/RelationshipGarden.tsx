@@ -9,7 +9,7 @@ import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
@@ -86,7 +86,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         pot: {
           width: 56,
           height: 56,
-          borderRadius: 28,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 6,
@@ -101,7 +101,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         statusBadge: {
           paddingHorizontal: 6,
           paddingVertical: 2,
-          borderRadius: 10,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
           marginBottom: 3,
           maxWidth: '100%',
           alignSelf: 'stretch',
@@ -135,7 +135,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           minHeight: 44,
           paddingHorizontal: 18,
           paddingVertical: 12,
-          borderRadius: 14,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           backgroundColor: INSIGHTS_COLORS.needWaterColor,
           alignItems: 'center',
           justifyContent: 'center',

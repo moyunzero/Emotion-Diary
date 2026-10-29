@@ -79,7 +79,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: 120,
     backgroundColor: COLORS.background.secondary,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     fontSize: 16,
     color: COLORS.gray[700],
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
   deadlineButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     backgroundColor: COLORS.gray[100],
   },
   deadlineButtonSelected: {
@@ -122,7 +122,7 @@ export const styles = StyleSheet.create({
   customDeadlineInput: {
     width: '100%',
     backgroundColor: COLORS.background.secondary,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     fontSize: 14,
     color: COLORS.gray[700],
@@ -135,7 +135,7 @@ export const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
     borderColor: COLORS.border.light,
     backgroundColor: COLORS.background.primary,
@@ -190,7 +190,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 16,
     backgroundColor: COLORS.primaryDark,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     alignItems: 'center',
     shadowColor: COLORS.shadow.submit,
     shadowOffset: { width: 0, height: 4 },
