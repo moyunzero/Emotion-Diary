@@ -82,7 +82,8 @@
       "title": "行动闭环",
       "stepTrigger": "1. 触发：{{trigger}}",
       "stepAction": "2. 试试：{{stepOne}}",
-      "stepRevisit": "3. {{date}} 再看变化"
+      "stepRevisit": "3. {{date}} 再看变化",
+      "stepRecorded": "记录于 {{date}}"
     },
     "advice": {
       "work": "给自己的花园放个假吧，休息也是成长的一部分",

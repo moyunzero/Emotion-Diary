@@ -4,6 +4,7 @@ import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { getActionLoopDateLine } from '../../shared/entries/actionLoopDateLine';
 import { formatLocaleDate } from '../../shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
 import { MoodEntry } from '../../types';
@@ -187,12 +188,13 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
 
     if (!latestEntry) return null;
 
-    const revisitTime = latestEntry.timestamp + 48 * 60 * 60 * 1000;
-    const revisitText = formatLocaleDate(revisitTime, effectiveLocale, 'short');
+    const line = getActionLoopDateLine(latestEntry.timestamp, Date.now());
+    const dateText = formatLocaleDate(line.timestamp, effectiveLocale, 'short');
 
     return {
       trigger: topTrigger.name,
-      revisitText,
+      dateKind: line.kind,
+      dateText,
     };
   }, [entries, triggerData, effectiveLocale]);
 
@@ -284,7 +286,9 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
             })}
           </Text>
           <Text style={styles.loopText}>
-            {t('triggers.actionLoop.stepRevisit', { date: actionLoop.revisitText })}
+            {actionLoop.dateKind === 'revisit'
+              ? t('triggers.actionLoop.stepRevisit', { date: actionLoop.dateText })
+              : t('triggers.actionLoop.stepRecorded', { date: actionLoop.dateText })}
           </Text>
         </View>
       )}

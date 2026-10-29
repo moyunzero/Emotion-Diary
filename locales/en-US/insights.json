@@ -82,7 +82,8 @@
       "title": "Action loop",
       "stepTrigger": "1. Trigger: {{trigger}}",
       "stepAction": "2. Try: {{stepOne}}",
-      "stepRevisit": "3. Check back {{date}}"
+      "stepRevisit": "3. Check back {{date}}",
+      "stepRecorded": "Logged {{date}}"
     },
     "advice": {
       "work": "Give your garden a rest day — rest is part of growth",
