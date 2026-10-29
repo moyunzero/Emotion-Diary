@@ -3,8 +3,6 @@
  * 语义角色对齐 sketch default.css（粉纸玫瑰）；旧键为别名（D-03），非第二套调色板。
  */
 
-import { Platform } from 'react-native';
-
 export const COLORS = {
   // —— Semantic roles (default.css / D-01 · D-02) ——
   bg: '#FFF8F9',
@@ -260,15 +258,12 @@ export const DESIGN_TOKENS = {
 } as const;
 
 /**
- * D-11 brand-sentence serif — system Songti / platform serif only (zero webfont assets).
+ * D-11 brand-sentence serif — system Songti only (zero webfont assets).
  * Use only at: weather narrative · review closing · share card title.
+ * Pure string (no react-native import) so Jest can load this module without RN transform.
+ * Missing faces fall back to the platform UI font.
  */
-export const SERIF_STACK =
-  Platform.OS === 'ios'
-    ? 'Songti SC'
-    : Platform.OS === 'android'
-      ? 'serif'
-      : 'Georgia, "Songti SC", serif';
+export const SERIF_STACK = 'Songti SC';
 
 /**
  * 透明度辅助函数
