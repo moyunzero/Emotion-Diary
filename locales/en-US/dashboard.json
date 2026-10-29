@@ -171,6 +171,10 @@
       "rainy": "Consider scheduling a deeper conversation",
       "stormy": "A stormy day — care for yourself first, talk when it settles"
     },
+    "empty": {
+      "noEntries": "Write one entry and the weather will light up",
+      "noActive": "Nothing open right now — the weather is taking a quiet moment"
+    },
     "forecast": {
       "title": "Emotion forecast",
       "generate": "Generate forecast",
