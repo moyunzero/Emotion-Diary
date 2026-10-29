@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/colors';
 import { Plus, X } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -72,12 +73,12 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
           returnKeyType="done"
           blurOnSubmit={true}
           placeholder={t('addTag.placeholder')}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={COLORS.gray[400]}
           style={styles.addTagInput}
           maxLength={20}
         />
         <TouchableOpacity onPress={handleCancel} style={styles.addTagCancel}>
-          <X size={14} color="#6B7280" />
+          <X size={14} color={COLORS.gray[500]} />
         </TouchableOpacity>
       </View>
     );
@@ -88,7 +89,7 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
       onPress={() => setIsEditing(true)}
       style={styles.addTagButton}
     >
-      <Plus size={12} color="#6B7280" />
+      <Plus size={12} color={COLORS.gray[500]} />
       <Text style={styles.addTagText}>{t('addTag.custom')}</Text>
     </TouchableOpacity>
   );
@@ -107,8 +108,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FFFFFF',
+    borderColor: COLORS.mood.level3,
+    backgroundColor: COLORS.surface,
   },
   addTagCancel: {
     padding: 4,
@@ -121,13 +122,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: COLORS.gray[300],
     borderStyle: 'dashed',
   },
   addTagText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#9CA3AF',
+    color: COLORS.gray[400],
   },
 });
 
