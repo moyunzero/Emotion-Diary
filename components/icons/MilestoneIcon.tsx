@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { COLORS } from '@/constants/colors';
 import { getIconByEmoji } from '../../utils/iconMapping';
 import AppIcon from './AppIcon';
 
@@ -58,9 +59,9 @@ export interface MilestoneIconProps {
 const MilestoneIcon: React.FC<MilestoneIconProps> = ({
   emoji,
   size = 32,
-  color = '#000000',
+  color = COLORS.shadow.primary,
   showBackground = false,
-  backgroundColor = '#F3F4F6',
+  backgroundColor = COLORS.gray[100],
   testID,
 }) => {
   const iconComponent = getIconByEmoji(emoji);

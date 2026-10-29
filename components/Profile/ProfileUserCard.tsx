@@ -7,6 +7,7 @@ import { Camera } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
+import { COLORS } from "@/constants/colors";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
 import Avatar from "../Avatar";
 
@@ -60,7 +61,7 @@ export function ProfileUserCard({
         />
         {isLoggedIn && (
           <View style={profileStyles.editBadge}>
-            <Camera size={14} color="#FFF" />
+            <Camera size={14} color={COLORS.text.inverse} />
           </View>
         )}
       </TouchableOpacity>

@@ -90,7 +90,7 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
           accessibilityRole="button"
           accessibilityLabel={t("revisitBanner.dismiss")}
         >
-          <X size={18} color="#9CA3AF" />
+          <X size={18} color={COLORS.gray[400]} />
         </TouchableOpacity>
       </View>
       <Pressable

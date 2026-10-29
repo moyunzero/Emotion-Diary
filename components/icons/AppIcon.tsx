@@ -1,5 +1,6 @@
 import { AlertCircle, LucideIcon } from 'lucide-react-native';
 import React, { memo } from 'react';
+import { COLORS } from '@/constants/colors';
 import { getIconByEmoji } from '../../utils/iconMapping';
 
 export interface AppIconProps {
@@ -16,7 +17,7 @@ export interface AppIconProps {
   
   /**
    * Icon color
-   * @default '#000000'
+   * @default COLORS.shadow.primary
    */
   color?: string;
   
@@ -57,7 +58,7 @@ export interface AppIconProps {
 const AppIcon: React.FC<AppIconProps> = ({
   name,
   size = 24,
-  color = '#000000',
+  color = COLORS.shadow.primary,
   strokeWidth = 2,
   fallbackIcon = AlertCircle,
   testID,

@@ -12,7 +12,7 @@ import { createProfileStyles } from "../../styles/components/Profile.styles";
 interface ProfileMenuItemProps {
   /** 左侧图标组件（已传入 size/color） */
   readonly icon: React.ReactNode;
-  /** 图标背景色，如 '#FEF2F2' */
+  /** 图标背景色（如 COLORS.gray[50] / brandSoft） */
   readonly iconBgColor?: string;
   /** 主文案 */
   readonly title: string;

@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/colors";
 import { useResponsiveStyles } from "@/hooks/useResponsiveStyles";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
 import type { MoodEntry } from "@/types";
@@ -36,7 +37,7 @@ function OnThisDayInsightsCardComponent({
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: "#000",
+          shadowColor: COLORS.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -80,7 +81,7 @@ function OnThisDayInsightsCardComponent({
           fontSize: 14,
           fontWeight: "700",
           lineHeight: 20,
-          color: "#FB7185",
+          color: COLORS.mood.level4,
         },
       }),
     [padding, spacing, borderRadius],

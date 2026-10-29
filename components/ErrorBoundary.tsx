@@ -7,6 +7,7 @@ import { Frown } from "lucide-react-native";
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { COLORS } from "@/constants/colors";
 import { logger } from "../utils/logger";
 import AppIcon from "./icons/AppIcon";
 
@@ -33,7 +34,7 @@ function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <AppIcon name={Frown} size={64} color="#DC2626" strokeWidth={2} />
+          <AppIcon name={Frown} size={64} color={COLORS.danger} strokeWidth={2} />
         </View>
         <Text style={styles.title}>{t("shell.error.title")}</Text>
         <Text style={styles.message}>{t("shell.error.message")}</Text>
@@ -121,7 +122,7 @@ export class ErrorBoundary extends Component<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF5F5",
+    backgroundColor: COLORS.mood.level1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -136,19 +137,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1F2937",
+    color: COLORS.gray[800],
     marginBottom: 12,
     textAlign: "center",
   },
   message: {
     fontSize: 16,
-    color: "#6B7280",
+    color: COLORS.gray[500],
     textAlign: "center",
     marginBottom: 24,
     lineHeight: 24,
   },
   errorDetails: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: COLORS.mood.level2,
     padding: 16,
     borderRadius: 8,
     marginBottom: 24,
@@ -157,27 +158,27 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#991B1B",
+    color: COLORS.danger,
     marginBottom: 8,
   },
   errorText: {
     fontSize: 12,
-    color: "#DC2626",
+    color: COLORS.danger,
     fontFamily: "monospace",
   },
   button: {
-    backgroundColor: "#FDA4AF",
+    backgroundColor: COLORS.mood.level3,
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: "#000",
+    shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: COLORS.text.inverse,
     fontSize: 16,
     fontWeight: "600",
   },

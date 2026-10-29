@@ -86,7 +86,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
           accessibilityRole="button"
           accessibilityLabel={t("weeklyBanner.dismiss")}
         >
-          <X size={18} color="#9CA3AF" />
+          <X size={18} color={COLORS.gray[400]} />
         </TouchableOpacity>
       </View>
       <Pressable

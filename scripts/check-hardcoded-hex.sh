@@ -7,9 +7,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 # Allowlist (non-product / docs only). Paths relative to repo root.
-# Empty by default — D-05: tests already excluded via globs below.
+# D-05 / Pitfall 6: icon JSDoc sample hex only (product defaults → COLORS).
 ALLOWLIST=(
-  # e.g. scripts/ansi-demo.md
+  components/icons/AppIcon.tsx
+  components/icons/MilestoneIcon.tsx
+  components/icons/MessageIcon.tsx
 )
 
 HEX_PATTERN='#[0-9A-Fa-f]{3,8}\b'

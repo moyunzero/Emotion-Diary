@@ -48,7 +48,7 @@ export function createRevisitBannerStyles(width: number, height: number) {
     },
     actionText: {
       fontSize: fontSize.sm,
-      color: "#FFFFFF",
+      color: COLORS.text.inverse,
       fontFamily: "Lato_700Bold",
     },
   });
@@ -98,7 +98,7 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
     },
     actionText: {
       fontSize: fontSize.sm,
-      color: "#FFFFFF",
+      color: COLORS.text.inverse,
       fontFamily: "Lato_700Bold",
     },
   });
