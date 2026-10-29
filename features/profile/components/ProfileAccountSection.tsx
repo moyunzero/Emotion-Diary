@@ -123,7 +123,7 @@ export function ProfileAccountSection({
                   ms.modalContent,
                   {
                     maxHeight: Math.min(
-                      height * 0.8,
+                      height * 0.9,
                       height -
                         insets.top -
                         Math.max(insets.bottom, 16) -
@@ -139,77 +139,94 @@ export function ProfileAccountSection({
                   <X size={24} color={COLORS.gray[400]} />
                 </TouchableOpacity>
 
-                <Text style={ms.modalTitle}>{tAuth("editProfile.modalTitle")}</Text>
-
-                <View style={ms.avatarSelection}>
-                  <Image
-                    source={{ uri: editAvatar }}
-                    style={ms.previewAvatar}
-                    contentFit={
-                      isSvgAvatarDataUri(editAvatar) ? "contain" : "cover"
-                    }
-                    contentPosition="center"
-                    cachePolicy="memory-disk"
-                    transition={150}
-                    onError={() => {}}
-                  />
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={ms.avatarList}
-                  >
-                    {AVATARS.map((uri) => (
-                      <TouchableOpacity
-                        key={uri}
-                        onPress={() => setEditAvatar(uri)}
-                        style={[
-                          ms.avatarOption,
-                          editAvatar === uri && ms.avatarOptionSelected,
-                        ]}
-                      >
-                        <Image
-                          source={{ uri }}
-                          style={ms.avatarOptionImage}
-                          contentFit={
-                            isSvgAvatarDataUri(uri) ? "contain" : "cover"
-                          }
-                          contentPosition="center"
-                          cachePolicy="memory-disk"
-                          transition={150}
-                          onError={() => {}}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-
-                <View style={ms.inputContainer}>
-                  <Text style={ms.inputLabel}>{tAuth("editProfile.nameLabel")}</Text>
-                  <TextInput
-                    style={ms.input}
-                    value={editName}
-                    onChangeText={setEditName}
-                    placeholder={tAuth("editProfile.namePlaceholder")}
-                    maxLength={20}
-                    returnKeyType="done"
-                    onSubmitEditing={onSaveProfile}
-                    autoCapitalize="words"
-                  />
-                </View>
-
-                <TouchableOpacity
-                  style={ms.primaryButton}
-                  onPress={onSaveProfile}
-                  disabled={isLoading}
+                <ScrollView
+                  style={ms.modalScrollView}
+                  contentContainerStyle={ms.modalScrollContent}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled
+                  keyboardDismissMode={
+                    Platform.OS === "ios" ? "interactive" : "on-drag"
+                  }
                 >
-                  {isLoading ? (
-                    <ActivityIndicator color={COLORS.text.inverse} />
-                  ) : (
-                    <Text style={ms.primaryButtonText}>
-                      {tAuth("editProfile.save")}
+                  <Text style={ms.modalTitle}>
+                    {tAuth("editProfile.modalTitle")}
+                  </Text>
+
+                  <View style={ms.avatarSelection}>
+                    <Image
+                      source={{ uri: editAvatar }}
+                      style={ms.previewAvatar}
+                      contentFit={
+                        isSvgAvatarDataUri(editAvatar) ? "contain" : "cover"
+                      }
+                      contentPosition="center"
+                      cachePolicy="memory-disk"
+                      transition={150}
+                      onError={() => {}}
+                    />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={ms.avatarList}
+                    >
+                      {AVATARS.map((uri) => (
+                        <TouchableOpacity
+                          key={uri}
+                          onPress={() => setEditAvatar(uri)}
+                          style={[
+                            ms.avatarOption,
+                            editAvatar === uri && ms.avatarOptionSelected,
+                          ]}
+                        >
+                          <Image
+                            source={{ uri }}
+                            style={ms.avatarOptionImage}
+                            contentFit={
+                              isSvgAvatarDataUri(uri) ? "contain" : "cover"
+                            }
+                            contentPosition="center"
+                            cachePolicy="memory-disk"
+                            transition={150}
+                            onError={() => {}}
+                          />
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  <View style={ms.inputContainer}>
+                    <Text style={ms.inputLabel}>
+                      {tAuth("editProfile.nameLabel")}
                     </Text>
-                  )}
-                </TouchableOpacity>
+                    <TextInput
+                      style={ms.input}
+                      value={editName}
+                      onChangeText={setEditName}
+                      placeholder={tAuth("editProfile.namePlaceholder")}
+                      maxLength={20}
+                      returnKeyType="done"
+                      onSubmitEditing={onSaveProfile}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </ScrollView>
+
+                <View style={ms.modalFooter}>
+                  <TouchableOpacity
+                    style={ms.primaryButton}
+                    onPress={onSaveProfile}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <ActivityIndicator color={COLORS.text.inverse} />
+                    ) : (
+                      <Text style={ms.primaryButtonText}>
+                        {tAuth("editProfile.save")}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
             </KeyboardAvoidingView>
           </View>

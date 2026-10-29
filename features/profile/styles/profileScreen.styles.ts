@@ -57,8 +57,14 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalScrollContent: {
     alignItems: "stretch",
     paddingTop: 0,
-    paddingBottom: 16,
+    paddingBottom: 8,
     flexGrow: 1,
+  },
+  /** Sticky CTA + mode-switch outside ScrollView so Large Text keeps actions on-screen. */
+  modalFooter: {
+    width: "100%",
+    flexShrink: 0,
+    paddingTop: 8,
   },
   closeButton: {
     position: "absolute",

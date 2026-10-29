@@ -163,7 +163,7 @@ export function ProfileAuthModals({
               ms.modalContent,
               {
                 maxHeight: Math.min(
-                  height * 0.75,
+                  height * 0.9,
                   height -
                     Math.max(insets.top, 12) -
                     Math.max(insets.bottom, 12) -
@@ -462,7 +462,9 @@ export function ProfileAuthModals({
                   </Text>
                 </Animated.View>
               )}
+            </ScrollView>
 
+            <View style={ms.modalFooter}>
               <TouchableOpacity
                 style={ms.primaryButton}
                 onPress={onLogin}
@@ -510,7 +512,7 @@ export function ProfileAuthModals({
                   </Text>
                 </TouchableOpacity>
               </View>
-            </ScrollView>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </View>
