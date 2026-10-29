@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../constants/colors';
+import { COLORS, DESIGN_TOKENS } from '../constants/colors';
 
 interface ToastProps {
   message: string;
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   toast: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     shadowColor: COLORS.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

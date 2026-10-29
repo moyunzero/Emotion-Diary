@@ -3,7 +3,7 @@ import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
@@ -50,7 +50,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           alignItems: 'center',
           paddingVertical: 8,
           paddingHorizontal: 2,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
         },
         todayCard: {
           backgroundColor: COLORS.mood.level1,

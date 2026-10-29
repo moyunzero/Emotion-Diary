@@ -2,7 +2,7 @@ import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { INSIGHTS_COLORS } from './constants';
 
@@ -59,7 +59,7 @@ const EmptyGardenComponent: React.FC = () => {
         tipIcon: {
           width: 44,
           height: 44,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           backgroundColor: COLORS.gray[50],
           alignItems: 'center',
           justifyContent: 'center',

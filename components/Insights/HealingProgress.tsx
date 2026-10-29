@@ -3,7 +3,7 @@ import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import type { GrowthStageId } from '@/services/gardenMilestone';
 import { INSIGHTS_COLORS } from './constants';
@@ -127,7 +127,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           marginBottom: spacing.component,
           paddingVertical: 12,
           paddingHorizontal: 16,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
           backgroundColor: INSIGHTS_COLORS.accent + '14',
           borderLeftWidth: 4,
           borderLeftColor: INSIGHTS_COLORS.accent,

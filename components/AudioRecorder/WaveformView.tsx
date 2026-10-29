@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 
 const BAR_COUNT = 20;
 const BAR_WIDTH = 4;
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: BAR_WIDTH,
-    borderRadius: 2,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     minHeight: MIN_BAR_HEIGHT,
   },
 });
