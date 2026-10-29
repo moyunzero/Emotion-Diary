@@ -2,7 +2,7 @@ import { ChevronDown, ChevronUp, Cloud, CloudRain, CloudSnow, Heart, Sun, Trendi
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { formatLocaleDate } from '@/shared/formatting/date';
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   warningBadgeText: {
-    fontSize: 11,
+    fontSize: DESIGN_TOKENS.fontSize.footnote,
     fontWeight: 'bold',
     color: COLORS.text.inverse,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     minWidth: 70,
   },
   predictionDate: {
-    fontSize: 11,
+    fontSize: DESIGN_TOKENS.fontSize.footnote,
     color: COLORS.text.secondary,
     marginBottom: 8,
   },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   predictionRisk: {
-    fontSize: 10,
+    fontSize: DESIGN_TOKENS.fontSize.footnote,
     fontWeight: '500',
   },
 });

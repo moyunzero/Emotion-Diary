@@ -7,7 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { getActionLoopDateLine } from '../../shared/entries/actionLoopDateLine';
 import { formatLocaleDate } from '../../shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { INSIGHTS_COLORS } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
@@ -89,7 +89,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           marginRight: 10,
         },
         rankText: {
-          fontSize: 11,
+          fontSize: DESIGN_TOKENS.fontSize.footnote,
           fontWeight: 'bold',
           color: INSIGHTS_COLORS.accent,
         },

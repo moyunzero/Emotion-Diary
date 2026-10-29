@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
   },
   moodIconContainerSelected: {},
   moodLabel: {
-    fontSize: 10,
+    fontSize: DESIGN_TOKENS.fontSize.footnote,
     fontWeight: 'bold',
     color: COLORS.gray[600],
     textAlign: 'center',

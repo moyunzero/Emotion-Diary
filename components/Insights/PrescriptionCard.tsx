@@ -6,7 +6,7 @@ import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useAppStore } from '@/store/useAppStore';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { INSIGHTS_COLORS } from './constants';
 
 interface PrescriptionCardProps {
@@ -121,7 +121,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           alignItems: 'center',
         },
         prescriptionBadgeText: {
-          fontSize: 11,
+          fontSize: DESIGN_TOKENS.fontSize.footnote,
           fontWeight: 'bold',
         },
         prescriptionText: {

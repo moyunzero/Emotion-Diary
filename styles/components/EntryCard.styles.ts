@@ -212,7 +212,7 @@ export function createEntryCardStyles(width: number, height: number) {
       fontWeight: '500',
     },
     audioPlayDuration: {
-      fontSize: 11,
+      fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.audio.primary,
       marginLeft: DESIGN_TOKENS.spacing.xs,
     },
@@ -224,11 +224,11 @@ export function createEntryCardStyles(width: number, height: number) {
       paddingBottom: DESIGN_TOKENS.spacing.xs,
     },
     audioSyncPending: {
-      fontSize: 11,
+      fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.text.tertiary,
     },
     audioSyncFailed: {
-      fontSize: 11,
+      fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.error,
       fontWeight: '600',
     },

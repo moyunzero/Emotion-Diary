@@ -3,7 +3,7 @@ import { BarChart2, CloudSun, PenLine } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 
 export default function TabLayout() {
   const { t } = useTranslation('tabs');
@@ -32,7 +32,7 @@ export default function TabLayout() {
             borderTopRightRadius: 20,
           },
           tabBarLabelStyle: {
-            fontSize: 10,
+            fontSize: DESIGN_TOKENS.fontSize.footnote,
             fontWeight: 'bold',
             marginTop: 4,
           },
