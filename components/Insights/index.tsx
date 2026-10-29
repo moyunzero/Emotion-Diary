@@ -1,3 +1,4 @@
+import { countPendingEntries } from "@/shared/entries/dashboardFilter";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +55,13 @@ const InsightsComponent: React.FC = () => {
   // 计算统计数据（优化：合并多次遍历为单次遍历）
   const stats = useMemo(() => {
     if (visibleEntries.length === 0) {
-      return { total: 0, resolved: 0, thisMonthCount: 0, lastMonthCount: 0 };
+      return {
+        total: 0,
+        resolved: 0,
+        pending: 0,
+        thisMonthCount: 0,
+        lastMonthCount: 0,
+      };
     }
 
     const now = new Date();
@@ -90,6 +97,7 @@ const InsightsComponent: React.FC = () => {
     return {
       total: visibleEntries.length,
       resolved: resolvedCount,
+      pending: countPendingEntries(visibleEntries),
       thisMonthCount,
       lastMonthCount,
     };
@@ -156,6 +164,7 @@ const InsightsComponent: React.FC = () => {
           <HealingProgress
             totalCount={stats.total}
             resolvedCount={stats.resolved}
+            pendingCount={stats.pending}
             pendingStage={pendingStage}
             onMilestoneShown={handleMilestoneShown}
           />

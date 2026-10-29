@@ -19,6 +19,7 @@ const STAGE_RATE_FOR_ICON: Record<GrowthStageId, number> = {
 interface HealingProgressProps {
   totalCount: number;
   resolvedCount: number;
+  pendingCount: number;
   pendingStage?: GrowthStageId | null;
   onMilestoneShown?: (stage: GrowthStageId) => void;
 }
@@ -26,6 +27,7 @@ interface HealingProgressProps {
 const HealingProgressComponent: React.FC<HealingProgressProps> = ({
   totalCount,
   resolvedCount,
+  pendingCount,
   pendingStage,
   onMilestoneShown,
 }) => {
@@ -155,7 +157,6 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
   }, [pendingStage, onMilestoneShown]);
 
   const rate = totalCount > 0 ? resolvedCount / totalCount : 0;
-  const pendingCount = totalCount - resolvedCount;
   const growthStage = useMemo(() => getGrowthStage(rate, t), [rate, t]);
   const GrowthIcon = growthStage.icon;
   const pendingStageMeta = useMemo(
