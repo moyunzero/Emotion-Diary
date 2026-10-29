@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # TOKEN-02 / SC3 / D-07 — fail if product UI still has off-scale borderRadius
 # numeric literals outside {8, 14, 22, 9999} (= DESIGN_TOKENS.borderRadius sm/md/lg/full).
-# Empty allowlist by default (T-22-20). Intentional exceptions only via
-# 22-10/22-11 radius-exceptions.md with rationale — do not expand silently.
+# Empty allowlist by default (T-22-20 / T-22-27). Intentional exceptions only via
+# radius-exceptions.md with rationale — do not expand silently.
+# Batch B (22-10) + Batch C (22-11): BOTH NONE — orphans remapped; keep ALLOWLIST empty.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 # Allowlist (non-product only). Paths relative to repo root. Keep empty unless justified.
+# Synced to .planning/phases/22-design-tokens/radius-exceptions.md (Batch B+C = NONE).
 ALLOWLIST=(
 )
 
