@@ -75,10 +75,10 @@
       "afternoon": "afternoon",
       "evening": "evening"
     },
-    "warningHigh": "{{date}} is a high-risk day — be extra patient with yourself",
-    "warningMedium": "{{date}} may feel bumpy — take time to regulate",
+    "warningHigh": "{{date}} may call for extra care for yourself",
+    "warningMedium": "{{date}} — leave a little room for yourself",
     "summaryStable": "Your mood looks steady over the next {{days}} days. Keep up the good habits.",
-    "summaryRisky": "{{highCount}} high-risk day(s) in the next {{days}} days — plan ahead with care.",
+    "summaryRisky": "These days may call for a bit more care for yourself.",
     "unavailable": "Forecast is temporarily unavailable",
     "highRiskDescription": "Your moods often shift on {{dayOfWeek}} {{timeSlot}}",
     "defaultTrigger": "life"

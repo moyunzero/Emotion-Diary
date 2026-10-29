@@ -75,10 +75,10 @@
       "afternoon": "下午",
       "evening": "晚上"
     },
-    "warningHigh": "{{date}}是高风险日，记得多点耐心",
-    "warningMedium": "{{date}}情绪可能波动，注意调节",
+    "warningHigh": "{{date}}可能更需要照顾自己",
+    "warningMedium": "{{date}}留一点空间给自己",
     "summaryStable": "未来{{days}}天情绪趋势平稳，继续保持良好的情绪管理习惯。",
-    "summaryRisky": "未来{{days}}天内有{{highCount}}个高风险日，建议提前做好准备。",
+    "summaryRisky": "这几天可能更需要照顾自己，给自己多留一点空间。",
     "unavailable": "预测功能暂时不可用",
     "highRiskDescription": "你在{{dayOfWeek}}{{timeSlot}}情绪波动较大",
     "defaultTrigger": "生活"

@@ -258,7 +258,7 @@ export const predictEmotionTrend = async (
 
     const highCount = warnings.filter((w) => w.severity === 'high').length;
     const summary =
-      warnings.length > 0
+      highCount > 0
         ? t('forecast.summaryRisky', { days, highCount })
         : t('forecast.summaryStable', { days });
 
