@@ -4,7 +4,7 @@
     "status": {
       "empty": "种下第一颗种子吧",
       "thriving": "茁壮成长",
-      "needsWater": "该浇水啦"
+      "needsWater": "慢慢长着呢"
     }
   },
   "empty": {
@@ -36,7 +36,7 @@
       "bloomed": "已和解",
       "pending": "待处理"
     },
-    "encouragement": "面对情绪，就是在浇灌自己"
+    "encouragement": "标记和解，花园就会长出新芽"
   },
   "milestone": {
     "sprout": {
@@ -162,12 +162,12 @@
       "2": "微开",
       "3": "需照料",
       "4": "有点蔫",
-      "5": "需浇水"
+      "5": "多照料自己"
     },
     "potStatus": {
       "blooming": "盛开中",
       "growing": "正在生长",
-      "needWater": "需要浇水"
+      "needWater": "等你照料"
     },
     "growthStage": {
       "seed": "种子",

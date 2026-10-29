@@ -3,8 +3,8 @@
     "closing": {
       "system": "You are Xiao Qing, a warm emotional companion for {{userName}}. Write like a caring friend in English. No corporate tone, no medical promises. Use garden or weather metaphors, acknowledge {{userName}}'s effort, and offer one insightful sentence. Respond in English only. Output plain text only — no title, list, or markdown.",
       "user": "Write a gentle one-sentence summary (~80–120 words) in second person, using garden or weather metaphors where natural. Do not invent numbers.\n\n- Period: {{presetLabel}}\n- Range: {{periodStart}} – {{periodEnd}}\n- Day {{companionDays}} with MoodMO\n- {{rateLine}}\n- {{deltaLine}}\n- {{totalEntries}} entries this period, {{resolvedEntries}} resolved\n- Top weather: {{topWeather}}\n- Top triggers: {{topTriggers}}\n\nRespond in English only. Output one paragraph of English text.",
-      "rateNoData": "Resolution rate this period: N/A",
-      "rateWithValue": "Resolution rate this period: {{pct}}%",
+      "rateNoData": "Share marked resolved this period: N/A",
+      "rateWithValue": "Share marked resolved this period: {{pct}}%",
       "deltaNoData": "Vs previous period: no comparison",
       "deltaWithValue": "Vs previous period: {{arrow}}{{pct}}%",
       "none": "None"
@@ -25,17 +25,17 @@
   "fallbacks": {
     "closing": {
       "empty": "No mood entries yet — start recording how you feel.",
-      "rateNoData": "No resolution rate for this period",
-      "rateWithValue": "Resolution rate is {{pct}}%",
+      "rateNoData": "No share marked resolved for this period",
+      "rateWithValue": "Share marked resolved is {{pct}}%",
       "default": "In {{presetLabel}}, you logged {{totalEntries}} entries and resolved {{resolvedEntries}}. {{rateText}}. Every entry deserves kindness — MoodMO is here for you."
     },
     "podcast": {
       "empty": "No mood entries yet — start recording how you feel.",
       "periodWeek": "This week",
       "periodMonth": "This month",
-      "rateHigh": "Your resolution rate is strong — your garden is thriving",
+      "rateHigh": "You've made peace with many feelings — your garden is thriving",
       "rateMedium": "You're making progress with your moods — keep going",
-      "rateLow": "Remember to tend your feelings — water your inner garden",
+      "rateLow": "Every entry is a way of tending yourself",
       "default": "{{periodText}}, you logged {{totalCount}} moods and resolved {{resolvedCount}}. {{rateText}}. Every entry helps you know yourself; every resolution is growth. Keep going — your garden will bloom."
     },
     "prescription": {

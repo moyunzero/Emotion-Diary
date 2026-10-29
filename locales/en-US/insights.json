@@ -4,7 +4,7 @@
     "status": {
       "empty": "Plant your first seed",
       "thriving": "Thriving",
-      "needsWater": "Needs a little water"
+      "needsWater": "Growing at its own pace"
     }
   },
   "empty": {
@@ -36,7 +36,7 @@
       "bloomed": "resolved",
       "pending": "open"
     },
-    "encouragement": "Facing feelings waters your garden"
+    "encouragement": "Marking an entry resolved helps your garden grow"
   },
   "milestone": {
     "sprout": {
@@ -162,12 +162,12 @@
       "2": "Bud opening",
       "3": "Needs care",
       "4": "A little wilted",
-      "5": "Needs water"
+      "5": "Extra care today"
     },
     "potStatus": {
       "blooming": "In full bloom",
       "growing": "Still growing",
-      "needWater": "Needs watering"
+      "needWater": "Waiting for care"
     },
     "growthStage": {
       "seed": "Seed",
