@@ -1,11 +1,8 @@
-import { BlurView } from 'expo-blur';
-import { requireOptionalNativeModule } from 'expo-modules-core';
 import { Tabs } from 'expo-router';
 import { CloudSun, Flower2, PenLine } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  AccessibilityInfo,
   Platform,
   StyleSheet,
   View,
@@ -15,29 +12,18 @@ import { COLORS, DESIGN_TOKENS, withOpacity } from '@/constants/colors';
 
 const TAB_ICON_SIZE = 24;
 
-/** Null when pods/Dev Client lack ExpoBlur — avoid Unimplemented over absolute chrome. */
-const hasExpoBlurView =
-  requireOptionalNativeModule('ExpoBlurView') != null;
-
-function TabBarBackground({ solid }: { solid: boolean }) {
-  if (Platform.OS === 'ios' && !solid && hasExpoBlurView) {
-    return (
-      <BlurView tint="light" intensity={80} style={StyleSheet.absoluteFill} />
-    );
-  }
-
-  const useOpaqueFill =
-    solid || (Platform.OS === 'ios' && !hasExpoBlurView);
+/** iOS: solid COLORS.bg until opaque underlay ships (G-23-6). Android: α0.92. */
+function TabBarBackground() {
+  const backgroundColor =
+    Platform.OS === 'ios'
+      ? COLORS.bg
+      : withOpacity(COLORS.bg, 0.92);
 
   return (
     <View
       style={[
         StyleSheet.absoluteFill,
-        {
-          backgroundColor: useOpaqueFill
-            ? COLORS.bg
-            : withOpacity(COLORS.bg, 0.92),
-        },
+        { backgroundColor },
       ]}
     />
   );
@@ -46,50 +32,10 @@ function TabBarBackground({ solid }: { solid: boolean }) {
 export default function TabLayout() {
   const { t } = useTranslation('tabs');
   const insets = useSafeAreaInsets();
-  const [preferSolidChrome, setPreferSolidChrome] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const syncA11y = async () => {
-      try {
-        const [reduceMotion, reduceTransparency] = await Promise.all([
-          AccessibilityInfo.isReduceMotionEnabled(),
-          AccessibilityInfo.isReduceTransparencyEnabled(),
-        ]);
-        if (mounted) {
-          setPreferSolidChrome(Boolean(reduceMotion || reduceTransparency));
-        }
-      } catch {
-        /* ignore */
-      }
-    };
-
-    void syncA11y();
-
-    const motionSub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      () => {
-        void syncA11y();
-      },
-    );
-    const transparencySub = AccessibilityInfo.addEventListener(
-      'reduceTransparencyChanged',
-      () => {
-        void syncA11y();
-      },
-    );
-
-    return () => {
-      mounted = false;
-      motionSub.remove();
-      transparencySub.remove();
-    };
-  }, []);
 
   // Note: Inline tabBarIcon functions are acceptable here per Expo Router conventions
   // - This is the standard pattern in React Navigation/Expo Router documentation
-  // - TabLayout rarely re-renders (only when safe area / a11y prefs change)
+  // - TabLayout rarely re-renders (only when safe area insets change)
   // - Icon components are lightweight SVGs with no performance impact
   return (
     <Tabs
@@ -108,7 +54,7 @@ export default function TabLayout() {
           paddingTop: 8,
           paddingBottom: insets.bottom || 10,
         },
-        tabBarBackground: () => <TabBarBackground solid={preferSolidChrome} />,
+        tabBarBackground: () => <TabBarBackground />,
         tabBarLabelStyle: {
           fontSize: DESIGN_TOKENS.fontSize.footnote,
           fontWeight: '600',
