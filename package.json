@@ -58,6 +58,7 @@
     "@supabase/supabase-js": "^2.89.0",
     "expo": "~54.0.30",
     "expo-audio": "~1.1.1",
+    "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.12",
     "expo-device": "~8.0.10",
     "expo-file-system": "~18.1.6",
