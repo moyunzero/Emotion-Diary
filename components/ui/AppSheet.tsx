@@ -63,23 +63,12 @@ export function AppSheet({
   const scrimOpacity = useSharedValue(0);
   const panStartHeight = useSharedValue(halfH);
 
-  const finishClose = useCallback(() => {
+  // Call onClose immediately so callers can gate (dirty confirmAlert) and keep
+  // `visible` true — do not animate-out before the consumer decides.
+  const requestClose = useCallback(() => {
     Keyboard.dismiss();
     onClose();
   }, [onClose]);
-
-  const animateOutThenClose = useCallback(() => {
-    scrimOpacity.value = withTiming(0, { duration: 180 });
-    dragY.value = withTiming(sheetHeight.value, { duration: 220 }, (finished) => {
-      if (finished) {
-        runOnJS(finishClose)();
-      }
-    });
-  }, [dragY, finishClose, scrimOpacity, sheetHeight]);
-
-  const requestClose = useCallback(() => {
-    animateOutThenClose();
-  }, [animateOutThenClose]);
 
   useEffect(() => {
     if (!visible) return;
@@ -109,6 +98,8 @@ export function AppSheet({
     })
     .onEnd((e) => {
       if (dragY.value > DISMISS_DRAG || e.velocityY > 900) {
+        // Spring back if caller gates close (dirty confirm) and keeps visible.
+        dragY.value = withSpring(0, SPRING);
         runOnJS(requestClose)();
         return;
       }

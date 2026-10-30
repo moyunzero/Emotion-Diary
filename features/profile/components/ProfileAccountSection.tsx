@@ -1,35 +1,32 @@
 /**
- * 账户区：登出/注销菜单 + 编辑资料 Modal
+ * 账户区：登出/注销菜单 + 编辑资料 AppSheet
  */
 
-import { LogOut, UserX, X } from "lucide-react-native";
+import { LogOut, UserX } from "lucide-react-native";
 import { Image } from "expo-image";
 import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
   Platform,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
   useWindowDimensions,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect, useMemo, useRef } from "react";
 import { ProfileMenuItem, ProfileSectionHeader } from "@/components/Profile";
 import { GroupedSettingsCard } from "@/components/settings";
+import { AppButton } from "@/components/ui/AppButton";
+import { AppSheet } from "@/components/ui/AppSheet";
 import { COLORS } from "@/constants/colors";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import {
   AVATAR_PRESETS,
   isSvgAvatarDataUri,
 } from "@/utils/avatarPresets";
+import { confirmAlert } from "@/utils/confirmAlert";
 import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
-import { useMemo } from "react";
 
 const AVATARS = AVATAR_PRESETS;
 
@@ -56,18 +53,47 @@ export function ProfileAccountSection({
   setEditName,
   editAvatar,
   setEditAvatar,
-  isKeyboardVisible,
+  isKeyboardVisible: _isKeyboardVisible,
   onSaveProfile,
   isLoading,
 }: ProfileAccountSectionProps) {
   const { t: tProfile } = useTranslation("profile");
   const { t: tAuth } = useTranslation("auth");
-  const insets = useSafeAreaInsets();
+  const { t: tCommon } = useTranslation("common");
   const { width, height } = useWindowDimensions();
   const { profileStyles } = useMemo(
     () => createProfileStyles(width, height),
     [width, height],
   );
+
+  const baselineRef = useRef<{ name: string; avatar: string } | null>(null);
+
+  useEffect(() => {
+    if (isEditProfileOpen) {
+      baselineRef.current = { name: editName, avatar: editAvatar };
+    } else {
+      baselineRef.current = null;
+    }
+    // Snapshot only when sheet opens — not on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional open-time baseline
+  }, [isEditProfileOpen]);
+
+  const requestClose = async () => {
+    const baseline = baselineRef.current;
+    const dirty =
+      baseline != null &&
+      (editName !== baseline.name || editAvatar !== baseline.avatar);
+    if (dirty) {
+      const discard = await confirmAlert({
+        title: "放弃编辑？",
+        message: "未保存的修改会丢失。",
+        confirmLabel: "放弃编辑",
+        cancelLabel: "继续编辑",
+      });
+      if (!discard) return;
+    }
+    onCloseEditProfileModal();
+  };
 
   return (
     <>
@@ -93,145 +119,95 @@ export function ProfileAccountSection({
         />
       </GroupedSettingsCard>
 
-      <Modal
+      <AppSheet
         visible={isEditProfileOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {
-          Keyboard.dismiss();
-          onCloseEditProfileModal();
+        onClose={() => {
+          void requestClose();
         }}
-        statusBarTranslucent
+        title={tAuth("editProfile.modalTitle")}
+        closeAccessibilityLabel={tCommon("shell.close")}
+        testID="profile-edit-sheet"
+        footer={
+          <AppButton
+            label={tAuth("editProfile.save")}
+            onPress={onSaveProfile}
+            loading={isLoading}
+            disabled={isLoading}
+          />
+        }
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={ms.editProfileModalOverlay}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : undefined}
-              style={[
-                ms.editProfileKeyboardView,
-                {
-                  paddingBottom: isKeyboardVisible
-                    ? Math.max(insets.bottom + 20, 40)
-                    : Math.max(insets.bottom, 16),
-                },
-              ]}
-              keyboardVerticalOffset={0}
-              enabled={Platform.OS === "ios"}
+        <ScrollView
+          style={ms.modalScrollView}
+          contentContainerStyle={[
+            ms.modalScrollContent,
+            { paddingHorizontal: 24 },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+          keyboardDismissMode={
+            Platform.OS === "ios" ? "interactive" : "on-drag"
+          }
+        >
+          <View style={ms.avatarSelection}>
+            <Image
+              source={{ uri: editAvatar }}
+              style={ms.previewAvatar}
+              contentFit={
+                isSvgAvatarDataUri(editAvatar) ? "contain" : "cover"
+              }
+              contentPosition="center"
+              cachePolicy="memory-disk"
+              transition={150}
+              onError={() => {}}
+            />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={ms.avatarList}
             >
-              <View
-                style={[
-                  ms.modalContent,
-                  {
-                    maxHeight: Math.min(
-                      height * 0.9,
-                      height -
-                        insets.top -
-                        Math.max(insets.bottom, 16) -
-                        48,
-                    ),
-                  },
-                ]}
-              >
+              {AVATARS.map((uri) => (
                 <TouchableOpacity
-                  style={ms.closeButton}
-                  onPress={onCloseEditProfileModal}
+                  key={uri}
+                  onPress={() => setEditAvatar(uri)}
+                  style={[
+                    ms.avatarOption,
+                    editAvatar === uri && ms.avatarOptionSelected,
+                  ]}
                 >
-                  <X size={24} color={COLORS.gray[400]} />
+                  <Image
+                    source={{ uri }}
+                    style={ms.avatarOptionImage}
+                    contentFit={
+                      isSvgAvatarDataUri(uri) ? "contain" : "cover"
+                    }
+                    contentPosition="center"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                    onError={() => {}}
+                  />
                 </TouchableOpacity>
-
-                <ScrollView
-                  style={ms.modalScrollView}
-                  contentContainerStyle={ms.modalScrollContent}
-                  keyboardShouldPersistTaps="handled"
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled
-                  keyboardDismissMode={
-                    Platform.OS === "ios" ? "interactive" : "on-drag"
-                  }
-                >
-                  <Text style={ms.modalTitle}>
-                    {tAuth("editProfile.modalTitle")}
-                  </Text>
-
-                  <View style={ms.avatarSelection}>
-                    <Image
-                      source={{ uri: editAvatar }}
-                      style={ms.previewAvatar}
-                      contentFit={
-                        isSvgAvatarDataUri(editAvatar) ? "contain" : "cover"
-                      }
-                      contentPosition="center"
-                      cachePolicy="memory-disk"
-                      transition={150}
-                      onError={() => {}}
-                    />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={ms.avatarList}
-                    >
-                      {AVATARS.map((uri) => (
-                        <TouchableOpacity
-                          key={uri}
-                          onPress={() => setEditAvatar(uri)}
-                          style={[
-                            ms.avatarOption,
-                            editAvatar === uri && ms.avatarOptionSelected,
-                          ]}
-                        >
-                          <Image
-                            source={{ uri }}
-                            style={ms.avatarOptionImage}
-                            contentFit={
-                              isSvgAvatarDataUri(uri) ? "contain" : "cover"
-                            }
-                            contentPosition="center"
-                            cachePolicy="memory-disk"
-                            transition={150}
-                            onError={() => {}}
-                          />
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-
-                  <View style={ms.inputContainer}>
-                    <Text style={ms.inputLabel}>
-                      {tAuth("editProfile.nameLabel")}
-                    </Text>
-                    <TextInput
-                      style={ms.input}
-                      value={editName}
-                      onChangeText={setEditName}
-                      placeholder={tAuth("editProfile.namePlaceholder")}
-                      maxLength={20}
-                      returnKeyType="done"
-                      onSubmitEditing={onSaveProfile}
-                      autoCapitalize="words"
-                    />
-                  </View>
-                </ScrollView>
-
-                <View style={ms.modalFooter}>
-                  <TouchableOpacity
-                    style={ms.primaryButton}
-                    onPress={onSaveProfile}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <ActivityIndicator color={COLORS.text.inverse} />
-                    ) : (
-                      <Text style={ms.primaryButtonText}>
-                        {tAuth("editProfile.save")}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </KeyboardAvoidingView>
+              ))}
+            </ScrollView>
           </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+
+          <View style={ms.inputContainer}>
+            <Text style={ms.inputLabel}>
+              {tAuth("editProfile.nameLabel")}
+            </Text>
+            <TextInput
+              style={ms.input}
+              value={editName}
+              onChangeText={setEditName}
+              placeholder={tAuth("editProfile.namePlaceholder")}
+              maxLength={20}
+              returnKeyType="done"
+              onSubmitEditing={onSaveProfile}
+              autoCapitalize="words"
+            />
+          </View>
+        </ScrollView>
+      </AppSheet>
     </>
   );
 }
