@@ -14,7 +14,6 @@ import {
   type ViewStyle,
 } from "react-native";
 import {
-  APP_BUTTON_VARIANTS,
   isAppButtonPressLocked,
   resolveAppButtonDisabledReason,
   type AppButtonVariant,

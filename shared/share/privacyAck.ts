@@ -7,7 +7,7 @@ export type PrivacyAckCopy = {
   title: string;
   message: string;
   continueLabel: string;
-  /** Optional; confirmAlert defaults to common cancel when omitted. */
+  /** Optional; confirmAlert defaults to "Cancel" when omitted — prefer localized copy. */
   cancelLabel?: string;
 };
 
