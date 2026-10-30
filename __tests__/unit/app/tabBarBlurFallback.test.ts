@@ -1,16 +1,14 @@
 /**
- * Plan 23-12 / G-23-6 — iOS tab chrome solid COLORS.bg + hairline
- * BlurView deferred until opaque underlay ships (stops pink fringe bleed).
+ * Plan 23-12 / G-23-6 · G-23-5 — solid iOS tab chrome + no weather record text link
  * Source-scan under Jest node (tsx + RN cannot execute here — AppButton pattern).
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-const layoutPath = path.join(
-  __dirname,
-  "../../../app/(tabs)/_layout.tsx",
-);
+const root = path.join(__dirname, "../../..");
+const layoutPath = path.join(root, "app/(tabs)/_layout.tsx");
+const dashboardPath = path.join(root, "components/Dashboard.tsx");
 
 function readTabLayoutSrc(): string {
   return fs.readFileSync(layoutPath, "utf8");
@@ -28,5 +26,13 @@ describe("TabBarBackground solid iOS chrome (PRIM-04 / G-23-6)", () => {
     expect(src).not.toMatch(/<BlurView\b/);
     expect(src).not.toMatch(/from ['"]expo-blur['"]/);
     expect(src).not.toMatch(/requireOptionalNativeModule/);
+  });
+});
+
+describe("Dashboard weather record text link removed (D-28 / G-23-5)", () => {
+  it("does not mount dashboard-record-link under weather header", () => {
+    const src = fs.readFileSync(dashboardPath, "utf8");
+    expect(src).not.toMatch(/dashboard-record-link/);
+    expect(src).not.toMatch(/recordLink/);
   });
 });
