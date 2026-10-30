@@ -77,3 +77,45 @@ describe("AppButton (PRIM-01 variants / disabled / loading)", () => {
     );
   });
 });
+
+describe("Record submit main-path AppButton (23-03 / D-02..D-05)", () => {
+  const entryEditorSrc = () =>
+    fs.readFileSync(
+      path.join(
+        __dirname,
+        "../../../../components/EntryEditor/EntryEditor.tsx",
+      ),
+      "utf8",
+    );
+
+  const zhRecord = () =>
+    JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, "../../../../locales/zh-Hans/record.json"),
+        "utf8",
+      ),
+    ) as {
+      submit: {
+        createLabel: string;
+        createLoadingLabel?: string;
+        createDisabledHint: string;
+      };
+    };
+
+  it("EntryEditor wires AppButton primary with mood-submit-button and disabledReason", () => {
+    const src = entryEditorSrc();
+    expect(src).toMatch(/from\s+["']\.\.\/ui\/AppButton["']/);
+    expect(src).toMatch(/<AppButton\b/);
+    expect(src).toMatch(/testID=["']mood-submit-button["']/);
+    expect(src).toMatch(/disabledReason=/);
+    expect(src).toMatch(/loadingLabel=/);
+    // D-27: no decorative sheet-handle-only chrome on Record
+    expect(src).not.toMatch(/sheet[-_]?handle|drag[-_]?handle/i);
+  });
+
+  it("zh createLabel is 收好这一刻 with loading 收好中…", () => {
+    const submit = zhRecord().submit;
+    expect(submit.createLabel).toBe("收好这一刻");
+    expect(submit.createLoadingLabel).toBe("收好中…");
+  });
+});
