@@ -17,7 +17,6 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   Animated,
   LayoutAnimation,
   Platform,
@@ -37,6 +36,7 @@ import {
   areAudioDataArraysEqual,
   areOrderedStringArraysEqual,
 } from "../../utils/arrayEquality";
+import { confirmAlert } from "../../utils/confirmAlert";
 import { isLowEndDevice } from "../../utils/devicePerformance";
 import { getMoodIcon } from "../../utils/moodIconUtils";
 import AshIcon from "../AshIcon";
@@ -228,28 +228,24 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      i18n.t("alerts.moveToRecycle.title", { ns: "dashboard" }),
-      i18n.t("alerts.moveToRecycle.message", {
-        ns: "dashboard",
-        excerpt: contentExcerpt,
-      }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.moveToRecycle.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: () => {
-            triggerHaptic("error");
-            deleteEntry(entry.id);
-            setIsExpanded(false);
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("alerts.moveToRecycle.title", { ns: "dashboard" }),
+        message: i18n.t("alerts.moveToRecycle.message", {
+          ns: "dashboard",
+          excerpt: contentExcerpt,
+        }),
+        confirmLabel: i18n.t("alerts.moveToRecycle.confirm", {
+          ns: "dashboard",
+        }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      triggerHaptic("error");
+      deleteEntry(entry.id);
+      setIsExpanded(false);
+    })();
   };
 
   const startBurnAnimation = async () => {
@@ -312,24 +308,18 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   // 彻底删除灰烬（只对已焚烧的卡片显示）
   const handleDeleteAsh = () => {
-    Alert.alert(
-      i18n.t("alerts.deleteAsh.title", { ns: "dashboard" }),
-      i18n.t("alerts.deleteAsh.message", { ns: "dashboard" }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.deleteAsh.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: () => {
-            triggerHaptic("error");
-            deleteEntry(entry.id);
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("alerts.deleteAsh.title", { ns: "dashboard" }),
+        message: i18n.t("alerts.deleteAsh.message", { ns: "dashboard" }),
+        confirmLabel: i18n.t("alerts.deleteAsh.confirm", { ns: "dashboard" }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      triggerHaptic("error");
+      deleteEntry(entry.id);
+    })();
   };
 
   const getMoodColor = () => {
