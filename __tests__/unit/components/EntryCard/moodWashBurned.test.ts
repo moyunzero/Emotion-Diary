@@ -12,6 +12,13 @@ const entryCardSource = fs.readFileSync(
   path.join(__dirname, "../../../../components/EntryCard/EntryCard.tsx"),
   "utf8",
 );
+const recycleBinEntryCardSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    "../../../../components/entries/RecycleBinEntryCard.tsx",
+  ),
+  "utf8",
+);
 const entryCardStylesSource = fs.readFileSync(
   path.join(__dirname, "../../../../styles/components/EntryCard.styles.ts"),
   "utf8",
@@ -28,6 +35,15 @@ describe("EntryCard mood wash + burned shadow (PRIM-05)", () => {
     // PRIM-05 / D-24: list badge = icon + name; no mood.level* wash via getMoodColor.
     expect(entryCardSource).not.toMatch(
       /backgroundColor:\s*getMoodColor\(\)/,
+    );
+    expect(entryCardSource).not.toMatch(
+      /backgroundColor:\s*COLORS\.mood\.level\d/,
+    );
+    expect(recycleBinEntryCardSource).not.toMatch(
+      /backgroundColor:\s*getMoodBadgeColor\(/,
+    );
+    expect(recycleBinEntryCardSource).not.toMatch(
+      /COLORS\.mood\.level\d/,
     );
   });
 

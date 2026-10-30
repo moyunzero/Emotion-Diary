@@ -322,23 +322,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     })();
   };
 
-  const getMoodColor = () => {
-    switch (entry.moodLevel) {
-      case MoodLevel.ANNOYED:
-        return COLORS.mood.level1;
-      case MoodLevel.UPSET:
-        return COLORS.mood.level2;
-      case MoodLevel.ANGRY:
-        return COLORS.mood.level3;
-      case MoodLevel.FURIOUS:
-        return COLORS.mood.level4;
-      case MoodLevel.EXPLOSIVE:
-        return COLORS.mood.level5;
-      default:
-        return COLORS.mood.level1;
-    }
-  };
-
   const formatEntryDate = (timestamp: number) =>
     formatLocaleDate(timestamp, effectiveLocale);
 
@@ -346,20 +329,10 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return (
       <SimpleBurnAnimation onComplete={handleBurnComplete}>
         <View style={styles.wrapper}>
-          <View
-            style={[
-              styles.container,
-              { backgroundColor: COLORS.mood.level1 },
-            ]}
-          >
+          <View style={styles.container}>
             <View style={styles.content}>
-              <View
-                style={[
-                  styles.moodIconBadge,
-                  { backgroundColor: getMoodColor() },
-                ]}
-              >
-                {getMoodIcon(moodConfig.iconName, COLORS.text.inverse, 20)}
+              <View style={styles.moodIconBadge}>
+                {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.contentText} numberOfLines={3}>
@@ -525,14 +498,9 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             accessibilityState={{ expanded: isExpanded }}
           >
             <View style={styles.content}>
-              {/* Mood Icon Badge */}
-              <View
-                style={[
-                  styles.moodIconBadge,
-                  { backgroundColor: getMoodColor() },
-                ]}
-              >
-                {getMoodIcon(moodConfig.iconName, COLORS.text.inverse, 20)}
+              {/* Mood Icon Badge — icon + name chrome; neutral surface2 face (D-24) */}
+              <View style={styles.moodIconBadge}>
+                {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
               </View>
 
               {/* Content */}

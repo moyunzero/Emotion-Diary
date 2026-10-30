@@ -104,7 +104,7 @@ export function createEntryCardStyles(width: number, height: number) {
       width: 44,
       height: 44,
       borderRadius: DESIGN_TOKENS.borderRadius.md,
-      backgroundColor: COLORS.background.tertiary,
+      backgroundColor: COLORS.surface2,
       alignItems: 'center',
       justifyContent: 'center',
     },

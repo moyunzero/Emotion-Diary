@@ -8,7 +8,7 @@ import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLab
 import { useAppStore } from "@/store/useAppStore";
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { createResponsiveMetrics } from "@/shared/responsive";
-import { MoodEntry, MoodLevel } from "@/types";
+import { MoodEntry } from "@/types";
 import { getMoodIcon } from "@/utils/moodIconUtils";
 import { Mic } from "lucide-react-native";
 import { useMemo } from "react";
@@ -30,23 +30,6 @@ export type RecycleBinEntryCardProps = {
   readonly onRestore: () => void;
   readonly onPurge: () => void;
 };
-
-function getMoodBadgeColor(level: MoodLevel): string {
-  switch (level) {
-    case MoodLevel.ANNOYED:
-      return COLORS.mood.level1;
-    case MoodLevel.UPSET:
-      return COLORS.mood.level2;
-    case MoodLevel.ANGRY:
-      return COLORS.mood.level3;
-    case MoodLevel.FURIOUS:
-      return COLORS.mood.level4;
-    case MoodLevel.EXPLOSIVE:
-      return COLORS.mood.level5;
-    default:
-      return COLORS.mood.level1;
-  }
-}
 
 function createRecycleBinEntryCardStyles(width: number, height: number) {
   const m = createResponsiveMetrics(width, height);
@@ -76,6 +59,7 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       width: 44,
       height: 44,
       borderRadius: borderRadius.md,
+      backgroundColor: COLORS.surface2,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -225,13 +209,8 @@ export function RecycleBinEntryCard({
       <View style={styles.container}>
         <View style={styles.body}>
           <View style={styles.content}>
-            <View
-              style={[
-                styles.moodIconBadge,
-                { backgroundColor: getMoodBadgeColor(entry.moodLevel) },
-              ]}
-            >
-              {getMoodIcon(mood.iconName, COLORS.text.inverse, 20)}
+            <View style={styles.moodIconBadge}>
+              {getMoodIcon(mood.iconName, COLORS.brand, 20)}
             </View>
             <View style={styles.textContainer}>
               <View style={styles.header}>
