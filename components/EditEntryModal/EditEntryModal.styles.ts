@@ -91,28 +91,26 @@ export const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
+  /** Legacy deadline chrome — edit form uses MoodForm + AppChip (PRIM-02). */
   deadlineButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
-    backgroundColor: COLORS.gray[100],
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.hairline,
   },
   deadlineButtonSelected: {
-    backgroundColor: COLORS.text.primary,
-    shadowColor: COLORS.shadow.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    transform: [{ scale: 1.05 }],
+    backgroundColor: COLORS.brandSoft,
+    borderColor: COLORS.brandSoft,
   },
   deadlineText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: COLORS.text.secondary,
   },
   deadlineTextSelected: {
-    color: COLORS.text.inverse,
+    color: COLORS.brand,
   },
   deadlineCustomContainer: {
     flexDirection: 'row',
@@ -132,18 +130,19 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
+  /** Legacy tag chrome — people/trigger use TagSelector + AppChip (PRIM-02). */
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
-    borderColor: COLORS.border.light,
-    backgroundColor: COLORS.background.primary,
+    borderColor: COLORS.hairline,
+    backgroundColor: COLORS.surface,
     overflow: 'hidden',
   },
   tagSelected: {
-    backgroundColor: COLORS.primaryLight,
-    borderColor: COLORS.primary,
+    backgroundColor: COLORS.brandSoft,
+    borderColor: COLORS.brandSoft,
   },
   tagMain: {
     paddingHorizontal: 12,
@@ -151,11 +150,11 @@ export const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.text.tertiary,
+    fontWeight: '600',
+    color: COLORS.text.secondary,
   },
   tagTextSelected: {
-    color: COLORS.primaryDark,
+    color: COLORS.brand,
   },
   tagDelete: {
     paddingHorizontal: 8,

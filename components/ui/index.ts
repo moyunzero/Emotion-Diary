@@ -5,3 +5,9 @@ export {
   type AppButtonVariant,
 } from "./appButtonContract";
 export { AppButton, type AppButtonProps } from "./AppButton";
+export { appChipSelectedShowsCheck } from "./appChipContract";
+export {
+  APP_CHIP_HEIGHT,
+  AppChip,
+  type AppChipProps,
+} from "./AppChip";

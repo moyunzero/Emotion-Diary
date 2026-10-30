@@ -70,25 +70,6 @@ export function createMoodFormStyles(width: number, height: number) {
       gap: DESIGN_TOKENS.spacing.sm,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
-    deadlineButton: {
-      paddingHorizontal: DESIGN_TOKENS.spacing.md,
-      paddingVertical: DESIGN_TOKENS.spacing.sm,
-      borderRadius: DESIGN_TOKENS.borderRadius.medium,
-      backgroundColor: COLORS.gray[100],
-    },
-    deadlineButtonSelected: {
-      backgroundColor: COLORS.text.primary,
-      ...DESIGN_TOKENS.shadow.lg,
-      transform: [{ scale: 1.05 }],
-    },
-    deadlineText: {
-      fontSize: m.fontSize.small,
-      fontWeight: 'bold',
-      color: COLORS.text.secondary,
-    },
-    deadlineTextSelected: {
-      color: COLORS.text.inverse,
-    },
     customDeadlineInput: {
       width: '100%',
       backgroundColor: COLORS.background.secondary,

@@ -26,6 +26,7 @@ import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AppIcon from "./icons/AppIcon";
 import TagSelector from "./TagSelector";
+import { AppChip } from "./ui/AppChip";
 
 const MOOD_LEVEL_VALUES = Object.values(MoodLevel).filter(
   (v) => typeof v === "number",
@@ -288,73 +289,46 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           {tRecord("sections.deadline.title")}
         </Text>
         <View style={styles.deadlineContainer}>
-          {Object.entries(DEADLINE_CONFIG).map(([key, config]) => {
+          {Object.entries(DEADLINE_CONFIG).map(([key]) => {
             const deadlineLabel = getDeadlineLabel(key);
+            const isSelected = !isCustomDeadline && deadline === key;
             return (
-            <TouchableOpacity
-              key={key}
-              onPress={() => {
-                onDeadlineChange(key);
-                onCustomDeadlineChange(false, "");
-              }}
-              style={[
-                styles.deadlineButton,
-                !isCustomDeadline &&
-                  deadline === key &&
-                  styles.deadlineButtonSelected,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={tRecord("deadlineSelector.accessibilityLabel", {
-                label: deadlineLabel,
-              })}
-              accessibilityHint={tRecord("deadlineSelector.accessibilityHint", {
-                label: deadlineLabel,
-              })}
-              accessibilityState={{
-                selected: !isCustomDeadline && deadline === key,
-              }}
-            >
-              <Text
-                style={[
-                  styles.deadlineText,
-                  !isCustomDeadline &&
-                    deadline === key &&
-                    styles.deadlineTextSelected,
-                ]}
-              >
-                {deadlineLabel}
-              </Text>
-            </TouchableOpacity>
-          );
+              <AppChip
+                key={key}
+                label={deadlineLabel}
+                selected={isSelected}
+                onPress={() => {
+                  onDeadlineChange(key);
+                  onCustomDeadlineChange(false, "");
+                }}
+                accessibilityLabel={tRecord(
+                  "deadlineSelector.accessibilityLabel",
+                  { label: deadlineLabel },
+                )}
+                accessibilityHint={tRecord(
+                  "deadlineSelector.accessibilityHint",
+                  { label: deadlineLabel },
+                )}
+              />
+            );
           })}
 
-          <TouchableOpacity
+          <AppChip
+            label={tRecord("customDeadline.button")}
+            selected={isCustomDeadline}
             onPress={() => onCustomDeadlineChange(true, customDeadlineText)}
-            style={[
-              styles.deadlineButton,
-              isCustomDeadline && styles.deadlineButtonSelected,
-            ]}
-            accessibilityRole="button"
             accessibilityLabel={tRecord("customDeadline.accessibilityLabel")}
             accessibilityHint={tRecord("customDeadline.accessibilityHint")}
-            accessibilityState={{ selected: isCustomDeadline }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            leading={
               <AppIcon
                 name={Edit}
                 size={14}
-                color={isCustomDeadline ? COLORS.text.inverse : COLORS.gray[500]}
+                color={
+                  isCustomDeadline ? COLORS.brand : COLORS.gray[500]
+                }
               />
-              <Text
-                style={[
-                  styles.deadlineText,
-                  isCustomDeadline && styles.deadlineTextSelected,
-                ]}
-              >
-                {tRecord("customDeadline.button")}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            }
+          />
         </View>
 
         {isCustomDeadline && (

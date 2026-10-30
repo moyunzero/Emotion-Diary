@@ -1,8 +1,12 @@
 /**
- * Wave 0 RED — AppChip selected Check affordance (PRIM-02)
+ * Wave 0 / Plan 04 — AppChip selected Check affordance (PRIM-02)
  * Selected state must include Check, not color-only.
- * GREEN in Plan 04. Runtime require so missing module fails the test.
+ * Contract helpers load under Jest node; component asserted via source scan
+ * (tsx + RN StyleSheet cannot execute in this env — same pattern as AppButton).
  */
+
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 type AppChipModule = {
   AppChip: unknown;
@@ -11,7 +15,21 @@ type AppChipModule = {
 
 function loadAppChip(): AppChipModule {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require("../../../../components/ui/AppChip") as AppChipModule;
+  const contract = require("../../../../components/ui/appChipContract") as {
+    appChipSelectedShowsCheck: (selected: boolean) => boolean;
+  };
+  const componentPath = path.join(
+    __dirname,
+    "../../../../components/ui/AppChip.tsx",
+  );
+  const src = fs.readFileSync(componentPath, "utf8");
+  expect(src).toMatch(/export function AppChip\b/);
+  expect(src).toMatch(/\bCheck\b/);
+  expect(src).toMatch(/appChipSelectedShowsCheck/);
+  return {
+    AppChip: true,
+    appChipSelectedShowsCheck: contract.appChipSelectedShowsCheck,
+  };
 }
 
 describe("AppChip selected Check (PRIM-02)", () => {
