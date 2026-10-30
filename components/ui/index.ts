@@ -12,3 +12,8 @@ export {
   type AppChipProps,
 } from "./AppChip";
 export { AppSheet, type AppSheetProps } from "./AppSheet";
+export {
+  AppSegmentedControl,
+  type AppSegmentedControlProps,
+  type AppSegmentedControlSegment,
+} from "./AppSegmentedControl";

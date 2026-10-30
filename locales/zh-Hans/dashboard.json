@@ -16,8 +16,15 @@
     "burnedA11y": "筛选：灰烬回忆",
     "burnedHint": "点击只显示已焚烧的情绪记录",
     "allA11y": "筛选：全部记录",
-    "allHint": "点击显示所有情绪记录"
+    "allHint": "点击显示所有情绪记录",
+    "segment": {
+      "active": "未处理",
+      "resolved": "已和解",
+      "burned": "灰烬",
+      "all": "全部"
+    }
   },
+
   "recordLink": {
     "label": "记一笔",
     "a11y": "去记一笔",

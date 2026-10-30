@@ -16,8 +16,15 @@
     "burnedA11y": "Filter: Ashes",
     "burnedHint": "Show only burned entries",
     "allA11y": "Filter: All entries",
-    "allHint": "Show all mood entries"
+    "allHint": "Show all mood entries",
+    "segment": {
+      "active": "Open",
+      "resolved": "Done",
+      "burned": "Ash",
+      "all": "All"
+    }
   },
+
   "recordLink": {
     "label": "Record",
     "a11y": "Open Record",
