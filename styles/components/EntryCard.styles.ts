@@ -21,12 +21,11 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     burnedContainer: {
       backgroundColor: COLORS.background.secondary,
-      borderWidth: 1,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: COLORS.border.light,
       borderStyle: 'dashed',
-      shadowColor: COLORS.primary,
-      shadowOpacity: 0.08,
-      shadowRadius: DESIGN_TOKENS.spacing.sm,
+      opacity: 0.88,
+      ...DESIGN_TOKENS.shadow.none,
     },
     ashIconBadge: {
       backgroundColor: COLORS.gray[200],

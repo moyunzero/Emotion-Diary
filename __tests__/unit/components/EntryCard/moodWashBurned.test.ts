@@ -1,7 +1,6 @@
 /**
- * Wave 0 RED — EntryCard mood wash + burned soft shadow (PRIM-05 / D-23..D-26)
- * List badge must not paint mood.level* intensity face; burnedContainer no soft shadow.
- * Source-scan contracts against current tree (fails until Plan 09). No RN StyleSheet import.
+ * PRIM-05 / D-23..D-26 — EntryCard mood wash ban + burned ash chrome.
+ * Source-scan contracts; no RN StyleSheet import in this suite.
  */
 
 import fs from "fs";
@@ -49,9 +48,13 @@ describe("EntryCard mood wash + burned shadow (PRIM-05)", () => {
 
   it("burnedContainer must not carry soft shadow props", () => {
     const block = burnedContainerBlock(entryCardStylesSource);
+    expect(block).toMatch(/borderStyle:\s*['"]dashed['"]/);
+    expect(block).toMatch(/opacity:\s*0\.(8[5-9]|9[0-2])\b/);
+    expect(block).toMatch(/\.\.\.DESIGN_TOKENS\.shadow\.none/);
     expect(block).not.toMatch(/shadowOpacity\s*:/);
     expect(block).not.toMatch(/shadowRadius\s*:/);
     expect(block).not.toMatch(/elevation\s*:/);
+    expect(block).not.toMatch(/shadowColor\s*:/);
   });
 
   it("COLORS.mood.level* tokens remain available (D-26 keep)", () => {
