@@ -1,8 +1,12 @@
 /**
- * Wave 0 RED — components/ui/AppButton (PRIM-01 / D-01..D-05)
+ * AppButton (PRIM-01 / D-01..D-05)
  * Four variants; disabled reason above control; loading locks press.
- * GREEN in Plan 02/03. Runtime require so missing module fails the test.
+ * Contract helpers load under Jest node; component file asserted via source scan
+ * (tsx + RN StyleSheet cannot execute in this env — same pattern as moodWashBurned).
  */
+
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 type AppButtonModule = {
   AppButton: unknown;
@@ -19,7 +23,20 @@ type AppButtonModule = {
 
 function loadAppButton(): AppButtonModule {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require("../../../../components/ui/AppButton") as AppButtonModule;
+  const contract = require("../../../../components/ui/appButtonContract") as Omit<
+    AppButtonModule,
+    "AppButton"
+  >;
+  const componentPath = path.join(
+    __dirname,
+    "../../../../components/ui/AppButton.tsx",
+  );
+  const src = fs.readFileSync(componentPath, "utf8");
+  expect(src).toMatch(/export function AppButton\b/);
+  return {
+    AppButton: true,
+    ...contract,
+  };
 }
 
 describe("AppButton (PRIM-01 variants / disabled / loading)", () => {

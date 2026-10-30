@@ -259,8 +259,9 @@ export const ReviewExportScreen: React.FC = () => {
       title: tShare('alerts.privacy.title'),
       message: tShare('alerts.privacy.message'),
       continueLabel: tShare('actions.continue'),
+      cancelLabel: tCommon('actions.cancel'),
     });
-  }, [aiStatus, isBusy, saveCopy, tShare]);
+  }, [aiStatus, isBusy, saveCopy, tCommon, tShare]);
 
   const saveDisabled = isBusy || aiStatus === 'loading';
   const saveLabel =

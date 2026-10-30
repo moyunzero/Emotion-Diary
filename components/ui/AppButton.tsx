@@ -1,0 +1,270 @@
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from "react-native";
+import {
+  APP_BUTTON_VARIANTS,
+  isAppButtonPressLocked,
+  resolveAppButtonDisabledReason,
+  type AppButtonVariant,
+} from "./appButtonContract";
+
+export {
+  APP_BUTTON_VARIANTS,
+  isAppButtonPressLocked,
+  resolveAppButtonDisabledReason,
+  type AppButtonVariant,
+} from "./appButtonContract";
+
+export type AppButtonProps = {
+  label: string;
+  onPress: () => void;
+  variant?: AppButtonVariant;
+  /** Primary defaults true; secondary/text/danger default false. */
+  fullWidth?: boolean;
+  disabled?: boolean;
+  /** Shown above the control when disabled (D-03). */
+  disabledReason?: string;
+  loading?: boolean;
+  /** Short label while loading; falls back to `label`. */
+  loadingLabel?: string;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
+  style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+};
+
+const PRESS_SCALE = 0.97;
+const PRESS_MS = 120;
+
+/**
+ * Shared button primitive (PRIM-01 / D-01..D-07).
+ * Tokens only — no new hex. Primary haptic Light when enabled and not loading.
+ */
+export function AppButton({
+  label,
+  onPress,
+  variant = "primary",
+  fullWidth,
+  disabled = false,
+  disabledReason,
+  loading = false,
+  loadingLabel,
+  accessibilityLabel,
+  accessibilityHint,
+  testID,
+  style,
+  labelStyle,
+}: AppButtonProps) {
+  const { trigger } = useHapticFeedback();
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const scale = useRef(new Animated.Value(1)).current;
+  const locked = isAppButtonPressLocked({ loading, disabled });
+  const reason = resolveAppButtonDisabledReason({ disabled, disabledReason });
+  const isFullWidth = fullWidth ?? variant === "primary";
+  const displayLabel = loading ? (loadingLabel ?? label) : label;
+
+  useEffect(() => {
+    let mounted = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => {
+        if (mounted) setReduceMotion(enabled);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    const sub = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      setReduceMotion,
+    );
+    return () => {
+      mounted = false;
+      sub.remove();
+    };
+  }, []);
+
+  const animateTo = useCallback(
+    (toValue: number) => {
+      if (reduceMotion) return;
+      Animated.timing(scale, {
+        toValue,
+        duration: PRESS_MS,
+        useNativeDriver: true,
+      }).start();
+    },
+    [reduceMotion, scale],
+  );
+
+  const handlePressIn = useCallback(() => {
+    if (locked) return;
+    animateTo(PRESS_SCALE);
+  }, [animateTo, locked]);
+
+  const handlePressOut = useCallback(() => {
+    animateTo(1);
+  }, [animateTo]);
+
+  const handlePress = useCallback(() => {
+    if (locked) return;
+    if (variant === "primary") {
+      trigger("light");
+    }
+    onPress();
+  }, [locked, onPress, trigger, variant]);
+
+  const face = VARIANT_FACE[variant];
+  const pressedFace = reduceMotion ? VARIANT_PRESSED_FACE[variant] : null;
+
+  return (
+    <View style={[styles.wrap, isFullWidth && styles.fullWidth, style]}>
+      {reason != null ? (
+        <Text
+          style={styles.disabledReason}
+          accessibilityLiveRegion="polite"
+          testID={testID ? `${testID}-disabled-reason` : undefined}
+        >
+          {reason}
+        </Text>
+      ) : null}
+      <Animated.View
+        style={[
+          isFullWidth && styles.fullWidth,
+          !reduceMotion && { transform: [{ scale }] },
+        ]}
+      >
+        <Pressable
+          testID={testID}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={{ disabled: locked, busy: loading }}
+          disabled={locked}
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={({ pressed }) => [
+            styles.base,
+            face.container,
+            isFullWidth && styles.fullWidth,
+            locked && styles.disabledContainer,
+            reduceMotion && pressed && !locked && pressedFace,
+          ]}
+        >
+          {loading ? (
+            <ActivityIndicator
+              color={
+                locked
+                  ? COLORS.text.tertiary
+                  : (face.spinner ?? face.label.color)
+              }
+              style={styles.spinner}
+            />
+          ) : null}
+          <Text
+            style={[
+              styles.label,
+              face.label,
+              locked && styles.disabledLabel,
+              labelStyle,
+            ]}
+          >
+            {displayLabel}
+          </Text>
+        </Pressable>
+      </Animated.View>
+    </View>
+  );
+}
+
+const VARIANT_FACE: Record<
+  AppButtonVariant,
+  {
+    container: ViewStyle;
+    label: TextStyle;
+    spinner?: string;
+  }
+> = {
+  primary: {
+    container: { backgroundColor: COLORS.brand },
+    label: { color: COLORS.text.inverse },
+    spinner: COLORS.text.inverse,
+  },
+  secondary: {
+    container: { backgroundColor: COLORS.brandSoft },
+    label: { color: COLORS.brand },
+    spinner: COLORS.brand,
+  },
+  text: {
+    container: { backgroundColor: "transparent" },
+    label: { color: COLORS.brand },
+    spinner: COLORS.brand,
+  },
+  danger: {
+    container: { backgroundColor: "transparent" },
+    label: { color: COLORS.danger },
+    spinner: COLORS.danger,
+  },
+};
+
+/** Reduce-motion press feedback: opacity / color shift instead of scale (D-06). */
+const VARIANT_PRESSED_FACE: Record<AppButtonVariant, ViewStyle> = {
+  primary: { backgroundColor: COLORS.brandPressed },
+  secondary: { opacity: 0.85 },
+  text: { opacity: 0.7 },
+  danger: { opacity: 0.7 },
+};
+
+const styles = StyleSheet.create({
+  wrap: {
+    alignSelf: "flex-start",
+  },
+  fullWidth: {
+    alignSelf: "stretch",
+    width: "100%",
+  },
+  base: {
+    minHeight: 50,
+    minWidth: 44,
+    paddingHorizontal: DESIGN_TOKENS.spacing.xl,
+    paddingVertical: DESIGN_TOKENS.spacing.md,
+    borderRadius: DESIGN_TOKENS.borderRadius.lg,
+    borderCurve: "continuous",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: DESIGN_TOKENS.spacing.sm,
+  },
+  label: {
+    fontSize: DESIGN_TOKENS.fontSize.md,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  disabledContainer: {
+    backgroundColor: COLORS.surface2,
+  },
+  disabledLabel: {
+    color: COLORS.text.tertiary,
+  },
+  disabledReason: {
+    fontSize: DESIGN_TOKENS.fontSize.xs,
+    fontWeight: "400",
+    color: COLORS.text.tertiary,
+    marginBottom: DESIGN_TOKENS.spacing.sm,
+    alignSelf: "stretch",
+  },
+  spinner: {
+    marginRight: 0,
+  },
+});

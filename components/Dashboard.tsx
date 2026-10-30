@@ -39,6 +39,7 @@ import {
   registerAsoDashboardScroller,
   requestAsoDashboardScroll,
 } from "@/services/asoPreviewScroll";
+import { AppButton } from "./ui/AppButton";
 import { AppScreenShell } from "./AppScreenShell";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
@@ -263,15 +264,33 @@ const Dashboard: React.FC = () => {
   // FlatList key 提取函数
   const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
 
-  // 渲染列表头部（仅 WeatherStation；筛选条已提到 FlashList 外侧固定，避免随列表滚动）
-  const renderListHeader = useCallback(() => (
-    <View>
-      <View style={styles.weatherSection}>
-        <WeatherStation />
+  const goToRecord = useCallback(() => {
+    router.push("/record");
+  }, [router]);
+
+  // 渲染列表头部（WeatherStation + D-28 记一笔文字链；筛选条在 FlashList 外 sticky）
+  const renderListHeader = useCallback(
+    () => (
+      <View>
+        <View style={styles.weatherSection}>
+          <WeatherStation />
+          <View style={styles.recordLinkRow}>
+            <AppButton
+              variant="text"
+              fullWidth={false}
+              label={t("recordLink.label")}
+              onPress={goToRecord}
+              accessibilityLabel={t("recordLink.a11y")}
+              accessibilityHint={t("recordLink.hint")}
+              testID="dashboard-record-link"
+            />
+          </View>
+        </View>
+        <RevisitBanner entries={entries} />
       </View>
-      <RevisitBanner entries={entries} />
-    </View>
-  ), [styles.weatherSection, entries]);
+    ),
+    [styles.weatherSection, styles.recordLinkRow, entries, goToRecord, t],
+  );
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
@@ -408,22 +427,16 @@ const Dashboard: React.FC = () => {
               {emptyStateContent.desc}
             </Text>
             {emptyStateContent.showButton && (
-              <TouchableOpacity
-                style={[styles.emptyButton, { backgroundColor: COLORS.primaryDark }]}
-                onPress={() => router.push("/record")}
-                accessibilityRole="button"
-                accessibilityLabel={emptyStateContent.ctaA11y}
-                accessibilityHint={emptyStateContent.ctaHint}
-              >
-                <Text
-                  style={[
-                    styles.emptyButtonText,
-                    { color: colors.text.inverse },
-                  ]}
-                >
-                  {emptyStateContent.cta}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.emptyCtaWrap}>
+                <AppButton
+                  variant="primary"
+                  label={emptyStateContent.cta}
+                  onPress={goToRecord}
+                  accessibilityLabel={emptyStateContent.ctaA11y}
+                  accessibilityHint={emptyStateContent.ctaHint}
+                  testID="dashboard-empty-cta"
+                />
+              </View>
             )}
           </View>
         }
