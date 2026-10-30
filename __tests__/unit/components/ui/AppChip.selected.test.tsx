@@ -1,7 +1,7 @@
 /**
  * Plan 23-11 / G-23-2 — AppChip selected without checkmark (PRIM-02 / PRIM-05)
  * Selected = brandSoft + brand label + brand border weight — not color-only; no Check glyph.
- * Task 1: contract helpers + UI-SPEC Selected wording (AppChip.tsx source scan in Task 2).
+ * Contract helpers + UI-SPEC Selected wording + AppChip.tsx source scan.
  */
 
 import * as fs from "node:fs";
@@ -15,6 +15,14 @@ type AppChipContract = {
 function loadContract(): AppChipContract {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require("../../../../components/ui/appChipContract") as AppChipContract;
+}
+
+function readAppChipSource(): string {
+  const componentPath = path.join(
+    __dirname,
+    "../../../../components/ui/AppChip.tsx",
+  );
+  return fs.readFileSync(componentPath, "utf8");
 }
 
 function readUiSpecChipSelectedRow(): string {
@@ -52,5 +60,17 @@ describe("AppChip selected without checkmark (PRIM-02 / PRIM-05)", () => {
     expect(selectedRow).toMatch(/brand/i);
     expect(selectedRow).toMatch(/border/i);
     expect(selectedRow).not.toMatch(/\bCheck\b/);
+  });
+
+  it("AppChip shellSelected uses brandSoft fill + brand border; no Check element", () => {
+    const src = readAppChipSource();
+    expect(src).toMatch(/export function AppChip\b/);
+    expect(src).toMatch(/shellSelected/);
+    expect(src).toMatch(/backgroundColor:\s*COLORS\.brandSoft/);
+    expect(src).toMatch(/borderColor:\s*COLORS\.brand\b/);
+    expect(src).toMatch(/appChipSelectedBorderWidth/);
+    // Selected checkmark glyph must be gone; X delete affordance may remain.
+    expect(src).not.toMatch(/\bCheck\b/);
+    expect(src).toMatch(/\bX\b/);
   });
 });
