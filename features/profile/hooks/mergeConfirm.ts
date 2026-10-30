@@ -29,6 +29,9 @@ export function mergeConfirmForCount(
 }
 
 /**
+ * Multi-action merge cold confirm (PRIM-03 cancel lock).
+ * Always includes Cancel; not confirmAlert because counted/unknown need
+ * three actions (upload / merge / cancel). Short path is cancel + confirm.
  * Profile and the Maestro probe share this alert.
  * Cancel does not upload or merge. Upload does not merge.
  */

@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 import { i18n } from "@/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import { getDefaultAvatar } from "@/utils/avatarPresets";
+import { confirmAlert } from "@/utils/confirmAlert";
 import type { ToastState } from "./useProfileScreenState";
 
 const tError = (key: string): string =>
@@ -277,71 +278,59 @@ export function useProfileAuthHandlers(state: AuthState) {
   }, [state, updateUser]);
 
   const handleLogout = useCallback(() => {
-    Alert.alert(
-      i18n.t("logout.title", { ns: "auth" }),
-      i18n.t("logout.message", { ns: "auth" }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("logout.confirm", { ns: "auth" }),
-          style: "destructive",
-          onPress: async () => {
-            state.setIsLoading(true);
-            try {
-              await logout();
-              router.back();
-            } catch {
-              Alert.alert(
-                i18n.t("logout.failedTitle", { ns: "auth" }),
-                i18n.t("logout.failedMessage", { ns: "auth" }),
-              );
-            } finally {
-              state.setIsLoading(false);
-            }
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("logout.title", { ns: "auth" }),
+        message: i18n.t("logout.message", { ns: "auth" }),
+        confirmLabel: i18n.t("logout.confirm", { ns: "auth" }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      state.setIsLoading(true);
+      try {
+        await logout();
+        router.back();
+      } catch {
+        Alert.alert(
+          i18n.t("logout.failedTitle", { ns: "auth" }),
+          i18n.t("logout.failedMessage", { ns: "auth" }),
+        );
+      } finally {
+        state.setIsLoading(false);
+      }
+    })();
   }, [state, logout, router]);
 
   const handleDeleteAccount = useCallback(() => {
-    Alert.alert(
-      i18n.t("deleteAccount.title", { ns: "auth" }),
-      i18n.t("deleteAccount.message", { ns: "auth" }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("deleteAccount.confirm", { ns: "auth" }),
-          style: "destructive",
-          onPress: async () => {
-            state.setIsLoading(true);
-            try {
-              await deleteAccount();
-              state.setToast({
-                message: i18n.t("deleteAccount.successToast", { ns: "auth" }),
-                type: "success",
-              });
-              router.back();
-            } catch (e: unknown) {
-              const err = e as { message?: string };
-              Alert.alert(
-                i18n.t("deleteAccount.failedTitle", { ns: "auth" }),
-                err?.message ||
-                  i18n.t("deleteAccount.failedMessage", { ns: "auth" }),
-              );
-            } finally {
-              state.setIsLoading(false);
-            }
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("deleteAccount.title", { ns: "auth" }),
+        message: i18n.t("deleteAccount.message", { ns: "auth" }),
+        confirmLabel: i18n.t("deleteAccount.confirm", { ns: "auth" }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      state.setIsLoading(true);
+      try {
+        await deleteAccount();
+        state.setToast({
+          message: i18n.t("deleteAccount.successToast", { ns: "auth" }),
+          type: "success",
+        });
+        router.back();
+      } catch (e: unknown) {
+        const err = e as { message?: string };
+        Alert.alert(
+          i18n.t("deleteAccount.failedTitle", { ns: "auth" }),
+          err?.message ||
+            i18n.t("deleteAccount.failedMessage", { ns: "auth" }),
+        );
+      } finally {
+        state.setIsLoading(false);
+      }
+    })();
   }, [state, deleteAccount, router]);
 
   return {
