@@ -60,13 +60,6 @@ export function createDashboardStyles(width: number, height: number) {
       marginTop: DESIGN_TOKENS.spacing.xl,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
-    /** D-28 text link under weather narrative — not a second solid primary. */
-    recordLinkRow: {
-      marginTop: DESIGN_TOKENS.spacing.sm,
-      alignSelf: 'flex-start',
-      minHeight: 44,
-      justifyContent: 'center',
-    },
     emptyCtaWrap: {
       alignSelf: 'stretch',
       width: '100%',

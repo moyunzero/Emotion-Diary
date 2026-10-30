@@ -202,28 +202,17 @@ const Dashboard: React.FC = () => {
     router.push("/record");
   }, [router]);
 
-  // 渲染列表头部（WeatherStation + D-28 记一笔文字链；筛选条在 FlashList 外 sticky）
+  // 渲染列表头部（WeatherStation + RevisitBanner；记一笔入口 = 中间 Tab + 空态 primary CTA · D-28 reopen）
   const renderListHeader = useCallback(
     () => (
       <View>
         <View style={styles.weatherSection}>
           <WeatherStation />
-          <View style={styles.recordLinkRow}>
-            <AppButton
-              variant="text"
-              fullWidth={false}
-              label={t("recordLink.label")}
-              onPress={goToRecord}
-              accessibilityLabel={t("recordLink.a11y")}
-              accessibilityHint={t("recordLink.hint")}
-              testID="dashboard-record-link"
-            />
-          </View>
         </View>
         <RevisitBanner entries={entries} />
       </View>
     ),
-    [styles.weatherSection, styles.recordLinkRow, entries, goToRecord, t],
+    [styles.weatherSection, entries],
   );
 
   return (

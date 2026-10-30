@@ -25,11 +25,6 @@
     }
   },
 
-  "recordLink": {
-    "label": "Record",
-    "a11y": "Open Record",
-    "hint": "Go to the record screen and capture how you feel"
-  },
   "empty": {
     "active": {
       "title": "Nothing waiting right now",
