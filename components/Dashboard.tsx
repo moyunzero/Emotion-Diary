@@ -9,6 +9,7 @@ import {
   getWeatherEmptyReason,
 } from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FlashList, FlashListRef, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Filter, CloudSun, Flame, Leaf, Sprout } from "lucide-react-native";
@@ -110,6 +111,7 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const styles = useMemo(
     () => createDashboardStyles(windowWidth, windowHeight),
     [windowWidth, windowHeight]
@@ -402,7 +404,15 @@ const Dashboard: React.FC = () => {
       {/* List - 包含天气站作为头部 */}
       <FlashList
         ref={listRef}
-        contentContainerStyle={styles.flashListContent}
+        contentContainerStyle={[
+          styles.flashListContent,
+          {
+            paddingBottom:
+              (typeof styles.flashListContent.paddingBottom === "number"
+                ? styles.flashListContent.paddingBottom
+                : 0) + tabBarHeight,
+          },
+        ]}
         data={filteredEntries}
         renderItem={renderEntry}
         keyExtractor={keyExtractor}

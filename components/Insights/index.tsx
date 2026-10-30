@@ -1,5 +1,6 @@
 import { countPendingEntries } from "@/shared/entries/dashboardFilter";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,7 @@ const InsightsComponent: React.FC = () => {
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
   const { trigger } = useHapticFeedback();
+  const tabBarHeight = useBottomTabBarHeight();
   const [pendingStage, setPendingStage] = useState<GrowthStageId | null>(null);
   const userId = useAppStore((state) => state.user?.id ?? null);
 
@@ -111,7 +113,10 @@ const InsightsComponent: React.FC = () => {
   if (visibleEntries.length === 0) {
     return (
       <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
-        <View testID="insights-screen" style={{ flex: 1 }}>
+        <View
+          testID="insights-screen"
+          style={{ flex: 1, paddingBottom: tabBarHeight }}
+        >
           <EmptyGarden />
         </View>
       </AppScreenShell>
@@ -124,6 +129,7 @@ const InsightsComponent: React.FC = () => {
       showHeader={false}
       scrollable
       removeClippedSubviews
+      contentContainerStyle={{ paddingBottom: tabBarHeight }}
     >
       <View testID="insights-screen" style={{ flex: 1 }}>
       {/* 内容包装器 - 在大屏设备上居中显示 */}

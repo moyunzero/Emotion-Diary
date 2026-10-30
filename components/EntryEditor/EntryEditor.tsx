@@ -2,6 +2,7 @@
  * 记一笔（新增）与编辑共用：表单 + 语音 + 提交，通过 mode 区分创建 / 编辑。
  * presentation 区分全屏 Tab 页（fullscreen）与 Modal 内嵌（embedded）布局。
  */
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,7 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { DEADLINE_CONFIG, PEOPLE_KEYS, TRIGGER_KEYS } from "../../constants";
 import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
-import { COLORS } from "../../constants/colors";
+import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { createRecordStyles } from "../../styles/components/Record.styles";
 import { createSharedStyles } from "../../styles/sharedStyles";
@@ -492,27 +493,70 @@ export function EntryEditor(props: EntryEditorProps) {
   }
 
   return (
+    <EntryEditorFullscreen
+      scrollViewRef={scrollViewRef}
+      fullscreenStyles={fullscreenStyles}
+      formInner={formInner}
+      submitButton={submitButton}
+      title={t("screen.title")}
+      onClose={props.onClose}
+      backAccessibilityHint={t("screen.backHint")}
+    />
+  );
+}
+
+function EntryEditorFullscreen({
+  scrollViewRef,
+  fullscreenStyles,
+  formInner,
+  submitButton,
+  title,
+  onClose,
+  backAccessibilityHint,
+}: {
+  scrollViewRef: React.RefObject<ScrollView | null>;
+  fullscreenStyles: ReturnType<typeof createRecordStyles>;
+  formInner: React.ReactNode;
+  submitButton: React.ReactNode;
+  title: string;
+  onClose: () => void;
+  backAccessibilityHint: string;
+}) {
+  const tabBarHeight = useBottomTabBarHeight();
+  const baseScrollPad =
+    typeof fullscreenStyles.scrollViewContent.paddingBottom === "number"
+      ? fullscreenStyles.scrollViewContent.paddingBottom
+      : DESIGN_TOKENS.spacing.xxxl * 3;
+
+  return (
     <AppScreenShell
       edges={["top", "left", "right"]}
       keyboardAware
       style={fullscreenStyles.container}
-      title={t("screen.title")}
-      onBack={props.onClose}
-      backAccessibilityHint={t("screen.backHint")}
+      title={title}
+      onBack={onClose}
+      backAccessibilityHint={backAccessibilityHint}
       headerStyle={fullscreenStyles.stackHeader}
     >
       <View style={fullscreenStyles.body}>
         <ScrollView
           ref={scrollViewRef}
           style={fullscreenStyles.scrollView}
-          contentContainerStyle={fullscreenStyles.scrollViewContent}
+          contentContainerStyle={[
+            fullscreenStyles.scrollViewContent,
+            { paddingBottom: baseScrollPad + tabBarHeight },
+          ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
         >
           <View style={fullscreenStyles.content}>{formInner}</View>
         </ScrollView>
-        <View style={fullscreenStyles.submitContainer}>{submitButton}</View>
+        <View
+          style={[fullscreenStyles.submitContainer, { bottom: tabBarHeight }]}
+        >
+          {submitButton}
+        </View>
       </View>
     </AppScreenShell>
   );
