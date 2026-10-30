@@ -1,6 +1,6 @@
 /**
- * Plan 23-10 / G-23-1 · G-23-4 — TabBarBackground BlurView native probe
- * When ExpoBlurView is missing, chrome must use solid COLORS.bg (no Unimplemented).
+ * Plan 23-12 / G-23-6 — iOS tab chrome solid COLORS.bg + hairline
+ * BlurView deferred until opaque underlay ships (stops pink fringe bleed).
  * Source-scan under Jest node (tsx + RN cannot execute here — AppButton pattern).
  */
 
@@ -16,19 +16,17 @@ function readTabLayoutSrc(): string {
   return fs.readFileSync(layoutPath, "utf8");
 }
 
-describe("TabBarBackground BlurView native probe (PRIM-04 / G-23-1 · G-23-4)", () => {
-  it("probes requireOptionalNativeModule('ExpoBlurView') before mounting BlurView", () => {
+describe("TabBarBackground solid iOS chrome (PRIM-04 / G-23-6)", () => {
+  it("fills iOS tab chrome with solid COLORS.bg and does not mount BlurView", () => {
     const src = readTabLayoutSrc();
 
-    expect(src).toMatch(/requireOptionalNativeModule/);
-    expect(src).toMatch(/['"]ExpoBlurView['"]/);
-    expect(src).toMatch(
-      /requireOptionalNativeModule\s*\(\s*['"]ExpoBlurView['"]\s*\)/,
-    );
+    expect(src).toMatch(/COLORS\.bg/);
+    expect(src).toMatch(/StyleSheet\.absoluteFill/);
+    expect(src).toMatch(/COLORS\.hairline/);
 
-    // BlurView must not be the sole iOS !solid return without a probe/solid branch
-    const unconditionalIosBlur =
-      /Platform\.OS\s*===\s*['"]ios['"]\s*&&\s*!solid\s*\)\s*\{[\s\S]*?<BlurView\b/;
-    expect(src).not.toMatch(unconditionalIosBlur);
+    // No live BlurView mount in TabBarBackground chrome path
+    expect(src).not.toMatch(/<BlurView\b/);
+    expect(src).not.toMatch(/from ['"]expo-blur['"]/);
+    expect(src).not.toMatch(/requireOptionalNativeModule/);
   });
 });
