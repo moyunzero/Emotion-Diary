@@ -1,4 +1,5 @@
 import { BlurView } from 'expo-blur';
+import { requireOptionalNativeModule } from 'expo-modules-core';
 import { Tabs } from 'expo-router';
 import { CloudSun, Flower2, PenLine } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -14,18 +15,26 @@ import { COLORS, DESIGN_TOKENS, withOpacity } from '@/constants/colors';
 
 const TAB_ICON_SIZE = 24;
 
+/** Null when pods/Dev Client lack ExpoBlur — avoid Unimplemented over absolute chrome. */
+const hasExpoBlurView =
+  requireOptionalNativeModule('ExpoBlurView') != null;
+
 function TabBarBackground({ solid }: { solid: boolean }) {
-  if (Platform.OS === 'ios' && !solid) {
+  if (Platform.OS === 'ios' && !solid && hasExpoBlurView) {
     return (
       <BlurView tint="light" intensity={80} style={StyleSheet.absoluteFill} />
     );
   }
+
+  const useOpaqueFill =
+    solid || (Platform.OS === 'ios' && !hasExpoBlurView);
+
   return (
     <View
       style={[
         StyleSheet.absoluteFill,
         {
-          backgroundColor: solid
+          backgroundColor: useOpaqueFill
             ? COLORS.bg
             : withOpacity(COLORS.bg, 0.92),
         },
