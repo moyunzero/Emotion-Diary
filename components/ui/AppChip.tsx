@@ -1,5 +1,5 @@
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
-import { Check, X } from "lucide-react-native";
+import { X } from "lucide-react-native";
 import React from "react";
 import {
   Pressable,
@@ -9,9 +9,12 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { appChipSelectedShowsCheck } from "./appChipContract";
+import { appChipSelectedBorderWidth } from "./appChipContract";
 
-export { appChipSelectedShowsCheck } from "./appChipContract";
+export {
+  appChipSelectedBorderWidth,
+  appChipSelectedShowsCheck,
+} from "./appChipContract";
 
 /** Visual height; hitSlop pads to ≥44 (PRIM-05). */
 export const APP_CHIP_HEIGHT = 32;
@@ -32,9 +35,9 @@ export type AppChipProps = {
 };
 
 /**
- * Shared chip primitive (PRIM-02).
+ * Shared chip primitive (PRIM-02 / G-23-2).
  * Unselected: surface + hairline + text.secondary.
- * Selected: brandSoft + brand label + lucide Check 16 — not color-only.
+ * Selected: brandSoft + brand label + brand border (1.5–2) — not color-only; no checkmark.
  */
 export function AppChip({
   label,
@@ -48,13 +51,13 @@ export function AppChip({
   style,
 }: AppChipProps) {
   const labelColor = selected ? COLORS.brand : COLORS.text.secondary;
-  const showsCheck = appChipSelectedShowsCheck(selected);
 
   return (
     <View
       style={[
         styles.shell,
         selected ? styles.shellSelected : styles.shellUnselected,
+        { borderWidth: appChipSelectedBorderWidth(selected) },
         style,
       ]}
     >
@@ -69,14 +72,6 @@ export function AppChip({
         testID={testID}
       >
         {leading}
-        {showsCheck ? (
-          <Check
-            size={16}
-            color={COLORS.brand}
-            accessibilityElementsHidden
-            importantForAccessibility="no"
-          />
-        ) : null}
         <Text style={[styles.label, { color: labelColor }]} numberOfLines={1}>
           {label}
         </Text>
@@ -102,7 +97,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: APP_CHIP_HEIGHT,
     borderRadius: DESIGN_TOKENS.borderRadius.large,
-    borderWidth: 1,
     overflow: "hidden",
     borderCurve: "continuous",
   },
@@ -112,7 +106,7 @@ const styles = StyleSheet.create({
   },
   shellSelected: {
     backgroundColor: COLORS.brandSoft,
-    borderColor: COLORS.brandSoft,
+    borderColor: COLORS.brand,
   },
   main: {
     flexDirection: "row",
