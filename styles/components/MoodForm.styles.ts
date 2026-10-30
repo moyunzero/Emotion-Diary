@@ -32,27 +32,33 @@ export function createMoodFormStyles(width: number, height: number) {
       opacity: 0.5,
       flex: 1,
       maxWidth: 72,
+      minHeight: 44,
     },
     moodButtonSelected: {
       opacity: 1,
-      transform: [{ scale: 1.05 }],
     },
     moodIconContainer: {
       marginBottom: DESIGN_TOKENS.spacing.sm,
       alignItems: 'center',
       justifyContent: 'center',
+      width: 44,
+      height: 44,
+      borderRadius: 22,
     },
-    moodIconContainerSelected: {},
+    /** D-24 Record selected: brand circle + white icon (list badges unchanged). */
+    moodIconContainerSelected: {
+      backgroundColor: COLORS.brand,
+    },
     moodLabel: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      fontWeight: 'bold',
+      fontWeight: '600',
       color: COLORS.text.secondary,
       textAlign: 'center',
       maxWidth: 64,
     },
     moodLabelSelected: {
-      color: COLORS.text.primary,
-      fontWeight: '800',
+      color: COLORS.brand,
+      fontWeight: '600',
     },
     contentInput: {
       width: '100%',

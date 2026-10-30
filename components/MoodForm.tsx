@@ -217,8 +217,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   >
                     {getMoodIcon(
                       config.iconName,
-                      config.iconColor,
-                      isSelected ? 36 : 28,
+                      isSelected ? COLORS.text.inverse : config.iconColor,
+                      22,
                     )}
                   </View>
                   <Text
