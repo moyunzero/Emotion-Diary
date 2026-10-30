@@ -29,13 +29,14 @@
   },
   "moodTip": { "close": "知道了" },
   "submit": {
-    "createLabel": "记录完成",
+    "createLabel": "收好这一刻",
+    "createLoadingLabel": "收好中…",
     "editLabel": "保存修改",
-    "createA11y": "提交情绪记录",
+    "createA11y": "收好这一刻",
     "editA11y": "保存对这条情绪记录的修改",
-    "createDisabledHint": "请先输入情绪内容或录制语音后才能提交",
+    "createDisabledHint": "还不能收好：先写一点或录一段语音",
     "editDisabledHint": "请先输入文字或保留语音后再保存",
-    "createHint": "点击保存这条情绪记录",
+    "createHint": "点击收好这条情绪记录",
     "editHint": "点击保存修改",
     "emptyValidation": {
       "title": "提示",

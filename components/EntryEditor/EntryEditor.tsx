@@ -2,7 +2,6 @@
  * 记一笔（新增）与编辑共用：表单 + 语音 + 提交，通过 mode 区分创建 / 编辑。
  * presentation 区分全屏 Tab 页（fullscreen）与 Modal 内嵌（embedded）布局。
  */
-import { Sparkles } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +9,6 @@ import {
   Keyboard,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
@@ -46,9 +44,9 @@ import {
 } from "../EditEntryModal/editEntryUtils";
 import { AppScreenShell } from "../AppScreenShell";
 import { AudioRecorder } from "../AudioRecorder";
-import AppIcon from "../icons/AppIcon";
 import MoodForm from "../MoodForm";
 import { styles as embeddedStyles } from "../EditEntryModal/EditEntryModal.styles";
+import { AppButton } from "../ui/AppButton";
 
 type EntryEditorCreateProps = {
   mode: "create";
@@ -119,6 +117,7 @@ export function EntryEditor(props: EntryEditorProps) {
   const allTriggers = [...TRIGGER_KEYS, ...customTriggerOptions];
 
   const [audios, setAudios] = useState<AudioData[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editVisible = !isCreate ? (props as EntryEditorEditProps).visible : true;
 
@@ -254,6 +253,7 @@ export function EntryEditor(props: EntryEditorProps) {
   ]);
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!content.trim() && audios.length === 0) {
       Alert.alert(
         t("submit.emptyValidation.title"),
@@ -266,44 +266,51 @@ export function EntryEditor(props: EntryEditorProps) {
     Keyboard.dismiss();
     useAppStore.getState().stopAudio();
     void forceCancelRecording();
+    setIsSubmitting(true);
 
-    const finalDeadline = isCustomDeadline
-      ? normalizeCustomDeadline(customDeadlineText)
-      : normalizePresetDeadline(deadline);
+    try {
+      const finalDeadline = isCustomDeadline
+        ? normalizeCustomDeadline(customDeadlineText)
+        : normalizePresetDeadline(deadline);
 
-    if (isCreate) {
-      addEntry({
-        moodLevel,
-        content,
-        deadline: finalDeadline,
-        people: selectedPeople.length ? selectedPeople : ["other"],
-        triggers: selectedTriggers,
-        audios: audios.length > 0 ? audios : undefined,
-      });
-      await clearDraft();
-    } else {
-      const { entry } = props;
-      updateEntry(entry.id, {
-        moodLevel,
-        content,
-        deadline: finalDeadline,
-        people: selectedPeople.length ? selectedPeople : ["other"],
-        triggers: selectedTriggers,
-        audios,
-      });
+      if (isCreate) {
+        addEntry({
+          moodLevel,
+          content,
+          deadline: finalDeadline,
+          people: selectedPeople.length ? selectedPeople : ["other"],
+          triggers: selectedTriggers,
+          audios: audios.length > 0 ? audios : undefined,
+        });
+        await clearDraft();
+      } else {
+        const { entry } = props;
+        updateEntry(entry.id, {
+          moodLevel,
+          content,
+          deadline: finalDeadline,
+          people: selectedPeople.length ? selectedPeople : ["other"],
+          triggers: selectedTriggers,
+          audios,
+        });
+      }
+
+      triggerHaptic("success");
+      props.onSuccess?.();
+
+      if (isCreate) {
+        resetForm();
+      }
+
+      const delayMs = isCreate ? 300 : 200;
+      setTimeout(() => {
+        props.onClose();
+      }, delayMs);
+    } catch (error) {
+      // Re-enable for retry (UI-SPEC: no guilt copy; button returns enabled)
+      logger.warn("EntryEditor", "提交失败，可再试一次", error);
+      setIsSubmitting(false);
     }
-
-    triggerHaptic("success");
-    props.onSuccess?.();
-
-    if (isCreate) {
-      resetForm();
-    }
-
-    const delayMs = isCreate ? 300 : 200;
-    setTimeout(() => {
-      props.onClose();
-    }, delayMs);
   };
 
   const handlePeopleToggle = (item: string) => {
@@ -417,53 +424,36 @@ export function EntryEditor(props: EntryEditorProps) {
   const submitButtonLabel = isCreate
     ? t("submit.createLabel")
     : t("submit.editLabel");
+  const submitLoadingLabel = isCreate
+    ? t("submit.createLoadingLabel")
+    : t("submit.editLabel");
   const submitAccessibilityLabel = isCreate
     ? t("submit.createA11y")
     : t("submit.editA11y");
+  const submitDisabledReason = isCreate
+    ? t("submit.createDisabledHint")
+    : t("submit.editDisabledHint");
   const submitAccessibilityHint = isSubmitDisabled
-    ? isCreate
-      ? t("submit.createDisabledHint")
-      : t("submit.editDisabledHint")
+    ? submitDisabledReason
     : isCreate
       ? t("submit.createHint")
       : t("submit.editHint");
 
   const submitButton = (
-    <TouchableOpacity
-      testID="mood-submit-button"
-      onPress={handleSubmit}
+    <AppButton
+      variant="primary"
+      label={submitButtonLabel}
+      loadingLabel={submitLoadingLabel}
+      loading={isSubmitting}
       disabled={isSubmitDisabled}
-      style={[
-        embedded ? embeddedStyles.submitButton : fullscreenStyles.submitButton,
-        isSubmitDisabled &&
-          (embedded
-            ? embeddedStyles.submitButtonDisabled
-            : fullscreenStyles.submitButtonDisabled),
-      ]}
-      accessibilityRole="button"
+      disabledReason={isSubmitDisabled ? submitDisabledReason : undefined}
+      onPress={() => {
+        void handleSubmit();
+      }}
+      testID="mood-submit-button"
       accessibilityLabel={submitAccessibilityLabel}
       accessibilityHint={submitAccessibilityHint}
-      accessibilityState={{ disabled: isSubmitDisabled }}
-    >
-      {embedded ? (
-        <View style={embeddedStyles.submitButtonContent}>
-          <AppIcon name={Sparkles} size={20} color={COLORS.text.inverse} />
-          <Text style={embeddedStyles.submitText}>{submitButtonLabel}</Text>
-        </View>
-      ) : (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            justifyContent: "center",
-          }}
-        >
-          <AppIcon name={Sparkles} size={20} color={COLORS.text.inverse} />
-          <Text style={fullscreenStyles.submitText}>{submitButtonLabel}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+    />
   );
 
   if (isCreate && isInitializing) {

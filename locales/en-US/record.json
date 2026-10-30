@@ -29,13 +29,14 @@
   },
   "moodTip": { "close": "Got it" },
   "submit": {
-    "createLabel": "Save entry",
+    "createLabel": "Keep this moment",
+    "createLoadingLabel": "Keeping…",
     "editLabel": "Save changes",
-    "createA11y": "Submit mood entry",
+    "createA11y": "Keep this moment",
     "editA11y": "Save changes to this mood entry",
-    "createDisabledHint": "Add some text or a voice note before submitting",
+    "createDisabledHint": "Can't keep yet — add a line or a voice note",
     "editDisabledHint": "Add text or keep a voice note before saving",
-    "createHint": "Save this mood entry",
+    "createHint": "Keep this mood entry",
     "editHint": "Save your changes",
     "emptyValidation": {
       "title": "Almost there",
