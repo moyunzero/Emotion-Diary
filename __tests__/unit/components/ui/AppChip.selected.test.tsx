@@ -1,46 +1,56 @@
 /**
- * Wave 0 / Plan 04 — AppChip selected Check affordance (PRIM-02)
- * Selected state must include Check, not color-only.
- * Contract helpers load under Jest node; component asserted via source scan
- * (tsx + RN StyleSheet cannot execute in this env — same pattern as AppButton).
+ * Plan 23-11 / G-23-2 — AppChip selected without checkmark (PRIM-02 / PRIM-05)
+ * Selected = brandSoft + brand label + brand border weight — not color-only; no Check glyph.
+ * Task 1: contract helpers + UI-SPEC Selected wording (AppChip.tsx source scan in Task 2).
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-type AppChipModule = {
-  AppChip: unknown;
+type AppChipContract = {
   appChipSelectedShowsCheck: (selected: boolean) => boolean;
+  appChipSelectedBorderWidth: (selected: boolean) => number;
 };
 
-function loadAppChip(): AppChipModule {
+function loadContract(): AppChipContract {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const contract = require("../../../../components/ui/appChipContract") as {
-    appChipSelectedShowsCheck: (selected: boolean) => boolean;
-  };
-  const componentPath = path.join(
-    __dirname,
-    "../../../../components/ui/AppChip.tsx",
-  );
-  const src = fs.readFileSync(componentPath, "utf8");
-  expect(src).toMatch(/export function AppChip\b/);
-  expect(src).toMatch(/\bCheck\b/);
-  expect(src).toMatch(/appChipSelectedShowsCheck/);
-  return {
-    AppChip: true,
-    appChipSelectedShowsCheck: contract.appChipSelectedShowsCheck,
-  };
+  return require("../../../../components/ui/appChipContract") as AppChipContract;
 }
 
-describe("AppChip selected Check (PRIM-02)", () => {
-  it("selected state includes Check affordance (not color-only)", () => {
-    const { AppChip, appChipSelectedShowsCheck } = loadAppChip();
-    expect(AppChip).toBeDefined();
-    expect(appChipSelectedShowsCheck(true)).toBe(true);
+function readUiSpecChipSelectedRow(): string {
+  const specPath = path.join(
+    __dirname,
+    "../../../../.planning/phases/23-ui-primitives/23-UI-SPEC.md",
+  );
+  const md = fs.readFileSync(specPath, "utf8");
+  const chipSection = md.slice(md.indexOf("### Chip (PRIM-02)"));
+  const selectedLine = chipSection
+    .split("\n")
+    .find((line) => /^\|\s*Selected\s*\|/.test(line));
+  expect(selectedLine).toBeDefined();
+  return selectedLine as string;
+}
+
+describe("AppChip selected without checkmark (PRIM-02 / PRIM-05)", () => {
+  it("appChipSelectedShowsCheck is always false (no checkmark glyph)", () => {
+    const { appChipSelectedShowsCheck } = loadContract();
+    expect(appChipSelectedShowsCheck(true)).toBe(false);
+    expect(appChipSelectedShowsCheck(false)).toBe(false);
   });
 
-  it("unselected state does not show Check", () => {
-    const { appChipSelectedShowsCheck } = loadAppChip();
-    expect(appChipSelectedShowsCheck(false)).toBe(false);
+  it("appChipSelectedBorderWidth returns 1.5–2 when selected and 1 when not", () => {
+    const { appChipSelectedBorderWidth } = loadContract();
+    const selectedWidth = appChipSelectedBorderWidth(true);
+    expect(selectedWidth).toBeGreaterThanOrEqual(1.5);
+    expect(selectedWidth).toBeLessThanOrEqual(2);
+    expect(appChipSelectedBorderWidth(false)).toBe(1);
+  });
+
+  it("UI-SPEC Selected row: brandSoft + brand border; no Check glyph requirement", () => {
+    const selectedRow = readUiSpecChipSelectedRow();
+    expect(selectedRow).toMatch(/brandSoft/i);
+    expect(selectedRow).toMatch(/brand/i);
+    expect(selectedRow).toMatch(/border/i);
+    expect(selectedRow).not.toMatch(/\bCheck\b/);
   });
 });
