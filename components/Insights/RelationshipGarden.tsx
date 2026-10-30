@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
+import { AppButton } from '../ui/AppButton';
 import { INSIGHTS_COLORS } from './constants';
 import { getFlowerPotStatus } from './utils';
 import { buildRelationshipPotA11yLabel } from './relationshipPotA11y';
@@ -130,23 +131,9 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           color: COLORS.gray[400],
           marginTop: 4,
         },
-        emptyCta: {
+        emptyCtaWrap: {
           marginTop: 12,
-          minHeight: 44,
-          paddingHorizontal: 18,
-          paddingVertical: 12,
-          borderRadius: DESIGN_TOKENS.borderRadius.md,
-          backgroundColor: INSIGHTS_COLORS.needWaterColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        emptyCtaPressed: {
-          opacity: 0.85,
-        },
-        emptyCtaText: {
-          fontSize: fontSize.body,
-          fontWeight: '700',
-          color: COLORS.text.inverse,
+          alignSelf: 'stretch',
         },
       }),
     [padding, fontSize, spacing, borderRadius, layout]
@@ -179,18 +166,15 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           <Sprout size={40} color={COLORS.gray[300]} />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.emptyCta,
-              pressed && styles.emptyCtaPressed,
-            ]}
-            onPress={() => router.push('/record')}
-            accessibilityRole="button"
-            accessibilityLabel={t('relationship.empty.ctaA11y')}
-            testID="relationship-garden-empty-cta"
-          >
-            <Text style={styles.emptyCtaText}>{t('relationship.empty.cta')}</Text>
-          </Pressable>
+          <View style={styles.emptyCtaWrap}>
+            <AppButton
+              variant="primary"
+              label={t('relationship.empty.cta')}
+              onPress={() => router.push('/record')}
+              accessibilityLabel={t('relationship.empty.ctaA11y')}
+              testID="relationship-garden-empty-cta"
+            />
+          </View>
         </View>
       </View>
     );

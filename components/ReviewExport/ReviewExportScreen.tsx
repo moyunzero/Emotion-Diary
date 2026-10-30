@@ -8,7 +8,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   Alert,
   Platform,
   Pressable,
@@ -43,7 +42,7 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
 import { logger } from '../../utils/logger';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { DESIGN_TOKENS } from '../../constants/colors';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -51,6 +50,7 @@ import {
   ShareCardWeekContent,
   type ShareCardAiStatus,
 } from '../share/ShareCardWeekContent';
+import { AppButton } from '../ui/AppButton';
 import { createStackScreenHeaderStyle } from '../../styles/stackScreenHeader';
 import { buildReviewExportResponsiveLayout } from './reviewExportResponsiveLayout';
 
@@ -263,7 +263,6 @@ export const ReviewExportScreen: React.FC = () => {
     });
   }, [aiStatus, isBusy, saveCopy, tCommon, tShare]);
 
-  const saveDisabled = isBusy || aiStatus === 'loading';
   const saveLabel =
     Platform.OS === 'web'
       ? tShare('actions.download')
@@ -301,32 +300,18 @@ export const ReviewExportScreen: React.FC = () => {
             },
           ]}
         >
-          <Pressable
-            testID="share-card-save-button"
-            style={[
-              styles.saveBtn,
-              {
-                paddingVertical: responsiveLayout.saveButtonVerticalPadding,
-                borderRadius: responsiveLayout.saveButtonRadius,
-                minHeight: responsiveLayout.saveButtonMinHeight,
-              },
-              saveDisabled && styles.saveBtnDisabled,
-            ]}
+          <AppButton
+            variant="primary"
+            label={saveLabel}
+            loading={isBusy}
+            disabled={aiStatus === 'loading'}
             onPress={() => {
               onPressSave().catch((error) => {
                 logger.error('ReviewExportScreen', 'Save failed', error);
               });
             }}
-            disabled={saveDisabled}
-          >
-            {isBusy ? (
-              <ActivityIndicator color={COLORS.text.inverse} />
-            ) : (
-              <Text style={[styles.saveBtnText, { fontSize: responsiveLayout.saveButtonTextFontSize }]}>
-                {saveLabel}
-              </Text>
-            )}
-          </Pressable>
+            testID="share-card-save-button"
+          />
         </View>
       }
     >
@@ -539,17 +524,5 @@ const styles = StyleSheet.create({
   footer: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: INSIGHTS_COLORS.primary + '30',
-  },
-  saveBtn: {
-    backgroundColor: INSIGHTS_COLORS.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveBtnDisabled: {
-    opacity: 0.7,
-  },
-  saveBtnText: {
-    fontWeight: '700',
-    color: COLORS.text.inverse,
   },
 });
