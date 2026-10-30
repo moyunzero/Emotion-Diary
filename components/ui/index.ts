@@ -11,3 +11,4 @@ export {
   AppChip,
   type AppChipProps,
 } from "./AppChip";
+export { AppSheet, type AppSheetProps } from "./AppSheet";
