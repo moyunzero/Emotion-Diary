@@ -1,8 +1,8 @@
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
+import React, { useCallback, useRef } from "react";
 import {
-  AccessibilityInfo,
   ActivityIndicator,
   Animated,
   Pressable,
@@ -68,31 +68,12 @@ export function AppButton({
   labelStyle,
 }: AppButtonProps) {
   const { trigger } = useHapticFeedback();
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useReduceMotion();
   const scale = useRef(new Animated.Value(1)).current;
   const locked = isAppButtonPressLocked({ loading, disabled });
   const reason = resolveAppButtonDisabledReason({ disabled, disabledReason });
   const isFullWidth = fullWidth ?? variant === "primary";
   const displayLabel = loading ? (loadingLabel ?? label) : label;
-
-  useEffect(() => {
-    let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then((enabled) => {
-        if (mounted) setReduceMotion(enabled);
-      })
-      .catch(() => {
-        /* ignore */
-      });
-    const sub = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      setReduceMotion,
-    );
-    return () => {
-      mounted = false;
-      sub.remove();
-    };
-  }, []);
 
   const animateTo = useCallback(
     (toValue: number) => {

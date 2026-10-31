@@ -3,7 +3,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import * as Localization from 'expo-localization';
 import {
-  AccessibilityInfo,
   Animated,
   Appearance,
   AppState,
@@ -35,6 +34,7 @@ import {
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 import { enableAsoPreviewQuiet } from '../services/asoPreviewQuiet';
+import { useReduceMotion } from '../hooks/useReduceMotion';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 if (Platform.OS === 'web') {
@@ -54,23 +54,10 @@ const SCHEME_CROSSFADE_MS = 200;
 function RootLayoutShell() {
   const { colors, effectiveColorScheme } = useThemeStyles();
   const contentOpacity = useRef(new Animated.Value(1)).current;
-  const reduceMotionRef = useRef(false);
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
-    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      reduceMotionRef.current = enabled;
-    });
-    const sub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      (enabled) => {
-        reduceMotionRef.current = enabled;
-      },
-    );
-    return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    if (reduceMotionRef.current) {
+    if (reduceMotion) {
       contentOpacity.setValue(1);
       return;
     }
@@ -80,7 +67,7 @@ function RootLayoutShell() {
       duration: SCHEME_CROSSFADE_MS,
       useNativeDriver: true,
     }).start();
-  }, [effectiveColorScheme, contentOpacity]);
+  }, [effectiveColorScheme, contentOpacity, reduceMotion]);
 
   const statusBarStyle =
     effectiveColorScheme === 'night' ? 'light-content' : 'dark-content';

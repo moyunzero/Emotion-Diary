@@ -5,10 +5,10 @@
  */
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
-import React, { useEffect, useRef, useState } from "react";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
+import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  AccessibilityInfo,
   Modal,
   Pressable,
   StyleSheet,
@@ -30,27 +30,8 @@ export default function PostSaveRitualOverlay({
 }: PostSaveRitualOverlayProps) {
   const { t } = useTranslation("postSave");
   const { trigger } = useHapticFeedback();
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useReduceMotion();
   const dismissedRef = useRef(false);
-
-  useEffect(() => {
-    let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then((enabled) => {
-        if (mounted) setReduceMotion(enabled);
-      })
-      .catch(() => {
-        /* ignore */
-      });
-    const sub = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      setReduceMotion,
-    );
-    return () => {
-      mounted = false;
-      sub.remove();
-    };
-  }, []);
 
   useEffect(() => {
     if (!visible) {

@@ -27,6 +27,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DESIGN_TOKENS } from "@/constants/colors";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 export type AppSheetProps = {
@@ -57,6 +58,8 @@ export function AppSheet({
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const { colors } = useThemeStyles();
+  const reduceMotion = useReduceMotion();
+  const reduceMotionSV = useSharedValue(reduceMotion);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -144,13 +147,22 @@ export function AppSheet({
   }, [onClose]);
 
   useEffect(() => {
+    reduceMotionSV.value = reduceMotion;
+  }, [reduceMotion, reduceMotionSV]);
+
+  useEffect(() => {
     if (!visible) return;
     sheetHeight.value = halfH;
+    if (reduceMotion) {
+      dragY.value = 0;
+      scrimOpacity.value = 1;
+      return;
+    }
     dragY.value = halfH;
     scrimOpacity.value = 0;
     dragY.value = withSpring(0, SPRING);
     scrimOpacity.value = withTiming(1, { duration: 220 });
-  }, [visible, halfH, sheetHeight, dragY, scrimOpacity]);
+  }, [visible, halfH, reduceMotion, sheetHeight, dragY, scrimOpacity]);
 
   const pan = Gesture.Pan()
     .onBegin(() => {
@@ -170,13 +182,14 @@ export function AppSheet({
       }
     })
     .onEnd((e) => {
+      const instant = reduceMotionSV.value;
       if (dragY.value > DISMISS_DRAG || e.velocityY > 900) {
         // Spring back if caller gates close (dirty confirm) and keeps visible.
-        dragY.value = withSpring(0, SPRING);
+        dragY.value = instant ? 0 : withSpring(0, SPRING);
         runOnJS(requestClose)();
         return;
       }
-      dragY.value = withSpring(0, SPRING);
+      dragY.value = instant ? 0 : withSpring(0, SPRING);
       const mid = (halfH + fullH) / 2;
       const target =
         e.velocityY < -400
@@ -186,7 +199,7 @@ export function AppSheet({
             : sheetHeight.value >= mid
               ? fullH
               : halfH;
-      sheetHeight.value = withSpring(target, SPRING);
+      sheetHeight.value = instant ? target : withSpring(target, SPRING);
     });
 
   const sheetStyle = useAnimatedStyle(() => ({

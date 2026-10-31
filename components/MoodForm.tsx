@@ -4,9 +4,9 @@
  */
 
 import { ChevronDown, Edit, Mic } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
+import React, { useMemo, useState } from "react";
 import {
-  AccessibilityInfo,
   Alert,
   Keyboard,
   LayoutAnimation,
@@ -152,22 +152,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
     null,
   );
   const [showAdvanced, setShowAdvanced] = useState(!compactMode);
-  const [reduceMotion, setReduceMotion] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (mounted) setReduceMotion(enabled);
-    });
-    const sub = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      setReduceMotion,
-    );
-    return () => {
-      mounted = false;
-      sub.remove();
-    };
-  }, []);
+  const reduceMotion = useReduceMotion();
 
   const toggleAdvanced = (next: boolean) => {
     if (!reduceMotion) {

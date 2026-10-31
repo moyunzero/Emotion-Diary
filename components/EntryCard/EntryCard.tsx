@@ -1,4 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
@@ -22,7 +23,6 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { Ellipsis } from "lucide-react-native";
 import {
-  AccessibilityInfo,
   ActionSheetIOS,
   Alert,
   Animated,
@@ -157,7 +157,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   // FlashList v2：展开变高必须通知列表，否则下方播放行可能画得出但点不着
   const [isExpanded, setIsExpanded] = useRecyclingState(false, [entry.id]);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useReduceMotion();
   const weatherBreathOpacity = useRef(new Animated.Value(1)).current;
   const isResolved = entry.status === Status.RESOLVED;
   const isBurned = entry.status === Status.BURNED;
@@ -206,25 +206,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     !isBurned && isThisEntryPlaying && hasVisiblePreview
       ? inkProgressRatio(playbackPosition, playbackDuration)
       : 0;
-
-  useEffect(() => {
-    let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then((enabled) => {
-        if (mounted) setReduceMotion(enabled);
-      })
-      .catch(() => {
-        /* ignore */
-      });
-    const sub = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      setReduceMotion,
-    );
-    return () => {
-      mounted = false;
-      sub.remove();
-    };
-  }, []);
 
   // Weather strip opacity breath ~1.6s while playing; Reduce Motion → static (D-04 / D-06)
   useEffect(() => {
