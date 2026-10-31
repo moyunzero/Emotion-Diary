@@ -1,7 +1,8 @@
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { useReduceMotion } from "@/hooks/useReduceMotion";
-import React, { useCallback, useRef } from "react";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import React, { useCallback, useMemo, useRef } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -67,6 +68,91 @@ export function AppButton({
   style,
   labelStyle,
 }: AppButtonProps) {
+  const { colors } = useThemeStyles();
+  const { styles, variantFace, variantPressedFace } = useMemo(() => {
+    const variantFace: Record<
+      AppButtonVariant,
+      {
+        container: ViewStyle;
+        label: TextStyle;
+        spinner?: string;
+      }
+    > = {
+      primary: {
+        container: { backgroundColor: colors.brand },
+        label: { color: colors.text.inverse },
+        spinner: colors.text.inverse,
+      },
+      secondary: {
+        container: { backgroundColor: colors.brandSoft },
+        label: { color: colors.brand },
+        spinner: colors.brand,
+      },
+      text: {
+        container: { backgroundColor: "transparent" },
+        label: { color: colors.brand },
+        spinner: colors.brand,
+      },
+      danger: {
+        container: { backgroundColor: "transparent" },
+        label: { color: colors.danger },
+        spinner: colors.danger,
+      },
+    };
+
+    const variantPressedFace: Record<AppButtonVariant, ViewStyle> = {
+      primary: { backgroundColor: colors.brandPressed },
+      secondary: { opacity: 0.85 },
+      text: { opacity: 0.7 },
+      danger: { opacity: 0.7 },
+    };
+
+    const styles = StyleSheet.create({
+      wrap: {
+        alignSelf: "flex-start",
+      },
+      fullWidth: {
+        alignSelf: "stretch",
+        width: "100%",
+      },
+      base: {
+        minHeight: 50,
+        minWidth: 44,
+        paddingHorizontal: DESIGN_TOKENS.spacing.xl,
+        paddingVertical: DESIGN_TOKENS.spacing.md,
+        borderRadius: DESIGN_TOKENS.borderRadius.lg,
+        borderCurve: "continuous",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: DESIGN_TOKENS.spacing.sm,
+      },
+      label: {
+        fontSize: DESIGN_TOKENS.fontSize.md,
+        fontWeight: "600",
+        textAlign: "center",
+      },
+      disabledContainer: {
+        backgroundColor: colors.background.secondary,
+      },
+      disabledLabel: {
+        color: colors.text.tertiary,
+      },
+      disabledReason: {
+        fontSize: DESIGN_TOKENS.fontSize.xs,
+        fontWeight: "400",
+        color: colors.text.tertiary,
+        marginBottom: DESIGN_TOKENS.spacing.sm,
+        alignSelf: "stretch",
+      },
+      spinner: {
+        marginRight: 0,
+      },
+    });
+
+    return { styles, variantFace, variantPressedFace };
+  }, [colors]);
+
   const { trigger } = useHapticFeedback();
   const reduceMotion = useReduceMotion();
   const scale = useRef(new Animated.Value(1)).current;
@@ -104,8 +190,8 @@ export function AppButton({
     onPress();
   }, [locked, onPress, trigger, variant]);
 
-  const face = VARIANT_FACE[variant];
-  const pressedFace = reduceMotion ? VARIANT_PRESSED_FACE[variant] : null;
+  const face = variantFace[variant];
+  const pressedFace = reduceMotion ? variantPressedFace[variant] : null;
 
   return (
     <View style={[styles.wrap, isFullWidth && styles.fullWidth, style]}>
@@ -146,7 +232,7 @@ export function AppButton({
             <ActivityIndicator
               color={
                 locked
-                  ? COLORS.text.tertiary
+                  ? colors.text.tertiary
                   : (face.spinner ?? face.label.color)
               }
               style={styles.spinner}
@@ -167,84 +253,3 @@ export function AppButton({
     </View>
   );
 }
-
-const VARIANT_FACE: Record<
-  AppButtonVariant,
-  {
-    container: ViewStyle;
-    label: TextStyle;
-    spinner?: string;
-  }
-> = {
-  primary: {
-    container: { backgroundColor: COLORS.brand },
-    label: { color: COLORS.text.inverse },
-    spinner: COLORS.text.inverse,
-  },
-  secondary: {
-    container: { backgroundColor: COLORS.brandSoft },
-    label: { color: COLORS.brand },
-    spinner: COLORS.brand,
-  },
-  text: {
-    container: { backgroundColor: "transparent" },
-    label: { color: COLORS.brand },
-    spinner: COLORS.brand,
-  },
-  danger: {
-    container: { backgroundColor: "transparent" },
-    label: { color: COLORS.danger },
-    spinner: COLORS.danger,
-  },
-};
-
-/** Reduce-motion press feedback: opacity / color shift instead of scale (D-06). */
-const VARIANT_PRESSED_FACE: Record<AppButtonVariant, ViewStyle> = {
-  primary: { backgroundColor: COLORS.brandPressed },
-  secondary: { opacity: 0.85 },
-  text: { opacity: 0.7 },
-  danger: { opacity: 0.7 },
-};
-
-const styles = StyleSheet.create({
-  wrap: {
-    alignSelf: "flex-start",
-  },
-  fullWidth: {
-    alignSelf: "stretch",
-    width: "100%",
-  },
-  base: {
-    minHeight: 50,
-    minWidth: 44,
-    paddingHorizontal: DESIGN_TOKENS.spacing.xl,
-    paddingVertical: DESIGN_TOKENS.spacing.md,
-    borderRadius: DESIGN_TOKENS.borderRadius.lg,
-    borderCurve: "continuous",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: DESIGN_TOKENS.spacing.sm,
-  },
-  label: {
-    fontSize: DESIGN_TOKENS.fontSize.md,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  disabledContainer: {
-    backgroundColor: COLORS.surface2,
-  },
-  disabledLabel: {
-    color: COLORS.text.tertiary,
-  },
-  disabledReason: {
-    fontSize: DESIGN_TOKENS.fontSize.xs,
-    fontWeight: "400",
-    color: COLORS.text.tertiary,
-    marginBottom: DESIGN_TOKENS.spacing.sm,
-    alignSelf: "stretch",
-  },
-  spinner: {
-    marginRight: 0,
-  },
-});
