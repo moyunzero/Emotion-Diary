@@ -144,6 +144,8 @@
     "burnedMetaTriggers": "Triggers: {{triggers}}",
     "echoStripLabel": "Listen to this moment",
     "echoStripRetryUpload": "Upload failed — tap to retry",
+    "echoClipChip": "Voice {{n}}",
+    "echoClipChipNamed": "Voice {{n}} · {{name}}",
     "smokeStripLabel": "The voice has become smoke",
     "smokeStripA11y": "The voice has become smoke, playback unavailable",
     "burnedHintExpanded": "Tap to collapse · long press to delete forever",

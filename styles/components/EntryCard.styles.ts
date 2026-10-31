@@ -269,6 +269,15 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.tertiary,
       fontWeight: '400',
     },
+    echoClipChipScroll: {
+      flexGrow: 0,
+    },
+    echoClipChipRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: DESIGN_TOKENS.spacing.xs,
+      paddingVertical: 2,
+    },
     smokeStrip: {
       height: 36,
       paddingHorizontal: DESIGN_TOKENS.spacing.lg,

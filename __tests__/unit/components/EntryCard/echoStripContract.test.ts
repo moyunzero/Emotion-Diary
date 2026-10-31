@@ -115,3 +115,22 @@ describe('echoStripContract — weather breath + rose ink (ECHO-02 / D-04 D-05 D
     );
   });
 });
+
+describe('echoStripContract — clip chips + haptic (ECHO-02 / D-21..D-28 / D-16)', () => {
+  it('uses AppChip + needsClipChips; N=1 path omits chip row via helper', () => {
+    expect(entryCardPlaybackSource).toMatch(/AppChip/);
+    expect(entryCardPlaybackSource).toMatch(/needsClipChips/);
+    expect(entryCardPlaybackSource).toMatch(/entry-echo-clip-chips|echoClipChip/);
+    expect(entryCardPlaybackSource).toMatch(/sortClipsAscending/);
+    expect(entryCardPlaybackSource).toMatch(/triggerHaptic\(["']light["']\)/);
+  });
+
+  it('smoke strip path does not render AppChip / clip row (D-31)', () => {
+    const smokeFn = entryCardPlaybackSource.slice(
+      entryCardPlaybackSource.indexOf('export function EntryCardSmokeStrip'),
+    );
+    expect(smokeFn).not.toMatch(/AppChip/);
+    expect(smokeFn).not.toMatch(/needsClipChips/);
+    expect(smokeFn).not.toMatch(/entry-echo-clip-chips/);
+  });
+});
