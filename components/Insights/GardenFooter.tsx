@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
-import { INSIGHTS_COLORS } from './constants';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
+import { getInsightsColors } from './constants';
 
 interface GardenFooterProps {
   thisMonthCount: number;
@@ -19,6 +20,11 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
 }) => {
   const { t } = useTranslation('insights');
   const { padding, fontSize, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -38,7 +44,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
         },
         mainText: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
           textAlign: 'center',
           fontWeight: '500',
           lineHeight: 20,
@@ -51,7 +57,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
           fontStyle: 'italic',
         },
       }),
-    [padding, fontSize, borderRadius]
+    [padding, fontSize, borderRadius, insightsColors]
   );
 
   const getMessage = () => {
@@ -79,9 +85,9 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.iconRow}>
-        <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
-        <Leaf size={16} color={INSIGHTS_COLORS.accent} />
-        <Flower2 size={18} color={INSIGHTS_COLORS.primary} />
+        <Flower2 size={18} color={insightsColors.primary} />
+        <Leaf size={16} color={insightsColors.accent} />
+        <Flower2 size={18} color={insightsColors.primary} />
       </View>
       <Text style={styles.mainText}>{getMessage()}</Text>
       <Text style={styles.subText}>{getSubMessage()}</Text>

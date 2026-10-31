@@ -3,7 +3,8 @@ import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
-import { INSIGHTS_COLORS } from './constants';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
+import { getInsightsColors } from './constants';
 
 interface GardenHeaderProps {
   totalEntries: number;
@@ -13,6 +14,11 @@ interface GardenHeaderProps {
 const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, resolvedCount }) => {
   const { t } = useTranslation('insights');
   const { padding, fontSize, spacing } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -29,16 +35,16 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
         title: {
           fontSize: fontSize.title,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         subtitle: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginLeft: 38,
           marginBottom: 0,
         },
       }),
-    [padding, fontSize, spacing]
+    [padding, fontSize, spacing, insightsColors]
   );
 
   const getGardenStatus = () => {
@@ -51,7 +57,7 @@ const GardenHeaderComponent: React.FC<GardenHeaderProps> = ({ totalEntries, reso
   return (
     <View style={styles.container} testID="garden-ambience">
       <View style={styles.titleRow}>
-        <Flower2 size={28} color={INSIGHTS_COLORS.accent} />
+        <Flower2 size={28} color={insightsColors.accent} />
         <Text style={styles.title}>{t('header.title')}</Text>
       </View>
       <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">

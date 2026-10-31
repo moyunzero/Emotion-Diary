@@ -1,4 +1,5 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { resolvePeopleLabel } from '@/i18n/resolvePresetLabel';
 import {
   aggregateForPerson,
@@ -12,7 +13,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { AppButton } from '../ui/AppButton';
-import { INSIGHTS_COLORS } from './constants';
+import { getInsightsColors } from './constants';
 import { getFlowerPotStatus } from './utils';
 import { buildRelationshipPotA11yLabel } from './relationshipPotA11y';
 
@@ -36,11 +37,16 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
   const { t } = useTranslation('insights');
   const router = useRouter();
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
@@ -59,11 +65,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         subtitle: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginBottom: spacing.component,
           marginLeft: 28,
         },
@@ -82,7 +88,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           paddingVertical: 4,
         },
         potItemPressed: {
-          backgroundColor: INSIGHTS_COLORS.needWaterColor + '14',
+          backgroundColor: insightsColors.needWaterColor + '14',
         },
         pot: {
           width: 56,
@@ -95,7 +101,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         personName: {
           fontSize: fontSize.body,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
           marginBottom: 3,
           textAlign: 'center',
         },
@@ -119,7 +125,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         },
         emptyText: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginTop: 12,
         },
         emptySubtext: {
@@ -132,7 +138,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           alignSelf: 'stretch',
         },
       }),
-    [padding, fontSize, spacing, borderRadius, layout]
+    [padding, fontSize, spacing, borderRadius, layout, insightsColors]
   );
 
   // Phase 13 helpers — soft-delete / person contract; sort by latest activity (D-21)
@@ -152,11 +158,20 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
       .slice(0, 5);
   }, [entries]);
 
+  const potPalette = useMemo(
+    () => ({
+      bloomingColor: insightsColors.bloomingColor,
+      growingColor: insightsColors.growingColor,
+      needWaterColor: insightsColors.needWaterColor,
+    }),
+    [insightsColors],
+  );
+
   if (relationshipData.length === 0) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+          <Droplets size={20} color={insightsColors.accent} />
           <Text style={styles.title}>{t('relationship.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
@@ -180,18 +195,14 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+        <Droplets size={20} color={insightsColors.accent} />
         <Text style={styles.title}>{t('relationship.title')}</Text>
       </View>
       <Text style={styles.subtitle}>{t('relationship.subtitle')}</Text>
       
       <View style={styles.potsContainer}>
         {relationshipData.map((person) => {
-          const potStatus = getFlowerPotStatus(person.resolveRate, {
-            bloomingColor: INSIGHTS_COLORS.bloomingColor,
-            growingColor: INSIGHTS_COLORS.growingColor,
-            needWaterColor: INSIGHTS_COLORS.needWaterColor,
-          }, t);
+          const potStatus = getFlowerPotStatus(person.resolveRate, potPalette, t);
           const displayName = resolvePeopleLabel(person.name);
           return (
             <Pressable
