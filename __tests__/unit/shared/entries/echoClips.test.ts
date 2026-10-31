@@ -1,10 +1,12 @@
 /**
  * Wave 0 RED — shared/entries/echoClips (ECHO-02 / D-21, D-23, D-26, D-28)
  * Clips sorted by createdAt ascending; N=1 → no chip row; named labels truncate ~12 graphemes.
- * GREEN in Plan 05. Runtime require so missing module fails the test (not TS2307).
+ * Plan 05: weather strip mapping (A1) + ink progress ratio.
+ * Runtime require so missing module fails the test (not TS2307).
  */
 
-import type { AudioData } from '../../../../types';
+import type { AudioData, MoodLevel } from '../../../../types';
+import { MoodLevel as MoodLevelEnum } from '../../../../types';
 
 type EchoClipsModule = {
   sortClipsAscending: (clips: readonly AudioData[]) => AudioData[];
@@ -17,9 +19,21 @@ type EchoClipsModule = {
   truncateClipShortName: (name: string, maxGraphemes?: number) => string;
 };
 
+type WeatherStripModule = {
+  moodLevelToWeatherStripKey: (
+    level: MoodLevel,
+  ) => 'sunny' | 'cloudy' | 'rainy' | 'stormy';
+  inkProgressRatio: (position: number, duration: number) => number;
+};
+
 function loadEchoClips(): EchoClipsModule {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require('../../../../shared/entries/echoClips') as EchoClipsModule;
+}
+
+function loadWeatherStrip(): WeatherStripModule {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('../../../../shared/mood/weatherStrip') as WeatherStripModule;
 }
 
 const clip = (overrides: Partial<AudioData> & { id: string; createdAt: number }): AudioData => ({
@@ -81,5 +95,28 @@ describe('echoClips chipLabel (D-23 / D-28)', () => {
     expect(labeled).toMatch(/第\s*1\s*声/);
     expect(labeled).toContain('·');
     expect(labeled.length).toBeLessThan(longName.length + 20);
+  });
+});
+
+describe('weatherStrip MoodLevel mapping (A1 locked)', () => {
+  it('maps 1→sunny, 2→cloudy, 3→rainy, 4–5→stormy', () => {
+    const { moodLevelToWeatherStripKey } = loadWeatherStrip();
+    expect(moodLevelToWeatherStripKey(MoodLevelEnum.ANNOYED)).toBe('sunny');
+    expect(moodLevelToWeatherStripKey(MoodLevelEnum.UPSET)).toBe('cloudy');
+    expect(moodLevelToWeatherStripKey(MoodLevelEnum.ANGRY)).toBe('rainy');
+    expect(moodLevelToWeatherStripKey(MoodLevelEnum.FURIOUS)).toBe('stormy');
+    expect(moodLevelToWeatherStripKey(MoodLevelEnum.EXPLOSIVE)).toBe('stormy');
+  });
+});
+
+describe('inkProgressRatio (D-05 / D-11)', () => {
+  it('clamps position/duration to 0..1', () => {
+    const { inkProgressRatio } = loadWeatherStrip();
+    expect(inkProgressRatio(0, 10)).toBe(0);
+    expect(inkProgressRatio(5, 10)).toBe(0.5);
+    expect(inkProgressRatio(10, 10)).toBe(1);
+    expect(inkProgressRatio(15, 10)).toBe(1);
+    expect(inkProgressRatio(-1, 10)).toBe(0);
+    expect(inkProgressRatio(1, 0)).toBe(0);
   });
 });
