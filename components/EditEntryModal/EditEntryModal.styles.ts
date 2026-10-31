@@ -9,11 +9,16 @@ export const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
   },
+  embeddedRoot: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
   scrollViewContent: {
-    flexGrow: 1,
+    // Do not flexGrow — expands a hollow band above the sticky submit.
+    flexGrow: 0,
+    paddingBottom: DESIGN_TOKENS.spacing.md,
   },
   modalStackHeader: {
     backgroundColor: COLORS.background.primary,

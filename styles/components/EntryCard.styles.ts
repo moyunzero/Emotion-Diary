@@ -7,7 +7,7 @@ export function createEntryCardStyles(width: number, height: number) {
   return StyleSheet.create({
     wrapper: {
       marginHorizontal: DESIGN_TOKENS.spacing.lg,
-      marginVertical: 6,
+      marginVertical: DESIGN_TOKENS.spacing.sm, // 8 — 4px scale (UI-REVIEW Top1)
     },
     container: {
       backgroundColor: COLORS.background.primary,
@@ -107,7 +107,7 @@ export function createEntryCardStyles(width: number, height: number) {
     content: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: 14,
+      gap: DESIGN_TOKENS.spacing.md, // 12 — 4px scale (UI-REVIEW Top1)
     },
     moodIconBadge: {
       width: 44,
@@ -125,7 +125,7 @@ export function createEntryCardStyles(width: number, height: number) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 6,
+      marginBottom: DESIGN_TOKENS.spacing.sm, // 8 — 4px scale
     },
     peopleText: {
       fontSize: DESIGN_TOKENS.fontSize.base,
@@ -138,7 +138,7 @@ export function createEntryCardStyles(width: number, height: number) {
     dateText: {
       fontSize: m.fontSize.small,
       color: COLORS.text.tertiary,
-      fontWeight: '500',
+      fontWeight: '400', // Footnote/400 (UI-REVIEW Top3 / UI-SPEC)
     },
     /** Trailing ⋯ More control (ECHO-04 / D-40) — ≥44 hit */
     headerTrailing: {
@@ -162,7 +162,7 @@ export function createEntryCardStyles(width: number, height: number) {
     tagsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 6,
+      gap: DESIGN_TOKENS.spacing.sm, // 8 — 4px scale (UI-REVIEW Top1)
     },
     deadlineTag: {
       backgroundColor: COLORS.gray[100],
@@ -258,6 +258,11 @@ export function createEntryCardStyles(width: number, height: number) {
       marginTop: DESIGN_TOKENS.spacing.sm,
       gap: DESIGN_TOKENS.spacing.xs,
     },
+    echoStripRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: DESIGN_TOKENS.spacing.xs,
+    },
     echoStrip: {
       height: 36,
       paddingHorizontal: DESIGN_TOKENS.spacing.lg,
@@ -267,9 +272,37 @@ export function createEntryCardStyles(width: number, height: number) {
       backgroundColor: COLORS.brandSoft,
       justifyContent: 'center',
     },
+    echoStripFlex: {
+      flex: 1,
+      minWidth: 0,
+    },
     echoStripLabel: {
       fontSize: DESIGN_TOKENS.fontSize.base,
       fontWeight: '600',
+      color: COLORS.brand,
+    },
+    echoSegmentDisclosure: {
+      height: 36,
+      minWidth: 44,
+      paddingHorizontal: DESIGN_TOKENS.spacing.md,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderCurve: 'continuous',
+      borderWidth: 1,
+      borderColor: COLORS.hairline,
+      backgroundColor: COLORS.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    echoSegmentDisclosureOpen: {
+      borderColor: COLORS.brand,
+      backgroundColor: COLORS.brandSoft,
+    },
+    echoSegmentDisclosureLabel: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      fontWeight: '600',
+      color: COLORS.text.secondary,
+    },
+    echoSegmentDisclosureLabelOpen: {
       color: COLORS.brand,
     },
     echoStripFootnote: {

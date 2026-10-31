@@ -99,7 +99,7 @@ async function playClipWithFeedback(params: {
   }
 }
 
-/** Active / resolved echo strip — collapsed + expanded (D-01 / D-09). Multi-clip chips (D-21..28). */
+/** Active / resolved echo strip — collapsed + expanded. Multi-clip A1 disclosure. */
 export function EntryCardPlayback({
   entry,
   styles,
@@ -114,9 +114,10 @@ export function EntryCardPlayback({
     () => sortClipsAscending(entry.audios ?? []),
     [entry.audios],
   );
-  const showChips = needsClipChips(clips.length);
+  const canPickSegments = needsClipChips(clips.length);
+  const [segmentsOpen, setSegmentsOpen] = useState(false);
 
-  // Ephemeral selected clip (A4); default oldest = 第 1 声 (D-21 / D-28)
+  // Ephemeral selected clip; default oldest = first segment
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -127,6 +128,19 @@ export function EntryCardPlayback({
       setSelectedClipId(currentAudioId);
     }
   }, [currentAudioId, clips]);
+
+  // FlashList recycle: reset disclosure + selection when the row binds a new entry
+  useEffect(() => {
+    setSegmentsOpen(false);
+    setSelectedClipId(null);
+  }, [entry.id]);
+
+  // Reset disclosure when clip count drops to ≤1
+  useEffect(() => {
+    if (!canPickSegments) {
+      setSegmentsOpen(false);
+    }
+  }, [canPickSegments]);
 
   const activeClip = useMemo(() => {
     if (clips.length === 0) return null;
@@ -157,45 +171,85 @@ export function EntryCardPlayback({
     handlePlayClip(activeClip);
   }, [activeClip, handlePlayClip]);
 
+  const toggleSegments = useCallback(() => {
+    setSegmentsOpen((open) => !open);
+  }, []);
+
   if (!activeClip) {
     return null;
   }
 
   const stripLabel = t("entryCard.echoStripLabel");
+  const segmentsLabel = t("entryCard.echoClipSegments", {
+    count: clips.length,
+  });
 
   return (
     <View style={styles.echoStripSection}>
-      <Pressable
-        style={({ pressed }) => [
-          styles.echoStrip,
-          pressed && { opacity: 0.7 },
-        ]}
-        onPress={handleStripPress}
-        accessibilityRole="button"
-        accessibilityLabel={stripLabel}
-        accessibilityState={{
-          selected: isStripPlaying,
-          busy: isStripPlaying,
-        }}
-        testID="entry-echo-strip"
-        hitSlop={8}
-      >
-        <Text style={styles.echoStripLabel} numberOfLines={1}>
-          {stripLabel}
-        </Text>
-        {/* Maestro 016 playing sentinel (Pitfall 5) */}
-        {isStripPlaying ? (
-          <View
-            testID="entry-echo-strip-playing"
-            accessible={false}
-            importantForAccessibility="no"
-            collapsable={false}
-            style={{ width: 0, height: 0 }}
-          />
-        ) : null}
-      </Pressable>
+      <View style={styles.echoStripRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.echoStrip,
+            styles.echoStripFlex,
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={handleStripPress}
+          accessibilityRole="button"
+          accessibilityLabel={stripLabel}
+          accessibilityState={{
+            selected: isStripPlaying,
+            busy: isStripPlaying,
+          }}
+          testID="entry-echo-strip"
+          hitSlop={8}
+        >
+          <Text style={styles.echoStripLabel} numberOfLines={1}>
+            {stripLabel}
+          </Text>
+          {/* Maestro 016 playing sentinel (Pitfall 5) */}
+          {isStripPlaying ? (
+            <View
+              testID="entry-echo-strip-playing"
+              accessible={false}
+              importantForAccessibility="no"
+              collapsable={false}
+              style={{ width: 0, height: 0 }}
+            />
+          ) : null}
+        </Pressable>
 
-      {showChips ? (
+        {canPickSegments ? (
+          <Pressable
+            style={({ pressed }) => [
+              styles.echoSegmentDisclosure,
+              segmentsOpen && styles.echoSegmentDisclosureOpen,
+              pressed && { opacity: 0.7 },
+            ]}
+            onPress={toggleSegments}
+            accessibilityRole="button"
+            accessibilityLabel={
+              segmentsOpen
+                ? t("entryCard.echoClipSegmentsCollapseA11y")
+                : t("entryCard.echoClipSegmentsA11y", { count: clips.length })
+            }
+            accessibilityState={{ expanded: segmentsOpen }}
+            testID="entry-echo-segments-toggle"
+            hitSlop={8}
+          >
+            <Text
+              style={[
+                styles.echoSegmentDisclosureLabel,
+                segmentsOpen && styles.echoSegmentDisclosureLabelOpen,
+              ]}
+              numberOfLines={1}
+            >
+              {segmentsLabel}
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {canPickSegments && segmentsOpen ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -251,7 +305,7 @@ export function EntryCardPlayback({
 }
 
 /**
- * Burned-had-audio smoke strip (ECHO-03 / D-29..D-34).
+ * Burned-had-audio smoke strip (ECHO-03).
  * Disabled chrome only — no play, no Alert, no chips.
  */
 export function EntryCardSmokeStrip({
@@ -276,7 +330,6 @@ export function EntryCardSmokeStrip({
         accessibilityLabel={smokeA11y}
         accessibilityState={{ disabled: true }}
         testID="entry-smoke-strip"
-        // D-30: tap must not play or Alert — Pressable disabled; no onPress
       >
         <Text style={styles.smokeStripLabel} numberOfLines={1}>
           {smokeLabel}

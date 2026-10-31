@@ -20,7 +20,8 @@ export function createRecordStyles(width: number, height: number) {
       flex: 1,
     },
     scrollViewContent: {
-      flexGrow: 1,
+      // flexGrow:0 — keyboard/open short forms must not inflate a hollow mid gap
+      flexGrow: 0,
       paddingBottom: DESIGN_TOKENS.spacing.xxxl * 3,
     },
     /** 供 AppScreenShell / StackScreenHeader 外层：内边距与底部分割线 */

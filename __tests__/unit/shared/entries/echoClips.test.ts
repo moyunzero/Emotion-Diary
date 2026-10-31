@@ -77,14 +77,14 @@ describe('echoClips chip visibility (D-26)', () => {
   });
 });
 
-describe('echoClips chipLabel (D-23 / D-28)', () => {
-  it('unnamed uses 第 N 声 / Voice N', () => {
+describe('echoClips chipLabel (A1 segment copy)', () => {
+  it('unnamed uses 第 N 段 / Clip N', () => {
     const { chipLabel } = loadEchoClips();
-    expect(chipLabel(1, undefined, 'zh-Hans')).toMatch(/第\s*1\s*声|Voice\s*1/i);
-    expect(chipLabel(2, undefined, 'en-US')).toMatch(/Voice\s*2/i);
+    expect(chipLabel(1, undefined, 'zh-Hans')).toMatch(/第\s*1\s*段/);
+    expect(chipLabel(2, undefined, 'en-US')).toMatch(/Clip\s*2/i);
   });
 
-  it('named form includes truncated short name (~12 graphemes)', () => {
+  it('named form is short name only (truncated ~12 graphemes)', () => {
     const { chipLabel, truncateClipShortName } = loadEchoClips();
     const longName = '这是一段特别特别长的自定义录音名字超过十二字';
     const short = truncateClipShortName(longName, 12);
@@ -92,9 +92,8 @@ describe('echoClips chipLabel (D-23 / D-28)', () => {
     expect(short).not.toBe(longName);
 
     const labeled = chipLabel(1, longName, 'zh-Hans');
-    expect(labeled).toMatch(/第\s*1\s*声/);
-    expect(labeled).toContain('·');
-    expect(labeled.length).toBeLessThan(longName.length + 20);
+    expect(labeled).toBe(short);
+    expect(labeled).not.toMatch(/声/);
   });
 });
 

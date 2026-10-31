@@ -3,11 +3,12 @@
  * presentation 区分全屏 Tab 页（fullscreen）与 Modal 内嵌（embedded）布局。
  */
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Keyboard,
+  Platform,
   ScrollView,
   Text,
   View,
@@ -96,6 +97,7 @@ export function EntryEditor(props: EntryEditorProps) {
   const showFirstEntryHint = isCreate && visibleCount === 0;
   const { trigger: triggerHaptic } = useHapticFeedback();
   const scrollViewRef = useRef<ScrollView>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -127,6 +129,26 @@ export function EntryEditor(props: EntryEditorProps) {
     useAppStore.getState().stopAudio();
     void forceCancelRecording();
   }, [isCreate, editVisible]);
+
+  // Pin sticky submit to keyboard top via measured height (create + edit).
+  // Avoid KeyboardAvoidingView — it leaves a hollow gap above the keyboard.
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const onShow = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const onHide = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      onShow.remove();
+      onHide.remove();
+      setKeyboardHeight(0);
+    };
+  }, []);
 
   const resetForm = () => {
     useAppStore.getState().stopAudio();
@@ -310,6 +332,8 @@ export function EntryEditor(props: EntryEditorProps) {
     } catch (error) {
       // Re-enable for retry (UI-SPEC: no guilt copy; button returns enabled)
       logger.warn("EntryEditor", "提交失败，可再试一次", error);
+    } finally {
+      // Tab stays mounted — must clear loading or 「收好中…」sticks after success
       setIsSubmitting(false);
     }
   };
@@ -357,6 +381,19 @@ export function EntryEditor(props: EntryEditorProps) {
   };
 
   const isSubmitDisabled = !content.trim() && audios.length === 0;
+  const keyboardOpen = keyboardHeight > 0;
+
+  const handleContentFocus = useCallback(() => {
+    // Let keyboard animate, then bring「发生了什么？」above sticky submit.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: embedded ? 72 : 0,
+          animated: true,
+        });
+      }, 80);
+    });
+  }, [embedded]);
 
   const formInner = (
     <>
@@ -387,6 +424,8 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
         compactMode={isCreate}
+        denseSections={embedded || keyboardOpen}
+        onContentFocus={handleContentFocus}
         showFirstEntryHint={showFirstEntryHint}
         contentPlaceholder={
           showFirstEntryHint
@@ -398,27 +437,30 @@ export function EntryEditor(props: EntryEditorProps) {
         peopleSectionTitle={t("sections.people.title")}
         triggersSectionTitle={t("sections.triggers.title")}
       />
-      <View
-        style={
-          embedded
-            ? embeddedStyles.audioSection
-            : fullscreenStyles.audioSection
-        }
-      >
-        {embedded ? (
-          <Text style={embeddedStyles.audioSectionTitle}>
-            {t("sections.audio.title")}
-          </Text>
-        ) : null}
-        <AudioRecorder
-          audios={audios}
-          onAudiosChange={setAudios}
-          layoutPreset={embedded ? "edit" : "create"}
-          clipBinding={
-            isCreate ? "tab-focus" : { active: editVisible }
+      {/* Typing mode: hide hold-to-talk so it cannot sit under the keyboard. */}
+      {!keyboardOpen ? (
+        <View
+          style={
+            embedded
+              ? embeddedStyles.audioSection
+              : fullscreenStyles.audioSection
           }
-        />
-      </View>
+        >
+          {embedded ? (
+            <Text style={embeddedStyles.audioSectionTitle}>
+              {t("sections.audio.title")}
+            </Text>
+          ) : null}
+          <AudioRecorder
+            audios={audios}
+            onAudiosChange={setAudios}
+            layoutPreset={embedded ? "edit" : "create"}
+            clipBinding={
+              isCreate ? "tab-focus" : { active: editVisible }
+            }
+          />
+        </View>
+      ) : null}
     </>
   );
 
@@ -469,7 +511,12 @@ export function EntryEditor(props: EntryEditorProps) {
 
   if (embedded) {
     return (
-      <>
+      <View
+        style={[
+          embeddedStyles.embeddedRoot,
+          keyboardOpen ? { paddingBottom: keyboardHeight } : null,
+        ]}
+      >
         <ScrollView
           ref={scrollViewRef}
           style={embeddedStyles.scrollView}
@@ -483,12 +530,17 @@ export function EntryEditor(props: EntryEditorProps) {
         <View
           style={[
             embeddedStyles.submitContainer,
-            { paddingBottom: Math.max(insets.bottom, 16) },
+            {
+              // Keyboard frame already includes home-indicator; don't stack insets.
+              paddingBottom: keyboardOpen
+                ? DESIGN_TOKENS.spacing.sm
+                : Math.max(insets.bottom, 16),
+            },
           ]}
         >
           {submitButton}
         </View>
-      </>
+      </View>
     );
   }
 
@@ -501,6 +553,7 @@ export function EntryEditor(props: EntryEditorProps) {
       title={t("screen.title")}
       onClose={props.onClose}
       backAccessibilityHint={t("screen.backHint")}
+      keyboardHeight={keyboardHeight}
     />
   );
 }
@@ -513,6 +566,7 @@ function EntryEditorFullscreen({
   title,
   onClose,
   backAccessibilityHint,
+  keyboardHeight,
 }: {
   scrollViewRef: React.RefObject<ScrollView | null>;
   fullscreenStyles: ReturnType<typeof createRecordStyles>;
@@ -521,30 +575,36 @@ function EntryEditorFullscreen({
   title: string;
   onClose: () => void;
   backAccessibilityHint: string;
+  keyboardHeight: number;
 }) {
   const tabBarHeight = useBottomTabBarHeight();
-  const baseScrollPad =
-    typeof fullscreenStyles.scrollViewContent.paddingBottom === "number"
-      ? fullscreenStyles.scrollViewContent.paddingBottom
-      : DESIGN_TOKENS.spacing.xxxl * 3;
+  const keyboardOpen = keyboardHeight > 0;
+  const scrollPad = keyboardOpen
+    ? DESIGN_TOKENS.spacing.xl
+    : DESIGN_TOKENS.spacing.xxxl * 3 + tabBarHeight;
 
   return (
     <AppScreenShell
       edges={["top", "left", "right"]}
-      keyboardAware
+      keyboardAware={false}
       style={fullscreenStyles.container}
       title={title}
       onBack={onClose}
       backAccessibilityHint={backAccessibilityHint}
       headerStyle={fullscreenStyles.stackHeader}
     >
-      <View style={fullscreenStyles.body}>
+      <View
+        style={[
+          fullscreenStyles.body,
+          keyboardOpen ? { paddingBottom: keyboardHeight } : null,
+        ]}
+      >
         <ScrollView
           ref={scrollViewRef}
           style={fullscreenStyles.scrollView}
           contentContainerStyle={[
             fullscreenStyles.scrollViewContent,
-            { paddingBottom: baseScrollPad + tabBarHeight },
+            { flexGrow: 0, paddingBottom: scrollPad },
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -553,7 +613,16 @@ function EntryEditorFullscreen({
           <View style={fullscreenStyles.content}>{formInner}</View>
         </ScrollView>
         <View
-          style={[fullscreenStyles.submitContainer, { bottom: tabBarHeight }]}
+          style={[
+            fullscreenStyles.submitContainer,
+            {
+              // Keyboard open: sit on keyboard top. Closed: sit above tab bar.
+              bottom: keyboardOpen ? 0 : tabBarHeight,
+              paddingBottom: keyboardOpen
+                ? DESIGN_TOKENS.spacing.sm
+                : DESIGN_TOKENS.spacing.xl,
+            },
+          ]}
         >
           {submitButton}
         </View>

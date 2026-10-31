@@ -125,13 +125,18 @@ describe('echoStripContract — weather breath + rose ink (ECHO-02 / D-04 D-05 D
   });
 });
 
-describe('echoStripContract — clip chips + haptic (ECHO-02 / D-21..D-28 / D-16)', () => {
-  it('uses AppChip + needsClipChips; N=1 path omits chip row via helper', () => {
+describe('echoStripContract — clip chips + haptic (ECHO-02 / A1 disclosure / D-16)', () => {
+  it('uses AppChip + needsClipChips; segments gated behind disclosure toggle', () => {
     expect(entryCardPlaybackSource).toMatch(/AppChip/);
     expect(entryCardPlaybackSource).toMatch(/needsClipChips/);
+    expect(entryCardPlaybackSource).toMatch(/entry-echo-segments-toggle/);
     expect(entryCardPlaybackSource).toMatch(/entry-echo-clip-chips|echoClipChip/);
+    expect(entryCardPlaybackSource).toMatch(/segmentsOpen/);
     expect(entryCardPlaybackSource).toMatch(/sortClipsAscending/);
     expect(entryCardPlaybackSource).toMatch(/triggerHaptic\(["']light["']\)/);
+    // UI-REVIEW Top2: reset disclosure on entry.id recycle
+    expect(entryCardPlaybackSource).toMatch(/setSegmentsOpen\(false\)/);
+    expect(entryCardPlaybackSource).toMatch(/\[entry\.id\]/);
   });
 
   it('smoke strip path does not render AppChip / clip row (D-31)', () => {

@@ -2,17 +2,26 @@ import { StyleSheet } from 'react-native';
 import { createResponsiveMetrics } from '../../shared/responsive';
 import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
 
-export function createMoodFormStyles(width: number, height: number) {
+export function createMoodFormStyles(
+  width: number,
+  height: number,
+  options?: { denseSections?: boolean },
+) {
   const m = createResponsiveMetrics(width, height);
+  const dense = options?.denseSections === true;
   return StyleSheet.create({
     section: {
-      marginBottom: DESIGN_TOKENS.spacing.xxxl,
+      marginBottom: dense
+        ? DESIGN_TOKENS.spacing.lg
+        : DESIGN_TOKENS.spacing.xxxl,
     },
     sectionTitle: {
       fontSize: m.fontSize.small,
       fontWeight: 'bold',
       color: COLORS.text.tertiary,
-      marginBottom: DESIGN_TOKENS.spacing.lg,
+      marginBottom: dense
+        ? DESIGN_TOKENS.spacing.sm
+        : DESIGN_TOKENS.spacing.lg,
       textTransform: 'uppercase',
       letterSpacing: 1,
     },
@@ -62,7 +71,8 @@ export function createMoodFormStyles(width: number, height: number) {
     },
     contentInput: {
       width: '100%',
-      height: 120,
+      minHeight: dense ? 140 : 120,
+      height: dense ? undefined : 120,
       backgroundColor: COLORS.background.secondary,
       borderRadius: DESIGN_TOKENS.borderRadius.large,
       padding: DESIGN_TOKENS.spacing.lg,

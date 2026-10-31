@@ -64,6 +64,10 @@ interface MoodFormProps {
   showFirstEntryHint?: boolean;
   /** 覆盖正文 placeholder（如首次记录暖色文案） */
   contentPlaceholder?: string;
+  /** 编辑弹层等矮视口：收紧区块间距 */
+  denseSections?: boolean;
+  /** 正文输入获得焦点（父级可 scrollIntoView） */
+  onContentFocus?: () => void;
   getPeopleLabel?: (item: string) => string;
   getTriggerLabel?: (item: string) => string;
   peopleSectionTitle?: string;
@@ -100,6 +104,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   compactMode = false,
   showFirstEntryHint = false,
   contentPlaceholder,
+  denseSections = false,
+  onContentFocus,
   getPeopleLabel = (item) => item,
   getTriggerLabel = (item) => item,
   peopleSectionTitle,
@@ -110,8 +116,8 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
 
   const { width, height } = useWindowDimensions();
   const styles = useMemo(
-    () => createMoodFormStyles(width, height),
-    [width, height]
+    () => createMoodFormStyles(width, height, { denseSections }),
+    [width, height, denseSections],
   );
   const { trigger: triggerHaptic } = useHapticFeedback();
   const { t: tRetention } = useTranslation("retention");
@@ -252,6 +258,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           testID="mood-content-input"
           value={content}
           onChangeText={onContentChange}
+          onFocus={onContentFocus}
           placeholder={
             contentPlaceholder ?? tRecord("sections.content.placeholder")
           }
@@ -494,6 +501,8 @@ const MoodFormComparison = (
       prevProps.compactMode !== nextProps.compactMode ||
       prevProps.showFirstEntryHint !== nextProps.showFirstEntryHint ||
       prevProps.contentPlaceholder !== nextProps.contentPlaceholder ||
+      prevProps.denseSections !== nextProps.denseSections ||
+      prevProps.onContentFocus !== nextProps.onContentFocus ||
       prevProps.peopleSectionTitle !== nextProps.peopleSectionTitle ||
       prevProps.triggersSectionTitle !== nextProps.triggersSectionTitle ||
       prevProps.getPeopleLabel !== nextProps.getPeopleLabel ||

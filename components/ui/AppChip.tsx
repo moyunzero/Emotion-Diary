@@ -72,7 +72,17 @@ export function AppChip({
         testID={testID}
       >
         {leading}
-        <Text style={[styles.label, { color: labelColor }]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: labelColor,
+              // UI-SPEC echo chips: unselected 400 / selected 600
+              fontWeight: selected ? "600" : "400",
+            },
+          ]}
+          numberOfLines={1}
+        >
           {label}
         </Text>
       </Pressable>
@@ -117,7 +127,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: DESIGN_TOKENS.fontSize.sm,
-    fontWeight: "600",
+    // Weight set inline from selected (400 unselected / 600 selected)
   },
   delete: {
     paddingHorizontal: DESIGN_TOKENS.spacing.sm,

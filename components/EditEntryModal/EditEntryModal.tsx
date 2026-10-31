@@ -1,15 +1,11 @@
 /**
- * EditEntryModal 壳层：Modal、KeyboardAvoidingView、安全区、组合 EntryEditor（编辑模式）
+ * EditEntryModal 壳层：Modal、安全区、组合 EntryEditor（编辑模式）。
+ * 键盘避让由 EntryEditor embedded 用 keyboard height 贴底，不用 KAV
+ * （Modal + KAV padding 易在保存钮与键盘间留空洞）。
  */
 import { Edit } from 'lucide-react-native';
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Text,
-  View,
-} from 'react-native';
+import { Modal, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../constants/colors';
@@ -52,11 +48,7 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
           style={[styles.modalStackHeader, { paddingTop: insets.top }]}
         />
 
-        <KeyboardAvoidingView
-          style={styles.keyboardContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 60 : 0}
-        >
+        <View style={styles.keyboardContainer}>
           <EntryEditor
             mode="edit"
             presentation="embedded"
@@ -65,7 +57,7 @@ const EditEntryModalComponent: React.FC<EditEntryModalProps> = ({
             onClose={onClose}
             onSuccess={onSuccess}
           />
-        </KeyboardAvoidingView>
+        </View>
       </View>
     </Modal>
   );
