@@ -69,10 +69,16 @@ describe('postSaveRitualContract (FLOW-03 / D-13..D-17)', () => {
     expect(fs.existsSync(postSavePath)).toBe(true);
     const source = fs.readFileSync(postSavePath, 'utf8');
     expect(source).toMatch(/onPress|Pressable|TouchableWithoutFeedback/);
-    const hasAutoDismiss =
-      /900|1000|AUTO_DISMISS|autoDismissMs|autoDismiss/.test(source) &&
-      !/autoDismissMs\s*[:=]\s*(?:[2-9]\d{3,}|\d{5,})/.test(source);
-    expect(hasAutoDismiss).toBe(true);
+    // G-25-1 / D-14: UAT-tuned 500ms under ≤1000ms ceiling; sole timer constant
+    const autoDismissMatch = source.match(/AUTO_DISMISS_MS\s*=\s*(\d+)/);
+    expect(autoDismissMatch).not.toBeNull();
+    const autoDismissMs = Number(autoDismissMatch![1]);
+    expect(autoDismissMs).toBe(500);
+    expect(autoDismissMs).toBeLessThanOrEqual(1000);
+    expect(source).toMatch(/setTimeout\([^,]+,\s*AUTO_DISMISS_MS\)/);
+    expect(source).not.toMatch(
+      /autoDismissMs\s*[:=]\s*(?:[2-9]\d{3,}|\d{5,})/,
+    );
   });
 
   it('mounts ritual from create Write Tab only (not EditEntryModal)', () => {
