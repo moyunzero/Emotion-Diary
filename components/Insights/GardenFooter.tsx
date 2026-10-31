@@ -2,7 +2,6 @@ import { Flower2, Leaf } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { getInsightsColors } from './constants';
@@ -33,7 +32,7 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
           marginBottom: 24,
           alignItems: 'center',
           borderWidth: 1,
-          borderColor: COLORS.mood.level2,
+          borderColor: colors.mood.level2,
           borderRadius: borderRadius.card,
         },
         iconRow: {
@@ -51,13 +50,13 @@ const GardenFooterComponent: React.FC<GardenFooterProps> = ({
         },
         subText: {
           fontSize: fontSize.small,
-          color: COLORS.mood.level5,
+          color: colors.mood.level5,
           textAlign: 'center',
           marginTop: 6,
           fontStyle: 'italic',
         },
       }),
-    [padding, fontSize, borderRadius, insightsColors]
+    [colors, padding, fontSize, borderRadius, insightsColors]
   );
 
   const getMessage = () => {

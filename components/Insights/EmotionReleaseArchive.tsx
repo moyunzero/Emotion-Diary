@@ -8,7 +8,7 @@ import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { MoodEntry, Status } from "../../types";
 import { formatLocaleDate } from "@/shared/formatting";
 import { useAppStore } from "@/store/useAppStore";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
 import { getInsightsColors } from "./constants";
 
 interface EmotionReleaseArchiveProps {
@@ -31,7 +31,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       StyleSheet.create({
         container: {
           backgroundColor: insightsColors.cardBg,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -59,21 +59,21 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         },
         metricPill: {
           flex: 1,
-          backgroundColor: COLORS.atmosphere.sunny,
+          backgroundColor: colors.atmosphere.sunny,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
           paddingVertical: 8,
           paddingHorizontal: 10,
         },
         metricLabel: {
-          color: COLORS.ritual.burn,
+          color: colors.ritual.burn,
         },
         metricValue: {
           marginTop: 2,
           fontWeight: "700",
-          color: COLORS.ritual.burn,
+          color: colors.ritual.burn,
         },
         recordCard: {
-          backgroundColor: COLORS.background.secondary,
+          backgroundColor: colors.background.secondary,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
           padding: 12,
         },
@@ -100,7 +100,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         },
         emptyCard: {
           marginTop: 4,
-          backgroundColor: COLORS.background.secondary,
+          backgroundColor: colors.background.secondary,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
           padding: 16,
           alignItems: "center",
@@ -111,7 +111,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           color: insightsColors.textSecondary,
         },
       }),
-    [insightsColors],
+    [colors, insightsColors],
   );
   const releaseData = useMemo(() => {
     const burnedEntries = entries
@@ -142,7 +142,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
         ]}
       >
         <View style={styles.header}>
-          <Flame size={20} color={COLORS.ritual.burn} />
+          <Flame size={20} color={colors.ritual.burn} />
           <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
             {t("releaseArchive.title")}
           </Text>
@@ -151,7 +151,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           {t("releaseArchive.subtitleEmpty")}
         </Text>
         <View style={styles.emptyCard}>
-          <Wind size={28} color={COLORS.gray[400]} />
+          <Wind size={28} color={colors.gray[400]} />
           <Text
             style={[
               styles.emptyText,
@@ -187,7 +187,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
       ]}
     >
       <View style={styles.header}>
-        <Flame size={20} color={COLORS.ritual.burn} />
+        <Flame size={20} color={colors.ritual.burn} />
         <Text style={[styles.title, { fontSize: responsive.fontSize.cardTitle }]}>
           {t("releaseArchive.title")}
         </Text>
@@ -238,7 +238,7 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
           &ldquo;{latest.content}&rdquo;
         </Text>
         <View style={styles.questionRow}>
-          <NotebookPen size={14} color={COLORS.ritual.resolve} />
+          <NotebookPen size={14} color={colors.ritual.resolve} />
           <Text
             style={[
               styles.questionText,

@@ -10,7 +10,7 @@ import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { AppButton } from '../ui/AppButton';
 import { getInsightsColors } from './constants';
@@ -50,7 +50,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -130,7 +130,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         },
         emptySubtext: {
           fontSize: fontSize.small,
-          color: COLORS.gray[400],
+          color: colors.gray[400],
           marginTop: 4,
         },
         emptyCtaWrap: {
@@ -138,7 +138,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           alignSelf: 'stretch',
         },
       }),
-    [padding, fontSize, spacing, borderRadius, layout, insightsColors]
+    [colors, padding, fontSize, spacing, borderRadius, layout, insightsColors]
   );
 
   // Phase 13 helpers — soft-delete / person contract; sort by latest activity (D-21)
@@ -175,7 +175,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           <Text style={styles.title}>{t('relationship.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color={COLORS.gray[300]} />
+          <Sprout size={40} color={colors.gray[300]} />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
           <View style={styles.emptyCtaWrap}>

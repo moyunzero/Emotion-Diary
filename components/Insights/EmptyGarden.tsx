@@ -2,7 +2,7 @@ import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { getInsightsColors } from './constants';
@@ -56,7 +56,7 @@ const EmptyGardenComponent: React.FC = () => {
           backgroundColor: insightsColors.cardBg,
           padding: 16,
           borderRadius: borderRadius.large,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -66,7 +66,7 @@ const EmptyGardenComponent: React.FC = () => {
           width: 44,
           height: 44,
           borderRadius: DESIGN_TOKENS.borderRadius.md,
-          backgroundColor: COLORS.gray[50],
+          backgroundColor: colors.gray[50],
           alignItems: 'center',
           justifyContent: 'center',
           marginRight: 14,
@@ -91,7 +91,7 @@ const EmptyGardenComponent: React.FC = () => {
           textAlign: 'center',
         },
       }),
-    [fontSize, borderRadius, insightsColors]
+    [colors, fontSize, borderRadius, insightsColors]
   );
 
   return (

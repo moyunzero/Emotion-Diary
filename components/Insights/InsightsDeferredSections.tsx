@@ -1,4 +1,3 @@
-import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useEffect, useMemo, useState } from "react";
@@ -108,7 +107,7 @@ export function InsightsDeferredSections({
   if (!ready) {
     return (
       <View style={{ paddingVertical: 28, alignItems: "center" }}>
-        <ActivityIndicator color={COLORS.primaryDark} />
+        <ActivityIndicator color={colors.primaryDark} />
       </View>
     );
   }

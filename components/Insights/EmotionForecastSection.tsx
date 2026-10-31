@@ -10,21 +10,144 @@ import {
   View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { DESIGN_TOKENS } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { useAppStore } from '@/store/useAppStore';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 import { formatLocaleDate } from '@/shared/formatting/date';
 
 /**
  * Emotion forecast block (D-26) — extracted from home WeatherStation.
- * Mount under garden 「更多回看」 in Plan 08; keep store selectors here.
+ * Mount under garden 「更多回看」; keep store selectors here.
  */
 export function EmotionForecastSection() {
   const { t } = useTranslation('dashboard');
+  const { colors } = useThemeStyles();
   const emotionForecast = useAppStore((state) => state.emotionForecast);
   const entries = useAppStore((state) => state.entries);
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const generateForecast = useAppStore((state) => state.generateForecast);
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        forecastContainer: {
+          backgroundColor: colors.background.primary,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
+          padding: 16,
+          marginHorizontal: 16,
+          marginTop: 12,
+          shadowColor: colors.shadow.primary,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        forecastHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        },
+        forecastHeaderLeft: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+        forecastTitle: {
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: colors.text.primary,
+        },
+        warningBadge: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          backgroundColor: colors.primaryDark,
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+        },
+        warningBadgeText: {
+          fontSize: DESIGN_TOKENS.fontSize.footnote,
+          fontWeight: 'bold',
+          color: colors.text.inverse,
+        },
+        generateForecastText: {
+          fontSize: 14,
+          color: colors.primaryDark,
+          fontWeight: '500',
+        },
+        forecastContent: {
+          marginTop: 16,
+        },
+        forecastSummary: {
+          fontSize: 14,
+          lineHeight: 20,
+          color: colors.text.secondary,
+          marginBottom: 16,
+        },
+        warningsContainer: {
+          marginBottom: 16,
+          gap: 8,
+        },
+        warningItem: {
+          padding: 12,
+          backgroundColor: colors.background.secondary,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          borderLeftWidth: 3,
+        },
+        warningDate: {
+          fontSize: 12,
+          fontWeight: '600',
+          color: colors.primaryDark,
+          marginBottom: 4,
+        },
+        warningMessage: {
+          fontSize: 13,
+          color: colors.text.secondary,
+          lineHeight: 18,
+        },
+        predictionsContainer: {
+          marginTop: 8,
+        },
+        predictionsTitle: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.text.primary,
+          marginBottom: 12,
+        },
+        predictionsList: {
+          flexDirection: 'row',
+          gap: 12,
+        },
+        predictionItem: {
+          alignItems: 'center',
+          minWidth: 70,
+        },
+        predictionDate: {
+          fontSize: DESIGN_TOKENS.fontSize.footnote,
+          color: colors.text.secondary,
+          marginBottom: 8,
+        },
+        predictionIndicator: {
+          width: 50,
+          height: 50,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 6,
+        },
+        predictionLevel: {
+          fontSize: 16,
+          fontWeight: 'bold',
+        },
+        predictionRisk: {
+          fontSize: DESIGN_TOKENS.fontSize.footnote,
+          fontWeight: '500',
+        },
+      }),
+    [colors],
+  );
 
   const visibleEntries = useMemo(
     () => excludeSoftDeletedEntries(entries),
@@ -84,13 +207,13 @@ export function EmotionForecastSection() {
   const getRiskColor = (riskLevel: 'high' | 'medium' | 'low') => {
     switch (riskLevel) {
       case 'high':
-        return COLORS.primaryDark;
+        return colors.primaryDark;
       case 'medium':
-        return COLORS.primary;
+        return colors.primary;
       case 'low':
-        return COLORS.accent;
+        return colors.accent;
       default:
-        return COLORS.gray[500];
+        return colors.gray[500];
     }
   };
 
@@ -122,22 +245,22 @@ export function EmotionForecastSection() {
         disabled={isGenerating}
       >
         <View style={styles.forecastHeaderLeft}>
-          <TrendingUp size={20} color={COLORS.primary} />
+          <TrendingUp size={20} color={colors.primary} />
           <Text style={styles.forecastTitle}>{t('weatherStation.forecast.title')}</Text>
           {emotionForecast && highCount > 0 && (
             <View style={styles.warningBadge}>
-              <Heart size={12} color={COLORS.text.inverse} />
+              <Heart size={12} color={colors.text.inverse} />
               <Text style={styles.warningBadgeText}>{highCount}</Text>
             </View>
           )}
         </View>
         {isGenerating ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ActivityIndicator size="small" color={colors.primary} />
         ) : emotionForecast ? (
           isForecastExpanded ? (
-            <ChevronUp size={20} color={COLORS.gray[500]} />
+            <ChevronUp size={20} color={colors.gray[500]} />
           ) : (
-            <ChevronDown size={20} color={COLORS.gray[500]} />
+            <ChevronDown size={20} color={colors.gray[500]} />
           )
         ) : (
           <Text style={styles.generateForecastText}>{t('weatherStation.forecast.generate')}</Text>
@@ -205,120 +328,3 @@ export function EmotionForecastSection() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  forecastContainer: {
-    backgroundColor: COLORS.background.primary,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    padding: 16,
-    marginHorizontal: 16,
-    marginTop: 12,
-    shadowColor: COLORS.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  forecastHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  forecastHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  forecastTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-  },
-  warningBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.primaryDark,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-  },
-  warningBadgeText: {
-    fontSize: DESIGN_TOKENS.fontSize.footnote,
-    fontWeight: 'bold',
-    color: COLORS.text.inverse,
-  },
-  generateForecastText: {
-    fontSize: 14,
-    color: COLORS.primaryDark,
-    fontWeight: '500',
-  },
-  forecastContent: {
-    marginTop: 16,
-  },
-  forecastSummary: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: COLORS.text.secondary,
-    marginBottom: 16,
-  },
-  warningsContainer: {
-    marginBottom: 16,
-    gap: 8,
-  },
-  warningItem: {
-    padding: 12,
-    backgroundColor: COLORS.background.page,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-    borderLeftWidth: 3,
-  },
-  warningDate: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.primaryDark,
-    marginBottom: 4,
-  },
-  warningMessage: {
-    fontSize: 13,
-    color: COLORS.text.secondary,
-    lineHeight: 18,
-  },
-  predictionsContainer: {
-    marginTop: 8,
-  },
-  predictionsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 12,
-  },
-  predictionsList: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  predictionItem: {
-    alignItems: 'center',
-    minWidth: 70,
-  },
-  predictionDate: {
-    fontSize: DESIGN_TOKENS.fontSize.footnote,
-    color: COLORS.text.secondary,
-    marginBottom: 8,
-  },
-  predictionIndicator: {
-    width: 50,
-    height: 50,
-    borderRadius: DESIGN_TOKENS.borderRadius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  predictionLevel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  predictionRisk: {
-    fontSize: DESIGN_TOKENS.fontSize.footnote,
-    fontWeight: '500',
-  },
-});

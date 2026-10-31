@@ -1,9 +1,9 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { careWeekCount } from '@/shared/entries/careWeekCount';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 
 interface CareCountLineProps {
@@ -17,6 +17,7 @@ interface CareCountLineProps {
 const CareCountLineComponent: React.FC<CareCountLineProps> = ({ entries }) => {
   const { t } = useTranslation('insights');
   const { fontSize, spacing, padding, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
   const n = useMemo(() => careWeekCount(entries), [entries]);
 
   const styles = useMemo(
@@ -31,11 +32,11 @@ const CareCountLineComponent: React.FC<CareCountLineProps> = ({ entries }) => {
         line: {
           fontSize: fontSize.body,
           fontWeight: '400',
-          color: COLORS.text.primary,
+          color: colors.text.primary,
           textAlign: 'center',
         },
       }),
-    [fontSize, spacing, padding, borderRadius],
+    [colors, fontSize, spacing, padding, borderRadius],
   );
 
   return (

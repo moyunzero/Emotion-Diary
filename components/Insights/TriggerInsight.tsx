@@ -8,7 +8,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { getActionLoopDateLine } from '../../shared/entries/actionLoopDateLine';
 import { formatLocaleDate } from '../../shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
 import { getInsightsColors } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
@@ -34,7 +34,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -145,7 +145,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         progressBar: {
           width: '80%',
           height: 8,
-          backgroundColor: COLORS.gray[200],
+          backgroundColor: colors.gray[200],
           borderRadius: DESIGN_TOKENS.borderRadius.full,
           overflow: 'hidden',
           marginBottom: 8,
@@ -161,7 +161,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           fontWeight: '600',
         },
       }),
-    [padding, fontSize, spacing, borderRadius, insightsColors]
+    [colors, padding, fontSize, spacing, borderRadius, insightsColors]
   );
 
   const triggerData = useMemo(() => {
@@ -217,7 +217,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           <Text style={styles.title}>{t('triggers.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color={COLORS.gray[300]} />
+          <Sprout size={40} color={colors.gray[300]} />
           <Text style={styles.emptyText}>
             {remaining > 0 
               ? t('triggers.empty.needMore', { remaining })

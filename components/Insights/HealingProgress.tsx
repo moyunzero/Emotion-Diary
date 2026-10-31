@@ -3,7 +3,7 @@ import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { useThemeStyles } from '@/hooks/useThemeStyles';
 import type { GrowthStageId } from '@/services/gardenMilestone';
@@ -48,7 +48,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -119,7 +119,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           marginTop: 16,
           paddingTop: 16,
           borderTopWidth: 1,
-          borderTopColor: COLORS.gray[100],
+          borderTopColor: colors.gray[100],
         },
         encouragementText: {
           fontSize: fontSize.body,
@@ -153,7 +153,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           color: insightsColors.textSecondary,
         },
       }),
-    [padding, fontSize, spacing, borderRadius, insightsColors]
+    [colors, padding, fontSize, spacing, borderRadius, insightsColors]
   );
   const milestoneHandledRef = useRef(false);
   useEffect(() => {
@@ -216,7 +216,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke={COLORS.gray[200]}
+              stroke={colors.gray[200]}
               strokeWidth={strokeWidth}
               fill="none"
             />
