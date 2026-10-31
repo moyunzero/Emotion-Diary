@@ -41,6 +41,15 @@ describe('echoStripContract — listen strip (ECHO-01 / D-01)', () => {
       ) || /testID=["']entry-echo-strip["']/.test(combined);
     expect(hasStripIntent).toBe(true);
   });
+
+  it('exposes Maestro-aligned strip playing sentinel (Pitfall 5 / 016)', () => {
+    expect(entryCardPlaybackSource).toMatch(
+      /testID=["']entry-echo-strip-playing["']/,
+    );
+    expect(entryCardPlaybackSource).toMatch(
+      /testID=["']entry-echo-strip["']/,
+    );
+  });
 });
 
 describe('echoStripContract — mic badge removed when strip path (D-08)', () => {

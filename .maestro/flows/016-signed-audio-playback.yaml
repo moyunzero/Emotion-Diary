@@ -8,8 +8,10 @@ appId: com.moyunzero.emotiondiary
 # 截图：.maestro/acceptance/016-signed-audio-playback/*.png
 # 运行：yarn test:maestro:preflight && yarn test:maestro:016
 #
-# 策略：clearState → 无本地文件 → 登录 → 云端拉取 → 展开条目 → 播放
+# 策略：clearState → 无本地文件 → 登录 → 云端拉取 → 点声线条 → 断言 playing
+# Phase 24：selectors retargeted to entry-echo-strip* (Pitfall 5); strip is collapsed-visible
 # 本地 miss 时应走 createSignedUrl 路径（断言 UI playing）
+# E2E 不进 CI — 本 flow 仅本地
 
 - launchApp:
     clearState: true
@@ -75,24 +77,18 @@ appId: com.moyunzero.emotiondiary
     timeout: 30000
 - takeScreenshot: .maestro/acceptance/016-signed-audio-playback/04-dashboard-synced
 
-# 滚动到带录音角标的条目并展开（避免误点 Tab）
+# 滚动到声线条（折叠可见，无需先展开）
 - scrollUntilVisible:
     element:
-      id: entry-has-audio
+      id: entry-echo-strip
     direction: DOWN
     timeout: 60000
     visibilityPercentage: 40
+- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/05-entry-echo-strip
 - tapOn:
-    id: entry-has-audio
+    id: entry-echo-strip
 - extendedWaitUntil:
     visible:
-      id: entry-audio-play
-    timeout: 15000
-- takeScreenshot: .maestro/acceptance/016-signed-audio-playback/05-entry-expanded-audio
-- tapOn:
-    id: entry-audio-play
-- extendedWaitUntil:
-    visible:
-      id: entry-audio-playing
+      id: entry-echo-strip-playing
     timeout: 30000
 - takeScreenshot: .maestro/acceptance/016-signed-audio-playback/06-audio-playing

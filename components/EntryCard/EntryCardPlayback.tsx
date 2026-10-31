@@ -183,6 +183,16 @@ export function EntryCardPlayback({
         <Text style={styles.echoStripLabel} numberOfLines={1}>
           {stripLabel}
         </Text>
+        {/* Maestro 016 playing sentinel (Pitfall 5) */}
+        {isStripPlaying ? (
+          <View
+            testID="entry-echo-strip-playing"
+            accessible={false}
+            importantForAccessibility="no"
+            collapsable={false}
+            style={{ width: 0, height: 0 }}
+          />
+        ) : null}
       </Pressable>
 
       {showChips ? (
