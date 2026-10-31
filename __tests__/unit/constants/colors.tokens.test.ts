@@ -3,7 +3,7 @@
  * Jest -t 'bg|brand' selects only paper/brand (+ brandPressed/brandSoft + aliases) asserts.
  */
 
-import { COLORS, COLORS_NIGHT, getColors } from "@/constants/colors";
+import { COLORS } from "@/constants/colors";
 
 /** Future semantic shape (Plan 02); cast so Wave 0 compiles against candy COLORS. */
 type SketchColors = {
@@ -98,19 +98,35 @@ type NightSketchColors = {
 
 describe("COLORS_NIGHT semantic tokens (NIGHT-02)", () => {
   it("getColors returns COLORS for light and COLORS_NIGHT for night", () => {
-    expect(getColors("light")).toBe(COLORS);
-    expect(getColors("night")).toBe(COLORS_NIGHT);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const colorsModule = require("@/constants/colors") as {
+      getColors?: (scheme: "light" | "night") => unknown;
+      COLORS_NIGHT?: unknown;
+      COLORS: typeof COLORS;
+    };
+    expect(typeof colorsModule.getColors).toBe("function");
+    expect(colorsModule.COLORS_NIGHT).toBeDefined();
+    expect(colorsModule.getColors!("light")).toBe(colorsModule.COLORS);
+    expect(colorsModule.getColors!("night")).toBe(colorsModule.COLORS_NIGHT);
   });
 
   it("night page bg and brand accent match pink-ink sketch", () => {
-    const night = COLORS_NIGHT as unknown as NightSketchColors;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { COLORS_NIGHT } = require("@/constants/colors") as {
+      COLORS_NIGHT: NightSketchColors;
+    };
+    const night = COLORS_NIGHT;
     expect(night.background.page).toBe("#1C1418");
     expect(night.bg).toBe("#1C1418");
     expect(night.brand).toBe("#F08AA8");
   });
 
   it("night tab wash matches UI-SPEC rgba(39, 28, 34, 0.82)", () => {
-    const night = COLORS_NIGHT as unknown as NightSketchColors;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { COLORS_NIGHT } = require("@/constants/colors") as {
+      COLORS_NIGHT: NightSketchColors;
+    };
+    const night = COLORS_NIGHT;
     expect(night.tab?.barBg).toBe("rgba(39, 28, 34, 0.82)");
   });
 });
