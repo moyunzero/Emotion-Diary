@@ -1,5 +1,5 @@
 import { EditEntryModal } from "@/components/entries";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
@@ -144,9 +144,10 @@ const makeImageFromView = async (
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createEntryCardStyles(width, height),
-    [width, height],
+    () => createEntryCardStyles(width, height, colors),
+    [width, height, colors],
   );
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const resolveEntry = useAppStore((state) => state.resolveEntry);
@@ -199,7 +200,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   }, [entry.content]);
 
   const weatherStripColor =
-    COLORS.weather[moodLevelToWeatherStripKey(entry.moodLevel)].icon;
+    colors.weather[moodLevelToWeatherStripKey(entry.moodLevel)].icon;
   const hasVisiblePreview = entry.content.trim().length > 0;
   const inkRatio =
     !isBurned && isThisEntryPlaying && hasVisiblePreview
@@ -413,7 +414,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
           <View style={styles.container}>
             <View style={styles.content}>
               <View style={styles.moodIconBadge}>
-                {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
+                {getMoodIcon(moodConfig.iconName, colors.brand, 20)}
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.contentText} numberOfLines={3}>
@@ -510,7 +511,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             <View style={styles.content}>
               {/* 灰烬图标 */}
               <View style={[styles.moodIconBadge, styles.ashIconBadge]}>
-                <AshIcon size={24} opacity={0.6} color={COLORS.gray[400]} />
+                <AshIcon size={24} opacity={0.6} color={colors.gray[400]} />
               </View>
 
               {/* 灰烬内容 */}
@@ -631,7 +632,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 <View style={styles.content}>
                   {/* Mood Icon Badge — icon + name chrome; neutral surface2 face (D-24) */}
                   <View style={styles.moodIconBadge}>
-                    {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
+                    {getMoodIcon(moodConfig.iconName, colors.brand, 20)}
                   </View>
 
                   {/* Content */}
@@ -654,7 +655,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                         >
                           <Ellipsis
                             size={20}
-                            color={COLORS.text.tertiary}
+                            color={colors.text.tertiary}
                           />
                         </TouchableOpacity>
                       </View>

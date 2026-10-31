@@ -105,11 +105,11 @@ describe('echoStripContract — weather breath + rose ink (ECHO-02 / D-04 D-05 D
   it('wires weatherStrip helper, Reduce Motion gate, and brand ink progress', () => {
     expect(entryCardSource).toMatch(/moodLevelToWeatherStripKey/);
     expect(entryCardSource).toMatch(/inkProgressRatio/);
-    expect(entryCardSource).toMatch(/COLORS\.weather/);
+    expect(entryCardSource).toMatch(/colors\.weather/);
     expect(entryCardSource).toMatch(/isReduceMotionEnabled|reduceMotionChanged/);
     expect(entryCardSource).toMatch(/entry-weather-strip|weatherStrip/);
     expect(entryCardSource).toMatch(/entry-ink-progress|inkProgressLine/);
-    expect(entryCardSource).toMatch(/COLORS\.brand/);
+    expect(entryCardSource).toMatch(/colors\.brand/);
     // No waveform / scrubber / seek chrome
     expect(entryCardSource).not.toMatch(/Waveform|Scrubber|seekTo\(/);
     expect(entryCardPlaybackSource).not.toMatch(/Waveform|Scrubber/);

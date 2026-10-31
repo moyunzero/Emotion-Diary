@@ -1,6 +1,7 @@
 import { countPendingEntries } from "@/shared/entries/dashboardFilter";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,6 +28,36 @@ import { WeeklyMoodWeather } from "./WeeklyMoodWeather";
 
 const InsightsComponent: React.FC = () => {
   const { t } = useTranslation("insights");
+  const { colors } = useThemeStyles();
+  const shellStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        contentWrapper: {
+          width: "100%",
+          marginHorizontal: "auto",
+        },
+        content: {},
+        moreSection: {
+          marginTop: DESIGN_TOKENS.spacing.xxxl,
+        },
+        moreHeader: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingVertical: DESIGN_TOKENS.spacing.sm,
+          marginBottom: DESIGN_TOKENS.spacing.sm,
+        },
+        moreHeaderPressed: {
+          opacity: 0.72,
+        },
+        moreHeaderText: {
+          fontSize: DESIGN_TOKENS.fontSize.base,
+          fontWeight: "600",
+          color: colors.text.secondary,
+        },
+      }),
+    [colors],
+  );
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
   const { trigger } = useHapticFeedback();
@@ -134,7 +165,7 @@ const InsightsComponent: React.FC = () => {
     >
       <View testID="insights-screen" style={{ flex: 1 }}>
       {/* 内容包装器 - 在大屏设备上居中显示 */}
-      <View style={[styles.contentWrapper, { maxWidth }]}>
+      <View style={[shellStyles.contentWrapper, { maxWidth }]}>
         {/* 花园主题头部 */}
         <GardenHeader
           totalEntries={stats.total}
@@ -142,7 +173,7 @@ const InsightsComponent: React.FC = () => {
         />
 
         <View
-          style={[styles.content, { paddingHorizontal: horizontalPadding }]}
+          style={[shellStyles.content, { paddingHorizontal: horizontalPadding }]}
         >
           <WeeklyReviewBanner entries={visibleEntries} />
 
@@ -152,23 +183,23 @@ const InsightsComponent: React.FC = () => {
           <CareCountLine entries={visibleEntries} />
 
           {/* 「更多回看」 accordion (D-22 / D-26) — default collapsed; no persist */}
-          <View style={styles.moreSection}>
+          <View style={shellStyles.moreSection}>
             <Pressable
               testID="insights-more-accordion"
               style={({ pressed }) => [
-                styles.moreHeader,
-                pressed && styles.moreHeaderPressed,
+                shellStyles.moreHeader,
+                pressed && shellStyles.moreHeaderPressed,
               ]}
               onPress={() => setMoreOpen((open) => !open)}
               accessibilityRole="button"
               accessibilityState={{ expanded: moreOpen }}
               accessibilityLabel={t("more.toRevisit")}
             >
-              <Text style={styles.moreHeaderText}>{t("more.toRevisit")}</Text>
+              <Text style={shellStyles.moreHeaderText}>{t("more.toRevisit")}</Text>
               {moreOpen ? (
-                <ChevronUp size={18} color={COLORS.text.secondary} />
+                <ChevronUp size={18} color={colors.text.secondary} />
               ) : (
-                <ChevronDown size={18} color={COLORS.text.secondary} />
+                <ChevronDown size={18} color={colors.text.secondary} />
               )}
             </Pressable>
 
@@ -190,33 +221,5 @@ const InsightsComponent: React.FC = () => {
     </AppScreenShell>
   );
 };
-
-const styles = StyleSheet.create({
-  contentWrapper: {
-    width: "100%",
-    marginHorizontal: "auto", // 大屏下配合 maxWidth 实现水平居中
-  },
-  content: {
-    // paddingHorizontal 在运行时动态设置
-  },
-  moreSection: {
-    marginTop: DESIGN_TOKENS.spacing.xxxl,
-  },
-  moreHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: DESIGN_TOKENS.spacing.sm,
-    marginBottom: DESIGN_TOKENS.spacing.sm,
-  },
-  moreHeaderPressed: {
-    opacity: 0.72,
-  },
-  moreHeaderText: {
-    fontSize: DESIGN_TOKENS.fontSize.base,
-    fontWeight: "600",
-    color: COLORS.text.secondary,
-  },
-});
 
 export default React.memo(InsightsComponent);

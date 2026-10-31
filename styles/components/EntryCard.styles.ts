@@ -1,8 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { createResponsiveMetrics } from '../../shared/responsive';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../../constants/colors';
 
-export function createEntryCardStyles(width: number, height: number) {
+export function createEntryCardStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   return StyleSheet.create({
     wrapper: {
@@ -10,15 +14,15 @@ export function createEntryCardStyles(width: number, height: number) {
       marginVertical: DESIGN_TOKENS.spacing.sm, // 8 — 4px scale (UI-REVIEW Top1)
     },
     container: {
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderRadius: DESIGN_TOKENS.borderRadius.xl,
       padding: DESIGN_TOKENS.spacing.lg,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: COLORS.hairline,
+      borderColor: colors.hairline,
       overflow: 'hidden',
       position: 'relative',
     },
-    /** Left weather mood strip (ECHO-02 / D-04) — fill set inline from COLORS.weather.*.icon */
+    /** Left weather mood strip (ECHO-02 / D-04) — fill set inline from colors.weather.*.icon */
     weatherStrip: {
       position: 'absolute',
       left: 0,
@@ -34,7 +38,7 @@ export function createEntryCardStyles(width: number, height: number) {
     inkProgressLine: {
       height: 2,
       marginTop: DESIGN_TOKENS.spacing.xs,
-      backgroundColor: COLORS.brand,
+      backgroundColor: colors.brand,
       borderRadius: 1,
       alignSelf: 'flex-start',
     },
@@ -42,50 +46,50 @@ export function createEntryCardStyles(width: number, height: number) {
       opacity: 0.5,
     },
     burnedContainer: {
-      backgroundColor: COLORS.background.secondary,
+      backgroundColor: colors.background.secondary,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: COLORS.border.light,
+      borderColor: colors.border.light,
       borderStyle: 'dashed',
       opacity: 0.88,
       ...DESIGN_TOKENS.shadow.none,
     },
     ashIconBadge: {
-      backgroundColor: COLORS.gray[200],
+      backgroundColor: colors.gray[200],
     },
     burnedTitle: {
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: '700',
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
       letterSpacing: 0.5,
     },
     burnedDate: {
       fontSize: m.fontSize.small,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: '500',
     },
     burnedContentContainer: {
       marginTop: DESIGN_TOKENS.spacing.md,
       paddingTop: DESIGN_TOKENS.spacing.md,
       borderTopWidth: 1,
-      borderTopColor: COLORS.border.light,
+      borderTopColor: colors.border.light,
     },
     burnedContentLabel: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: '600',
       marginBottom: 6,
     },
     burnedContent: {
       fontSize: DESIGN_TOKENS.fontSize.base,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: 20,
       fontStyle: 'italic',
       opacity: 0.7,
     },
     burnedHint: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       marginTop: DESIGN_TOKENS.spacing.sm,
       fontStyle: 'italic',
     },
@@ -93,16 +97,16 @@ export function createEntryCardStyles(width: number, height: number) {
       marginTop: 10,
       paddingTop: 10,
       borderTopWidth: 1,
-      borderTopColor: COLORS.border.light,
+      borderTopColor: colors.border.light,
     },
     burnedMeta: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
     deleteActionText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
     },
     content: {
       flexDirection: 'row',
@@ -113,7 +117,7 @@ export function createEntryCardStyles(width: number, height: number) {
       width: 44,
       height: 44,
       borderRadius: DESIGN_TOKENS.borderRadius.md,
-      backgroundColor: COLORS.surface2,
+      backgroundColor: colors.surface2,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -130,14 +134,14 @@ export function createEntryCardStyles(width: number, height: number) {
     peopleText: {
       fontSize: DESIGN_TOKENS.fontSize.base,
       fontWeight: '700',
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       flex: 1,
       marginRight: DESIGN_TOKENS.spacing.sm,
       letterSpacing: -0.3,
     },
     dateText: {
       fontSize: m.fontSize.small,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: '400', // Footnote/400 (UI-REVIEW Top3 / UI-SPEC)
     },
     /** Trailing ⋯ More control (ECHO-04 / D-40) — ≥44 hit */
@@ -155,7 +159,7 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     contentText: {
       fontSize: m.fontSize.body,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: 22,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
@@ -165,29 +169,29 @@ export function createEntryCardStyles(width: number, height: number) {
       gap: DESIGN_TOKENS.spacing.sm, // 8 — 4px scale (UI-REVIEW Top1)
     },
     deadlineTag: {
-      backgroundColor: COLORS.gray[100],
+      backgroundColor: colors.gray[100],
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
       borderRadius: DESIGN_TOKENS.borderRadius.sm,
     },
     deadlineText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       fontWeight: '600',
     },
     triggerTag: {
-      backgroundColor: COLORS.brandSoft,
+      backgroundColor: colors.brandSoft,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
       borderRadius: DESIGN_TOKENS.borderRadius.sm,
     },
     triggerText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.brandPressed,
+      color: colors.brandPressed,
       fontWeight: '600',
     },
     audioTag: {
-      backgroundColor: COLORS.audio.surface,
+      backgroundColor: colors.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: DESIGN_TOKENS.spacing.xs,
       borderRadius: DESIGN_TOKENS.borderRadius.sm,
@@ -197,19 +201,19 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     audioTagText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.audio.primary,
+      color: colors.audio.primary,
       fontWeight: '600',
     },
     audioPlaySection: {
       marginTop: DESIGN_TOKENS.spacing.sm,
       paddingTop: DESIGN_TOKENS.spacing.sm,
       borderTopWidth: 1,
-      borderTopColor: COLORS.gray[100],
+      borderTopColor: colors.gray[100],
     },
     audioPlaySectionTitle: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       fontWeight: '600',
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
     audioPlayItem: {
@@ -221,21 +225,21 @@ export function createEntryCardStyles(width: number, height: number) {
       marginBottom: 4,
     },
     audioPlayItemActive: {
-      backgroundColor: COLORS.audio.surface,
+      backgroundColor: colors.audio.surface,
     },
     audioPlayName: {
       flex: 1,
       marginLeft: DESIGN_TOKENS.spacing.xs,
       fontSize: 13,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     audioPlayNameActive: {
-      color: COLORS.audio.primary,
+      color: colors.audio.primary,
       fontWeight: '500',
     },
     audioPlayDuration: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.audio.primary,
+      color: colors.audio.primary,
       marginLeft: DESIGN_TOKENS.spacing.xs,
     },
     audioPlayRow: {
@@ -247,11 +251,11 @@ export function createEntryCardStyles(width: number, height: number) {
     },
     audioSyncPending: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
     },
     audioSyncFailed: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.error,
+      color: colors.error,
       fontWeight: '600',
     },
     echoStripSection: {
@@ -269,7 +273,7 @@ export function createEntryCardStyles(width: number, height: number) {
       paddingVertical: DESIGN_TOKENS.spacing.sm,
       borderRadius: DESIGN_TOKENS.borderRadius.md,
       borderCurve: 'continuous',
-      backgroundColor: COLORS.brandSoft,
+      backgroundColor: colors.brandSoft,
       justifyContent: 'center',
     },
     echoStripFlex: {
@@ -279,7 +283,7 @@ export function createEntryCardStyles(width: number, height: number) {
     echoStripLabel: {
       fontSize: DESIGN_TOKENS.fontSize.base,
       fontWeight: '600',
-      color: COLORS.brand,
+      color: colors.brand,
     },
     echoSegmentDisclosure: {
       height: 36,
@@ -288,31 +292,31 @@ export function createEntryCardStyles(width: number, height: number) {
       borderRadius: DESIGN_TOKENS.borderRadius.md,
       borderCurve: 'continuous',
       borderWidth: 1,
-      borderColor: COLORS.hairline,
-      backgroundColor: COLORS.surface,
+      borderColor: colors.hairline,
+      backgroundColor: colors.surface,
       justifyContent: 'center',
       alignItems: 'center',
     },
     echoSegmentDisclosureOpen: {
-      borderColor: COLORS.brand,
-      backgroundColor: COLORS.brandSoft,
+      borderColor: colors.brand,
+      backgroundColor: colors.brandSoft,
     },
     echoSegmentDisclosureLabel: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       fontWeight: '600',
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     echoSegmentDisclosureLabelOpen: {
-      color: COLORS.brand,
+      color: colors.brand,
     },
     echoStripFootnote: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: '400',
     },
     echoStripRetry: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: '400',
     },
     echoClipChipScroll: {
@@ -330,16 +334,16 @@ export function createEntryCardStyles(width: number, height: number) {
       paddingVertical: DESIGN_TOKENS.spacing.sm,
       borderRadius: DESIGN_TOKENS.borderRadius.md,
       borderCurve: 'continuous',
-      backgroundColor: COLORS.surface2,
+      backgroundColor: colors.surface2,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: COLORS.hairline,
+      borderColor: colors.hairline,
       justifyContent: 'center',
       opacity: 0.9,
     },
     smokeStripLabel: {
       fontSize: DESIGN_TOKENS.fontSize.base,
       fontWeight: '600',
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
     },
     actionsContainer: {
       flexDirection: 'row',
@@ -347,7 +351,7 @@ export function createEntryCardStyles(width: number, height: number) {
       marginTop: 14,
       paddingTop: 14,
       borderTopWidth: 1,
-      borderTopColor: COLORS.gray[100],
+      borderTopColor: colors.gray[100],
     },
     actionButton: {
       alignItems: 'center',
@@ -357,14 +361,14 @@ export function createEntryCardStyles(width: number, height: number) {
       width: 42,
       height: 42,
       borderRadius: DESIGN_TOKENS.borderRadius.md,
-      backgroundColor: COLORS.background.secondary,
+      backgroundColor: colors.background.secondary,
       alignItems: 'center',
       justifyContent: 'center',
     },
     actionText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       fontWeight: '600',
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     /** Left-swipe underlay row (ECHO-04 / D-38) — ritual colors only */
     swipeActionsRow: {
@@ -372,14 +376,14 @@ export function createEntryCardStyles(width: number, height: number) {
       alignItems: 'stretch',
     },
     swipeActionResolve: {
-      backgroundColor: COLORS.ritual.resolve,
+      backgroundColor: colors.ritual.resolve,
       justifyContent: 'center',
       alignItems: 'center',
       minWidth: 72,
       paddingHorizontal: DESIGN_TOKENS.spacing.lg,
     },
     swipeActionBurn: {
-      backgroundColor: COLORS.ritual.burn,
+      backgroundColor: colors.ritual.burn,
       justifyContent: 'center',
       alignItems: 'center',
       minWidth: 72,
@@ -388,7 +392,7 @@ export function createEntryCardStyles(width: number, height: number) {
     swipeActionText: {
       fontSize: DESIGN_TOKENS.fontSize.footnote,
       fontWeight: '600',
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
     },
   });
 }
