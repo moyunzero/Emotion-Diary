@@ -15,6 +15,12 @@ import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { ProfileAccountSection } from "./ProfileAccountSection";
 import { ProfileAuthModals } from "./ProfileAuthModals";
 import { ProfileDataSecuritySection } from "./ProfileDataSecuritySection";
+import type {
+  AppearanceMode,
+  AppearancePreference,
+  ResolvedScheme,
+} from "@/services/appearanceSettings";
+import { ProfileAppearanceSection } from "./ProfileAppearanceSection";
 import { ProfileLanguageSection } from "./ProfileLanguageSection";
 import { ProfileRetentionSection } from "./ProfileRetentionSection";
 
@@ -23,6 +29,9 @@ export type ProfileSettingsSectionProps = {
   effectiveLocale: AppLocale;
   onSetLocale: (locale: AppLocale) => Promise<void>;
   onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
+  appearancePreference: AppearancePreference;
+  effectiveColorScheme: ResolvedScheme;
+  onSetAppearanceMode: (mode: AppearanceMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
   storeSyncStatus: StoreSyncStatus;
   recycleBinCount: number;
@@ -93,6 +102,9 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     effectiveLocale,
     onSetLocale,
     onSetLocaleMode,
+    appearancePreference,
+    effectiveColorScheme,
+    onSetAppearanceMode,
     user,
     storeSyncStatus,
     recycleBinCount,
@@ -170,6 +182,12 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
         effectiveLocale={effectiveLocale}
         onSetLocale={onSetLocale}
         onSetLocaleMode={onSetLocaleMode}
+      />
+
+      <ProfileAppearanceSection
+        appearancePreference={appearancePreference}
+        effectiveColorScheme={effectiveColorScheme}
+        onSetAppearanceMode={onSetAppearanceMode}
       />
 
       <ProfileDataSecuritySection

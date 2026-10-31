@@ -1,4 +1,13 @@
 {
+  "appearance": {
+    "sectionTitle": "外观",
+    "hint": "深夜自动用粉墨，也可手动固定",
+    "options": {
+      "followSystem": "跟随系统",
+      "light": "粉纸浅色",
+      "night": "粉墨深色"
+    }
+  },
   "language": {
     "sectionTitle": "语言",
     "options": {

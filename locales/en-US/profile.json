@@ -1,4 +1,13 @@
 {
+  "appearance": {
+    "sectionTitle": "Appearance",
+    "hint": "Uses pink ink at night unless you lock a look",
+    "options": {
+      "followSystem": "Match system",
+      "light": "Pink paper (light)",
+      "night": "Pink ink (dark)"
+    }
+  },
   "language": {
     "sectionTitle": "Language",
     "options": {

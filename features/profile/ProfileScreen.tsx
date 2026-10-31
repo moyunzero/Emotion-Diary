@@ -45,6 +45,13 @@ export function ProfileScreen() {
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const setLocale = useAppStore((state) => state.setLocale);
   const setLocaleMode = useAppStore((state) => state.setLocaleMode);
+  const appearancePreference = useAppStore(
+    (state) => state.appearancePreference,
+  );
+  const effectiveColorScheme = useAppStore(
+    (state) => state.effectiveColorScheme,
+  );
+  const setAppearanceMode = useAppStore((state) => state.setAppearanceMode);
   const syncProgress = useAppStore((state) => state.syncProgress);
   const lastSyncTime = useAppStore((state) => state.lastSyncTime);
 
@@ -236,6 +243,9 @@ export function ProfileScreen() {
           effectiveLocale={effectiveLocale}
           onSetLocale={setLocale}
           onSetLocaleMode={setLocaleMode}
+          appearancePreference={appearancePreference}
+          effectiveColorScheme={effectiveColorScheme}
+          onSetAppearanceMode={setAppearanceMode}
           user={user}
           syncProgress={syncProgress}
           lastSyncTime={lastSyncTime}
