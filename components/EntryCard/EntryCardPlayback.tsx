@@ -65,9 +65,14 @@ export function EntryCardPlayback({
       const result = await audioCoordinator.playEntryAudio(
         entry.id,
         primaryClip,
+        entry.status,
       );
       if (result.ok) {
         triggerHaptic("light");
+        return;
+      }
+      // D-35 / PATTERNS: burned reject is silent — no Alert
+      if (result.reason === "burned") {
         return;
       }
       if (result.reason === "no_uri") {
@@ -88,7 +93,7 @@ export function EntryCardPlayback({
         i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
       );
     }
-  }, [entry.id, primaryClip, triggerHaptic]);
+  }, [entry.id, entry.status, primaryClip, triggerHaptic]);
 
   if (!primaryClip) {
     return null;

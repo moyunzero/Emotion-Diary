@@ -21,6 +21,7 @@ import {
   initAudioCoordinator,
 } from '@/shared/audio/coordinator';
 import type { AudioData } from '@/types';
+import { Status } from '@/types';
 
 const audio: AudioData = {
   id: 'a1',
@@ -42,7 +43,11 @@ describe('audioCoordinator ensurePlaybackAudioMode failures', () => {
 
   it('playEntryAudio returns error and does not create player when setAudioModeAsync fails', async () => {
     jest.mocked(setAudioModeAsync).mockRejectedValue(new Error('mode fail'));
-    const result = await audioCoordinator.playEntryAudio('e1', audio);
+    const result = await audioCoordinator.playEntryAudio(
+      'e1',
+      audio,
+      Status.ACTIVE,
+    );
     expect(result).toEqual({ ok: false, reason: 'error' });
     expect(createAudioPlayer).not.toHaveBeenCalled();
   });

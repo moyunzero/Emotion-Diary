@@ -25,16 +25,6 @@ import {
 import type { AudioData } from '@/types';
 import { Status } from '@/types';
 
-/** Plan 04 signature — cast so Wave 0 compiles before entryStatus lands. */
-type PlayEntryAudioWithStatus = (
-  entryId: string,
-  audio: AudioData,
-  entryStatus: Status,
-) => Promise<{ ok: true } | { ok: false; reason: string }>;
-
-const playEntryAudioWithStatus =
-  audioCoordinator.playEntryAudio as unknown as PlayEntryAudioWithStatus;
-
 const audio: AudioData = {
   id: 'a1',
   localUri: 'file:///clip.m4a',
@@ -55,7 +45,7 @@ describe('audioCoordinator playEntryAudio BURNED reject (D-35)', () => {
   });
 
   it('rejects Status.BURNED with reason burned and does not create a player', async () => {
-    const result = await playEntryAudioWithStatus(
+    const result = await audioCoordinator.playEntryAudio(
       'e-burned',
       audio,
       Status.BURNED,
@@ -71,7 +61,7 @@ describe('audioCoordinator playEntryAudio BURNED reject (D-35)', () => {
       remove: jest.fn(),
       addListener: jest.fn(),
     } as never);
-    const result = await playEntryAudioWithStatus(
+    const result = await audioCoordinator.playEntryAudio(
       'e-active',
       audio,
       Status.ACTIVE,
