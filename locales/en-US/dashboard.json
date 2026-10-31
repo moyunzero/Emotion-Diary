@@ -164,6 +164,10 @@
     "deleteA11y": "Delete this mood entry",
     "deleteHint": "Delete this entry — it cannot be undone",
     "deleteAshAction": "Delete ash forever",
+    "swipeResolve": "Resolve",
+    "swipeBurn": "Burn",
+    "swipeResolveA11y": "Swipe to resolve",
+    "swipeBurnA11y": "Swipe to burn",
     "relatedPersonFallback": "someone",
     "peopleJoiner": " and "
   },

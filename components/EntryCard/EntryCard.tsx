@@ -32,6 +32,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { captureRef } from "react-native-view-shot";
 import { MOOD_CONFIG } from "../../constants";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
@@ -55,6 +56,7 @@ import {
   EntryCardPlayback,
   EntryCardSmokeStrip,
 } from "./EntryCardPlayback";
+import { EntryCardSwipeActions } from "./EntryCardSwipeActions";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
@@ -155,6 +157,8 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const weatherBreathOpacity = useRef(new Animated.Value(1)).current;
   const isResolved = entry.status === Status.RESOLVED;
   const isBurned = entry.status === Status.BURNED;
+  /** D-41: only ACTIVE cards expose left-swipe resolve/burn */
+  const isActive = entry.status === Status.ACTIVE;
 
   // Gated playback chrome (Pitfall 4) — inactive cards skip position ticks
   const isThisEntryPlaying = useAppStore(
@@ -563,86 +567,118 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 : null,
             ]}
           />
-          <TouchableOpacity
-            testID="entry-card-pressable"
-            onPress={() => {
-              // 确保Android LayoutAnimation配置生效
-              ensureLayoutAnimationEnabled();
-              LayoutAnimation.configureNext(
-                LayoutAnimation.Presets.easeInEaseOut,
-              );
-              setIsExpanded(!isExpanded);
-            }}
-            activeOpacity={1}
-            accessibilityRole="button"
-            accessibilityLabel={t("entryCard.cardA11y", {
-              content: entry.content,
-              people: peopleA11y,
-              expanded: isExpanded
-                ? t("entryCard.cardExpanded")
-                : t("entryCard.cardCollapsed"),
-            })}
-            accessibilityHint={
-              isExpanded
-                ? t("entryCard.cardCollapseHint")
-                : t("entryCard.cardExpandHint")
-            }
-            accessibilityState={{ expanded: isExpanded }}
-          >
-            <View style={styles.content}>
-              {/* Mood Icon Badge — icon + name chrome; neutral surface2 face (D-24) */}
-              <View style={styles.moodIconBadge}>
-                {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
-              </View>
-
-              {/* Content */}
-              <View style={styles.textContainer}>
-                <View style={styles.header}>
-                  <Text style={styles.peopleText} numberOfLines={1}>
-                    {peopleDisplay}
-                  </Text>
-                  <Text style={styles.dateText}>
-                    {formatEntryTime(entry.timestamp)}
-                  </Text>
-                </View>
-                <Text
-                  style={styles.contentText}
-                  numberOfLines={isExpanded ? undefined : 3}
-                  accessibilityLabel={entry.content}
-                >
-                  {entry.content}
-                </Text>
-                {/* Rose ink under visible preview only (D-05 / D-11 / D-15); no a11y progress (D-20) */}
-                {inkRatio > 0 ? (
-                  <View
-                    accessible={false}
-                    importantForAccessibility="no"
-                    testID="entry-ink-progress"
-                    style={[
-                      styles.inkProgressLine,
-                      { width: `${Math.round(inkRatio * 100)}%` },
-                    ]}
-                  />
-                ) : null}
-
-                {/* Tags */}
-                <View style={styles.tagsContainer}>
-                  <View style={styles.deadlineTag}>
-                    <Text style={styles.deadlineText}>{deadlineLabel}</Text>
+          {(() => {
+            const cardBody = (
+              <TouchableOpacity
+                testID="entry-card-pressable"
+                onPress={() => {
+                  // 确保Android LayoutAnimation配置生效
+                  ensureLayoutAnimationEnabled();
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.easeInEaseOut,
+                  );
+                  setIsExpanded(!isExpanded);
+                }}
+                activeOpacity={1}
+                accessibilityRole="button"
+                accessibilityLabel={t("entryCard.cardA11y", {
+                  content: entry.content,
+                  people: peopleA11y,
+                  expanded: isExpanded
+                    ? t("entryCard.cardExpanded")
+                    : t("entryCard.cardCollapsed"),
+                })}
+                accessibilityHint={
+                  isExpanded
+                    ? t("entryCard.cardCollapseHint")
+                    : t("entryCard.cardExpandHint")
+                }
+                accessibilityState={{ expanded: isExpanded }}
+              >
+                <View style={styles.content}>
+                  {/* Mood Icon Badge — icon + name chrome; neutral surface2 face (D-24) */}
+                  <View style={styles.moodIconBadge}>
+                    {getMoodIcon(moodConfig.iconName, COLORS.brand, 20)}
                   </View>
-                  {entry.triggers?.map((trigger, index) => (
-                    <View key={trigger} style={styles.triggerTag}>
-                      <Text style={styles.triggerText}>
-                        #{resolvedTriggerLabels[index] ?? trigger}
+
+                  {/* Content */}
+                  <View style={styles.textContainer}>
+                    <View style={styles.header}>
+                      <Text style={styles.peopleText} numberOfLines={1}>
+                        {peopleDisplay}
+                      </Text>
+                      <Text style={styles.dateText}>
+                        {formatEntryTime(entry.timestamp)}
                       </Text>
                     </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
+                    <Text
+                      style={styles.contentText}
+                      numberOfLines={isExpanded ? undefined : 3}
+                      accessibilityLabel={entry.content}
+                    >
+                      {entry.content}
+                    </Text>
+                    {/* Rose ink under visible preview only (D-05 / D-11 / D-15); no a11y progress (D-20) */}
+                    {inkRatio > 0 ? (
+                      <View
+                        accessible={false}
+                        importantForAccessibility="no"
+                        testID="entry-ink-progress"
+                        style={[
+                          styles.inkProgressLine,
+                          { width: `${Math.round(inkRatio * 100)}%` },
+                        ]}
+                      />
+                    ) : null}
 
-          {/* Echo strip outside expand pressable (D-01 / D-42); collapsed + expanded */}
+                    {/* Tags */}
+                    <View style={styles.tagsContainer}>
+                      <View style={styles.deadlineTag}>
+                        <Text style={styles.deadlineText}>{deadlineLabel}</Text>
+                      </View>
+                      {entry.triggers?.map((trigger, index) => (
+                        <View key={trigger} style={styles.triggerTag}>
+                          <Text style={styles.triggerText}>
+                            #{resolvedTriggerLabels[index] ?? trigger}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+
+            // D-41 ACTIVE-only swipe; D-42 strip stays outside swipe child
+            return isActive ? (
+              <ReanimatedSwipeable
+                friction={2}
+                rightThreshold={40}
+                overshootFriction={8}
+                dragOffsetFromRightEdge={24}
+                renderRightActions={(_progress, _translation, methods) => (
+                  <EntryCardSwipeActions
+                    styles={styles}
+                    isPreparing={isPreparing}
+                    onResolvePress={() => {
+                      methods.close();
+                      handleResolvePress();
+                    }}
+                    onBurnPress={() => {
+                      methods.close();
+                      handleBurnPress();
+                    }}
+                  />
+                )}
+              >
+                {cardBody}
+              </ReanimatedSwipeable>
+            ) : (
+              cardBody
+            );
+          })()}
+
+          {/* Echo strip outside expand pressable + outside swipe (D-01 / D-42) */}
           {entry.audios && entry.audios.length > 0 ? (
             <View style={styles.content}>
               <View style={{ width: 44 }} />
@@ -656,6 +692,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             </View>
           ) : null}
 
+          {/* D-39: keep expanded ritual/edit/delete row (dual entry with swipe) */}
           <EntryCardActions
             styles={styles}
             isExpanded={isExpanded}

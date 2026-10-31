@@ -164,6 +164,10 @@
     "deleteA11y": "删除这条情绪记录",
     "deleteHint": "点击删除这条记录，删除后将无法恢复",
     "deleteAshAction": "彻底删除灰烬",
+    "swipeResolve": "和解",
+    "swipeBurn": "焚烧",
+    "swipeResolveA11y": "左滑和解",
+    "swipeBurnA11y": "左滑焚烧",
     "relatedPersonFallback": "相关人",
     "peopleJoiner": "和"
   },

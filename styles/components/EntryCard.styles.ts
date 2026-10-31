@@ -320,5 +320,29 @@ export function createEntryCardStyles(width: number, height: number) {
       fontWeight: '600',
       color: COLORS.text.secondary,
     },
+    /** Left-swipe underlay row (ECHO-04 / D-38) — ritual colors only */
+    swipeActionsRow: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+    },
+    swipeActionResolve: {
+      backgroundColor: COLORS.ritual.resolve,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 72,
+      paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+    },
+    swipeActionBurn: {
+      backgroundColor: COLORS.ritual.burn,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 72,
+      paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+    },
+    swipeActionText: {
+      fontSize: DESIGN_TOKENS.fontSize.footnote,
+      fontWeight: '600',
+      color: COLORS.text.inverse,
+    },
   });
 }
