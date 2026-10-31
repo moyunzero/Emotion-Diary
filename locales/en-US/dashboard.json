@@ -143,6 +143,8 @@
     "burnedMetaPeople": "People: {{people}}",
     "burnedMetaTriggers": "Triggers: {{triggers}}",
     "burnedAudioLabel": "Voice:",
+    "echoStripLabel": "Listen to this moment",
+    "echoStripRetryUpload": "Upload failed — tap to retry",
     "burnedHintExpanded": "Tap to collapse · long press to delete forever",
     "burnedHintCollapsed": "Tap to view original · long press to delete forever",
     "cardA11y": "Mood entry, {{content}}, about {{people}}, {{expanded}}",

@@ -231,6 +231,34 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.error,
       fontWeight: '600',
     },
+    echoStripSection: {
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      gap: DESIGN_TOKENS.spacing.xs,
+    },
+    echoStrip: {
+      height: 36,
+      paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+      paddingVertical: DESIGN_TOKENS.spacing.sm,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderCurve: 'continuous',
+      backgroundColor: COLORS.brandSoft,
+      justifyContent: 'center',
+    },
+    echoStripLabel: {
+      fontSize: DESIGN_TOKENS.fontSize.base,
+      fontWeight: '600',
+      color: COLORS.brand,
+    },
+    echoStripFootnote: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: COLORS.text.tertiary,
+      fontWeight: '400',
+    },
+    echoStripRetry: {
+      fontSize: DESIGN_TOKENS.fontSize.xs,
+      color: COLORS.text.tertiary,
+      fontWeight: '400',
+    },
     actionsContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',

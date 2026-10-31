@@ -143,6 +143,8 @@
     "burnedMetaPeople": "涉及：{{people}}",
     "burnedMetaTriggers": "触发：{{triggers}}",
     "burnedAudioLabel": "语音：",
+    "echoStripLabel": "听这一刻",
+    "echoStripRetryUpload": "上传失败，点此重试",
     "burnedHintExpanded": "点击收起 · 长按彻底删除",
     "burnedHintCollapsed": "点击查看原始内容 · 长按彻底删除",
     "cardA11y": "情绪记录卡片，{{content}}，涉及{{people}}，{{expanded}}",

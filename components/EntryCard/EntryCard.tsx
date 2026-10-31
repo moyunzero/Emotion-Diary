@@ -6,7 +6,7 @@ import {
   resolvePeopleLabel,
   resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
-import { formatLocaleDate } from "@/shared/formatting";
+import { toIntlLocale } from "@/shared/formatting";
 import { useRecyclingState } from "@shopify/flash-list";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import React, {
@@ -46,7 +46,6 @@ import ResolveConfirmOverlay from "../rituals/ResolveConfirmOverlay";
 import BurnConfirmOverlay from "../rituals/BurnConfirmOverlay";
 import { EntryCardActions } from "./EntryCardActions";
 import {
-  EntryCardAudioTag,
   EntryCardBurnedPlayback,
   EntryCardPlayback,
 } from "./EntryCardPlayback";
@@ -183,21 +182,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
   const [showBurnConfirm, setShowBurnConfirm] = useState(false);
 
-  const isActivePlaybackEntry = useAppStore(
-    (s) => s.playbackEntryId === entry.id,
-  );
-
-  // 只在「用户从展开→收起」时停播。FlashList 重挂载时 isExpanded 会回到 false，
-  // 若按 !isExpanded 直接 stop，会出现 play ok 但立刻无声、图标不变。
-  const wasExpandedRef = useRef(isExpanded);
-  useEffect(() => {
-    const becameCollapsed = wasExpandedRef.current && !isExpanded;
-    wasExpandedRef.current = isExpanded;
-    if (becameCollapsed && isActivePlaybackEntry) {
-      useAppStore.getState().stopAudio();
-    }
-  }, [isExpanded, isActivePlaybackEntry]);
-
   const handleResolvePress = () => {
     triggerHaptic("light");
     setResolvePhase("confirm");
@@ -322,8 +306,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     })();
   };
 
-  const formatEntryDate = (timestamp: number) =>
-    formatLocaleDate(timestamp, effectiveLocale);
+  /** Card chrome: time-of-day only (D-37) — day headers own the date. */
+  const formatEntryTime = (timestamp: number) =>
+    new Date(timestamp).toLocaleTimeString(toIntlLocale(effectiveLocale), {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   if (isBurning && useSimpleAnimation) {
     return (
@@ -409,7 +397,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 </Text>
                 <Text style={styles.burnedDate}>
                   {t("entryCard.burnedAt", {
-                    date: formatEntryDate(entry.burnedAt || entry.timestamp),
+                    date: formatEntryTime(entry.burnedAt || entry.timestamp),
                   })}
                 </Text>
                 {isExpanded && (
@@ -510,7 +498,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                     {peopleDisplay}
                   </Text>
                   <Text style={styles.dateText}>
-                    {formatEntryDate(entry.timestamp)}
+                    {formatEntryTime(entry.timestamp)}
                   </Text>
                 </View>
                 <Text
@@ -533,14 +521,13 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       </Text>
                     </View>
                   ))}
-                  <EntryCardAudioTag entry={entry} styles={styles} />
                 </View>
               </View>
             </View>
           </TouchableOpacity>
 
-          {/* 与 EntryCardActions 同级：勿放在展开 TouchableOpacity 内，否则时间线列表里点播常无响应 */}
-          {isExpanded ? (
+          {/* Echo strip outside expand pressable (D-01 / D-42); collapsed + expanded */}
+          {entry.audios && entry.audios.length > 0 ? (
             <View style={styles.content}>
               <View style={{ width: 44 }} />
               <View style={styles.textContainer}>
