@@ -1,16 +1,34 @@
 /**
- * Wave 0 RED — post-save ritual contract (FLOW-03 / D-13..D-17)
- * Overlay ≠ RitualConfirmOverlay confirm/cancel chrome; fixed kept-safe
- * copy keys; tap-any / auto ≤1s. Source-scan; GREEN when PostSaveRitualOverlay lands.
+ * FLOW-03 / D-13..D-17 — post-save ritual contract (GREEN with PostSaveRitualOverlay).
+ * Overlay ≠ resolve/burn confirm chrome; fixed kept-safe copy; create-only mount.
  */
 
 import fs from 'fs';
 import path from 'path';
 
-const ritualsDir = path.join(__dirname, '../../../../components/rituals');
+const root = path.join(__dirname, '../../../..');
+const ritualsDir = path.join(root, 'components/rituals');
 const postSavePath = path.join(ritualsDir, 'PostSaveRitualOverlay.tsx');
 const ritualConfirmSource = fs.readFileSync(
   path.join(ritualsDir, 'RitualConfirmOverlay.tsx'),
+  'utf8',
+);
+const recordTabSource = fs.readFileSync(
+  path.join(root, 'app/(tabs)/record.tsx'),
+  'utf8',
+);
+const editModalSource = fs.readFileSync(
+  path.join(root, 'components/EditEntryModal/EditEntryModal.tsx'),
+  'utf8',
+);
+const zhPostSave = JSON.parse(
+  fs.readFileSync(path.join(root, 'locales/zh-Hans/postSave.json'), 'utf8'),
+) as { keptSafe: string };
+const enPostSave = JSON.parse(
+  fs.readFileSync(path.join(root, 'locales/en-US/postSave.json'), 'utf8'),
+) as { keptSafe: string };
+const i18nIndexSource = fs.readFileSync(
+  path.join(root, 'i18n/index.ts'),
   'utf8',
 );
 
@@ -39,6 +57,10 @@ describe('postSaveRitualContract (FLOW-03 / D-13..D-17)', () => {
         source,
       );
     expect(hasFixedCopy).toBe(true);
+    expect(zhPostSave.keptSafe).toBe('这一刻收好了');
+    expect(enPostSave.keptSafe).toBe('This moment is kept safe.');
+    expect(i18nIndexSource).toMatch(/postSave/);
+    expect(i18nIndexSource).toMatch(/zhPostSave|postSave\.json/);
     expect(source).not.toMatch(/generateForecast|weatherStation|cardPool|drawCard/);
     expect(source).not.toMatch(/跳过|skipButton|onSkip/);
   });
@@ -51,5 +73,17 @@ describe('postSaveRitualContract (FLOW-03 / D-13..D-17)', () => {
       /900|1000|AUTO_DISMISS|autoDismissMs|autoDismiss/.test(source) &&
       !/autoDismissMs\s*[:=]\s*(?:[2-9]\d{3,}|\d{5,})/.test(source);
     expect(hasAutoDismiss).toBe(true);
+  });
+
+  it('mounts ritual from create Write Tab only (not EditEntryModal)', () => {
+    expect(recordTabSource).toMatch(/PostSaveRitualOverlay/);
+    expect(recordTabSource).toMatch(/ritualVisible|setRitualVisible/);
+    expect(editModalSource).not.toMatch(/PostSaveRitualOverlay/);
+    expect(editModalSource).not.toMatch(/postSave|ritualVisible/);
+  });
+
+  it('respects Reduce Motion with static wash path', () => {
+    const source = fs.readFileSync(postSavePath, 'utf8');
+    expect(source).toMatch(/isReduceMotionEnabled|reduceMotion/);
   });
 });
