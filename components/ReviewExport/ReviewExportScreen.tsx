@@ -373,6 +373,7 @@ export const ReviewExportScreen: React.FC = () => {
             { maxWidth: Math.min(width * 0.92, 380) },
           ]}
         >
+        {/* D-06: captureRoot rasterizes light hand账 palette (ShareCardWeekContent INSIGHTS_COLORS). */}
         <View
           ref={captureRootRef}
           collapsable={false}

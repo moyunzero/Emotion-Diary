@@ -10,8 +10,15 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { COLORS, DESIGN_TOKENS, SERIF_STACK } from "../../constants/colors";
+
+/** iOS PostScript face — see constants/colors.ts SERIF_STACK (D-16). */
+const BRAND_SERIF = Platform.select({
+  ios: "SongtiSC-Regular",
+  android: "serif",
+  default: SERIF_STACK,
+});
 import type {
   GrowthStageId,
   ShareCardModel,
@@ -64,6 +71,10 @@ function resolveWeatherBucket(
   return "sunny";
 }
 
+/**
+ * On-screen preview uses this tree; ReviewExport PNG capture reads the same ref (D-06).
+ * Export bitmap stays on light INSIGHTS_COLORS / weatherCard — not night-themed until a dedicated art pass.
+ */
 export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
   model,
   aiStatus,
@@ -149,7 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: DESIGN_TOKENS.spacing.md,
   },
   title: {
-    fontFamily: SERIF_STACK,
+    fontFamily: BRAND_SERIF,
     fontWeight: '700',
     fontSize: 20,
     lineHeight: 27,
@@ -195,7 +206,7 @@ const styles = StyleSheet.create({
   },
   narrative: {
     flex: 1,
-    fontFamily: SERIF_STACK,
+    fontFamily: BRAND_SERIF,
     fontSize: 16,
     lineHeight: 24,
   },
@@ -236,7 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: DESIGN_TOKENS.spacing.xs,
   },
   closingLine: {
-    fontFamily: SERIF_STACK,
+    fontFamily: BRAND_SERIF,
     fontSize: 17,
     lineHeight: 26,
     color: INSIGHTS_COLORS.text,

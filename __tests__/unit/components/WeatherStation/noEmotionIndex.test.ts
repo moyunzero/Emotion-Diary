@@ -39,18 +39,22 @@ describe('noEmotionIndex — home forecast removed (FLOW-01 / D-26)', () => {
 });
 
 describe('WeatherStation chrome — UI-SPEC brand sentence + pageX (quick 261031-uj5)', () => {
-  it('uses SERIF_STACK brand narrative at 22 / ~1.45 lineHeight', () => {
-    expect(weatherStationSource).toMatch(/SERIF_STACK/);
-    expect(weatherStationSource).toMatch(/fontFamily:\s*SERIF_STACK/);
+  it('uses a resolvable brand serif (iOS PostScript) at 22 / airy Chinese lineHeight', () => {
+    expect(weatherStationSource).toMatch(/SERIF_STACK|SongtiSC-Regular/);
+    expect(weatherStationSource).toMatch(/fontFamily:\s*BRAND_SERIF/);
+    expect(weatherStationSource).toMatch(/SongtiSC-Regular/);
     expect(weatherStationSource).toMatch(
       /fontSize:\s*(?:NARRATIVE_SIZE|DESIGN_TOKENS\.fontSize\.xxl)|NARRATIVE_SIZE\s*=\s*DESIGN_TOKENS\.fontSize\.xxl/,
     );
-    expect(weatherStationSource).toMatch(/1\.45/);
+    expect(weatherStationSource).toMatch(/1\.55/);
   });
 
-  it('uses pageX gutter, weight 600 title, and shadow.none (no soft elevation)', () => {
+  it('uses pageX gutter, quiet caption title, and shadow.none (no soft elevation)', () => {
     expect(weatherStationSource).toMatch(
       /marginHorizontal:\s*DESIGN_TOKENS\.spacing\.pageX/,
+    );
+    expect(weatherStationSource).toMatch(
+      /fontSize:\s*DESIGN_TOKENS\.fontSize\.caption/,
     );
     expect(weatherStationSource).toMatch(/fontWeight:\s*['"]600['"]/);
     expect(weatherStationSource).not.toMatch(/fontWeight:\s*['"]bold['"]/);

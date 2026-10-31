@@ -1,42 +1,53 @@
 import { Cloud, CloudRain, CloudSnow, Sun } from 'lucide-react-native';
 import React, { useMemo } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, DESIGN_TOKENS, SERIF_STACK } from '@/constants/colors';
+import { DESIGN_TOKENS, SERIF_STACK } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { useAppStore } from '../store/useAppStore';
 import {
   computeWeatherNarrative,
   getWeatherEmptyReason,
 } from '@/shared/weather/weatherNarrative';
 
+/** iOS needs PostScript face; family name `Songti SC` silently falls back to UI font (looks oversized/ugly). */
+const BRAND_SERIF = Platform.select({
+  ios: 'SongtiSC-Regular',
+  android: 'serif',
+  default: SERIF_STACK,
+});
+
 const WeatherStationComponent: React.FC = () => {
   const { t } = useTranslation('dashboard');
+  const { colors } = useThemeStyles();
   const weather = useAppStore((state) => state.weather);
   const entries = useAppStore((state) => state.entries);
 
-  // 天气配置：统一引用 COLORS.weatherCard 粉系 token
-  const weatherConfig = useMemo(() => ({
-    sunny: {
-      icon: <Sun size={48} color={COLORS.weatherCard.sunny.icon} />,
-      bgColor: COLORS.weatherCard.sunny.bg,
-      textColor: COLORS.weatherCard.sunny.text,
-    },
-    cloudy: {
-      icon: <Cloud size={48} color={COLORS.weatherCard.cloudy.icon} />,
-      bgColor: COLORS.weatherCard.cloudy.bg,
-      textColor: COLORS.weatherCard.cloudy.text,
-    },
-    rainy: {
-      icon: <CloudRain size={48} color={COLORS.weatherCard.rainy.icon} />,
-      bgColor: COLORS.weatherCard.rainy.bg,
-      textColor: COLORS.weatherCard.rainy.text,
-    },
-    stormy: {
-      icon: <CloudSnow size={48} color={COLORS.weatherCard.stormy.icon} />,
-      bgColor: COLORS.weatherCard.stormy.bg,
-      textColor: COLORS.weatherCard.stormy.text,
-    },
-  }), []);
+  const weatherConfig = useMemo(
+    () => ({
+      sunny: {
+        icon: <Sun size={48} color={colors.weatherCard.sunny.icon} />,
+        bgColor: colors.weatherCard.sunny.bg,
+        textColor: colors.weatherCard.sunny.text,
+      },
+      cloudy: {
+        icon: <Cloud size={48} color={colors.weatherCard.cloudy.icon} />,
+        bgColor: colors.weatherCard.cloudy.bg,
+        textColor: colors.weatherCard.cloudy.text,
+      },
+      rainy: {
+        icon: <CloudRain size={48} color={colors.weatherCard.rainy.icon} />,
+        bgColor: colors.weatherCard.rainy.bg,
+        textColor: colors.weatherCard.rainy.text,
+      },
+      stormy: {
+        icon: <CloudSnow size={48} color={colors.weatherCard.stormy.icon} />,
+        bgColor: colors.weatherCard.stormy.bg,
+        textColor: colors.weatherCard.stormy.text,
+      },
+    }),
+    [colors.weatherCard],
+  );
 
   const emptyReason = useMemo(
     () => getWeatherEmptyReason(entries),
@@ -99,23 +110,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: DESIGN_TOKENS.spacing.lg,
+    marginBottom: DESIGN_TOKENS.spacing.sm,
   },
+  /** Card eyebrow — quieter than page H1; was title/600 and competed with「情绪气象站」. */
   title: {
-    fontSize: DESIGN_TOKENS.fontSize.title,
+    fontSize: DESIGN_TOKENS.fontSize.caption,
     fontWeight: '600',
+    letterSpacing: 0.4,
+    opacity: 0.72,
   },
   iconContainer: {
     alignItems: 'center',
-    marginVertical: DESIGN_TOKENS.spacing.lg,
+    marginTop: DESIGN_TOKENS.spacing.sm,
+    marginBottom: DESIGN_TOKENS.spacing.md,
   },
   narrative: {
-    fontFamily: SERIF_STACK,
+    fontFamily: BRAND_SERIF,
     fontSize: NARRATIVE_SIZE,
     fontWeight: '400',
     textAlign: 'center',
-    marginVertical: DESIGN_TOKENS.spacing.sm,
-    lineHeight: Math.round(NARRATIVE_SIZE * 1.45),
+    paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+    marginTop: DESIGN_TOKENS.spacing.xs,
+    // Chinese brand line needs a bit more air than Latin 1.45
+    lineHeight: Math.round(NARRATIVE_SIZE * 1.55),
+    letterSpacing: 0.5,
   },
 });
 

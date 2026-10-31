@@ -438,8 +438,8 @@ export const DESIGN_TOKENS = {
  * D-11 brand-sentence serif — system Songti only (zero webfont assets).
  * Use only at: weather narrative · review closing · share card title.
  * Pure string (no react-native import) so Jest can load this module without RN transform.
- * On iOS RN prefer PostScript `SongtiSC-Regular` (family name `Songti SC` often no-ops → ugly UI font).
- * Missing faces fall back to the platform UI font.
+ * At runtime use Platform.select PostScript `SongtiSC-Regular` on iOS (WeatherStation BRAND_SERIF pattern);
+ * family name `Songti SC` often no-ops → ugly UI font. Missing faces fall back to platform UI font.
  */
 export const SERIF_STACK = 'Songti SC';
 
