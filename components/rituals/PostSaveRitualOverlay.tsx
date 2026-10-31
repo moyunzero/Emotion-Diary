@@ -16,8 +16,8 @@ import {
   View,
 } from "react-native";
 
-/** Auto-dismiss window (D-14 / UI-SPEC ≤1000ms). */
-export const AUTO_DISMISS_MS = 900;
+/** Auto-dismiss window (D-14 ≤1000ms; UAT-tuned 500ms / G-25-1). */
+export const AUTO_DISMISS_MS = 500;
 
 export interface PostSaveRitualOverlayProps {
   visible: boolean;
