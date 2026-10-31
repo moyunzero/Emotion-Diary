@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { getIconByEmoji } from '../../utils/iconMapping';
 import AppIcon from './AppIcon';
 
@@ -59,11 +59,14 @@ export interface MilestoneIconProps {
 const MilestoneIcon: React.FC<MilestoneIconProps> = ({
   emoji,
   size = 32,
-  color = COLORS.shadow.primary,
+  color,
   showBackground = false,
-  backgroundColor = COLORS.gray[100],
+  backgroundColor,
   testID,
 }) => {
+  const { colors } = useThemeStyles();
+  const resolvedColor = color ?? colors.shadow.primary;
+  const resolvedBg = backgroundColor ?? colors.gray[100];
   const iconComponent = getIconByEmoji(emoji);
   
   // Warn in development mode if no mapping found
@@ -83,7 +86,7 @@ const MilestoneIcon: React.FC<MilestoneIconProps> = ({
     <AppIcon
       name={iconComponent}
       size={size}
-      color={color}
+      color={resolvedColor}
       strokeWidth={2.5}
       testID={testID}
     />
@@ -98,7 +101,7 @@ const MilestoneIcon: React.FC<MilestoneIconProps> = ({
             width: size * 1.5,
             height: size * 1.5,
             borderRadius: size * 0.75,
-            backgroundColor,
+            backgroundColor: resolvedBg,
           },
         ]}
         testID={testID ? `${testID}-container` : undefined}
