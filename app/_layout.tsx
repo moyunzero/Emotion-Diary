@@ -13,6 +13,7 @@ import { RecordingSessionHost } from '../components/AudioRecorder/RecordingSessi
 import { MetaphorOnboardingHost } from '../components/onboarding/MetaphorOnboardingHost';
 import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
+import { refreshSystemAppearanceIfNeeded } from '../store/refreshSystemAppearance';
 import {
   loadAppearancePreference,
   resolveEffectiveColorScheme,
@@ -67,7 +68,12 @@ export default function RootLayout() {
 
       if (next === 'active') {
         void (async () => {
-          const { localePreference, effectiveLocale } = useAppStore.getState();
+          const {
+            localePreference,
+            effectiveLocale,
+            appearancePreference,
+            effectiveColorScheme,
+          } = useAppStore.getState();
           const deviceTag =
             Localization.getLocales()[0]?.languageTag ?? 'zh-Hans';
 
@@ -80,6 +86,17 @@ export default function RootLayout() {
             );
           } catch (error) {
             logger.error('RootLayout', '前台系统语言刷新失败', error);
+          }
+
+          try {
+            await refreshSystemAppearanceIfNeeded(
+              appearancePreference,
+              effectiveColorScheme,
+              (scheme) =>
+                useAppStore.getState().setAppearanceScheme(scheme),
+            );
+          } catch (error) {
+            logger.error('RootLayout', '前台系统外观刷新失败', error);
           }
         })();
       }
