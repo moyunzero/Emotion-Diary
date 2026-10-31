@@ -12,14 +12,15 @@ import type {
 import type { EmotionReminderSettings } from "@/services/reminderSettings";
 import type { StoreSyncStatus } from "@/store/modules/types";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { ProfileAccountSection } from "./ProfileAccountSection";
 import { ProfileAuthModals } from "./ProfileAuthModals";
 import { ProfileDataSecuritySection } from "./ProfileDataSecuritySection";
 import type {
   AppearanceMode,
   AppearancePreference,
-  ResolvedScheme,
 } from "@/services/appearanceSettings";
+import type { ResolvedColorScheme } from "@/constants/colors";
 import { ProfileAppearanceSection } from "./ProfileAppearanceSection";
 import { ProfileLanguageSection } from "./ProfileLanguageSection";
 import { ProfileRetentionSection } from "./ProfileRetentionSection";
@@ -30,7 +31,7 @@ export type ProfileSettingsSectionProps = {
   onSetLocale: (locale: AppLocale) => Promise<void>;
   onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
   appearancePreference: AppearancePreference;
-  effectiveColorScheme: ResolvedScheme;
+  effectiveColorScheme: ResolvedColorScheme;
   onSetAppearanceMode: (mode: AppearanceMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
   storeSyncStatus: StoreSyncStatus;
@@ -170,9 +171,10 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
   } = props;
 
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
 
   return (

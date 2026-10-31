@@ -19,8 +19,8 @@ import { ProfileMenuItem, ProfileSectionHeader } from "@/components/Profile";
 import { GroupedSettingsCard } from "@/components/settings";
 import { AppButton } from "@/components/ui/AppButton";
 import { AppSheet } from "@/components/ui/AppSheet";
-import { COLORS } from "@/constants/colors";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import {
   AVATAR_PRESETS,
   isSvgAvatarDataUri,
@@ -61,9 +61,10 @@ export function ProfileAccountSection({
   const { t: tAuth } = useTranslation("auth");
   const { t: tCommon } = useTranslation("common");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const baselineRef = useRef<{ name: string; avatar: string } | null>(null);
@@ -100,8 +101,8 @@ export function ProfileAccountSection({
       <ProfileSectionHeader title={tProfile("sections.account")} />
       <GroupedSettingsCard>
         <ProfileMenuItem
-          icon={<LogOut size={20} color={COLORS.error} />}
-          iconBgColor={COLORS.mood.level1}
+          icon={<LogOut size={20} color={colors.error} />}
+          iconBgColor={colors.mood.level1}
           title={tProfile("account.logout")}
           showChevron={false}
           danger
@@ -109,8 +110,8 @@ export function ProfileAccountSection({
         />
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
-          icon={<UserX size={20} color={COLORS.error} />}
-          iconBgColor={COLORS.mood.level1}
+          icon={<UserX size={20} color={colors.error} />}
+          iconBgColor={colors.mood.level1}
           title={tProfile("account.deleteAccount")}
           subtext={tProfile("account.deleteAccountSubtext")}
           showChevron={false}

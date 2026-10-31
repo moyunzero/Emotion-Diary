@@ -2,8 +2,8 @@ import { AppScreenShell } from "@/components/AppScreenShell";
 import CompanionDaysModal from "@/components/CompanionDaysModal";
 import { Toast } from "@/components/Toast";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
-import { COLORS } from "@/constants/colors";
 import { useAppStore } from "@/store/useAppStore";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import {
   excludeSoftDeletedEntries,
   onlySoftDeletedEntries,
@@ -34,9 +34,10 @@ export function ProfileScreen() {
   const router = useRouter();
   const { t } = useTranslation("profile");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileContentPadding, profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
   const user = useAppStore((state) => state.user);
   const entries = useAppStore((state) => state.entries);
@@ -219,9 +220,9 @@ export function ProfileScreen() {
           moodIcon={
             user ? (
               weather.score > 20 ? (
-                <CloudRain size={16} color={COLORS.gray[500]} />
+                <CloudRain size={16} color={colors.gray[500]} />
               ) : (
-                <Sun size={16} color={COLORS.weather.sunny.icon} />
+                <Sun size={16} color={colors.weather.sunny.icon} />
               )
             ) : undefined
           }
@@ -317,7 +318,7 @@ export function ProfileScreen() {
 
       {state.isLoading && (
         <View style={profileStyles.loadingOverlay}>
-          <ActivityIndicator size="large" color={COLORS.primaryDark} />
+          <ActivityIndicator size="large" color={colors.primaryDark} />
         </View>
       )}
 

@@ -11,14 +11,14 @@ import { GroupedSettingsCard } from "@/components/settings";
 import type {
   AppearanceMode,
   AppearancePreference,
-  ResolvedScheme,
 } from "@/services/appearanceSettings";
+import type { ResolvedColorScheme } from "@/constants/colors";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 export type ProfileAppearanceSectionProps = {
   appearancePreference: AppearancePreference;
-  effectiveColorScheme: ResolvedScheme;
+  effectiveColorScheme: ResolvedColorScheme;
   onSetAppearanceMode: (mode: AppearanceMode) => Promise<void>;
 };
 
@@ -30,8 +30,8 @@ export function ProfileAppearanceSection({
   const { width, height } = useWindowDimensions();
   const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const checkColor = colors.primaryDark;

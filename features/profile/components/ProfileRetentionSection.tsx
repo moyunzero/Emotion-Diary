@@ -8,9 +8,9 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ProfileSectionHeader } from "@/components/Profile";
 import { GroupedSettingsCard } from "@/components/settings";
-import { COLORS } from "@/constants/colors";
 import type { EmotionReminderSettings } from "@/services/reminderSettings";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 export type ProfileRetentionSectionProps = {
   reminderSettings: EmotionReminderSettings;
@@ -32,9 +32,10 @@ export function ProfileRetentionSection({
   const { t: tProfile } = useTranslation("profile");
   const { t: tRetention } = useTranslation("retention");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
 
   return (
@@ -45,10 +46,10 @@ export function ProfileRetentionSection({
           <View
             style={[
               profileStyles.menuIcon,
-              { backgroundColor: COLORS.mood.level1 },
+              { backgroundColor: colors.mood.level1 },
             ]}
           >
-            <Bell size={20} color={COLORS.brandPressed} />
+            <Bell size={20} color={colors.brandPressed} />
           </View>
           <View style={profileStyles.menuTextContainer}>
             <Text style={profileStyles.menuText}>
@@ -78,11 +79,11 @@ export function ProfileRetentionSection({
               value={reminderSettings.dailyReminderEnabled}
               onValueChange={() => onToggleDailyReminder()}
               disabled={isLoading || reminderLoading}
-              trackColor={{ false: COLORS.gray[200], true: COLORS.brandSoft }}
+              trackColor={{ false: colors.gray[200], true: colors.brandSoft }}
               thumbColor={
                 reminderSettings.dailyReminderEnabled
-                  ? COLORS.brandPressed
-                  : COLORS.gray[100]
+                  ? colors.brandPressed
+                  : colors.gray[100]
               }
             />
           ) : null}
@@ -94,10 +95,10 @@ export function ProfileRetentionSection({
               <View
                 style={[
                   profileStyles.menuIcon,
-                  { backgroundColor: COLORS.atmosphere.rainy },
+                  { backgroundColor: colors.atmosphere.rainy },
                 ]}
               >
-                <History size={20} color={COLORS.brandPressed} />
+                <History size={20} color={colors.brandPressed} />
               </View>
               <View style={profileStyles.menuTextContainer}>
                 <Text style={profileStyles.menuText}>
@@ -114,11 +115,11 @@ export function ProfileRetentionSection({
                 value={reminderSettings.weeklyReviewNotificationEnabled}
                 onValueChange={() => onToggleWeeklyReviewNotification()}
                 disabled={isLoading || reminderLoading}
-                trackColor={{ false: COLORS.gray[200], true: COLORS.brandSoft }}
+                trackColor={{ false: colors.gray[200], true: colors.brandSoft }}
                 thumbColor={
                   reminderSettings.weeklyReviewNotificationEnabled
-                    ? COLORS.brandPressed
-                    : COLORS.gray[100]
+                    ? colors.brandPressed
+                    : colors.gray[100]
                 }
               />
             </View>

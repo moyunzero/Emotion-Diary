@@ -5,7 +5,7 @@
  */
 
 import { X } from "lucide-react-native";
-import { useCallback, useEffect, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -26,7 +26,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { COLORS, DESIGN_TOKENS, withOpacity } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 export type AppSheetProps = {
   visible: boolean;
@@ -55,6 +56,78 @@ export function AppSheet({
 }: AppSheetProps) {
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          flex: 1,
+          justifyContent: "flex-end",
+        },
+        scrim: {
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: colors.scrim,
+        },
+        keyboard: {
+          width: "100%",
+          justifyContent: "flex-end",
+        },
+        sheet: {
+          width: "100%",
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: DESIGN_TOKENS.borderRadius.xl,
+          borderTopRightRadius: DESIGN_TOKENS.borderRadius.xl,
+          borderCurve: "continuous",
+          overflow: "hidden",
+        },
+        handleHit: {
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 28,
+          paddingTop: DESIGN_TOKENS.spacing.sm,
+          paddingBottom: DESIGN_TOKENS.spacing.xs,
+        },
+        handle: {
+          width: 40,
+          height: 4,
+          borderRadius: 2,
+          backgroundColor: colors.hairline,
+        },
+        header: {
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+          paddingBottom: DESIGN_TOKENS.spacing.sm,
+          minHeight: 44,
+        },
+        title: {
+          flex: 1,
+          fontSize: DESIGN_TOKENS.fontSize.lg,
+          fontWeight: "600",
+          color: colors.text.primary,
+          paddingRight: DESIGN_TOKENS.spacing.sm,
+        },
+        titleSpacer: {
+          flex: 1,
+        },
+        closeButton: {
+          minWidth: 44,
+          minHeight: 44,
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        body: {
+          flex: 1,
+          minHeight: 0,
+        },
+        footer: {
+          flexShrink: 0,
+          paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+          paddingTop: DESIGN_TOKENS.spacing.sm,
+        },
+      }),
+    [colors],
+  );
   const halfH = Math.round(windowHeight * HALF_RATIO);
   const fullH = Math.round(windowHeight * FULL_RATIO);
 
@@ -189,7 +262,7 @@ export function AppSheet({
                 style={styles.closeButton}
                 testID={testID ? `${testID}-close` : undefined}
               >
-                <X size={22} color={COLORS.text.tertiary} />
+                <X size={22} color={colors.text.tertiary} />
               </Pressable>
             </View>
 
@@ -201,71 +274,3 @@ export function AppSheet({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  scrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: withOpacity("#000000", 0.45),
-  },
-  keyboard: {
-    width: "100%",
-    justifyContent: "flex-end",
-  },
-  sheet: {
-    width: "100%",
-    backgroundColor: COLORS.surface,
-    borderTopLeftRadius: DESIGN_TOKENS.borderRadius.xl,
-    borderTopRightRadius: DESIGN_TOKENS.borderRadius.xl,
-    borderCurve: "continuous",
-    overflow: "hidden",
-  },
-  handleHit: {
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 28,
-    paddingTop: DESIGN_TOKENS.spacing.sm,
-    paddingBottom: DESIGN_TOKENS.spacing.xs,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.hairline,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: DESIGN_TOKENS.spacing.lg,
-    paddingBottom: DESIGN_TOKENS.spacing.sm,
-    minHeight: 44,
-  },
-  title: {
-    flex: 1,
-    fontSize: DESIGN_TOKENS.fontSize.lg,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-    paddingRight: DESIGN_TOKENS.spacing.sm,
-  },
-  titleSpacer: {
-    flex: 1,
-  },
-  closeButton: {
-    minWidth: 44,
-    minHeight: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  body: {
-    flex: 1,
-    minHeight: 0,
-  },
-  footer: {
-    flexShrink: 0,
-    paddingHorizontal: DESIGN_TOKENS.spacing.lg,
-    paddingTop: DESIGN_TOKENS.spacing.sm,
-  },
-});

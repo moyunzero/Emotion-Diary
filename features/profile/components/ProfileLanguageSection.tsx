@@ -8,8 +8,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ProfileSectionHeader } from "@/components/Profile";
 import { GroupedSettingsCard } from "@/components/settings";
-import { COLORS } from "@/constants/colors";
 import type { AppLocale } from "@/i18n/mapDeviceLocale";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import type {
   LocaleMode,
   LocalePreference,
@@ -31,10 +31,12 @@ export function ProfileLanguageSection({
 }: ProfileLanguageSectionProps) {
   const { t: tProfile } = useTranslation("profile");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
+  const checkColor = colors.primaryDark;
 
   return (
     <>
@@ -50,7 +52,7 @@ export function ProfileLanguageSection({
             </Text>
           </View>
           {localePreference.mode === "system" ? (
-            <Check size={20} color={COLORS.primaryDark} />
+            <Check size={20} color={checkColor} />
           ) : null}
         </Pressable>
         <View style={profileStyles.menuDivider} />
@@ -66,7 +68,7 @@ export function ProfileLanguageSection({
           </View>
           {localePreference.mode === "manual" &&
           effectiveLocale === "zh-Hans" ? (
-            <Check size={20} color={COLORS.primaryDark} />
+            <Check size={20} color={checkColor} />
           ) : null}
         </Pressable>
         <View style={profileStyles.menuDivider} />
@@ -82,7 +84,7 @@ export function ProfileLanguageSection({
           </View>
           {localePreference.mode === "manual" &&
           effectiveLocale === "en-US" ? (
-            <Check size={20} color={COLORS.primaryDark} />
+            <Check size={20} color={checkColor} />
           ) : null}
         </Pressable>
       </GroupedSettingsCard>
