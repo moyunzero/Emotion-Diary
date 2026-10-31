@@ -1,8 +1,15 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Localization from 'expo-localization';
-import { Appearance, AppState, Platform, StatusBar } from 'react-native';
+import {
+  AccessibilityInfo,
+  Animated,
+  Appearance,
+  AppState,
+  Platform,
+  StatusBar,
+} from 'react-native';
 /* eslint-disable import/no-duplicates -- RNGH：入口须先 side-effect 再命名导出 */
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -28,7 +35,7 @@ import {
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 import { enableAsoPreviewQuiet } from '../services/asoPreviewQuiet';
-import { COLORS } from '../constants/colors';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 if (Platform.OS === 'web') {
   installWebAlertPolyfill();
@@ -42,9 +49,84 @@ if (__DEV__ && process.env.EXPO_PUBLIC_ASO_PREVIEW === '1') {
 // 防止启动画面自动隐藏
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  // TOKEN-04 / Pitfall 4: system UI fonts — never block splash on webfont load
+const SCHEME_CROSSFADE_MS = 200;
 
+function RootLayoutShell() {
+  const { colors, effectiveColorScheme } = useThemeStyles();
+  const contentOpacity = useRef(new Animated.Value(1)).current;
+  const reduceMotionRef = useRef(false);
+
+  useEffect(() => {
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      reduceMotionRef.current = enabled;
+    });
+    const sub = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      (enabled) => {
+        reduceMotionRef.current = enabled;
+      },
+    );
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (reduceMotionRef.current) {
+      contentOpacity.setValue(1);
+      return;
+    }
+    contentOpacity.setValue(0.94);
+    Animated.timing(contentOpacity, {
+      toValue: 1,
+      duration: SCHEME_CROSSFADE_MS,
+      useNativeDriver: true,
+    }).start();
+  }, [effectiveColorScheme, contentOpacity]);
+
+  const statusBarStyle =
+    effectiveColorScheme === 'night' ? 'light-content' : 'dark-content';
+  const statusBarBackground = colors.surface;
+
+  return (
+    <>
+      <StatusBar
+        barStyle={statusBarStyle}
+        backgroundColor={statusBarBackground}
+        translucent={Platform.OS === 'android'}
+      />
+      <Animated.View style={{ flex: 1, opacity: contentOpacity }}>
+        <RecordingSessionHost />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="profile"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="review-export"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="recycle-bin"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="person-timeline"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="on-this-day"
+            options={{ headerShown: false }}
+          />
+        </Stack>
+        <MetaphorOnboardingHost />
+      </Animated.View>
+    </>
+  );
+}
+
+export default function RootLayout() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next) => {
       if (next === 'background' || next === 'inactive') {
@@ -188,45 +270,11 @@ export default function RootLayout() {
     return null;
   }
 
-  const statusBarStyle = 'dark-content';
-  const statusBarBackground = COLORS.surface;
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
         <SafeAreaProvider>
-          <StatusBar 
-            barStyle={statusBarStyle}
-            backgroundColor={statusBarBackground}
-            translucent={Platform.OS === 'android'}
-          />
-          <RecordingSessionHost />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen 
-              name="profile" 
-              options={{ 
-                headerShown: false,
-              }} 
-            />
-            <Stack.Screen
-              name="review-export"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="recycle-bin"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="person-timeline"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="on-this-day"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-          <MetaphorOnboardingHost />
+          <RootLayoutShell />
         </SafeAreaProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>

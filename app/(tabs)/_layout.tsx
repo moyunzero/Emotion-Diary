@@ -8,16 +8,23 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, DESIGN_TOKENS, withOpacity } from '@/constants/colors';
+import { DESIGN_TOKENS, withOpacity } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 
 const TAB_ICON_SIZE = 24;
 
-/** iOS: solid COLORS.bg until opaque underlay ships (G-23-6). Android: α0.92. */
+/** D-09 night tab wash (matches COLORS_NIGHT.tabBarBg). */
+const NIGHT_TAB_WASH = 'rgba(39, 28, 34, 0.82)';
+
+/** iOS: solid page bg until opaque underlay ships (G-23-6). Android: α0.92. */
 function TabBarBackground() {
+  const { colors, effectiveColorScheme } = useThemeStyles();
   const backgroundColor =
-    Platform.OS === 'ios'
-      ? COLORS.bg
-      : withOpacity(COLORS.bg, 0.92);
+    effectiveColorScheme === 'night'
+      ? NIGHT_TAB_WASH
+      : Platform.OS === 'ios'
+        ? colors.bg
+        : withOpacity(colors.tabBarBg, 0.92);
 
   return (
     <View
@@ -32,11 +39,8 @@ function TabBarBackground() {
 export default function TabLayout() {
   const { t } = useTranslation('tabs');
   const insets = useSafeAreaInsets();
+  const { colors } = useThemeStyles();
 
-  // Note: Inline tabBarIcon functions are acceptable here per Expo Router conventions
-  // - This is the standard pattern in React Navigation/Expo Router documentation
-  // - TabLayout rarely re-renders (only when safe area insets change)
-  // - Icon components are lightweight SVGs with no performance impact
   return (
     <Tabs
       screenOptions={{
@@ -45,7 +49,7 @@ export default function TabLayout() {
           position: 'absolute',
           backgroundColor: 'transparent',
           borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: COLORS.hairline,
+          borderTopColor: colors.hairline,
           elevation: 0,
           shadowOpacity: 0,
           shadowRadius: 0,
@@ -60,8 +64,8 @@ export default function TabLayout() {
           fontWeight: '600',
           marginTop: 4,
         },
-        tabBarActiveTintColor: COLORS.tab.active,
-        tabBarInactiveTintColor: COLORS.tab.inactive,
+        tabBarActiveTintColor: colors.tab.active,
+        tabBarInactiveTintColor: colors.tab.inactive,
       }}
     >
       <Tabs.Screen
