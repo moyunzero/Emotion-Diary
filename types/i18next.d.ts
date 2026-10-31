@@ -15,6 +15,7 @@ import type zhOnThisDay from "../locales/zh-Hans/onThisDay.json";
 import type zhRetention from "../locales/zh-Hans/retention.json";
 import type zhReview from "../locales/zh-Hans/review.json";
 import type zhRituals from "../locales/zh-Hans/rituals.json";
+import type zhPostSave from "../locales/zh-Hans/postSave.json";
 import type zhShare from "../locales/zh-Hans/share.json";
 import type zhSync from "../locales/zh-Hans/sync.json";
 import type zhTabs from "../locales/zh-Hans/tabs.json";
@@ -40,6 +41,7 @@ declare module "i18next" {
       dashboard: typeof zhDashboard;
       insights: typeof zhInsights;
       rituals: typeof zhRituals;
+      postSave: typeof zhPostSave;
       system: typeof zhSystem;
       ai: typeof zhAi;
     };

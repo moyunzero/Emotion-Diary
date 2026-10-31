@@ -1,10 +1,13 @@
 import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import PostSaveRitualOverlay from '../../components/rituals/PostSaveRitualOverlay';
 import Record from '../../components/Record';
 import { useStopAudioOnTabBlur } from '../../hooks/useStopAudioOnTabBlur';
 
 export default function RecordTab() {
   useStopAudioOnTabBlur();
   const router = useRouter();
+  const [ritualVisible, setRitualVisible] = useState(false);
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -14,9 +17,23 @@ export default function RecordTab() {
     }
   };
 
-  // Plan 04: post-save ritual overlay hooks here (D-06 / D-12).
-  // Create success stays on Write Tab — no Toast, no home replace.
-  const handleSuccess = () => {};
+  // Create success: stay on Write Tab; show post-save ritual (D-06 / D-12 / D-16).
+  // Edit path never mounts this overlay (EditEntryModal elsewhere).
+  const handleSuccess = useCallback(() => {
+    setRitualVisible(true);
+  }, []);
 
-  return <Record onClose={handleClose} onSuccess={handleSuccess} />;
+  const handleRitualDismiss = useCallback(() => {
+    setRitualVisible(false);
+  }, []);
+
+  return (
+    <>
+      <Record onClose={handleClose} onSuccess={handleSuccess} />
+      <PostSaveRitualOverlay
+        visible={ritualVisible}
+        onDismiss={handleRitualDismiss}
+      />
+    </>
+  );
 }
