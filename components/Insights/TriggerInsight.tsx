@@ -1,4 +1,5 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { resolveTriggerAdviceShort, resolveTriggerLabel } from '@/i18n/resolvePresetLabel';
 import { Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
@@ -9,7 +10,7 @@ import { formatLocaleDate } from '../../shared/formatting';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
-import { INSIGHTS_COLORS } from './constants';
+import { getInsightsColors } from './constants';
 import { PrescriptionCard } from './PrescriptionCard';
 
 interface TriggerInsightProps {
@@ -20,11 +21,16 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
   const { t } = useTranslation('insights');
   const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
@@ -43,11 +49,11 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         subtitle: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginBottom: spacing.component,
           marginLeft: 28,
         },
@@ -56,7 +62,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         loopContainer: {
           marginTop: 14,
-          backgroundColor: INSIGHTS_COLORS.bgEnd,
+          backgroundColor: insightsColors.bgEnd,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
           padding: 12,
           gap: 6,
@@ -64,15 +70,15 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         loopTitle: {
           fontSize: fontSize.body,
           fontWeight: '700',
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
         },
         loopText: {
           fontSize: fontSize.small,
           lineHeight: 18,
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         card: {
-          backgroundColor: INSIGHTS_COLORS.bgStart,
+          backgroundColor: insightsColors.bgStart,
           borderRadius: DESIGN_TOKENS.borderRadius.md,
           padding: 14,
         },
@@ -82,7 +88,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
           marginBottom: 10,
         },
         rankBadge: {
-          backgroundColor: INSIGHTS_COLORS.primary + '30',
+          backgroundColor: insightsColors.primary + '30',
           paddingHorizontal: 8,
           paddingVertical: 2,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
@@ -91,30 +97,30 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         rankText: {
           fontSize: DESIGN_TOKENS.fontSize.footnote,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
         },
         triggerName: {
           flex: 1,
           fontSize: fontSize.body,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         triggerCount: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
         },
         adviceContainer: {
           flexDirection: 'row',
           alignItems: 'flex-start',
           gap: 8,
-          backgroundColor: INSIGHTS_COLORS.bgEnd,
+          backgroundColor: insightsColors.bgEnd,
           padding: padding.vertical,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
         },
         adviceText: {
           flex: 1,
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
           lineHeight: 18,
         },
         emptyContainer: {
@@ -123,12 +129,12 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         emptyText: {
           fontSize: 14,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginTop: 12,
         },
         emptySubtext: {
           fontSize: 12,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginTop: 4,
         },
         progressContainer: {
@@ -146,16 +152,16 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
         },
         progressFill: {
           height: '100%',
-          backgroundColor: INSIGHTS_COLORS.accent,
+          backgroundColor: insightsColors.accent,
           borderRadius: DESIGN_TOKENS.borderRadius.full,
         },
         progressText: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           fontWeight: '600',
         },
       }),
-    [padding, fontSize, spacing, borderRadius]
+    [padding, fontSize, spacing, borderRadius, insightsColors]
   );
 
   const triggerData = useMemo(() => {
@@ -207,7 +213,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Leaf size={20} color={INSIGHTS_COLORS.accent} />
+          <Leaf size={20} color={insightsColors.accent} />
           <Text style={styles.title}>{t('triggers.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
@@ -241,7 +247,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Leaf size={20} color={INSIGHTS_COLORS.accent} />
+        <Leaf size={20} color={insightsColors.accent} />
         <Text style={styles.title}>{t('triggers.title')}</Text>
       </View>
       <Text style={styles.subtitle}>{t('triggers.subtitle')}</Text>
@@ -259,7 +265,7 @@ const TriggerInsightComponent: React.FC<TriggerInsightProps> = ({ entries }) => 
               </Text>
             </View>
             <View style={styles.adviceContainer}>
-              <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+              <Sparkles size={14} color={insightsColors.accent} />
               <Text style={styles.adviceText} numberOfLines={3}>
                 {resolveTriggerAdviceShort(trigger.name)}
               </Text>

@@ -5,8 +5,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import type { GrowthStageId } from '@/services/gardenMilestone';
-import { INSIGHTS_COLORS } from './constants';
+import { getInsightsColors } from './constants';
 import { getGrowthStage } from './utils';
 
 const STAGE_RATE_FOR_ICON: Record<GrowthStageId, number> = {
@@ -34,11 +35,16 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
 }) => {
   const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
@@ -57,7 +63,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         content: {
           flexDirection: 'row',
@@ -77,7 +83,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         },
         stageLabel: {
           fontSize: 12,
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
           fontWeight: 'bold',
           marginTop: 4,
         },
@@ -98,11 +104,11 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         statNumber: {
           fontSize: fontSize.title,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         statLabel: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           flexShrink: 1,
         },
         encouragement: {
@@ -117,7 +123,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         },
         encouragementText: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
           fontStyle: 'italic',
         },
         milestoneBanner: {
@@ -128,9 +134,9 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           paddingVertical: 12,
           paddingHorizontal: 16,
           borderRadius: DESIGN_TOKENS.borderRadius.md,
-          backgroundColor: INSIGHTS_COLORS.accent + '14',
+          backgroundColor: insightsColors.accent + '14',
           borderLeftWidth: 4,
-          borderLeftColor: INSIGHTS_COLORS.accent,
+          borderLeftColor: insightsColors.accent,
         },
         milestoneTextWrap: {
           flex: 1,
@@ -139,15 +145,15 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         milestoneTitle: {
           fontSize: 16,
           fontWeight: '600',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         milestoneBody: {
           fontSize: 14,
           fontWeight: '400',
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
         },
       }),
-    [padding, fontSize, spacing, borderRadius]
+    [padding, fontSize, spacing, borderRadius, insightsColors]
   );
   const milestoneHandledRef = useRef(false);
   useEffect(() => {
@@ -179,7 +185,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Heart size={20} color={INSIGHTS_COLORS.accent} />
+        <Heart size={20} color={insightsColors.accent} />
         <Text style={styles.title}>{t('healing.title')}</Text>
       </View>
 
@@ -189,7 +195,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           testID="garden-milestone-banner"
           accessibilityLiveRegion="polite"
         >
-          <PendingMilestoneIcon size={24} color={INSIGHTS_COLORS.accent} />
+          <PendingMilestoneIcon size={24} color={insightsColors.accent} />
           <View style={styles.milestoneTextWrap}>
             <Text style={styles.milestoneTitle}>
               {t(`milestone.${pendingStage}.title` as never)}
@@ -219,7 +225,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke={INSIGHTS_COLORS.accent}
+              stroke={insightsColors.accent}
               strokeWidth={strokeWidth}
               fill="none"
               strokeLinecap="round"
@@ -231,7 +237,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           </Svg>
           {/* 中心图标 */}
           <View style={styles.centerIcon}>
-            <GrowthIcon size={36} color={INSIGHTS_COLORS.accent} />
+            <GrowthIcon size={36} color={insightsColors.accent} />
             <Text style={styles.stageLabel}>{growthStage.label}</Text>
           </View>
         </View>
@@ -240,7 +246,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
         <View style={styles.stats}>
           <View style={styles.statItem}>
             <View style={styles.statRow}>
-              <Flower2 size={18} color={INSIGHTS_COLORS.accent} />
+              <Flower2 size={18} color={insightsColors.accent} />
               <Text style={styles.statNumber}>{resolvedCount}</Text>
             </View>
             <Text style={styles.statLabel} numberOfLines={2}>
@@ -249,7 +255,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
           </View>
           <View style={styles.statItem}>
             <View style={styles.statRow}>
-              <Sprout size={18} color={INSIGHTS_COLORS.textSecondary} />
+              <Sprout size={18} color={insightsColors.textSecondary} />
               <Text style={styles.statNumber}>{pendingCount}</Text>
             </View>
             <Text style={styles.statLabel} numberOfLines={2}>
@@ -261,7 +267,7 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
 
       {/* 鼓励文案 */}
       <View style={styles.encouragement}>
-        <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+        <Sparkles size={14} color={insightsColors.accent} />
         <Text style={styles.encouragementText} numberOfLines={2}>
           {t('healing.encouragement')}
         </Text>

@@ -4,11 +4,12 @@ import React, { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { useResponsiveStyles } from "../../hooks/useResponsiveStyles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { MoodEntry, Status } from "../../types";
 import { formatLocaleDate } from "@/shared/formatting";
 import { useAppStore } from "@/store/useAppStore";
 import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
-import { INSIGHTS_COLORS } from "./constants";
+import { getInsightsColors } from "./constants";
 
 interface EmotionReleaseArchiveProps {
   entries: MoodEntry[];
@@ -20,6 +21,98 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
   const { t } = useTranslation("insights");
   const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const responsive = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: insightsColors.cardBg,
+          shadowColor: COLORS.shadow.primary,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        header: {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
+        },
+        title: {
+          fontWeight: "700",
+          color: insightsColors.text,
+        },
+        subtitle: {
+          marginTop: 4,
+          marginBottom: 12,
+          marginLeft: 28,
+          color: insightsColors.textSecondary,
+        },
+        metricRow: {
+          flexDirection: "row",
+          gap: 10,
+          marginBottom: 12,
+        },
+        metricPill: {
+          flex: 1,
+          backgroundColor: COLORS.atmosphere.sunny,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+        },
+        metricLabel: {
+          color: COLORS.ritual.burn,
+        },
+        metricValue: {
+          marginTop: 2,
+          fontWeight: "700",
+          color: COLORS.ritual.burn,
+        },
+        recordCard: {
+          backgroundColor: COLORS.background.secondary,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          padding: 12,
+        },
+        recordDate: {
+          color: insightsColors.textSecondary,
+          marginBottom: 6,
+        },
+        recordContent: {
+          color: insightsColors.text,
+          marginBottom: 10,
+        },
+        questionRow: {
+          flexDirection: "row",
+          alignItems: "flex-start",
+          gap: 6,
+          backgroundColor: insightsColors.bgEnd,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+        },
+        questionText: {
+          flex: 1,
+          color: insightsColors.text,
+        },
+        emptyCard: {
+          marginTop: 4,
+          backgroundColor: COLORS.background.secondary,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          padding: 16,
+          alignItems: "center",
+          gap: 8,
+        },
+        emptyText: {
+          textAlign: "center",
+          color: insightsColors.textSecondary,
+        },
+      }),
+    [insightsColors],
+  );
   const releaseData = useMemo(() => {
     const burnedEntries = entries
       .filter((entry) => entry.status === Status.BURNED)
@@ -163,89 +256,5 @@ const EmotionReleaseArchiveComponent: React.FC<EmotionReleaseArchiveProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    shadowColor: COLORS.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  title: {
-    fontWeight: "700",
-    color: INSIGHTS_COLORS.text,
-  },
-  subtitle: {
-    marginTop: 4,
-    marginBottom: 12,
-    marginLeft: 28,
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  metricRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 12,
-  },
-  metricPill: {
-    flex: 1,
-    backgroundColor: COLORS.atmosphere.sunny,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  metricLabel: {
-    color: COLORS.ritual.burn,
-  },
-  metricValue: {
-    marginTop: 2,
-    fontWeight: "700",
-    color: COLORS.ritual.burn,
-  },
-  recordCard: {
-    backgroundColor: COLORS.background.secondary,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-    padding: 12,
-  },
-  recordDate: {
-    color: INSIGHTS_COLORS.textSecondary,
-    marginBottom: 6,
-  },
-  recordContent: {
-    color: INSIGHTS_COLORS.text,
-    marginBottom: 10,
-  },
-  questionRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 6,
-    backgroundColor: INSIGHTS_COLORS.bgEnd,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  questionText: {
-    flex: 1,
-    color: INSIGHTS_COLORS.text,
-  },
-  emptyCard: {
-    marginTop: 4,
-    backgroundColor: COLORS.background.secondary,
-    borderRadius: DESIGN_TOKENS.borderRadius.sm,
-    padding: 16,
-    alignItems: "center",
-    gap: 8,
-  },
-  emptyText: {
-    textAlign: "center",
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-});
 
 export const EmotionReleaseArchive = memo(EmotionReleaseArchiveComponent);
