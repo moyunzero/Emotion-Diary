@@ -37,3 +37,24 @@ describe('noEmotionIndex — home forecast removed (FLOW-01 / D-26)', () => {
     expect(dashboardSource).toMatch(/<WeatherStation\s*\/>/);
   });
 });
+
+describe('WeatherStation chrome — UI-SPEC brand sentence + pageX (quick 261031-uj5)', () => {
+  it('uses SERIF_STACK brand narrative at 22 / ~1.45 lineHeight', () => {
+    expect(weatherStationSource).toMatch(/SERIF_STACK/);
+    expect(weatherStationSource).toMatch(/fontFamily:\s*SERIF_STACK/);
+    expect(weatherStationSource).toMatch(
+      /fontSize:\s*(?:NARRATIVE_SIZE|DESIGN_TOKENS\.fontSize\.xxl)|NARRATIVE_SIZE\s*=\s*DESIGN_TOKENS\.fontSize\.xxl/,
+    );
+    expect(weatherStationSource).toMatch(/1\.45/);
+  });
+
+  it('uses pageX gutter, weight 600 title, and shadow.none (no soft elevation)', () => {
+    expect(weatherStationSource).toMatch(
+      /marginHorizontal:\s*DESIGN_TOKENS\.spacing\.pageX/,
+    );
+    expect(weatherStationSource).toMatch(/fontWeight:\s*['"]600['"]/);
+    expect(weatherStationSource).not.toMatch(/fontWeight:\s*['"]bold['"]/);
+    expect(weatherStationSource).toMatch(/\.\.\.DESIGN_TOKENS\.shadow\.none/);
+    expect(weatherStationSource).not.toMatch(/elevation:\s*[1-9]/);
+  });
+});

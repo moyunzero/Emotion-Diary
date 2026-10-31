@@ -2,7 +2,7 @@ import { Cloud, CloudRain, CloudSnow, Sun } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { COLORS, DESIGN_TOKENS, SERIF_STACK } from '@/constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import {
   computeWeatherNarrative,
@@ -86,37 +86,36 @@ const WeatherStationComponent: React.FC = () => {
   );
 };
 
+const NARRATIVE_SIZE = DESIGN_TOKENS.fontSize.xxl; // 22 — UI-SPEC brand sentence
+
 const styles = StyleSheet.create({
   container: {
     borderRadius: DESIGN_TOKENS.borderRadius.md,
-    padding: 20,
-    marginHorizontal: 16,
-    shadowColor: COLORS.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    padding: DESIGN_TOKENS.spacing.pageX,
+    marginHorizontal: DESIGN_TOKENS.spacing.pageX,
+    ...DESIGN_TOKENS.shadow.none,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: DESIGN_TOKENS.spacing.lg,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: DESIGN_TOKENS.fontSize.title,
+    fontWeight: '600',
   },
   iconContainer: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: DESIGN_TOKENS.spacing.lg,
   },
   narrative: {
-    fontSize: 16,
+    fontFamily: SERIF_STACK,
+    fontSize: NARRATIVE_SIZE,
     fontWeight: '400',
     textAlign: 'center',
-    marginVertical: 8,
-    lineHeight: 22,
+    marginVertical: DESIGN_TOKENS.spacing.sm,
+    lineHeight: Math.round(NARRATIVE_SIZE * 1.45),
   },
 });
 
