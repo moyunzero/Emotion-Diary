@@ -16,7 +16,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { DEADLINE_CONFIG, PEOPLE_KEYS, TRIGGER_KEYS } from "../../constants";
+import {
+  DEADLINE_CONFIG,
+  SHORTCUT_PEOPLE_KEYS,
+  TRIGGER_KEYS,
+} from "../../constants";
 import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
 import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
@@ -120,7 +124,7 @@ export function EntryEditor(props: EntryEditorProps) {
   const [customTriggerOptions, setCustomTriggerOptions] = useState<string[]>(
     [],
   );
-  const allPeople = [...PEOPLE_KEYS, ...customPeopleOptions];
+  const allPeople = [...SHORTCUT_PEOPLE_KEYS, ...customPeopleOptions];
   const allTriggers = [...TRIGGER_KEYS, ...customTriggerOptions];
 
   const [audios, setAudios] = useState<AudioData[]>([]);

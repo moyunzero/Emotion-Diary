@@ -53,11 +53,14 @@
   },
   "presets": {
     "people": {
+      "partner": "伴侣",
+      "family": "家人",
+      "colleague": "同事",
+      "friend": "朋友",
       "boyfriend": "男朋友",
       "girlfriend": "女朋友",
       "husband": "老公",
       "wife": "老婆",
-      "friend": "朋友",
       "other": "其他"
     },
     "triggers": {
