@@ -130,7 +130,15 @@ export function EntryEditor(props: EntryEditorProps) {
   const [audios, setAudios] = useState<AudioData[]>([]);
   /** Mic reveals existing AudioRecorder; hide large chrome until opened (D-04). */
   const [audioSessionVisible, setAudioSessionVisible] = useState(false);
+  /** Stay mounted after first Mic open so collapse/keyboard cannot unmount mid-commit (G-25-2). */
+  const [audioSessionMounted, setAudioSessionMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (audioSessionVisible) {
+      setAudioSessionMounted(true);
+    }
+  }, [audioSessionVisible]);
 
   const editVisible = !isCreate ? (props as EntryEditorEditProps).visible : true;
 
@@ -460,14 +468,26 @@ export function EntryEditor(props: EntryEditorProps) {
         peopleSectionTitle={t("sections.people.title")}
         triggersSectionTitle={t("sections.triggers.title")}
       />
-      {/* Mic reveals session; hide large chrome when collapsed (D-04). */}
-      {!keyboardOpen && audioSessionVisible ? (
+      {/* Mic reveals session; keep AudioRecorder mounted — hide chrome only (D-04 / G-25-2). */}
+      {audioSessionMounted ? (
         <View
-          style={
+          style={[
             embedded
               ? embeddedStyles.audioSection
-              : fullscreenStyles.audioSection
-          }
+              : fullscreenStyles.audioSection,
+            !(audioSessionVisible && !keyboardOpen)
+              ? {
+                  height: 0,
+                  opacity: 0,
+                  overflow: "hidden" as const,
+                  marginTop: 0,
+                  marginBottom: 0,
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  pointerEvents: "none" as const,
+                }
+              : null,
+          ]}
         >
           {embedded ? (
             <Text style={embeddedStyles.audioSectionTitle}>

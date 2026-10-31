@@ -112,6 +112,15 @@ export const AudioRecorder = React.forwardRef<
   useEffect(() => {
     return () => {
       audioCoordinator.stop();
+      // Skip delete of singleton ExpoAudio temp while commit/record is in flight (G-25-2).
+      const state = useAppStore.getState().recordingState;
+      if (
+        state === "preparing" ||
+        state === "recording" ||
+        state === "processing"
+      ) {
+        return;
+      }
       void forceCancelRecording();
     };
   }, []);
