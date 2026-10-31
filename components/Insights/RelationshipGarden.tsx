@@ -113,10 +113,6 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           fontWeight: 'bold',
           textAlign: 'center',
         },
-        statsText: {
-          fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
-        },
         emptyContainer: {
           alignItems: 'center',
           paddingVertical: 24,
@@ -139,19 +135,20 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
     [padding, fontSize, spacing, borderRadius, layout]
   );
 
-  // Phase 13 helpers — same soft-delete / status / person contract as timeline header (D-06)
+  // Phase 13 helpers — soft-delete / person contract; sort by latest activity (D-21)
   const relationshipData = useMemo(() => {
     return listDistinctPeople(entries)
       .map((name) => {
         const agg = aggregateForPerson(entries, name);
         return {
           name,
-          total: agg.entryCount,
-          resolved: agg.resolvedCount,
           resolveRate: agg.resolveRate,
+          latestTimestamp: agg.latestTimestamp,
         };
       })
-      .sort((a, b) => a.resolveRate - b.resolveRate) // 需要关注的排前面
+      .sort(
+        (a, b) => (b.latestTimestamp ?? 0) - (a.latestTimestamp ?? 0),
+      )
       .slice(0, 5);
   }, [entries]);
 
@@ -196,10 +193,6 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
             needWaterColor: INSIGHTS_COLORS.needWaterColor,
           }, t);
           const displayName = resolvePeopleLabel(person.name);
-          const healedCountText = t('relationship.healedCount', {
-            resolved: person.resolved,
-            total: person.total,
-          });
           return (
             <Pressable
               key={person.name}
@@ -218,12 +211,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               accessibilityLabel={buildRelationshipPotA11yLabel(
                 displayName,
                 potStatus.label,
-                healedCountText,
               )}
               accessibilityHint={t('relationship.potA11yHint', { name: displayName })}
               testID={`relationship-garden-pot-${person.name}`}
             >
-              {/* 花盆图标 */}
+              {/* 花盆图标 — resolveRate drives growth visual only (D-20) */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
                 {renderPotIcon(potStatus.status, potStatus.color)}
               </View>
@@ -231,7 +223,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               <Text style={styles.personName} numberOfLines={1}>
                 {displayName}
               </Text>
-              {/* 状态标签 */}
+              {/* 生长态标签（无 X/Y 和解 — D-20） */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
                 <Text
                   style={[styles.statusText, { color: potStatus.color }]}
@@ -242,10 +234,6 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
                   {potStatus.label}
                 </Text>
               </View>
-              {/* 统计 */}
-              <Text style={styles.statsText} numberOfLines={1}>
-                {healedCountText}
-              </Text>
             </Pressable>
           );
         })}

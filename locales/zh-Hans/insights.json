@@ -30,6 +30,9 @@
   "weeklyWeather": {
     "title": "本周情绪天气"
   },
+  "care": {
+    "weekCount": "本周照料了 {{n}} 次"
+  },
   "healing": {
     "title": "治愈进度",
     "stats": {

@@ -1,8 +1,7 @@
-/** Screen-reader label for a garden pot: name + status + healed count. */
+/** Screen-reader label for a garden pot: name + growth status only (D-20). */
 export function buildRelationshipPotA11yLabel(
   displayName: string,
   statusLabel: string,
-  healedCountText: string,
 ): string {
-  return `${displayName}, ${statusLabel}, ${healedCountText}`;
+  return `${displayName}, ${statusLabel}`;
 }

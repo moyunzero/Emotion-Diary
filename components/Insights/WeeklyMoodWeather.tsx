@@ -72,6 +72,16 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           justifyContent: 'center',
           marginBottom: 8,
         },
+        /** No-entry week day: dashed circle only (D-23); omit seed status label */
+        emptyDayDot: {
+          width: 12,
+          height: 12,
+          borderRadius: 6,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: COLORS.text.tertiary,
+          borderStyle: 'dashed',
+          backgroundColor: 'transparent',
+        },
         status: {
           fontSize: fontSize.small,
           color: INSIGHTS_COLORS.textSecondary,
@@ -129,11 +139,17 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
                 {getWeekdayName(date, t)}
               </Text>
               <View style={styles.iconContainer}>
-                {getMoodWeatherIcon(moodLevel, 28)}
+                {moodLevel === null ? (
+                  <View style={styles.emptyDayDot} testID="week-empty-day-dot" />
+                ) : (
+                  getMoodWeatherIcon(moodLevel, 28)
+                )}
               </View>
-              <Text style={[styles.status, today && styles.todayText]}>
-                {getMoodFlowerStatus(moodLevel, t)}
-              </Text>
+              {moodLevel !== null ? (
+                <Text style={[styles.status, today && styles.todayText]}>
+                  {getMoodFlowerStatus(moodLevel, t)}
+                </Text>
+              ) : null}
             </View>
           );
         })}

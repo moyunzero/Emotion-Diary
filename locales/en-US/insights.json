@@ -30,6 +30,9 @@
   "weeklyWeather": {
     "title": "This week's mood weather"
   },
+  "care": {
+    "weekCount": "Cared for yourself {{n}} times this week"
+  },
   "healing": {
     "title": "Healing progress",
     "stats": {
