@@ -5,6 +5,10 @@ import {
   type DashboardFilterType,
 } from "@/shared/entries/dashboardFilter";
 import {
+  buildDashboardDaySections,
+  type DashboardDayItem,
+} from "@/shared/entries/dayGroup";
+import {
   computeWeatherNarrative,
   getWeatherEmptyReason,
 } from "@/shared/weather/weatherNarrative";
@@ -37,7 +41,6 @@ import {
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
-import { MoodEntry } from "../types";
 import {
   registerAsoDashboardScroller,
   requestAsoDashboardScroll,
@@ -86,7 +89,7 @@ const Dashboard: React.FC = () => {
   );
   const { colors } = useThemeStyles();
   const [filter, setFilter] = useState<DashboardFilter>("active");
-  const listRef = useRef<FlashListRef<MoodEntry>>(null);
+  const listRef = useRef<FlashListRef<DashboardDayItem>>(null);
   /** App Preview：下滑时强制刷屏，避免 simctl 静止不写帧 */
   const [asoFramePulse, setAsoFramePulse] = useState(0);
   const asoPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -139,10 +142,16 @@ const Dashboard: React.FC = () => {
     [entries, filter],
   );
 
-  const getItemType = useCallback(
-    (item: MoodEntry) => getDashboardEntryItemType(item),
-    [],
+  // D-43/D-44: filter first, then day-group; no empty day headers
+  const listItems = useMemo(
+    () => buildDashboardDaySections(filteredEntries, new Date(), effectiveLocale),
+    [filteredEntries, effectiveLocale],
   );
+
+  const getItemType = useCallback((item: DashboardDayItem) => {
+    if (item.type === "dayHeader") return "dayHeader";
+    return getDashboardEntryItemType(item.entry);
+  }, []);
 
   const segmentItems = useMemo(
     () =>
@@ -189,14 +198,32 @@ const Dashboard: React.FC = () => {
     // EntryCard 内部会调用 burnEntry，这里保留空函数用于兼容
   }, []);
 
-  // FlatList 渲染函数，使用 useCallback 优化性能
-  const renderEntry = useCallback<ListRenderItem<MoodEntry>>(
-    ({ item }) => <EntryCard entry={item} onBurn={handleBurn} />,
-    [handleBurn],
+  const renderItem = useCallback<ListRenderItem<DashboardDayItem>>(
+    ({ item }) => {
+      if (item.type === "dayHeader") {
+        return (
+          <View
+            style={styles.dayHeader}
+            accessibilityRole="header"
+            accessibilityLabel={item.label}
+            testID={`dashboard-day-header-${item.dayKey}`}
+          >
+            <Text style={[styles.dayHeaderText, { color: colors.text.secondary }]}>
+              {item.label}
+            </Text>
+          </View>
+        );
+      }
+      return <EntryCard entry={item.entry} onBurn={handleBurn} />;
+    },
+    [handleBurn, styles.dayHeader, styles.dayHeaderText, colors.text.secondary],
   );
 
-  // FlatList key 提取函数
-  const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
+  const keyExtractor = useCallback(
+    (item: DashboardDayItem) =>
+      item.type === "dayHeader" ? `day-${item.dayKey}` : item.entry.id,
+    [],
+  );
 
   const goToRecord = useCallback(() => {
     router.push("/record");
@@ -310,8 +337,8 @@ const Dashboard: React.FC = () => {
                 : 0) + tabBarHeight,
           },
         ]}
-        data={filteredEntries}
-        renderItem={renderEntry}
+        data={listItems}
+        renderItem={renderItem}
         keyExtractor={keyExtractor}
         getItemType={getItemType}
         ListHeaderComponent={renderListHeader}

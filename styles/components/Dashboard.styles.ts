@@ -81,6 +81,19 @@ export function createDashboardStyles(width: number, height: number) {
       paddingHorizontal: DESIGN_TOKENS.spacing.sm,
       paddingBottom: DESIGN_TOKENS.spacing.xxl,
     },
+    /** Day group header — Label/600 text.secondary; md top/bottom (UI-SPEC) */
+    dayHeader: {
+      paddingTop: DESIGN_TOKENS.spacing.md,
+      marginBottom: DESIGN_TOKENS.spacing.md,
+      paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+    },
+    dayHeaderText: {
+      fontSize: DESIGN_TOKENS.fontSize.caption,
+      fontWeight: '600',
+      lineHeight: Math.round(DESIGN_TOKENS.fontSize.caption * 1.43),
+      letterSpacing: 0,
+      color: COLORS.text.secondary,
+    },
     emptyState: {
       alignItems: 'center',
       paddingVertical: 80,
