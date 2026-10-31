@@ -3,7 +3,7 @@
  * Jest -t 'bg|brand' selects only paper/brand (+ brandPressed/brandSoft + aliases) asserts.
  */
 
-import { COLORS } from "@/constants/colors";
+import { COLORS, COLORS_NIGHT, getColors } from "@/constants/colors";
 
 /** Future semantic shape (Plan 02); cast so Wave 0 compiles against candy COLORS. */
 type SketchColors = {
@@ -85,5 +85,32 @@ describe("COLORS semantic tokens (TOKEN-01)", () => {
       expect(c.mood.icon.level5).not.toBe("#C084FC");
       expect(c.mood.icon.level5).not.toBe("#A78BFA");
     });
+  });
+});
+
+/** Night anchors from night.css / night-role-map (NIGHT-02 · Plan 02 GREEN). */
+type NightSketchColors = {
+  bg: string;
+  brand: string;
+  background: { page: string };
+  tab?: { barBg?: string };
+};
+
+describe("COLORS_NIGHT semantic tokens (NIGHT-02)", () => {
+  it("getColors returns COLORS for light and COLORS_NIGHT for night", () => {
+    expect(getColors("light")).toBe(COLORS);
+    expect(getColors("night")).toBe(COLORS_NIGHT);
+  });
+
+  it("night page bg and brand accent match pink-ink sketch", () => {
+    const night = COLORS_NIGHT as unknown as NightSketchColors;
+    expect(night.background.page).toBe("#1C1418");
+    expect(night.bg).toBe("#1C1418");
+    expect(night.brand).toBe("#F08AA8");
+  });
+
+  it("night tab wash matches UI-SPEC rgba(39, 28, 34, 0.82)", () => {
+    const night = COLORS_NIGHT as unknown as NightSketchColors;
+    expect(night.tab?.barBg).toBe("rgba(39, 28, 34, 0.82)");
   });
 });
