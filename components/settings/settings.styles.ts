@@ -1,20 +1,24 @@
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { SPACING } from "@/constants/spacing";
 
-export function createSettingsStyles(_width: number, _height: number) {
+export function createSettingsStyles(
+  _width: number,
+  _height: number,
+  colors: ColorPalette,
+) {
   const { spacing, borderRadius, fontSize, shadow } = DESIGN_TOKENS;
 
   return StyleSheet.create({
     footnote: {
       fontSize: fontSize.xs,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       lineHeight: 18,
       marginTop: spacing.xs,
       marginBottom: spacing.sm,
     },
     groupedCard: {
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderRadius: borderRadius.xl,
       overflow: "hidden",
       marginBottom: SPACING.xxl,
@@ -28,14 +32,14 @@ export function createSettingsStyles(_width: number, _height: number) {
     statusText: {
       flex: 1,
       fontSize: fontSize.sm,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     statusIcon: {
       marginRight: spacing.sm,
     },
     groupDivider: {
       height: 1,
-      backgroundColor: COLORS.gray[100],
+      backgroundColor: colors.gray[100],
       marginLeft: spacing.lg,
     },
   });

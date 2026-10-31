@@ -4,6 +4,7 @@
 
 import React, { useMemo } from "react";
 import { StyleProp, View, ViewStyle, useWindowDimensions } from "react-native";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { createSettingsStyles } from "./settings.styles";
 
 export type GroupedSettingsCardProps = {
@@ -21,9 +22,10 @@ export function GroupedSettingsCard({
   testID,
 }: GroupedSettingsCardProps) {
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createSettingsStyles(width, height),
-    [width, height],
+    () => createSettingsStyles(width, height, colors),
+    [width, height, colors],
   );
 
   return (

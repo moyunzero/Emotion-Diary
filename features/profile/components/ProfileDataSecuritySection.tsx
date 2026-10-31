@@ -61,8 +61,8 @@ export function ProfileDataSecuritySection({
     [width, height, colors],
   );
   const settingsStyles = useMemo(
-    () => createSettingsStyles(width, height),
-    [width, height],
+    () => createSettingsStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const lastSyncLabel = tSync("status.lastSyncPrefix", {
