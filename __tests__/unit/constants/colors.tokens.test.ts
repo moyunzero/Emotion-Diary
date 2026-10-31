@@ -129,4 +129,30 @@ describe("COLORS_NIGHT semantic tokens (NIGHT-02)", () => {
     const night = COLORS_NIGHT;
     expect(night.tab?.barBg).toBe("rgba(39, 28, 34, 0.82)");
   });
+
+  it("night weather card and weather fills match night.css washes", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { COLORS_NIGHT } = require("@/constants/colors") as {
+      COLORS_NIGHT: {
+        weather: {
+          sunny: { bg: string };
+          cloudy: { bg: string };
+          rainy: { bg: string };
+          stormy: { bg: string };
+        };
+        weatherCard: {
+          sunny: { bg: string };
+          cloudy: { bg: string };
+          rainy: { bg: string };
+        };
+      };
+    };
+    const night = COLORS_NIGHT;
+    expect(night.weather.sunny.bg).toBe("#2B2419");
+    expect(night.weather.cloudy.bg).toBe("#22262A");
+    expect(night.weather.rainy.bg).toBe("#1E2530");
+    expect(night.weatherCard.sunny.bg).toBe("#2B2419");
+    expect(night.weatherCard.cloudy.bg).toBe("#22262A");
+    expect(night.weatherCard.rainy.bg).toBe("#1E2530");
+  });
 });
