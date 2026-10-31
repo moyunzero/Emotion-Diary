@@ -468,14 +468,15 @@ export function EntryEditor(props: EntryEditorProps) {
         peopleSectionTitle={t("sections.people.title")}
         triggersSectionTitle={t("sections.triggers.title")}
       />
-      {/* Mic reveals session; keep AudioRecorder mounted — hide chrome only (D-04 / G-25-2). */}
+      {/* Mic reveals session; keep AudioRecorder mounted — hide chrome only (D-04 / G-25-2).
+          G-25-3: do not AND keyboardOpen — rename TextInput needs interactive chrome. */}
       {audioSessionMounted ? (
         <View
           style={[
             embedded
               ? embeddedStyles.audioSection
               : fullscreenStyles.audioSection,
-            !(audioSessionVisible && !keyboardOpen)
+            !audioSessionVisible
               ? {
                   height: 0,
                   opacity: 0,
