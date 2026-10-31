@@ -80,10 +80,20 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
     }
   };
 
+  const beginEdit = () => {
+    setEditedName(displayName);
+    setIsEditing(true);
+  };
+
   const handleSaveEdit = () => {
     if (editedName.trim()) {
       onRename(audio.id, editedName.trim());
     }
+    setIsEditing(false);
+  };
+
+  /** Exit edit without persisting — seeded 「录制于 …」 must not call onRename (G-25-3). */
+  const handleBlurEdit = () => {
     setIsEditing(false);
   };
 
@@ -103,14 +113,18 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.mainContent} onPress={handlePlayPause}>
-        <View style={styles.playButton}>
+      <View style={styles.mainContent}>
+        <Pressable
+          style={styles.playButton}
+          onPress={handlePlayPause}
+          accessibilityRole="button"
+        >
           {isPlaying ? (
             <Pause size={20} color={COLORS.audio.primary} />
           ) : (
             <Play size={20} color={COLORS.audio.primary} />
           )}
-        </View>
+        </Pressable>
 
         <View style={styles.infoContainer}>
           <View style={styles.headerRow}>
@@ -120,7 +134,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
                 value={editedName}
                 onChangeText={setEditedName}
                 autoFocus
-                onBlur={handleSaveEdit}
+                onBlur={handleBlurEdit}
                 onSubmitEditing={handleSaveEdit}
               />
             ) : (
@@ -148,7 +162,7 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
               ) : (
                 <>
                   <TouchableOpacity
-                    onPress={() => setIsEditing(true)}
+                    onPress={beginEdit}
                     style={styles.actionButton}
                   >
                     <Edit3 size={14} color={COLORS.text.secondary} />
@@ -164,7 +178,11 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
             </View>
           </View>
 
-          <View style={styles.progressContainer}>
+          <Pressable
+            style={styles.progressContainer}
+            onPress={handlePlayPause}
+            accessibilityRole="button"
+          >
             <View style={styles.progressBar}>
               <View
                 style={[styles.progressFill, { width: `${progress * 100}%` }]}
@@ -173,9 +191,9 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
             <Text style={styles.duration}>
               {formatDuration(currentPosition)} / {formatDuration(audio.duration)}
             </Text>
-          </View>
+          </Pressable>
         </View>
-      </Pressable>
+      </View>
 
       <Modal
         visible={showDeleteConfirm}

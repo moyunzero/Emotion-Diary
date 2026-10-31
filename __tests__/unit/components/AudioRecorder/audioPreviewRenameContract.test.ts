@@ -21,13 +21,13 @@ describe('audioPreviewRenameContract (G-25-3)', () => {
 
   it('never calls onRename from blur or cancel paths', () => {
     // onBlur must not invoke onRename (seeded 「录制于 …」 is non-empty)
-    const blurIdx = previewSource.search(/onBlur\s*=/);
-    if (blurIdx >= 0) {
-      const win = previewSource.slice(Math.max(0, blurIdx - 200), blurIdx + 400);
-      expect(win).not.toMatch(/onRename/);
-      // Blur handler must not be the persist/save path
-      expect(win).not.toMatch(/handleSaveEdit|handlePersistRename|persistRename/);
-    }
+    expect(previewSource).not.toMatch(/onBlur=\{handleSaveEdit\}/);
+    expect(previewSource).not.toMatch(/onBlur=\{[^}]*onRename/);
+    const blurHandler = previewSource.match(
+      /handleBlurEdit\s*=\s*\([^)]*\)\s*=>\s*\{[\s\S]*?\n\s*\}/,
+    );
+    expect(blurHandler).not.toBeNull();
+    expect(blurHandler![0]).not.toMatch(/onRename/);
 
     // Cancel must exit without onRename
     const cancelMatch = previewSource.match(
