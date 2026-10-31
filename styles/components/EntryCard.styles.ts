@@ -141,7 +141,7 @@ export function createEntryCardStyles(
     },
     dateText: {
       fontSize: m.fontSize.small,
-      color: colors.text.tertiary,
+      color: colors.text.secondary,
       fontWeight: '400', // Footnote/400 (UI-REVIEW Top3 / UI-SPEC)
     },
     /** Trailing ⋯ More control (ECHO-04 / D-40) — ≥44 hit */

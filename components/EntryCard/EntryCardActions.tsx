@@ -1,4 +1,4 @@
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { CheckCircle, Edit, Flame, Trash2 } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +29,7 @@ export function EntryCardActions({
   onDelete,
 }: EntryCardActionsProps) {
   const { t } = useTranslation("dashboard");
+  const { colors } = useThemeStyles();
 
   if (!isExpanded || isResolved || isBurned) {
     return null;
@@ -45,7 +46,7 @@ export function EntryCardActions({
         accessibilityHint={t("entryCard.editHint")}
       >
         <View style={styles.actionIcon}>
-          <Edit size={20} color={COLORS.primaryDark} />
+          <Edit size={20} color={colors.primaryDark} />
         </View>
         <Text style={styles.actionText}>{t("entryCard.edit")}</Text>
       </TouchableOpacity>
@@ -59,7 +60,7 @@ export function EntryCardActions({
         accessibilityHint={t("entryCard.resolveHint")}
       >
         <View style={styles.actionIcon}>
-          <CheckCircle size={20} color={COLORS.mood.icon.level4} />
+          <CheckCircle size={20} color={colors.mood.icon.level4} />
         </View>
         <Text style={styles.actionText}>{t("entryCard.resolve")}</Text>
       </TouchableOpacity>
@@ -75,11 +76,11 @@ export function EntryCardActions({
         accessibilityState={{ disabled: isPreparing }}
       >
         {isPreparing ? (
-          <ActivityIndicator size="small" color={COLORS.mood.icon.level5} />
+          <ActivityIndicator size="small" color={colors.mood.icon.level5} />
         ) : (
           <>
             <View style={styles.actionIcon}>
-              <Flame size={22} color={COLORS.mood.icon.level5} />
+              <Flame size={22} color={colors.mood.icon.level5} />
             </View>
             <Text style={styles.actionText}>{t("entryCard.burn")}</Text>
           </>
@@ -95,7 +96,7 @@ export function EntryCardActions({
         accessibilityHint={t("entryCard.deleteHint")}
       >
         <View style={styles.actionIcon}>
-          <Trash2 size={18} color={COLORS.text.tertiary} />
+          <Trash2 size={18} color={colors.text.secondary} />
         </View>
         <Text style={[styles.actionText, styles.deleteActionText]}>
           {t("entryCard.delete")}
