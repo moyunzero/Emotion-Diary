@@ -25,7 +25,8 @@
   "stats": {
     "entriesLabel": "Mood entries",
     "weatherScoreLabel": "Mood index",
-    "companionDaysLabel": "Days together"
+    "companionDaysLabel": "Days together",
+    "companionMoments": "{{days}} days together · {{entries}} moments kept"
   },
   "companionDays": {
     "modalTitle": "Days together",

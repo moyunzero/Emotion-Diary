@@ -228,7 +228,6 @@ export function ProfileScreen() {
 
         <ProfileStatsSection
           entriesCount={visibleEntryCount}
-          weatherScore={weather.score}
           onCompanionDaysPress={() => state.setIsCompanionDaysModalOpen(true)}
         />
 
