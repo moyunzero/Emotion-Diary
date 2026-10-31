@@ -106,7 +106,9 @@ describe('echoStripContract — weather breath + rose ink (ECHO-02 / D-04 D-05 D
     expect(entryCardSource).toMatch(/moodLevelToWeatherStripKey/);
     expect(entryCardSource).toMatch(/inkProgressRatio/);
     expect(entryCardSource).toMatch(/colors\.weather/);
-    expect(entryCardSource).toMatch(/isReduceMotionEnabled|reduceMotionChanged/);
+    expect(entryCardSource).toMatch(
+      /useReduceMotion|isReduceMotionEnabled|reduceMotionChanged/,
+    );
     expect(entryCardSource).toMatch(/entry-weather-strip|weatherStrip/);
     expect(entryCardSource).toMatch(/entry-ink-progress|inkProgressLine/);
     expect(entryCardSource).toMatch(/colors\.brand/);
