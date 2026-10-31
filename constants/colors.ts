@@ -244,7 +244,7 @@ export const COLORS_NIGHT = {
 
   tab: {
     active: '#F08AA8',
-    inactive: '#917F87',
+    inactive: '#C4B4BB',
     barBg: 'rgba(39, 28, 34, 0.82)',
   },
 
