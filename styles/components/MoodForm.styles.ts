@@ -69,8 +69,13 @@ export function createMoodFormStyles(
       color: COLORS.brand,
       fontWeight: '600',
     },
+    contentRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: DESIGN_TOKENS.spacing.sm,
+    },
     contentInput: {
-      width: '100%',
+      flex: 1,
       minHeight: dense ? 140 : 120,
       height: dense ? undefined : 120,
       backgroundColor: COLORS.background.secondary,
@@ -79,6 +84,13 @@ export function createMoodFormStyles(
       fontSize: DESIGN_TOKENS.fontSize.md,
       color: COLORS.text.primary,
       textAlignVertical: 'top',
+    },
+    micButton: {
+      width: 44,
+      height: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: DESIGN_TOKENS.spacing.sm,
     },
     deadlineContainer: {
       flexDirection: 'row',
@@ -138,13 +150,17 @@ export function createMoodFormStyles(
       fontWeight: '600',
     },
     advancedToggle: {
-      alignSelf: 'center',
+      alignSelf: 'stretch',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: 44,
       paddingVertical: DESIGN_TOKENS.spacing.sm,
       marginBottom: DESIGN_TOKENS.spacing.sm,
     },
     advancedToggleText: {
-      fontSize: m.fontSize.small,
-      color: COLORS.primaryDark,
+      fontSize: DESIGN_TOKENS.fontSize.base,
+      color: COLORS.text.secondary,
       fontWeight: '600',
     },
   });

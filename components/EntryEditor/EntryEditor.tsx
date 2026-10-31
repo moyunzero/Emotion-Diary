@@ -128,6 +128,8 @@ export function EntryEditor(props: EntryEditorProps) {
   const allTriggers = [...TRIGGER_KEYS, ...customTriggerOptions];
 
   const [audios, setAudios] = useState<AudioData[]>([]);
+  /** Mic reveals existing AudioRecorder; hide large chrome until opened (D-04). */
+  const [audioSessionVisible, setAudioSessionVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editVisible = !isCreate ? (props as EntryEditorEditProps).visible : true;
@@ -169,6 +171,7 @@ export function EntryEditor(props: EntryEditorProps) {
     setSelectedPeople([]);
     setSelectedTriggers([]);
     setAudios([]);
+    setAudioSessionVisible(false);
   };
 
   const loadCustomOptionsData = async () => {
@@ -200,6 +203,7 @@ export function EntryEditor(props: EntryEditorProps) {
           setSelectedTriggers(draft.selectedTriggers);
           if (draft.audios && draft.audios.length > 0) {
             setAudios(draft.audios);
+            setAudioSessionVisible(true);
           }
         }
       } finally {
@@ -227,7 +231,9 @@ export function EntryEditor(props: EntryEditorProps) {
     setCustomDeadlineText(isCustom ? entry.deadline : "");
     setSelectedPeople(entry.people || []);
     setSelectedTriggers(entry.triggers || []);
-    setAudios(entry.audios || []);
+    const entryAudios = entry.audios || [];
+    setAudios(entryAudios);
+    setAudioSessionVisible(entryAudios.length > 0);
     void loadCustomOptionsData();
   }, [isCreate, editSyncKey]); // eslint-disable-line react-hooks/exhaustive-deps -- 仅在打开/换条时从 props 同步 entry
 
@@ -438,9 +444,11 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomPerson={handleDeleteCustomPerson}
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
-        compactMode={isCreate}
+        compactMode
         denseSections={embedded || keyboardOpen}
         onContentFocus={handleContentFocus}
+        onMicPress={() => setAudioSessionVisible((v) => !v)}
+        micActive={audioSessionVisible}
         showFirstEntryHint={showFirstEntryHint}
         contentPlaceholder={
           showFirstEntryHint
@@ -452,8 +460,8 @@ export function EntryEditor(props: EntryEditorProps) {
         peopleSectionTitle={t("sections.people.title")}
         triggersSectionTitle={t("sections.triggers.title")}
       />
-      {/* Typing mode: hide hold-to-talk so it cannot sit under the keyboard. */}
-      {!keyboardOpen ? (
+      {/* Mic reveals session; hide large chrome when collapsed (D-04). */}
+      {!keyboardOpen && audioSessionVisible ? (
         <View
           style={
             embedded
