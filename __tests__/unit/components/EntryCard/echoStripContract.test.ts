@@ -91,3 +91,27 @@ describe('echoStripContract — card time-of-day only (D-37)', () => {
     expect(entryCardSource).not.toMatch(/formatLocaleDate/);
   });
 });
+
+describe('echoStripContract — weather breath + rose ink (ECHO-02 / D-04 D-05 D-06)', () => {
+  it('wires weatherStrip helper, Reduce Motion gate, and brand ink progress', () => {
+    expect(entryCardSource).toMatch(/moodLevelToWeatherStripKey/);
+    expect(entryCardSource).toMatch(/inkProgressRatio/);
+    expect(entryCardSource).toMatch(/COLORS\.weather/);
+    expect(entryCardSource).toMatch(/isReduceMotionEnabled|reduceMotionChanged/);
+    expect(entryCardSource).toMatch(/entry-weather-strip|weatherStrip/);
+    expect(entryCardSource).toMatch(/entry-ink-progress|inkProgressLine/);
+    expect(entryCardSource).toMatch(/COLORS\.brand/);
+    // No waveform / scrubber / seek chrome
+    expect(entryCardSource).not.toMatch(/Waveform|Scrubber|seekTo\(/);
+    expect(entryCardPlaybackSource).not.toMatch(/Waveform|Scrubber/);
+  });
+
+  it('keeps gated playbackPosition subscription (Pitfall 4)', () => {
+    expect(entryCardPlaybackSource).toMatch(
+      /playbackEntryId === entryId \? s\.playbackPosition/,
+    );
+    expect(entryCardSource).toMatch(
+      /playbackEntryId === entry\.id \? s\.playbackPosition/,
+    );
+  });
+});

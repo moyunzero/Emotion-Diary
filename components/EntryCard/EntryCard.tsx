@@ -7,6 +7,10 @@ import {
   resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
 import { toIntlLocale } from "@/shared/formatting";
+import {
+  inkProgressRatio,
+  moodLevelToWeatherStripKey,
+} from "@/shared/mood/weatherStrip";
 import { useRecyclingState } from "@shopify/flash-list";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import React, {
@@ -17,7 +21,9 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  AccessibilityInfo,
   Animated,
+  Easing,
   LayoutAnimation,
   Platform,
   Text,
@@ -145,8 +151,21 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   // FlashList v2：展开变高必须通知列表，否则下方播放行可能画得出但点不着
   const [isExpanded, setIsExpanded] = useRecyclingState(false, [entry.id]);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const weatherBreathOpacity = useRef(new Animated.Value(1)).current;
   const isResolved = entry.status === Status.RESOLVED;
   const isBurned = entry.status === Status.BURNED;
+
+  // Gated playback chrome (Pitfall 4) — inactive cards skip position ticks
+  const isThisEntryPlaying = useAppStore(
+    (s) => s.playbackEntryId === entry.id && s.isPlaying,
+  );
+  const playbackPosition = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.playbackPosition : 0,
+  );
+  const playbackDuration = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.duration : 0,
+  );
 
   const moodConfig =
     MOOD_CONFIG[entry.moodLevel] || MOOD_CONFIG[MoodLevel.ANNOYED];
@@ -171,6 +190,62 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     const maxLen = 30;
     return `${entry.content.substring(0, maxLen)}${entry.content.length > maxLen ? "..." : ""}`;
   }, [entry.content]);
+
+  const weatherStripColor =
+    COLORS.weather[moodLevelToWeatherStripKey(entry.moodLevel)].icon;
+  const hasVisiblePreview = entry.content.trim().length > 0;
+  const inkRatio =
+    !isBurned && isThisEntryPlaying && hasVisiblePreview
+      ? inkProgressRatio(playbackPosition, playbackDuration)
+      : 0;
+
+  useEffect(() => {
+    let mounted = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => {
+        if (mounted) setReduceMotion(enabled);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    const sub = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      setReduceMotion,
+    );
+    return () => {
+      mounted = false;
+      sub.remove();
+    };
+  }, []);
+
+  // Weather strip opacity breath ~1.6s while playing; Reduce Motion → static (D-04 / D-06)
+  useEffect(() => {
+    if (isBurned || !isThisEntryPlaying || reduceMotion) {
+      weatherBreathOpacity.setValue(1);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(weatherBreathOpacity, {
+          toValue: 0.45,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(weatherBreathOpacity, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => {
+      loop.stop();
+      weatherBreathOpacity.setValue(1);
+    };
+  }, [isBurned, isThisEntryPlaying, reduceMotion, weatherBreathOpacity]);
 
   // Burning effect state
   const viewRef = useRef<View>(null);
@@ -471,6 +546,23 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         <Animated.View
           style={[styles.container, isResolved && styles.resolvedContainer]}
         >
+          {/* Left weather strip — breath while playing; Reduce Motion thickens (D-04 / D-06) */}
+          <Animated.View
+            pointerEvents="none"
+            accessible={false}
+            importantForAccessibility="no"
+            testID="entry-weather-strip"
+            style={[
+              styles.weatherStrip,
+              { backgroundColor: weatherStripColor },
+              isThisEntryPlaying &&
+                reduceMotion &&
+                styles.weatherStripHighlight,
+              !reduceMotion && isThisEntryPlaying
+                ? { opacity: weatherBreathOpacity }
+                : null,
+            ]}
+          />
           <TouchableOpacity
             testID="entry-card-pressable"
             onPress={() => {
@@ -520,6 +612,18 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 >
                   {entry.content}
                 </Text>
+                {/* Rose ink under visible preview only (D-05 / D-11 / D-15); no a11y progress (D-20) */}
+                {inkRatio > 0 ? (
+                  <View
+                    accessible={false}
+                    importantForAccessibility="no"
+                    testID="entry-ink-progress"
+                    style={[
+                      styles.inkProgressLine,
+                      { width: `${Math.round(inkRatio * 100)}%` },
+                    ]}
+                  />
+                ) : null}
 
                 {/* Tags */}
                 <View style={styles.tagsContainer}>

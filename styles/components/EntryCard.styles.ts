@@ -15,6 +15,28 @@ export function createEntryCardStyles(width: number, height: number) {
       padding: DESIGN_TOKENS.spacing.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: COLORS.hairline,
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    /** Left weather mood strip (ECHO-02 / D-04) — fill set inline from COLORS.weather.*.icon */
+    weatherStrip: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: 3,
+    },
+    /** Reduce Motion playing highlight — static thicker strip (D-06) */
+    weatherStripHighlight: {
+      width: 5,
+    },
+    /** Rose ink under visible preview (D-05 / D-11) — width set inline from ink ratio */
+    inkProgressLine: {
+      height: 2,
+      marginTop: DESIGN_TOKENS.spacing.xs,
+      backgroundColor: COLORS.brand,
+      borderRadius: 1,
+      alignSelf: 'flex-start',
     },
     resolvedContainer: {
       opacity: 0.5,

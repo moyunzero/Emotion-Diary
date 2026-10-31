@@ -1,12 +1,13 @@
 import { i18n } from "@/i18n";
 import { audioCoordinator } from "@/shared/audio/coordinator";
+import { sortClipsAscending } from "@/shared/entries/echoClips";
 import React, { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { useAppStore } from "../../store/useAppStore";
 import { createEntryCardStyles } from "../../styles/components/EntryCard.styles";
-import { AudioData, MoodEntry } from "../../types";
+import { MoodEntry } from "../../types";
 
 export type EntryCardPlaybackProps = {
   entry: MoodEntry;
@@ -27,17 +28,22 @@ function useEntryCardPlaybackState(entryId: string) {
   const isPlayingGlobal = useAppStore(
     (s) => s.playbackEntryId === entryId && s.isPlaying,
   );
+  // Gated: only the active card re-renders on position ticks (Pitfall 4)
+  const playbackPosition = useAppStore((s) =>
+    s.playbackEntryId === entryId ? s.playbackPosition : 0,
+  );
+  const playbackDuration = useAppStore((s) =>
+    s.playbackEntryId === entryId ? s.duration : 0,
+  );
   const retryAudioUpload = useAppStore((state) => state.retryAudioUpload);
 
   return {
     currentAudioId,
     isPlayingGlobal,
+    playbackPosition,
+    playbackDuration,
     retryAudioUpload,
   };
-}
-
-function sortClipsAscending(audios: AudioData[]): AudioData[] {
-  return [...audios].sort((a, b) => a.createdAt - b.createdAt);
 }
 
 /** Active / resolved echo strip — collapsed + expanded (D-01 / D-09). Single-clip tracer. */
