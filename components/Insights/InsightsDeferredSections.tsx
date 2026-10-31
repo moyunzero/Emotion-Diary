@@ -7,7 +7,6 @@ import EmotionPodcast from "../ai/EmotionPodcast";
 import { OnThisDayInsightsCard } from "../onThisDay/OnThisDayInsightsCard";
 import { EmotionReleaseArchive } from "./EmotionReleaseArchive";
 import { GardenFooter } from "./GardenFooter";
-import { RelationshipGarden } from "./RelationshipGarden";
 import { TriggerInsight } from "./TriggerInsight";
 
 type InsightsDeferredSectionsProps = {
@@ -47,7 +46,6 @@ export function InsightsDeferredSections({
     <>
       <EmotionPodcast />
       <EmotionReleaseArchive entries={entries} />
-      <RelationshipGarden entries={entries} />
       <OnThisDayInsightsCard entries={entries} />
       <TriggerInsight entries={entries} />
       <GardenFooter

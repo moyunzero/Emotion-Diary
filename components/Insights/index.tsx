@@ -17,10 +17,12 @@ import { useAppStore } from "../../store/useAppStore";
 import { Status } from "../../types";
 import { AppScreenShell } from "../AppScreenShell";
 import { WeeklyReviewBanner } from "../retention/WeeklyReviewBanner";
+import { CareCountLine } from "./CareCountLine";
 import { EmptyGarden } from "./EmptyGarden";
 import { GardenHeader } from "./GardenHeader";
 import { HealingProgress } from "./HealingProgress";
 import { InsightsDeferredSections } from "./InsightsDeferredSections";
+import { RelationshipGarden } from "./RelationshipGarden";
 import { WeeklyMoodWeather } from "./WeeklyMoodWeather";
 import { INSIGHTS_COLORS } from "./constants";
 
@@ -163,10 +165,12 @@ const InsightsComponent: React.FC = () => {
         >
           <WeeklyReviewBanner entries={visibleEntries} />
 
-          {/* 本周情绪天气 */}
+          {/* First screen (D-18): 本周 → 关系 → 照料；「更多回看」accordion = Plan 08 */}
           <WeeklyMoodWeather entries={visibleEntries} />
+          <RelationshipGarden entries={visibleEntries} />
+          <CareCountLine entries={visibleEntries} />
 
-          {/* 治愈进度 */}
+          {/* Deferred until Plan 08 wraps under 「更多回看」 */}
           <HealingProgress
             totalCount={stats.total}
             resolvedCount={stats.resolved}
