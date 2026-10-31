@@ -1,14 +1,18 @@
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { createResponsiveMetrics } from "@/shared/responsive";
 import { createStackScreenHeaderStyle } from "@/styles/stackScreenHeader";
 
-export function createRecycleBinStyles(width: number, height: number) {
+export function createRecycleBinStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   const { spacing, fontSize } = DESIGN_TOKENS;
 
   return StyleSheet.create({
-    stackHeader: createStackScreenHeaderStyle(width, height),
+    stackHeader: createStackScreenHeaderStyle(width, height, colors),
     screenContent: {
       flex: 1,
       paddingBottom: spacing.xl,
@@ -35,12 +39,12 @@ export function createRecycleBinStyles(width: number, height: number) {
     },
     emptyTitle: {
       fontSize: fontSize.lg,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       fontWeight: '700',
     },
     emptyDesc: {
       fontSize: fontSize.sm,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       textAlign: "center",
       lineHeight: 20,
       paddingHorizontal: spacing.lg,

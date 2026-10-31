@@ -16,7 +16,7 @@ import { ArchiveRestore } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import { Text, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { confirmAlert } from "@/utils/confirmAlert";
 import { createRecycleBinStyles } from "./recycleBin.styles";
 
@@ -25,9 +25,10 @@ export function RecycleBinScreen() {
   const { t } = useTranslation("recycle");
   const { t: tCommon } = useTranslation("common");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createRecycleBinStyles(width, height),
-    [width, height],
+    () => createRecycleBinStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const entries = useAppStore((s) => s.entries);
@@ -125,7 +126,7 @@ export function RecycleBinScreen() {
 
         {deletedEntries.length === 0 ? (
           <View style={styles.empty} testID="recycle-bin-empty-state">
-            <ArchiveRestore size={40} color={COLORS.gray[300]} />
+            <ArchiveRestore size={40} color={colors.gray[300]} />
             <Text style={styles.emptyTitle}>{t("emptyState.title")}</Text>
             <Text style={styles.emptyDesc}>{t("emptyState.body")}</Text>
           </View>
