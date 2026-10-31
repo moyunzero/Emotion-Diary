@@ -140,6 +140,19 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.tertiary,
       fontWeight: '500',
     },
+    /** Trailing ⋯ More control (ECHO-04 / D-40) — ≥44 hit */
+    headerTrailing: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: DESIGN_TOKENS.spacing.xs,
+    },
+    moreButton: {
+      minWidth: 44,
+      minHeight: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: -DESIGN_TOKENS.spacing.sm,
+    },
     contentText: {
       fontSize: m.fontSize.body,
       color: COLORS.text.secondary,

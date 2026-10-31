@@ -168,6 +168,8 @@
     "swipeBurn": "Burn",
     "swipeResolveA11y": "Swipe to resolve",
     "swipeBurnA11y": "Swipe to burn",
+    "more": "More",
+    "moreA11y": "More",
     "relatedPersonFallback": "someone",
     "peopleJoiner": " and "
   },

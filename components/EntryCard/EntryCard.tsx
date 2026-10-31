@@ -20,8 +20,11 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { Ellipsis } from "lucide-react-native";
 import {
   AccessibilityInfo,
+  ActionSheetIOS,
+  Alert,
   Animated,
   Easing,
   LayoutAnimation,
@@ -445,6 +448,36 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsEditModalVisible(true);
   };
 
+  /** D-40: system ActionSheet Edit/Delete/Cancel — Delete still goes through confirmAlert */
+  const handleMorePress = () => {
+    triggerHaptic("light");
+    const cancelLabel = i18n.t("actions.cancel", { ns: "common" });
+    const editLabel = t("entryCard.edit");
+    const deleteLabel = t("entryCard.delete");
+    const title = t("entryCard.more");
+
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [cancelLabel, editLabel, deleteLabel],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 2,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) handleEdit();
+          else if (buttonIndex === 2) handleDelete();
+        },
+      );
+      return;
+    }
+
+    Alert.alert(title, undefined, [
+      { text: cancelLabel, style: "cancel" },
+      { text: editLabel, onPress: handleEdit },
+      { text: deleteLabel, style: "destructive", onPress: handleDelete },
+    ]);
+  };
+
   // 灰烬状态卡片
   if (isBurned) {
     return (
@@ -607,9 +640,24 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                       <Text style={styles.peopleText} numberOfLines={1}>
                         {peopleDisplay}
                       </Text>
-                      <Text style={styles.dateText}>
-                        {formatEntryTime(entry.timestamp)}
-                      </Text>
+                      <View style={styles.headerTrailing}>
+                        <Text style={styles.dateText}>
+                          {formatEntryTime(entry.timestamp)}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.moreButton}
+                          onPress={handleMorePress}
+                          testID="entry-more-button"
+                          accessibilityRole="button"
+                          accessibilityLabel={t("entryCard.moreA11y")}
+                          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                        >
+                          <Ellipsis
+                            size={20}
+                            color={COLORS.text.tertiary}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                     <Text
                       style={styles.contentText}

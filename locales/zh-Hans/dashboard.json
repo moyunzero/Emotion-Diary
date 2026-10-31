@@ -168,6 +168,8 @@
     "swipeBurn": "焚烧",
     "swipeResolveA11y": "左滑和解",
     "swipeBurnA11y": "左滑焚烧",
+    "more": "更多",
+    "moreA11y": "更多",
     "relatedPersonFallback": "相关人",
     "peopleJoiner": "和"
   },
