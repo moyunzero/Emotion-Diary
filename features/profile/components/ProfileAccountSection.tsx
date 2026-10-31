@@ -26,7 +26,7 @@ import {
   isSvgAvatarDataUri,
 } from "@/utils/avatarPresets";
 import { confirmAlert } from "@/utils/confirmAlert";
-import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
+import { createProfileScreenModalStyles } from "../styles/profileScreen.styles";
 
 const AVATARS = AVATAR_PRESETS;
 
@@ -65,6 +65,10 @@ export function ProfileAccountSection({
   const { profileStyles } = useMemo(
     () => createProfileStyles(width, height, colors),
     [width, height, colors],
+  );
+  const ms = useMemo(
+    () => createProfileScreenModalStyles(colors),
+    [colors],
   );
 
   const baselineRef = useRef<{ name: string; avatar: string } | null>(null);

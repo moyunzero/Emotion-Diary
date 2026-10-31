@@ -1,4 +1,3 @@
-import { COLORS } from "@/constants/colors";
 import { useResponsiveStyles } from "@/hooks/useResponsiveStyles";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
@@ -43,7 +42,7 @@ function OnThisDayInsightsCardComponent({
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: COLORS.shadow.primary,
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -87,10 +86,10 @@ function OnThisDayInsightsCardComponent({
           fontSize: 14,
           fontWeight: "700",
           lineHeight: 20,
-          color: COLORS.mood.level4,
+          color: colors.mood.level4,
         },
       }),
-    [padding, spacing, borderRadius, insightsColors],
+    [padding, spacing, borderRadius, insightsColors, colors],
   );
 
   const hint =

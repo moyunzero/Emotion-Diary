@@ -42,7 +42,7 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
 import { logger } from '../../utils/logger';
-import { DESIGN_TOKENS } from '../../constants/colors';
+import { COLORS_LIGHT, DESIGN_TOKENS } from '../../constants/colors';
 import { AppScreenShell } from '../AppScreenShell';
 import { INSIGHTS_COLORS } from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
@@ -285,7 +285,7 @@ export const ReviewExportScreen: React.FC = () => {
       titleColor={INSIGHTS_COLORS.text}
       titleFontSize={responsiveLayout.headerTitleFontSize}
       headerStyle={{
-        ...createStackScreenHeaderStyle(width, height),
+        ...createStackScreenHeaderStyle(width, height, COLORS_LIGHT),
         paddingTop: responsiveLayout.headerPaddingTop,
         paddingBottom: responsiveLayout.headerPaddingBottom,
       }}

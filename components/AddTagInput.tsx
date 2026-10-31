@@ -1,6 +1,7 @@
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { Plus, X } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -14,8 +15,49 @@ interface AddTagInputProps {
   onAdd: (value: string) => void;
 }
 
+function createAddTagInputStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    addTagInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    addTagInput: {
+      width: 80,
+      paddingHorizontal: 8,
+      paddingVertical: 6,
+      fontSize: 12,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.mood.level3,
+      backgroundColor: colors.surface,
+    },
+    addTagCancel: {
+      padding: 4,
+    },
+    addTagButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.gray[300],
+      borderStyle: 'dashed',
+    },
+    addTagText: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: colors.gray[400],
+    },
+  });
+}
+
 const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
   const { t } = useTranslation('record');
+  const { colors } = useThemeStyles();
+  const styles = useMemo(() => createAddTagInputStyles(colors), [colors]);
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState('');
   const isSubmittingRef = useRef(false);
@@ -26,12 +68,10 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
       onAdd(val.trim());
       setVal('');
       setIsEditing(false);
-      // 重置标志
       setTimeout(() => {
         isSubmittingRef.current = false;
       }, 100);
     } else if (!val.trim()) {
-      // 空值时直接关闭
       setIsEditing(false);
     }
   };
@@ -41,14 +81,12 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
     setIsEditing(false);
     setVal('');
     Keyboard.dismiss();
-    // 重置标志
     setTimeout(() => {
       isSubmittingRef.current = false;
     }, 100);
   };
 
   const handleBlur = () => {
-    // 延迟执行，让 onSubmitEditing 或 Cancel 先执行
     setTimeout(() => {
       if (!isSubmittingRef.current) {
         if (val.trim()) {
@@ -73,12 +111,12 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
           returnKeyType="done"
           blurOnSubmit={true}
           placeholder={t('addTag.placeholder')}
-          placeholderTextColor={COLORS.gray[400]}
+          placeholderTextColor={colors.gray[400]}
           style={styles.addTagInput}
           maxLength={20}
         />
         <TouchableOpacity onPress={handleCancel} style={styles.addTagCancel}>
-          <X size={14} color={COLORS.gray[500]} />
+          <X size={14} color={colors.gray[500]} />
         </TouchableOpacity>
       </View>
     );
@@ -89,56 +127,12 @@ const AddTagInputComponent: React.FC<AddTagInputProps> = ({ onAdd }) => {
       onPress={() => setIsEditing(true)}
       style={styles.addTagButton}
     >
-      <Plus size={12} color={COLORS.gray[500]} />
+      <Plus size={12} color={colors.gray[500]} />
       <Text style={styles.addTagText}>{t('addTag.custom')}</Text>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  addTagInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  addTagInput: {
-    width: 80,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    fontSize: 12,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    borderWidth: 1,
-    borderColor: COLORS.mood.level3,
-    backgroundColor: COLORS.surface,
-  },
-  addTagCancel: {
-    padding: 4,
-  },
-  addTagButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    borderStyle: 'dashed',
-  },
-  addTagText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.gray[400],
-  },
-});
-
-/**
- * Memoized AddTagInput component
- * Prevents re-renders when parent re-renders but onAdd callback hasn't changed
- */
 const AddTagInput = React.memo(AddTagInputComponent);
 
 export default AddTagInput;
-
-
-

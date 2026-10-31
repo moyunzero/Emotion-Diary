@@ -29,10 +29,7 @@ export function createRecordStyles(
       paddingBottom: DESIGN_TOKENS.spacing.xxxl * 3,
     },
     /** 供 AppScreenShell / StackScreenHeader 外层：内边距与底部分割线 */
-    stackHeader: {
-      ...createStackScreenHeaderStyle(width, height),
-      borderBottomColor: colors.hairline,
-    },
+    stackHeader: createStackScreenHeaderStyle(width, height, colors),
     content: {
       padding: m.padding.horizontal,
     },

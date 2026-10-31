@@ -4,14 +4,32 @@
 
 import { useCompanionFirstEntryDate } from "@/hooks/useCompanionFirstEntryDate";
 import { calculateDays } from "@/services/companionDaysService";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 export type ProfileStatsSectionProps = {
   entriesCount: number;
   onCompanionDaysPress: () => void;
 };
+
+function createProfileStatsSectionStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      width: "100%",
+      marginBottom: DESIGN_TOKENS.spacing.md,
+      paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+    },
+    line: {
+      fontSize: DESIGN_TOKENS.fontSize.body,
+      fontWeight: "400",
+      color: colors.text.primary,
+      lineHeight: 24,
+    },
+  });
+}
 
 export function ProfileStatsSection({
   entriesCount,
@@ -20,6 +38,11 @@ export function ProfileStatsSection({
   const { t } = useTranslation("profile");
   const firstEntryDate = useCompanionFirstEntryDate();
   const days = calculateDays(firstEntryDate);
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createProfileStatsSectionStyles(colors),
+    [colors],
+  );
 
   return (
     <TouchableOpacity
@@ -37,17 +60,3 @@ export function ProfileStatsSection({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    marginBottom: DESIGN_TOKENS.spacing.md,
-    paddingHorizontal: DESIGN_TOKENS.spacing.sm,
-  },
-  line: {
-    fontSize: DESIGN_TOKENS.fontSize.body,
-    fontWeight: "400",
-    color: COLORS.text.primary,
-    lineHeight: 24,
-  },
-});

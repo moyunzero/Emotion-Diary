@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { createStackScreenHeaderStyle } from "@/styles/stackScreenHeader";
 
 /** Phase 15 UI-SPEC B spacing — multiples of 4 only */
@@ -12,16 +12,20 @@ const S = {
   "2xl": 48,
 } as const;
 
-const PAGE_BG = COLORS.background.gradientStart;
-const PAGE_BG_END = COLORS.background.gradientEnd;
-const ACCENT = COLORS.primaryDark;
-const TEXT = COLORS.text.primary;
-const TEXT_SECONDARY = COLORS.text.secondary;
-const CARD = COLORS.background.primary;
+export function createOnThisDayStyles(
+  _width: number,
+  height: number,
+  colors: ColorPalette,
+) {
+  const PAGE_BG = colors.background.gradientStart;
+  const PAGE_BG_END = colors.background.gradientEnd;
+  const ACCENT = colors.primaryDark;
+  const TEXT = colors.text.primary;
+  const TEXT_SECONDARY = colors.text.secondary;
+  const CARD = colors.background.primary;
 
-export function createOnThisDayStyles(_width: number, height: number) {
   return StyleSheet.create({
-    stackHeader: createStackScreenHeaderStyle(_width, height),
+    stackHeader: createStackScreenHeaderStyle(_width, height, colors),
     screenRoot: {
       flex: 1,
       backgroundColor: PAGE_BG,

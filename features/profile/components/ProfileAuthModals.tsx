@@ -12,12 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/ui/AppButton";
 import { AppSheet } from "@/components/ui/AppSheet";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { confirmAlert } from "@/utils/confirmAlert";
-import { profileScreenModalStyles as ms } from "../styles/profileScreen.styles";
+import { createProfileScreenModalStyles } from "../styles/profileScreen.styles";
 
 export type ProfileAuthModalsProps = {
   isLoginModalOpen: boolean;
@@ -102,6 +103,11 @@ export function ProfileAuthModals({
 }: ProfileAuthModalsProps) {
   const { t: tAuth } = useTranslation("auth");
   const { t: tCommon } = useTranslation("common");
+  const { colors } = useThemeStyles();
+  const ms = useMemo(
+    () => createProfileScreenModalStyles(colors),
+    [colors],
+  );
 
   const tError = (key: string): string =>
     tAuth(`errors.${key}`, { defaultValue: key });
@@ -211,7 +217,7 @@ export function ProfileAuthModals({
       >
         <View style={ms.modalHeader}>
           <View style={ms.loginIconBox}>
-            <UserIcon size={32} color={COLORS.primaryDark} />
+            <UserIcon size={32} color={colors.primaryDark} />
           </View>
           <Text style={ms.modalTitle}>
             {isRegisterMode

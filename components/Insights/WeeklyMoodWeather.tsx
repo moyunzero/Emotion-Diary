@@ -148,7 +148,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
                 {moodLevel === null ? (
                   <View style={styles.emptyDayDot} testID="week-empty-day-dot" />
                 ) : (
-                  getMoodWeatherIcon(moodLevel, 28)
+                  getMoodWeatherIcon(moodLevel, 28, colors)
                 )}
               </View>
               {moodLevel !== null ? (

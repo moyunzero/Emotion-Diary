@@ -4,8 +4,9 @@
  */
 
 import { EditEntryModal } from "@/components/entries";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useAppStore } from "@/store/useAppStore";
 import type { MoodEntry } from "@/types";
 import React, { memo, useCallback, useMemo, useState } from "react";
@@ -29,9 +30,60 @@ function entryYear(entry: MoodEntry): number {
   return new Date(entry.timestamp).getFullYear();
 }
 
+function createOnThisDayPersonSlotStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: colors.background.primary,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      borderColor: DASHED_BORDER,
+      padding: S.md,
+      marginBottom: S.md,
+      gap: S.sm,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: "700",
+      lineHeight: 16,
+      color: colors.text.secondary,
+      letterSpacing: 0.4,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      minHeight: 44,
+      gap: S.sm,
+      paddingVertical: S.xs,
+    },
+    rowPressed: {
+      opacity: 0.85,
+    },
+    year: {
+      fontSize: 12,
+      fontWeight: "700",
+      lineHeight: 16,
+      color: colors.primaryDark,
+      minWidth: 40,
+    },
+    preview: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "400",
+      lineHeight: 20,
+      color: colors.text.primary,
+    },
+  });
+}
+
 function OnThisDayPersonSlotComponent({ entries }: OnThisDayPersonSlotProps) {
   const { t } = useTranslation("onThisDay");
   const { trigger: triggerHaptic } = useHapticFeedback();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createOnThisDayPersonSlotStyles(colors),
+    [colors],
+  );
   const [editEntry, setEditEntry] = useState<MoodEntry | null>(null);
 
   const rows = useMemo(() => entries.slice(0, MAX_ROWS), [entries]);
@@ -93,49 +145,5 @@ function OnThisDayPersonSlotComponent({ entries }: OnThisDayPersonSlotProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.background.primary,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: DASHED_BORDER,
-    padding: S.md,
-    marginBottom: S.md,
-    gap: S.sm,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: "700",
-    lineHeight: 16,
-    color: COLORS.text.secondary,
-    letterSpacing: 0.4,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    minHeight: 44,
-    gap: S.sm,
-    paddingVertical: S.xs,
-  },
-  rowPressed: {
-    opacity: 0.85,
-  },
-  year: {
-    fontSize: 12,
-    fontWeight: "700",
-    lineHeight: 16,
-    color: COLORS.primaryDark,
-    minWidth: 40,
-  },
-  preview: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-    color: COLORS.text.primary,
-  },
-});
 
 export const OnThisDayPersonSlot = memo(OnThisDayPersonSlotComponent);

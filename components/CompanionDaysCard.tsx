@@ -3,9 +3,10 @@
  * 显示用户的陪伴天数，包含数字增长动画
  */
 
-import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '@/constants/colors';
 import { useCompanionFirstEntryDate } from '@/hooks/useCompanionFirstEntryDate';
-import React, { useEffect, useState } from 'react';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { calculateDays } from '../services/companionDaysService';
@@ -14,24 +15,57 @@ interface CompanionDaysCardProps {
   readonly onPress: () => void;
 }
 
+function createCompanionDaysCardStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    card: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      padding: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.shadow.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    content: {
+      alignItems: 'center',
+    },
+    value: {
+      fontSize: 20,
+      fontWeight: '800',
+      color: colors.gray[800],
+      marginBottom: 4,
+    },
+    label: {
+      fontSize: 12,
+      color: colors.gray[400],
+    },
+  });
+}
+
 export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
   const { t } = useTranslation('profile');
   const firstEntryDate = useCompanionFirstEntryDate();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createCompanionDaysCardStyles(colors),
+    [colors],
+  );
 
-  // 计算陪伴天数
   const days = calculateDays(firstEntryDate);
   
-  // 用于显示的动画天数
   const [displayDays, setDisplayDays] = useState(0);
   
   useEffect(() => {
-    // 如果天数为0，直接显示
     if (days === 0) {
       setDisplayDays(0);
       return;
     }
     
-    const frames = 60; // 60帧动画
+    const frames = 60;
     const increment = days / frames;
     
     let currentFrame = 0;
@@ -47,10 +81,8 @@ export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
       }
     };
     
-    // 启动动画
     animationId = requestAnimationFrame(animate);
     
-    // 清理函数
     return () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
@@ -67,32 +99,3 @@ export default function CompanionDaysCard({ onPress }: CompanionDaysCardProps) {
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    backgroundColor: COLORS.surface,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  content: {
-    alignItems: 'center',
-  },
-  value: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.gray[800],
-    marginBottom: 4,
-  },
-  label: {
-    fontSize: 12,
-    color: COLORS.gray[400],
-  },
-});

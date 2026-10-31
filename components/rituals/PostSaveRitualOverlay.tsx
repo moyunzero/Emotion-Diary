@@ -3,10 +3,11 @@
  * Soft wash + fixed kept-safe sentence — distinct from resolve/burn confirm chrome.
  * Copy key: postSave.keptSafe (「这一刻收好了」 / This moment is kept safe.) — no weather pool.
  */
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { useReduceMotion } from "@/hooks/useReduceMotion";
-import React, { useEffect, useRef } from "react";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -24,6 +25,40 @@ export interface PostSaveRitualOverlayProps {
   onDismiss: () => void;
 }
 
+function createPostSaveRitualOverlayStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    fill: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    bgBase: {
+      backgroundColor: colors.bg,
+    },
+    wash: {
+      backgroundColor: colors.brandSoft,
+      opacity: 0.45,
+    },
+    washStatic: {
+      opacity: 0.45,
+    },
+    copyWrap: {
+      paddingHorizontal: DESIGN_TOKENS.spacing.pageX,
+      paddingVertical: DESIGN_TOKENS.spacing.huge,
+    },
+    copy: {
+      fontSize: DESIGN_TOKENS.fontSize.title,
+      fontWeight: "400",
+      lineHeight: Math.round(DESIGN_TOKENS.fontSize.title * 1.2),
+      color: colors.text.primary,
+      textAlign: "center",
+    },
+  });
+}
+
 export default function PostSaveRitualOverlay({
   visible,
   onDismiss,
@@ -31,6 +66,11 @@ export default function PostSaveRitualOverlay({
   const { t } = useTranslation("postSave");
   const { trigger } = useHapticFeedback();
   const reduceMotion = useReduceMotion();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createPostSaveRitualOverlayStyles(colors),
+    [colors],
+  );
   const dismissedRef = useRef(false);
 
   useEffect(() => {
@@ -89,35 +129,3 @@ export default function PostSaveRitualOverlay({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  fill: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  bgBase: {
-    backgroundColor: COLORS.bg,
-  },
-  wash: {
-    backgroundColor: COLORS.brandSoft,
-    opacity: 0.45,
-  },
-  washStatic: {
-    opacity: 0.45,
-  },
-  copyWrap: {
-    paddingHorizontal: DESIGN_TOKENS.spacing.pageX,
-    paddingVertical: DESIGN_TOKENS.spacing.huge,
-  },
-  copy: {
-    fontSize: DESIGN_TOKENS.fontSize.title,
-    fontWeight: "400",
-    lineHeight: Math.round(DESIGN_TOKENS.fontSize.title * 1.2),
-    color: COLORS.text.primary,
-    textAlign: "center",
-  },
-});

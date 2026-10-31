@@ -3,9 +3,10 @@
  */
 
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 
-export const profileScreenModalStyles = StyleSheet.create({
+export function createProfileScreenModalStyles(colors: ColorPalette) {
+  return StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -43,7 +44,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalContent: {
     width: "100%",
     maxWidth: 340,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: DESIGN_TOKENS.borderRadius.lg,
     padding: 32,
     alignItems: "stretch",
@@ -74,7 +75,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     zIndex: 1000,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: DESIGN_TOKENS.borderRadius.full,
-    shadowColor: COLORS.shadow.primary,
+    shadowColor: colors.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -89,7 +90,7 @@ export const profileScreenModalStyles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: DESIGN_TOKENS.borderRadius.full,
-    backgroundColor: COLORS.mood.level1,
+    backgroundColor: colors.mood.level1,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -97,23 +98,23 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     marginBottom: 8,
     textAlign: "center",
   },
   modalSubtitle: {
     fontSize: 14,
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     textAlign: "center",
     lineHeight: 20,
   },
   primaryButton: {
     width: "100%",
-    backgroundColor: COLORS.brandPressed,
+    backgroundColor: colors.brandPressed,
     paddingVertical: 16,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     alignItems: "center",
-    shadowColor: COLORS.brandPressed,
+    shadowColor: colors.brandPressed,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -122,7 +123,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: COLORS.text.inverse,
+    color: colors.text.inverse,
   },
   formContainer: {
     width: "100%",
@@ -138,11 +139,11 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   switchModeText: {
     fontSize: 14,
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
   },
   switchModeLink: {
     fontSize: 14,
-    color: COLORS.brandPressed,
+    color: colors.brandPressed,
     fontWeight: "500",
     marginLeft: 4,
   },
@@ -157,8 +158,8 @@ export const profileScreenModalStyles = StyleSheet.create({
     borderRadius: DESIGN_TOKENS.borderRadius.full,
     marginBottom: 16,
     borderWidth: 3,
-    borderColor: COLORS.mood.level3,
-    backgroundColor: COLORS.mood.level1,
+    borderColor: colors.mood.level3,
+    backgroundColor: colors.mood.level1,
     overflow: "hidden",
   },
   avatarList: {
@@ -173,13 +174,13 @@ export const profileScreenModalStyles = StyleSheet.create({
     borderColor: "transparent",
   },
   avatarOptionSelected: {
-    borderColor: COLORS.mood.level4,
+    borderColor: colors.mood.level4,
   },
   avatarOptionImage: {
     width: 46,
     height: 46,
     borderRadius: DESIGN_TOKENS.borderRadius.full,
-    backgroundColor: COLORS.mood.level1,
+    backgroundColor: colors.mood.level1,
     overflow: "hidden",
   },
   inputContainer: {
@@ -188,30 +189,31 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     marginBottom: 8,
     fontWeight: "500",
   },
   input: {
     width: "100%",
-    backgroundColor: COLORS.gray[50],
+    backgroundColor: colors.gray[50],
     borderWidth: 1,
-    borderColor: COLORS.border.medium,
+    borderColor: colors.border.medium,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     fontSize: 16,
-    color: COLORS.text.primary,
+    color: colors.text.primary,
   },
   errorText: {
     fontSize: 12,
-    color: COLORS.error,
+    color: colors.error,
     marginTop: -24,
     marginBottom: 24,
   },
   globalErrorText: {
     fontSize: 13,
-    color: COLORS.error,
+    color: colors.error,
     textAlign: "center",
     marginBottom: 12,
   },
-});
+  });
+}

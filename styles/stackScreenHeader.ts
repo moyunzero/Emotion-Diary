@@ -4,12 +4,13 @@
  */
 
 import { StyleSheet, type ViewStyle } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "../constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "../constants/colors";
 import { createResponsiveMetrics } from "../shared/responsive";
 
 export function createStackScreenHeaderStyle(
   width: number,
   height: number,
+  colors: ColorPalette,
 ): ViewStyle {
   const m = createResponsiveMetrics(width, height);
   const { spacing } = DESIGN_TOKENS;
@@ -18,6 +19,6 @@ export function createStackScreenHeaderStyle(
     paddingHorizontal: m.padding.horizontal,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.border.light,
+    borderBottomColor: colors.border.light,
   };
 }

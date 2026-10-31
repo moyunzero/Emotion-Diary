@@ -97,8 +97,8 @@ export function EntryEditor(props: EntryEditorProps) {
     [colors],
   );
   const { formStyles } = useMemo(
-    () => createSharedStyles(width, height),
-    [width, height],
+    () => createSharedStyles(width, height, colors),
+    [width, height, colors],
   );
   const fullscreenStyles = recordStyles;
   const embedded = props.presentation === "embedded";
