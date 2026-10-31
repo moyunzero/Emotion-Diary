@@ -52,7 +52,7 @@ describe("motionInventoryContract (NIGHT-03 · D-12 D-14)", () => {
   it("root theme transition crossfade respects Reduce Motion (Plan 03/05)", () => {
     const rootLayout = readRepoFile("app/_layout.tsx");
     expect(rootLayout).toMatch(
-      /themeTransition|appearanceCrossfade|THEME_CROSSFADE_MS/,
+      /themeTransition|appearanceCrossfade|THEME_CROSSFADE_MS|SCHEME_CROSSFADE_MS/,
     );
     expect(rootLayout).toMatch(/reduceMotion|isReduceMotionEnabled/);
   });

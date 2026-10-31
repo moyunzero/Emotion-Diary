@@ -4,8 +4,6 @@
  * Runtime require so missing module fails the suite (not TS2307).
  */
 
-/// <reference path="../../typings/phase26-wave0-red.d.ts" />
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({

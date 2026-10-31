@@ -15,12 +15,12 @@ function readTabLayoutSrc(): string {
 }
 
 describe("TabBarBackground solid iOS chrome (PRIM-04 / G-23-6)", () => {
-  it("fills iOS tab chrome with solid COLORS.bg and does not mount BlurView", () => {
+  it("fills iOS tab chrome with solid themed page bg and does not mount BlurView", () => {
     const src = readTabLayoutSrc();
 
-    expect(src).toMatch(/COLORS\.bg/);
+    expect(src).toMatch(/colors\.bg/);
     expect(src).toMatch(/StyleSheet\.absoluteFill/);
-    expect(src).toMatch(/COLORS\.hairline/);
+    expect(src).toMatch(/colors\.hairline/);
 
     // No live BlurView mount in TabBarBackground chrome path
     expect(src).not.toMatch(/<BlurView\b/);
