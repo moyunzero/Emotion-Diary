@@ -22,8 +22,9 @@ import {
   TRIGGER_KEYS,
 } from "../../constants";
 import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
-import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { DESIGN_TOKENS } from "../../constants/colors";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { createRecordStyles } from "../../styles/components/Record.styles";
 import { createSharedStyles } from "../../styles/sharedStyles";
 import { useAppStore } from "../../store/useAppStore";
@@ -51,7 +52,7 @@ import {
 import { AppScreenShell } from "../AppScreenShell";
 import { AudioRecorder } from "../AudioRecorder";
 import MoodForm from "../MoodForm";
-import { styles as embeddedStyles } from "../EditEntryModal/EditEntryModal.styles";
+import { createEditEntryModalStyles } from "../EditEntryModal/EditEntryModal.styles";
 import { AppButton } from "../ui/AppButton";
 import {
   getWriteSubmitDisabledReason,
@@ -86,9 +87,14 @@ export function EntryEditor(props: EntryEditorProps) {
       : "";
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const recordStyles = useMemo(
-    () => createRecordStyles(width, height),
-    [width, height],
+    () => createRecordStyles(width, height, colors),
+    [width, height, colors],
+  );
+  const embeddedStyles = useMemo(
+    () => createEditEntryModalStyles(colors),
+    [colors],
   );
   const { formStyles } = useMemo(
     () => createSharedStyles(width, height),
@@ -106,6 +112,8 @@ export function EntryEditor(props: EntryEditorProps) {
   const { trigger: triggerHaptic } = useHapticFeedback();
   const scrollViewRef = useRef<ScrollView>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  /** Only content-field focus densifies MoodForm — rename keyboard must not collapse sections (jump-to-top). */
+  const [contentFieldFocused, setContentFieldFocused] = useState(false);
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -413,7 +421,10 @@ export function EntryEditor(props: EntryEditorProps) {
   const keyboardOpen = keyboardHeight > 0;
 
   const handleContentFocus = useCallback(() => {
+    setContentFieldFocused(true);
     // Let keyboard animate, then bring「发生了什么？」above sticky submit.
+    // Do not run this for audio rename — that would scroll to page top then fight
+    // the focused clip (Voice Memos-style: keep scroll, only pad for keyboard).
     requestAnimationFrame(() => {
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
@@ -423,6 +434,10 @@ export function EntryEditor(props: EntryEditorProps) {
       }, 80);
     });
   }, [embedded]);
+
+  const handleContentBlur = useCallback(() => {
+    setContentFieldFocused(false);
+  }, []);
 
   const formInner = (
     <>
@@ -453,8 +468,9 @@ export function EntryEditor(props: EntryEditorProps) {
         onDeleteCustomTrigger={handleDeleteCustomTrigger}
         onSubmit={handleSubmit}
         compactMode
-        denseSections={embedded || keyboardOpen}
+        denseSections={embedded || contentFieldFocused}
         onContentFocus={handleContentFocus}
+        onContentBlur={handleContentBlur}
         onMicPress={() => setAudioSessionVisible((v) => !v)}
         micActive={audioSessionVisible}
         showFirstEntryHint={showFirstEntryHint}
@@ -552,7 +568,7 @@ export function EntryEditor(props: EntryEditorProps) {
     return (
       <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
         <View style={formStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </AppScreenShell>
     );

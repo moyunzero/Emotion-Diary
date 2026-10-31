@@ -4,10 +4,10 @@
 
 import { useIsFocused } from "@react-navigation/native";
 import { AudioModule } from "expo-audio";
-import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { i18n } from "@/i18n";
 import { audioCoordinator } from "../../shared/audio/coordinator";
 import {
@@ -49,6 +49,41 @@ export const AudioRecorder = React.forwardRef<
   AudioRecorderProps
 >(({ audios, onAudiosChange, disabled = false, layoutPreset = "create", clipBinding = "tab-focus" }, ref) => {
   const { t } = useTranslation("record");
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          paddingHorizontal: 16,
+        },
+        containerEdit: {
+          paddingHorizontal: 0,
+        },
+        recordingSection: {
+          alignItems: "center",
+          paddingVertical: 20,
+        },
+        recordingSectionEdit: {
+          paddingVertical: 10,
+        },
+        buttonContainer: {
+          marginTop: 16,
+        },
+        buttonContainerTightTop: {
+          marginTop: 0,
+        },
+        durationContainer: {
+          marginTop: 12,
+        },
+        durationText: {
+          fontSize: 24,
+          fontWeight: "600",
+          color: colors.text.primary,
+          fontVariant: ["tabular-nums"],
+        },
+      }),
+    [colors],
+  );
   const isNavFocused = useIsFocused();
   const currentPlayingId = useAppStore((s) => s.currentAudioId);
   const isPlaying = useAppStore((s) => s.isPlaying);
@@ -255,37 +290,6 @@ export const AudioRecorder = React.forwardRef<
       )}
     </View>
   );
-});
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-  },
-  containerEdit: {
-    paddingHorizontal: 0,
-  },
-  recordingSection: {
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  recordingSectionEdit: {
-    paddingVertical: 10,
-  },
-  buttonContainer: {
-    marginTop: 16,
-  },
-  buttonContainerTightTop: {
-    marginTop: 0,
-  },
-  durationContainer: {
-    marginTop: 12,
-  },
-  durationText: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-    fontVariant: ["tabular-nums"],
-  },
 });
 
 AudioRecorder.displayName = "AudioRecorder";

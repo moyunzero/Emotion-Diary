@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "../constants/colors";
+import { DESIGN_TOKENS } from "../constants/colors";
+import { useThemeStyles } from "../hooks/useThemeStyles";
 import AddTagInput from "./AddTagInput";
 import { AppChip } from "./ui/AppChip";
 
@@ -34,6 +35,33 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   isLastSection = false,
   getLabel = (item) => item,
 }) => {
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        section: {
+          marginBottom: DESIGN_TOKENS.spacing.xxxl,
+        },
+        sectionLast: {
+          marginBottom: 0,
+        },
+        sectionTitle: {
+          fontSize: DESIGN_TOKENS.fontSize.sm,
+          fontWeight: "bold",
+          color: colors.text.tertiary,
+          marginBottom: DESIGN_TOKENS.spacing.lg,
+          textTransform: "uppercase",
+          letterSpacing: 1,
+        },
+        tagsContainer: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: DESIGN_TOKENS.spacing.sm,
+        },
+      }),
+    [colors],
+  );
+
   return (
     <View style={[styles.section, isLastSection && styles.sectionLast]}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -57,28 +85,5 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     </View>
   );
 };
-
-/** 「和谁有关？」「因为什么？」等区块的样式在此配置 */
-const styles = StyleSheet.create({
-  section: {
-    marginBottom: DESIGN_TOKENS.spacing.xxxl,
-  },
-  sectionLast: {
-    marginBottom: 0,
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sm,
-    fontWeight: "bold",
-    color: COLORS.text.tertiary,
-    marginBottom: DESIGN_TOKENS.spacing.lg,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: DESIGN_TOKENS.spacing.sm,
-  },
-});
 
 export default React.memo(TagSelector);

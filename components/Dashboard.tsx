@@ -32,7 +32,6 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useShallow } from "zustand/shallow";
-import { COLORS } from "@/constants/colors";
 import {
   DASHBOARD_SEGMENT_ORDER,
   getDashboardSegmentA11yLabel,
@@ -73,9 +72,10 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const tabBarHeight = useBottomTabBarHeight();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createDashboardStyles(windowWidth, windowHeight),
-    [windowWidth, windowHeight]
+    () => createDashboardStyles(windowWidth, windowHeight, colors),
+    [windowWidth, windowHeight, colors],
   );
 
   // 优化：使用单个 selector 减少多次渲染，使用 useShallow 避免无限循环
@@ -87,7 +87,6 @@ const Dashboard: React.FC = () => {
       effectiveLocale: state.effectiveLocale,
     }))
   );
-  const { colors } = useThemeStyles();
   const [filter, setFilter] = useState<DashboardFilter>("active");
   const listRef = useRef<FlashListRef<DashboardDayItem>>(null);
   /** App Preview：下滑时强制刷屏，避免 simctl 静止不写帧 */
@@ -307,8 +306,8 @@ const Dashboard: React.FC = () => {
               opacity: 0.04,
               backgroundColor:
                 asoFramePulse % 2 === 0
-                  ? COLORS.shadow.primary
-                  : COLORS.text.inverse,
+                  ? colors.shadow.primary
+                  : colors.text.inverse,
             }}
           />
         ) : null}
@@ -348,7 +347,7 @@ const Dashboard: React.FC = () => {
               style={styles.emptyIconContainer}
               testID={`dashboard-empty-icon-${filter}`}
             >
-              <EmptyFilterIcon size={48} color={COLORS.primaryLight} />
+              <EmptyFilterIcon size={48} color={colors.primaryLight} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
               {emptyStateContent.title}

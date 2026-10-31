@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { createResponsiveMetrics } from '../../shared/responsive';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../../constants/colors';
 
 export function createMoodFormStyles(
   width: number,
   height: number,
+  colors: ColorPalette,
   options?: { denseSections?: boolean },
 ) {
   const m = createResponsiveMetrics(width, height);
@@ -18,7 +19,7 @@ export function createMoodFormStyles(
     sectionTitle: {
       fontSize: m.fontSize.small,
       fontWeight: 'bold',
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       marginBottom: dense
         ? DESIGN_TOKENS.spacing.sm
         : DESIGN_TOKENS.spacing.lg,
@@ -27,7 +28,7 @@ export function createMoodFormStyles(
     },
     firstEntryHint: {
       fontSize: m.fontSize.body,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: m.fontSize.body * 1.2,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
@@ -56,17 +57,17 @@ export function createMoodFormStyles(
     },
     /** D-24 Record selected: brand circle + white icon (list badges unchanged). */
     moodIconContainerSelected: {
-      backgroundColor: COLORS.brand,
+      backgroundColor: colors.brand,
     },
     moodLabel: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       fontWeight: '600',
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       textAlign: 'center',
       maxWidth: 64,
     },
     moodLabelSelected: {
-      color: COLORS.brand,
+      color: colors.brand,
       fontWeight: '600',
     },
     contentRow: {
@@ -78,11 +79,11 @@ export function createMoodFormStyles(
       flex: 1,
       minHeight: dense ? 140 : 120,
       height: dense ? undefined : 120,
-      backgroundColor: COLORS.background.secondary,
+      backgroundColor: colors.background.secondary,
       borderRadius: DESIGN_TOKENS.borderRadius.large,
       padding: DESIGN_TOKENS.spacing.lg,
       fontSize: DESIGN_TOKENS.fontSize.md,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       textAlignVertical: 'top',
     },
     micButton: {
@@ -100,11 +101,11 @@ export function createMoodFormStyles(
     },
     customDeadlineInput: {
       width: '100%',
-      backgroundColor: COLORS.background.secondary,
+      backgroundColor: colors.background.secondary,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,
       padding: DESIGN_TOKENS.spacing.md,
       fontSize: m.fontSize.body,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
     },
     modalOverlay: {
       flex: 1,
@@ -114,7 +115,7 @@ export function createMoodFormStyles(
       padding: DESIGN_TOKENS.spacing.xxl,
     },
     moodTipContainer: {
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderRadius: DESIGN_TOKENS.borderRadius.xl,
       padding: DESIGN_TOKENS.spacing.xxl,
       alignItems: 'center',
@@ -127,25 +128,25 @@ export function createMoodFormStyles(
     moodTipTitle: {
       fontSize: m.fontSize.cardTitle,
       fontWeight: 'bold',
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.md,
       textAlign: 'center',
     },
     moodTipDescription: {
       fontSize: m.fontSize.body,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: m.fontSize.body * 1.2,
       textAlign: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xl,
     },
     moodTipCloseButton: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       paddingHorizontal: DESIGN_TOKENS.spacing.xxl,
       paddingVertical: 10,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,
     },
     moodTipCloseText: {
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
       fontSize: m.fontSize.body,
       fontWeight: '600',
     },
@@ -160,7 +161,7 @@ export function createMoodFormStyles(
     },
     advancedToggleText: {
       fontSize: DESIGN_TOKENS.fontSize.base,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       fontWeight: '600',
     },
   });

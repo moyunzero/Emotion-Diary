@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../../constants/colors';
 
-export const styles = StyleSheet.create({
+export function createEditEntryModalStyles(colors: ColorPalette) {
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background.primary,
+    backgroundColor: colors.background.primary,
   },
   keyboardContainer: {
     flex: 1,
@@ -21,16 +22,16 @@ export const styles = StyleSheet.create({
     paddingBottom: DESIGN_TOKENS.spacing.md,
   },
   modalStackHeader: {
-    backgroundColor: COLORS.background.primary,
+    backgroundColor: colors.background.primary,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray[50],
+    borderBottomColor: colors.gray[50],
     paddingHorizontal: 24,
     paddingVertical: 8,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: colors.text.primary,
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -46,7 +47,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: COLORS.text.tertiary,
+    color: colors.text.tertiary,
     marginBottom: 16,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -73,21 +74,21 @@ export const styles = StyleSheet.create({
   moodLabel: {
     fontSize: DESIGN_TOKENS.fontSize.footnote,
     fontWeight: 'bold',
-    color: COLORS.gray[600],
+    color: colors.gray[600],
     textAlign: 'center',
   },
   moodLabelSelected: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     fontWeight: '800',
   },
   contentInput: {
     width: '100%',
     height: 120,
-    backgroundColor: COLORS.background.secondary,
+    backgroundColor: colors.background.secondary,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 16,
     fontSize: 16,
-    color: COLORS.gray[700],
+    color: colors.gray[700],
     textAlignVertical: 'top',
   },
   deadlineContainer: {
@@ -101,21 +102,21 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: COLORS.hairline,
+    borderColor: colors.hairline,
   },
   deadlineButtonSelected: {
-    backgroundColor: COLORS.brandSoft,
-    borderColor: COLORS.brandSoft,
+    backgroundColor: colors.brandSoft,
+    borderColor: colors.brandSoft,
   },
   deadlineText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
   },
   deadlineTextSelected: {
-    color: COLORS.brand,
+    color: colors.brand,
   },
   deadlineCustomContainer: {
     flexDirection: 'row',
@@ -124,11 +125,11 @@ export const styles = StyleSheet.create({
   },
   customDeadlineInput: {
     width: '100%',
-    backgroundColor: COLORS.background.secondary,
+    backgroundColor: colors.background.secondary,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     fontSize: 14,
-    color: COLORS.gray[700],
+    color: colors.gray[700],
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -141,13 +142,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     borderWidth: 1,
-    borderColor: COLORS.hairline,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.hairline,
+    backgroundColor: colors.surface,
     overflow: 'hidden',
   },
   tagSelected: {
-    backgroundColor: COLORS.brandSoft,
-    borderColor: COLORS.brandSoft,
+    backgroundColor: colors.brandSoft,
+    borderColor: colors.brandSoft,
   },
   tagMain: {
     paddingHorizontal: 12,
@@ -156,10 +157,10 @@ export const styles = StyleSheet.create({
   tagText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
   },
   tagTextSelected: {
-    color: COLORS.brand,
+    color: colors.brand,
   },
   tagDelete: {
     paddingHorizontal: 8,
@@ -172,13 +173,13 @@ export const styles = StyleSheet.create({
     paddingTop: DESIGN_TOKENS.spacing.lg,
     paddingBottom: DESIGN_TOKENS.spacing.xxl,
     borderTopWidth: 1,
-    borderTopColor: COLORS.gray[50],
+    borderTopColor: colors.gray[50],
   },
   /** 与 `TagSelector` 的 sectionTitle 同一层级（小写灰标签 + 大写 + 字间距） */
   audioSectionTitle: {
     fontSize: DESIGN_TOKENS.fontSize.sm,
     fontWeight: 'bold',
-    color: COLORS.text.tertiary,
+    color: colors.text.tertiary,
     marginBottom: DESIGN_TOKENS.spacing.lg,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -187,16 +188,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: COLORS.gray[50],
-    backgroundColor: COLORS.background.primary,
+    borderTopColor: colors.gray[50],
+    backgroundColor: colors.background.primary,
   },
   submitButton: {
     width: '100%',
     paddingVertical: 16,
-    backgroundColor: COLORS.primaryDark,
+    backgroundColor: colors.primaryDark,
     borderRadius: DESIGN_TOKENS.borderRadius.md,
     alignItems: 'center',
-    shadowColor: COLORS.shadow.submit,
+    shadowColor: colors.shadow.submit,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -214,6 +215,7 @@ export const styles = StyleSheet.create({
   submitText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text.inverse,
+    color: colors.text.inverse,
   },
-});
+  });
+}

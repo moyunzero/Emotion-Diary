@@ -19,7 +19,8 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "../constants/colors";
+import { DESIGN_TOKENS } from "../constants/colors";
+import { useThemeStyles } from "../hooks/useThemeStyles";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
 import { getDeadlineLabel, getMoodDescription, getMoodLabel } from "@/i18n/moodLabels";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -79,6 +80,8 @@ interface MoodFormProps {
   denseSections?: boolean;
   /** 正文输入获得焦点（父级可 scrollIntoView） */
   onContentFocus?: () => void;
+  /** 正文失焦（父级可取消 dense / 键盘专属布局） */
+  onContentBlur?: () => void;
   /** 正文旁麦克风：父级揭示既有 AudioRecorder 会话（D-04） */
   onMicPress?: () => void;
   /** 录音会话已展开时高亮麦标 */
@@ -121,6 +124,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   contentPlaceholder,
   denseSections = false,
   onContentFocus,
+  onContentBlur,
   onMicPress,
   micActive = false,
   getPeopleLabel = (item) => item,
@@ -132,9 +136,10 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
 
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createMoodFormStyles(width, height, { denseSections }),
-    [width, height, denseSections],
+    () => createMoodFormStyles(width, height, colors, { denseSections }),
+    [width, height, colors, denseSections],
   );
   const { trigger: triggerHaptic } = useHapticFeedback();
   const { t: tRecord } = useTranslation("record");
@@ -273,7 +278,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   >
                     {getMoodIcon(
                       config.iconName,
-                      isSelected ? COLORS.text.inverse : config.iconColor,
+                      isSelected ? colors.text.inverse : config.iconColor,
                       22,
                     )}
                   </View>
@@ -310,13 +315,14 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             value={content}
             onChangeText={onContentChange}
             onFocus={onContentFocus}
+            onBlur={onContentBlur}
             placeholder={
               contentPlaceholder ?? tRecord("sections.content.placeholder")
             }
             multiline
             numberOfLines={4}
             style={styles.contentInput}
-            placeholderTextColor={COLORS.gray[400]}
+            placeholderTextColor={colors.gray[400]}
             returnKeyType="default"
             blurOnSubmit={false}
             textAlignVertical="top"
@@ -337,7 +343,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
               <AppIcon
                 name={Mic}
                 size={DESIGN_TOKENS.iconSize.md}
-                color={micActive ? COLORS.brand : COLORS.text.secondary}
+                color={micActive ? colors.brand : colors.text.secondary}
               />
             </TouchableOpacity>
           ) : null}
@@ -358,7 +364,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           <AppIcon
             name={ChevronDown}
             size={DESIGN_TOKENS.iconSize.sm}
-            color={COLORS.text.secondary}
+            color={colors.text.secondary}
           />
         </TouchableOpacity>
       ) : null}
@@ -406,7 +412,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                 name={Edit}
                 size={14}
                 color={
-                  isCustomDeadline ? COLORS.brand : COLORS.gray[500]
+                  isCustomDeadline ? colors.brand : colors.gray[500]
                 }
               />
             }
@@ -419,7 +425,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             onChangeText={(text) => onCustomDeadlineChange(true, text)}
             placeholder={tRecord("customDeadline.placeholder")}
             style={styles.customDeadlineInput}
-            placeholderTextColor={COLORS.gray[400]}
+            placeholderTextColor={colors.gray[400]}
             autoFocus
             returnKeyType="done"
             blurOnSubmit={true}
@@ -472,7 +478,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             <AppIcon
               name={ChevronDown}
               size={DESIGN_TOKENS.iconSize.sm}
-              color={COLORS.text.secondary}
+              color={colors.text.secondary}
             />
           </View>
         </TouchableOpacity>
@@ -586,6 +592,7 @@ const MoodFormComparison = (
       prevProps.contentPlaceholder !== nextProps.contentPlaceholder ||
       prevProps.denseSections !== nextProps.denseSections ||
       prevProps.onContentFocus !== nextProps.onContentFocus ||
+      prevProps.onContentBlur !== nextProps.onContentBlur ||
       prevProps.onMicPress !== nextProps.onMicPress ||
       prevProps.micActive !== nextProps.micActive ||
       prevProps.peopleSectionTitle !== nextProps.peopleSectionTitle ||

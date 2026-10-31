@@ -1,13 +1,17 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../../constants/colors';
 import { createResponsiveMetrics } from '../../shared/responsive';
 
-export function createDashboardStyles(width: number, height: number) {
+export function createDashboardStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
     },
     header: {
       flexDirection: 'row',
@@ -22,7 +26,7 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: '700',
       lineHeight: m.fontSize.title * 1.2,
       letterSpacing: -0.5,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
     subtitle: {
@@ -30,7 +34,7 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: '400',
       lineHeight: m.fontSize.small * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       marginTop: DESIGN_TOKENS.spacing.xs,
     },
     avatar: {
@@ -38,7 +42,7 @@ export function createDashboardStyles(width: number, height: number) {
       height: 40,
       borderRadius: DESIGN_TOKENS.borderRadius.full,
       overflow: 'hidden',
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       ...DESIGN_TOKENS.shadow.md,
     },
     avatarImage: {
@@ -47,12 +51,12 @@ export function createDashboardStyles(width: number, height: number) {
       resizeMode: 'cover',
     },
     avatarPlaceholder: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       justifyContent: 'center',
       alignItems: 'center',
     },
     avatarPlaceholderText: {
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: 'bold',
     },
@@ -92,7 +96,7 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: '600',
       lineHeight: Math.round(DESIGN_TOKENS.fontSize.caption * 1.43),
       letterSpacing: 0,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     emptyState: {
       alignItems: 'center',
@@ -103,7 +107,7 @@ export function createDashboardStyles(width: number, height: number) {
       width: 96,
       height: 96,
       borderRadius: DESIGN_TOKENS.borderRadius.full,
-      backgroundColor: COLORS.background.secondary,
+      backgroundColor: colors.background.secondary,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xxl,
@@ -113,7 +117,7 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: '700',
       lineHeight: m.fontSize.cardTitle * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.sm,
       textAlign: 'center',
     },
@@ -122,12 +126,12 @@ export function createDashboardStyles(width: number, height: number) {
       fontWeight: '400',
       lineHeight: m.fontSize.body * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       textAlign: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xxxl,
     },
     emptyButton: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       paddingHorizontal: DESIGN_TOKENS.spacing.xxl,
       paddingVertical: DESIGN_TOKENS.spacing.md,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,
@@ -136,7 +140,7 @@ export function createDashboardStyles(width: number, height: number) {
     emptyButtonText: {
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: '700',
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
     },
   });
 }

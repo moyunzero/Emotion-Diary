@@ -1,14 +1,18 @@
 import { StyleSheet } from "react-native";
 import { createResponsiveMetrics } from "../../shared/responsive";
-import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "../../constants/colors";
 import { createStackScreenHeaderStyle } from "../../styles/stackScreenHeader";
 
-export function createRecordStyles(width: number, height: number) {
+export function createRecordStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
     },
     keyboardContainer: {
       flex: 1,
@@ -25,7 +29,10 @@ export function createRecordStyles(width: number, height: number) {
       paddingBottom: DESIGN_TOKENS.spacing.xxxl * 3,
     },
     /** 供 AppScreenShell / StackScreenHeader 外层：内边距与底部分割线 */
-    stackHeader: createStackScreenHeaderStyle(width, height),
+    stackHeader: {
+      ...createStackScreenHeaderStyle(width, height),
+      borderBottomColor: colors.hairline,
+    },
     content: {
       padding: m.padding.horizontal,
     },
@@ -33,7 +40,7 @@ export function createRecordStyles(width: number, height: number) {
       marginTop: DESIGN_TOKENS.spacing.lg,
       paddingTop: DESIGN_TOKENS.spacing.lg,
       borderTopWidth: 1,
-      borderTopColor: COLORS.gray[100],
+      borderTopColor: colors.gray[100],
     },
     submitContainer: {
       position: "absolute",
@@ -43,13 +50,13 @@ export function createRecordStyles(width: number, height: number) {
       paddingHorizontal: m.padding.horizontal,
       paddingTop: DESIGN_TOKENS.spacing.xl,
       paddingBottom: DESIGN_TOKENS.spacing.xl,
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       ...DESIGN_TOKENS.shadow.xl,
     },
     submitButton: {
       width: "100%",
       paddingVertical: DESIGN_TOKENS.spacing.md,
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       borderRadius: DESIGN_TOKENS.borderRadius.large,
       alignItems: "center",
       ...DESIGN_TOKENS.shadow.xl,
@@ -60,7 +67,7 @@ export function createRecordStyles(width: number, height: number) {
     submitText: {
       fontSize: DESIGN_TOKENS.fontSize.lg,
       fontWeight: "bold",
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
     },
   });
 }
