@@ -34,6 +34,7 @@
     "editLabel": "保存修改",
     "createA11y": "收好这一刻",
     "editA11y": "保存对这条情绪记录的修改",
+    "createDisabledMoodHint": "还不能收好：先选个心情",
     "createDisabledHint": "还不能收好：先写一点或录一段语音",
     "editDisabledHint": "请先输入文字或保留语音后再保存",
     "createHint": "点击收好这条情绪记录",

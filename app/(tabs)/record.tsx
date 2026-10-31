@@ -1,14 +1,10 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import Record from '../../components/Record';
-import { ToastManager } from '../../components/Toast';
 import { useStopAudioOnTabBlur } from '../../hooks/useStopAudioOnTabBlur';
-import { i18n } from '../../i18n';
 
 export default function RecordTab() {
   useStopAudioOnTabBlur();
   const router = useRouter();
-  const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -18,17 +14,9 @@ export default function RecordTab() {
     }
   };
 
-  const handleSuccess = () => {
-    setToast({
-      message: i18n.t('toasts.submitSuccess', { ns: 'record' }),
-      type: 'success',
-    });
-  };
+  // Plan 04: post-save ritual overlay hooks here (D-06 / D-12).
+  // Create success stays on Write Tab — no Toast, no home replace.
+  const handleSuccess = () => {};
 
-  return (
-    <>
-      <Record onClose={handleClose} onSuccess={handleSuccess} />
-      <ToastManager toast={toast} onHide={() => setToast(null)} />
-    </>
-  );
+  return <Record onClose={handleClose} onSuccess={handleSuccess} />;
 }

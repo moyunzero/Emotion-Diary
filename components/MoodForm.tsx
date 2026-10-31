@@ -33,8 +33,8 @@ const MOOD_LEVEL_VALUES = Object.values(MoodLevel).filter(
 ) as MoodLevel[];
 
 interface MoodFormProps {
-  // 受控组件的值
-  moodLevel: MoodLevel;
+  // 受控组件的值 — null = no mood selected (D-02)
+  moodLevel: MoodLevel | null;
   content: string;
   deadline: string;
   isCustomDeadline: boolean;

@@ -49,6 +49,10 @@ import { AudioRecorder } from "../AudioRecorder";
 import MoodForm from "../MoodForm";
 import { styles as embeddedStyles } from "../EditEntryModal/EditEntryModal.styles";
 import { AppButton } from "../ui/AppButton";
+import {
+  getWriteSubmitDisabledReason,
+  isWriteSubmitDisabled,
+} from "./submitGate";
 
 type EntryEditorCreateProps = {
   mode: "create";
@@ -103,7 +107,7 @@ export function EntryEditor(props: EntryEditorProps) {
   );
 
   const [isInitializing, setIsInitializing] = useState(isCreate);
-  const [moodLevel, setMoodLevel] = useState<MoodLevel>(MoodLevel.ANNOYED);
+  const [moodLevel, setMoodLevel] = useState<MoodLevel | null>(null);
   const [content, setContent] = useState("");
   const [deadline, setDeadline] = useState<string>(Deadline.TODAY);
   const [isCustomDeadline, setIsCustomDeadline] = useState(false);
@@ -153,7 +157,7 @@ export function EntryEditor(props: EntryEditorProps) {
   const resetForm = () => {
     useAppStore.getState().stopAudio();
     void forceCancelRecording();
-    setMoodLevel(MoodLevel.ANNOYED);
+    setMoodLevel(null);
     setContent("");
     setDeadline(Deadline.TODAY);
     setIsCustomDeadline(false);
@@ -179,7 +183,11 @@ export function EntryEditor(props: EntryEditorProps) {
         await loadCustomOptionsData();
         const draft = await loadDraft();
         if (draft) {
-          setMoodLevel(draft.moodLevel as MoodLevel);
+          setMoodLevel(
+            draft.moodLevel === null || draft.moodLevel === undefined
+              ? null
+              : (draft.moodLevel as MoodLevel),
+          );
           setContent(draft.content);
           setDeadline(draft.deadline);
           setIsCustomDeadline(draft.isCustomDeadline);
@@ -277,7 +285,8 @@ export function EntryEditor(props: EntryEditorProps) {
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    if (!content.trim() && audios.length === 0) {
+    const gateInput = { moodLevel, content, audios };
+    if (isWriteSubmitDisabled(gateInput) || moodLevel === null) {
       Alert.alert(
         t("submit.emptyValidation.title"),
         t("submit.emptyValidation.body"),
@@ -301,7 +310,7 @@ export function EntryEditor(props: EntryEditorProps) {
           moodLevel,
           content,
           deadline: finalDeadline,
-          people: selectedPeople.length ? selectedPeople : ["other"],
+          people: selectedPeople,
           triggers: selectedTriggers,
           audios: audios.length > 0 ? audios : undefined,
         });
@@ -312,7 +321,7 @@ export function EntryEditor(props: EntryEditorProps) {
           moodLevel,
           content,
           deadline: finalDeadline,
-          people: selectedPeople.length ? selectedPeople : ["other"],
+          people: selectedPeople,
           triggers: selectedTriggers,
           audios,
         });
@@ -322,13 +331,13 @@ export function EntryEditor(props: EntryEditorProps) {
       props.onSuccess?.();
 
       if (isCreate) {
+        // D-06: clear form and stay on Write Tab — no navigational onClose
         resetForm();
+      } else {
+        setTimeout(() => {
+          props.onClose();
+        }, 200);
       }
-
-      const delayMs = isCreate ? 300 : 200;
-      setTimeout(() => {
-        props.onClose();
-      }, delayMs);
     } catch (error) {
       // Re-enable for retry (UI-SPEC: no guilt copy; button returns enabled)
       logger.warn("EntryEditor", "提交失败，可再试一次", error);
@@ -380,7 +389,9 @@ export function EntryEditor(props: EntryEditorProps) {
     setCustomDeadlineText("");
   };
 
-  const isSubmitDisabled = !content.trim() && audios.length === 0;
+  const submitGateInput = { moodLevel, content, audios };
+  const isSubmitDisabled = isWriteSubmitDisabled(submitGateInput);
+  const submitGateReason = getWriteSubmitDisabledReason(submitGateInput);
   const keyboardOpen = keyboardHeight > 0;
 
   const handleContentFocus = useCallback(() => {
@@ -473,9 +484,14 @@ export function EntryEditor(props: EntryEditorProps) {
   const submitAccessibilityLabel = isCreate
     ? t("submit.createA11y")
     : t("submit.editA11y");
-  const submitDisabledReason = isCreate
-    ? t("submit.createDisabledHint")
-    : t("submit.editDisabledHint");
+  const submitDisabledReason = (() => {
+    if (!isSubmitDisabled) return undefined;
+    if (!isCreate) return t("submit.editDisabledHint");
+    if (submitGateReason === "mood") {
+      return t("submit.createDisabledMoodHint");
+    }
+    return t("submit.createDisabledHint");
+  })();
   const submitAccessibilityHint = isSubmitDisabled
     ? submitDisabledReason
     : isCreate
@@ -489,7 +505,7 @@ export function EntryEditor(props: EntryEditorProps) {
       loadingLabel={submitLoadingLabel}
       loading={isSubmitting}
       disabled={isSubmitDisabled}
-      disabledReason={isSubmitDisabled ? submitDisabledReason : undefined}
+      disabledReason={submitDisabledReason}
       onPress={() => {
         void handleSubmit();
       }}
