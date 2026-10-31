@@ -1,7 +1,8 @@
 import { countPendingEntries } from "@/shared/entries/dashboardFilter";
 import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
+import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useRouter } from "expo-router";
+import { ChevronDown, ChevronUp } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -20,20 +21,18 @@ import { WeeklyReviewBanner } from "../retention/WeeklyReviewBanner";
 import { CareCountLine } from "./CareCountLine";
 import { EmptyGarden } from "./EmptyGarden";
 import { GardenHeader } from "./GardenHeader";
-import { HealingProgress } from "./HealingProgress";
 import { InsightsDeferredSections } from "./InsightsDeferredSections";
 import { RelationshipGarden } from "./RelationshipGarden";
 import { WeeklyMoodWeather } from "./WeeklyMoodWeather";
-import { INSIGHTS_COLORS } from "./constants";
 
 const InsightsComponent: React.FC = () => {
-  const router = useRouter();
   const { t } = useTranslation("insights");
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
   const { trigger } = useHapticFeedback();
   const tabBarHeight = useBottomTabBarHeight();
   const [pendingStage, setPendingStage] = useState<GrowthStageId | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
   const userId = useAppStore((state) => state.user?.id ?? null);
 
   useEffect(() => {
@@ -142,49 +141,49 @@ const InsightsComponent: React.FC = () => {
           resolvedCount={stats.resolved}
         />
 
-        {/* Phase 2：回顾导出入口（空花园分支无记录，不展示） */}
-        <View
-          style={[
-            styles.reviewCtaWrap,
-            { paddingHorizontal: horizontalPadding },
-          ]}
-        >
-          <Pressable
-            style={({ pressed }) => [
-              styles.reviewCta,
-              pressed && styles.reviewCtaPressed,
-            ]}
-            onPress={() => router.push("/review-export")}
-          >
-            <Text style={styles.reviewCtaText}>{t("reviewCta")}</Text>
-          </Pressable>
-        </View>
-
         <View
           style={[styles.content, { paddingHorizontal: horizontalPadding }]}
         >
           <WeeklyReviewBanner entries={visibleEntries} />
 
-          {/* First screen (D-18): 本周 → 关系 → 照料；「更多回看」accordion = Plan 08 */}
+          {/* First screen (D-18): 本周 → 关系 → 照料 */}
           <WeeklyMoodWeather entries={visibleEntries} />
           <RelationshipGarden entries={visibleEntries} />
           <CareCountLine entries={visibleEntries} />
 
-          {/* Deferred until Plan 08 wraps under 「更多回看」 */}
-          <HealingProgress
-            totalCount={stats.total}
-            resolvedCount={stats.resolved}
-            pendingCount={stats.pending}
-            pendingStage={pendingStage}
-            onMilestoneShown={handleMilestoneShown}
-          />
+          {/* 「更多回看」 accordion (D-22 / D-26) — default collapsed; no persist */}
+          <View style={styles.moreSection}>
+            <Pressable
+              testID="insights-more-accordion"
+              style={({ pressed }) => [
+                styles.moreHeader,
+                pressed && styles.moreHeaderPressed,
+              ]}
+              onPress={() => setMoreOpen((open) => !open)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: moreOpen }}
+              accessibilityLabel={t("more.toRevisit")}
+            >
+              <Text style={styles.moreHeaderText}>{t("more.toRevisit")}</Text>
+              {moreOpen ? (
+                <ChevronUp size={18} color={COLORS.text.secondary} />
+              ) : (
+                <ChevronDown size={18} color={COLORS.text.secondary} />
+              )}
+            </Pressable>
 
-          <InsightsDeferredSections
-            entries={visibleEntries}
-            thisMonthCount={stats.thisMonthCount}
-            lastMonthCount={stats.lastMonthCount}
-            resolvedCount={stats.resolved}
-          />
+            <InsightsDeferredSections
+              expanded={moreOpen}
+              entries={visibleEntries}
+              thisMonthCount={stats.thisMonthCount}
+              lastMonthCount={stats.lastMonthCount}
+              resolvedCount={stats.resolved}
+              totalCount={stats.total}
+              pendingCount={stats.pending}
+              pendingStage={pendingStage}
+              onMilestoneShown={handleMilestoneShown}
+            />
+          </View>
         </View>
       </View>
       </View>
@@ -197,30 +196,26 @@ const styles = StyleSheet.create({
     width: "100%",
     marginHorizontal: "auto", // 大屏下配合 maxWidth 实现水平居中
   },
-  reviewCtaWrap: {
-    width: "100%",
-    marginBottom: 12,
-  },
-  reviewCta: {
-    alignSelf: "stretch",
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 14,
-    backgroundColor: INSIGHTS_COLORS.primary + "22",
-    borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.accent + "55",
-  },
-  reviewCtaPressed: {
-    opacity: 0.88,
-  },
-  reviewCtaText: {
-    textAlign: "center",
-    fontWeight: '700',
-    fontSize: 16,
-    color: INSIGHTS_COLORS.accent,
-  },
   content: {
     // paddingHorizontal 在运行时动态设置
+  },
+  moreSection: {
+    marginTop: DESIGN_TOKENS.spacing.xxxl,
+  },
+  moreHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: DESIGN_TOKENS.spacing.sm,
+    marginBottom: DESIGN_TOKENS.spacing.sm,
+  },
+  moreHeaderPressed: {
+    opacity: 0.72,
+  },
+  moreHeaderText: {
+    fontSize: DESIGN_TOKENS.fontSize.base,
+    fontWeight: "600",
+    color: COLORS.text.secondary,
   },
 });
 

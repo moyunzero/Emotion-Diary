@@ -33,6 +33,9 @@
   "care": {
     "weekCount": "本周照料了 {{n}} 次"
   },
+  "more": {
+    "toRevisit": "更多回看"
+  },
   "healing": {
     "title": "治愈进度",
     "stats": {

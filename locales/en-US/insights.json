@@ -33,6 +33,9 @@
   "care": {
     "weekCount": "Cared for yourself {{n}} times this week"
   },
+  "more": {
+    "toRevisit": "More to revisit"
+  },
   "healing": {
     "title": "Healing progress",
     "stats": {
