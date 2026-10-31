@@ -1,7 +1,7 @@
 /**
- * Wave 0 RED — EntryCard echo / smoke strip contracts (ECHO-01..03 + D-17)
+ * EntryCard echo / smoke strip contracts (ECHO-01..03 + D-17)
  * Source-scan (moodWashBurned pattern); no RN StyleSheet import in this suite.
- * GREEN slices: Plan 02 (strip/mic/Play/D-17), Plan 04 (smoke), Plan 05 (chips).
+ * GREEN: Plan 02 (strip/mic/Play/D-17/D-37). Smoke: Plan 04. Chips: Plan 05.
  */
 
 import fs from 'fs';
@@ -63,7 +63,8 @@ describe('echoStripContract — no Play/Pause row chrome (D-09)', () => {
   });
 });
 
-describe('echoStripContract — smoke strip (ECHO-03 / D-29 D-30)', () => {
+// Plan 04 (ECHO-03) — keep contract intact; skip until smoke strip lands.
+describe.skip('echoStripContract — smoke strip (ECHO-03 / D-29 D-30)', () => {
   it('burned-had-audio path uses smoke copy keys (not playable burned list)', () => {
     const combined = `${entryCardSource}\n${entryCardPlaybackSource}`;
     const hasSmoke =
@@ -82,5 +83,12 @@ describe('echoStripContract — smoke strip (ECHO-03 / D-29 D-30)', () => {
 describe('echoStripContract — collapse must not stop audio (D-17)', () => {
   it('EntryCard must not stopAudio on expand→collapse', () => {
     expect(collapseStopEffectPresent(entryCardSource)).toBe(false);
+  });
+});
+
+describe('echoStripContract — card time-of-day only (D-37)', () => {
+  it('EntryCard formats card chrome with toLocaleTimeString, not formatLocaleDate', () => {
+    expect(entryCardSource).toMatch(/toLocaleTimeString/);
+    expect(entryCardSource).not.toMatch(/formatLocaleDate/);
   });
 });

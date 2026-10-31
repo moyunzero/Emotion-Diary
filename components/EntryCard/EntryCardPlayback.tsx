@@ -1,4 +1,3 @@
-import { COLORS } from "@/constants/colors";
 import { i18n } from "@/i18n";
 import { audioCoordinator } from "@/shared/audio/coordinator";
 import React, { useCallback, useMemo } from "react";
