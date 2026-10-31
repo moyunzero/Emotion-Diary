@@ -3,11 +3,12 @@ import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { useAppStore } from '@/store/useAppStore';
 import { MoodEntry, MoodLevel } from '../../types';
 import { generateEmotionPrescription } from '../../utils/aiService';
 import { COLORS, DESIGN_TOKENS } from '@/constants/colors';
-import { INSIGHTS_COLORS } from './constants';
+import { getInsightsColors } from './constants';
 
 interface PrescriptionCardProps {
   trigger: string;
@@ -20,6 +21,11 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
   const { t: tAi } = useTranslation('ai');
   const effectiveLocale = useAppStore((s) => s.effectiveLocale);
   const { fontSize } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -28,14 +34,14 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           paddingVertical: 8,
           paddingHorizontal: 12,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
-          backgroundColor: INSIGHTS_COLORS.primary + '20',
+          backgroundColor: insightsColors.primary + '20',
           alignSelf: 'flex-start',
           marginTop: 8,
         },
         generateButtonText: {
           fontSize: 12,
           fontWeight: '500',
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
         },
         loadingContainer: {
           flexDirection: 'row',
@@ -46,7 +52,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         },
         loadingText: {
           fontSize: 12,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginTop: 8,
         },
         errorContainer: {
@@ -69,13 +75,13 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           paddingVertical: 6,
           paddingHorizontal: 12,
           borderRadius: DESIGN_TOKENS.borderRadius.sm,
-          backgroundColor: INSIGHTS_COLORS.primary + '20',
+          backgroundColor: insightsColors.primary + '20',
           alignSelf: 'flex-start',
         },
         retryButtonText: {
           fontSize: 12,
           fontWeight: '500',
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
         },
         container: {
           marginTop: 12,
@@ -83,7 +89,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           borderRadius: DESIGN_TOKENS.borderRadius.md,
           padding: 12,
           borderWidth: 1,
-          borderColor: INSIGHTS_COLORS.primary + '30',
+          borderColor: insightsColors.primary + '30',
         },
         header: {
           flexDirection: 'row',
@@ -98,11 +104,11 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         headerText: {
           fontSize: fontSize.body,
           fontWeight: '600',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         expandText: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
         },
         content: {
           marginTop: 12,
@@ -128,10 +134,10 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           flex: 1,
           fontSize: 13,
           lineHeight: 18,
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
       }),
-    [fontSize]
+    [fontSize, insightsColors]
   );
 
   const [prescription, setPrescription] = useState<{ urgent: string; shortTerm: string; longTerm: string } | null>(null);
@@ -208,7 +214,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         style={styles.generateButton}
         onPress={handleGenerate}
       >
-        <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+        <Sparkles size={14} color={insightsColors.accent} />
         <Text style={styles.generateButtonText}>{t('prescription.generate')}</Text>
       </TouchableOpacity>
     );
@@ -217,7 +223,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
   if (isGenerating) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={INSIGHTS_COLORS.accent} />
+        <ActivityIndicator size="small" color={insightsColors.accent} />
         <Text style={styles.loadingText}>
           {generatingStep || tAi('prescription.generating.default')}
         </Text>
@@ -236,7 +242,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
           style={styles.retryButton}
           onPress={handleGenerate}
         >
-          <Sparkles size={14} color={INSIGHTS_COLORS.accent} />
+          <Sparkles size={14} color={insightsColors.accent} />
           <Text style={styles.retryButtonText}>{t('prescription.retry')}</Text>
         </TouchableOpacity>
       </View>
@@ -252,7 +258,7 @@ const PrescriptionCardComponent: React.FC<PrescriptionCardProps> = ({ trigger, m
         onPress={() => setIsExpanded(!isExpanded)}
       >
         <View style={styles.headerLeft}>
-          <Sparkles size={16} color={INSIGHTS_COLORS.accent} />
+          <Sparkles size={16} color={insightsColors.accent} />
           <Text style={styles.headerText}>{t('prescription.header')}</Text>
         </View>
         <Text style={styles.expandText}>

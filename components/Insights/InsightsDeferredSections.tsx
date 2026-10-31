@@ -1,6 +1,7 @@
 import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -20,7 +21,7 @@ import { EmotionReleaseArchive } from "./EmotionReleaseArchive";
 import { GardenFooter } from "./GardenFooter";
 import { HealingProgress } from "./HealingProgress";
 import { TriggerInsight } from "./TriggerInsight";
-import { INSIGHTS_COLORS } from "./constants";
+import { getInsightsColors } from "./constants";
 
 type InsightsDeferredSectionsProps = {
   expanded: boolean;
@@ -52,6 +53,40 @@ export function InsightsDeferredSections({
   const router = useRouter();
   const { t } = useTranslation("insights");
   const [ready, setReady] = useState(false);
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        reviewCtaWrap: {
+          width: "100%",
+          marginBottom: 12,
+          marginTop: 8,
+        },
+        reviewCta: {
+          alignSelf: "stretch",
+          paddingVertical: 14,
+          paddingHorizontal: 18,
+          borderRadius: 14,
+          backgroundColor: insightsColors.primary + "22",
+          borderWidth: 1,
+          borderColor: insightsColors.accent + "55",
+        },
+        reviewCtaPressed: {
+          opacity: 0.88,
+        },
+        reviewCtaText: {
+          textAlign: "center",
+          fontWeight: "700",
+          fontSize: 16,
+          color: insightsColors.accent,
+        },
+      }),
+    [insightsColors],
+  );
 
   useEffect(() => {
     if (!expanded) {
@@ -114,29 +149,3 @@ export function InsightsDeferredSections({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  reviewCtaWrap: {
-    width: "100%",
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  reviewCta: {
-    alignSelf: "stretch",
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 14,
-    backgroundColor: INSIGHTS_COLORS.primary + "22",
-    borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.accent + "55",
-  },
-  reviewCtaPressed: {
-    opacity: 0.88,
-  },
-  reviewCtaText: {
-    textAlign: "center",
-    fontWeight: "700",
-    fontSize: 16,
-    color: INSIGHTS_COLORS.accent,
-  },
-});

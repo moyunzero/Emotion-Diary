@@ -4,11 +4,12 @@
 
 import { AppScreenShell } from "@/components/AppScreenShell";
 import EntryCard from "@/components/EntryCard/EntryCard";
-import { INSIGHTS_COLORS } from "@/components/Insights/constants";
+import { getInsightsColors } from "@/components/Insights/constants";
 import { COLORS } from "@/constants/colors";
 import { getFlowerPotStatus } from "@/components/Insights/utils";
 import { OnThisDayPersonSlot } from "@/components/onThisDay/OnThisDayPersonSlot";
 import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { preparePlaybackAudioMode } from "@/shared/audio/coordinator";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
@@ -53,6 +54,11 @@ export function PersonTimelineScreen() {
   const { t } = useTranslation("personTimeline");
   const { t: tInsights } = useTranslation("insights");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () => createPersonTimelineStyles(width, height),
     [width, height],
@@ -100,13 +106,13 @@ export function PersonTimelineScreen() {
     return getFlowerPotStatus(
       aggregate.resolveRate,
       {
-        bloomingColor: INSIGHTS_COLORS.bloomingColor,
-        growingColor: INSIGHTS_COLORS.growingColor,
-        needWaterColor: INSIGHTS_COLORS.needWaterColor,
+        bloomingColor: insightsColors.bloomingColor,
+        growingColor: insightsColors.growingColor,
+        needWaterColor: insightsColors.needWaterColor,
       },
       tInsights,
     );
-  }, [aggregate, tInsights]);
+  }, [aggregate, tInsights, insightsColors]);
 
   const latestLabel = useMemo(() => {
     if (!aggregate) return t("metrics.emDash");
