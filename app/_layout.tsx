@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import * as Localization from 'expo-localization';
-import { AppState, Platform, StatusBar } from 'react-native';
+import { Appearance, AppState, Platform, StatusBar } from 'react-native';
 /* eslint-disable import/no-duplicates -- RNGH：入口须先 side-effect 再命名导出 */
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -13,6 +13,10 @@ import { RecordingSessionHost } from '../components/AudioRecorder/RecordingSessi
 import { MetaphorOnboardingHost } from '../components/onboarding/MetaphorOnboardingHost';
 import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
+import {
+  loadAppearancePreference,
+  resolveEffectiveColorScheme,
+} from '../services/appearanceSettings';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
 import {
@@ -93,6 +97,16 @@ export default function RootLayout() {
       try {
         const { effectiveLocale, preference } = await initI18n();
         useAppStore.getState()._hydrateLocale(preference, effectiveLocale);
+
+        const appearancePreference = await loadAppearancePreference();
+        const effectiveColorScheme = resolveEffectiveColorScheme(
+          appearancePreference,
+          Appearance.getColorScheme(),
+        );
+        useAppStore
+          .getState()
+          ._hydrateAppearance(appearancePreference, effectiveColorScheme);
+
         setIsI18nReady(true);
       } catch (error) {
         logger.error('RootLayout', 'i18n 初始化失败', error);
@@ -137,6 +151,21 @@ export default function RootLayout() {
       });
     }
   }, [isI18nReady, isInitialized]);
+
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      const { appearancePreference } = useAppStore.getState();
+      if (appearancePreference.mode !== 'system') {
+        return;
+      }
+      const scheme = resolveEffectiveColorScheme(
+        appearancePreference,
+        colorScheme,
+      );
+      useAppStore.getState().setAppearanceScheme(scheme);
+    });
+    return () => subscription.remove();
+  }, []);
 
   if (!isI18nReady || !isInitialized) {
     return null;

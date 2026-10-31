@@ -3,7 +3,7 @@
  * 语义角色对齐 sketch default.css（粉纸玫瑰）；旧键为别名（D-03），非第二套调色板。
  */
 
-export const COLORS = {
+export const COLORS_LIGHT = {
   // —— Semantic roles (default.css / D-01 · D-02) ——
   bg: '#FFF8F9',
   surface: '#FFFFFF',
@@ -81,7 +81,12 @@ export const COLORS = {
   tab: {
     active: '#A8355B',
     inactive: '#8C8084',
+    barBg: '#FFFFFF',
   },
+
+  scrim: 'rgba(0, 0, 0, 0.45)',
+  alertBg: 'rgba(255, 255, 255, 0.94)',
+  tabBarBg: '#FFFFFF',
 
   // 页面氛围叠层 — sketch weather fills (no purple wash)
   atmosphere: {
@@ -170,6 +175,178 @@ export const COLORS = {
     },
   },
 } as const;
+
+/** Pink-ink night palette — literals from night.css / night-role-map.md */
+export const COLORS_NIGHT = {
+  bg: '#1C1418',
+  surface: '#271C22',
+  surface2: '#32242B',
+  hairline: '#3F3138',
+  brand: '#F08AA8',
+  brandPressed: '#E4769A',
+  brandSoft: '#3A2229',
+
+  primary: '#F08AA8',
+  primaryDark: '#E4769A',
+  primaryLight: '#3A2229',
+
+  // RESEARCH A3: mood ladder — rose tints on plum (not light literals)
+  mood: {
+    level1: '#32242B',
+    level2: '#3A2229',
+    level3: '#5C3A45',
+    level4: '#C2416B',
+    level5: '#E4769A',
+    icon: {
+      level1: '#917F87',
+      level2: '#C4B4BB',
+      level3: '#F08AA8',
+      level4: '#E4769A',
+      level5: '#F08AA8',
+    },
+  },
+
+  danger: '#F07A7A',
+  success: '#6FCFA5',
+  warning: '#F08A55',
+  error: '#F07A7A',
+  info: '#8FB0D3',
+
+  submit: '#F07A7A',
+  accent: '#6FCFA5',
+
+  audio: {
+    primary: '#E4769A',
+    surface: '#3A2229',
+  },
+
+  gray: {
+    50: '#271C22',
+    100: '#32242B',
+    200: '#3F3138',
+    300: '#5C4A52',
+    400: '#917F87',
+    500: '#C4B4BB',
+    600: '#C4B4BB',
+    700: '#F6EEF1',
+    800: '#F6EEF1',
+    900: '#F6EEF1',
+  },
+
+  background: {
+    primary: '#271C22',
+    secondary: '#32242B',
+    tertiary: '#3A2229',
+    page: '#1C1418',
+    gradientStart: '#1C1418',
+    gradientEnd: '#271C22',
+  },
+
+  tab: {
+    active: '#F08AA8',
+    inactive: '#917F87',
+    barBg: 'rgba(39, 28, 34, 0.82)',
+  },
+
+  scrim: 'rgba(0, 0, 0, 0.52)',
+  alertBg: 'rgba(50, 36, 43, 0.94)',
+  tabBarBg: 'rgba(39, 28, 34, 0.82)',
+
+  atmosphere: {
+    sunny: '#2B2419',
+    cloudy: '#22262A',
+    rainy: '#1E2530',
+    stormy: '#261F2C',
+  },
+
+  weatherCard: {
+    sunny: {
+      bg: '#2B2419',
+      text: '#F6EEF1',
+      icon: '#E3B45C',
+    },
+    cloudy: {
+      bg: '#22262A',
+      text: '#F6EEF1',
+      icon: '#A3AEB8',
+    },
+    rainy: {
+      bg: '#1E2530',
+      text: '#F6EEF1',
+      icon: '#8FB0D3',
+    },
+    stormy: {
+      bg: '#261F2C',
+      text: '#F6EEF1',
+      icon: '#B39AC8',
+    },
+  },
+
+  ritual: {
+    resolve: '#6FCFA5',
+    burn: '#F08A55',
+  },
+
+  text: {
+    primary: '#F6EEF1',
+    secondary: '#C4B4BB',
+    tertiary: '#917F87',
+    inverse: '#2A1018',
+  },
+
+  border: {
+    light: '#3F3138',
+    medium: '#5C4A52',
+    dark: '#917F87',
+  },
+
+  shadow: {
+    primary: '#000000',
+    submit: '#F08AA8',
+  },
+
+  weather: {
+    sunny: { icon: '#E3B45C', bg: '#2B2419' },
+    cloudy: { icon: '#A3AEB8', bg: '#22262A' },
+    rainy: { icon: '#8FB0D3', bg: '#1E2530' },
+    stormy: { icon: '#B39AC8', bg: '#261F2C' },
+  },
+
+  // RESEARCH A3: deadline chips — plum/rose family
+  deadline: {
+    today: {
+      bg: '#3A2229',
+      text: '#F07A7A',
+    },
+    week: {
+      bg: '#2B2419',
+      text: '#F08A55',
+    },
+    month: {
+      bg: '#32242B',
+      text: '#F08AA8',
+    },
+    later: {
+      bg: '#22262A',
+      text: '#C4B4BB',
+    },
+    self: {
+      bg: '#271C22',
+      text: '#F6EEF1',
+    },
+  },
+} as const;
+
+export type ColorPalette = typeof COLORS_LIGHT | typeof COLORS_NIGHT;
+
+/** @deprecated Prefer getColors(effectiveScheme) or COLORS_LIGHT — legacy static import alias */
+export const COLORS = COLORS_LIGHT;
+
+export type ResolvedColorScheme = 'light' | 'night';
+
+export function getColors(scheme: ResolvedColorScheme): ColorPalette {
+  return (scheme === 'night' ? COLORS_NIGHT : COLORS_LIGHT) as ColorPalette;
+}
 
 /**
  * Design tokens — VISUAL-SYSTEM §四–五 / D-07·D-08·D-09.
@@ -261,6 +438,7 @@ export const DESIGN_TOKENS = {
  * D-11 brand-sentence serif — system Songti only (zero webfont assets).
  * Use only at: weather narrative · review closing · share card title.
  * Pure string (no react-native import) so Jest can load this module without RN transform.
+ * On iOS RN prefer PostScript `SongtiSC-Regular` (family name `Songti SC` often no-ops → ugly UI font).
  * Missing faces fall back to the platform UI font.
  */
 export const SERIF_STACK = 'Songti SC';
