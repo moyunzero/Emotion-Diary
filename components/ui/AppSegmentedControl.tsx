@@ -1,5 +1,6 @@
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
-import React from "react";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import React, { useMemo } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -36,6 +37,47 @@ export function AppSegmentedControl<T extends string>({
   testID,
   style,
 }: AppSegmentedControlProps<T>) {
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        track: {
+          flexDirection: "row",
+          alignItems: "stretch",
+          alignSelf: "stretch",
+          minHeight: SEGMENT_MIN_HEIGHT,
+          backgroundColor: colors.surface,
+          borderRadius: DESIGN_TOKENS.borderRadius.medium,
+          borderCurve: "continuous",
+          borderWidth: 1,
+          borderColor: colors.hairline,
+          overflow: "hidden",
+        },
+        segment: {
+          flex: 1,
+          minHeight: SEGMENT_MIN_HEIGHT,
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: DESIGN_TOKENS.spacing.xs,
+          borderRadius: DESIGN_TOKENS.borderRadius.small,
+          borderCurve: "continuous",
+        },
+        segmentSelected: {
+          backgroundColor: colors.brandSoft,
+        },
+        label: {
+          fontSize: DESIGN_TOKENS.fontSize.sm,
+          fontWeight: "600",
+          color: colors.text.secondary,
+          textAlign: "center",
+        },
+        labelSelected: {
+          color: colors.brand,
+        },
+      }),
+    [colors],
+  );
+
   return (
     <View
       style={[styles.track, style]}
@@ -66,39 +108,3 @@ export function AppSegmentedControl<T extends string>({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  track: {
-    flexDirection: "row",
-    alignItems: "stretch",
-    alignSelf: "stretch",
-    minHeight: SEGMENT_MIN_HEIGHT,
-    backgroundColor: COLORS.surface,
-    borderRadius: DESIGN_TOKENS.borderRadius.medium,
-    borderCurve: "continuous",
-    borderWidth: 1,
-    borderColor: COLORS.hairline,
-    overflow: "hidden",
-  },
-  segment: {
-    flex: 1,
-    minHeight: SEGMENT_MIN_HEIGHT,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: DESIGN_TOKENS.spacing.xs,
-    borderRadius: DESIGN_TOKENS.borderRadius.small,
-    borderCurve: "continuous",
-  },
-  segmentSelected: {
-    backgroundColor: COLORS.brandSoft,
-  },
-  label: {
-    fontSize: DESIGN_TOKENS.fontSize.sm,
-    fontWeight: "600",
-    color: COLORS.text.secondary,
-    textAlign: "center",
-  },
-  labelSelected: {
-    color: COLORS.brand,
-  },
-});

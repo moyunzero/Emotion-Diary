@@ -1,6 +1,7 @@
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { X } from "lucide-react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -50,7 +51,47 @@ export function AppChip({
   testID,
   style,
 }: AppChipProps) {
-  const labelColor = selected ? COLORS.brand : COLORS.text.secondary;
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        shell: {
+          flexDirection: "row",
+          alignItems: "center",
+          height: APP_CHIP_HEIGHT,
+          borderRadius: DESIGN_TOKENS.borderRadius.large,
+          overflow: "hidden",
+          borderCurve: "continuous",
+        },
+        shellUnselected: {
+          backgroundColor: colors.surface,
+          borderColor: colors.hairline,
+        },
+        shellSelected: {
+          backgroundColor: colors.brandSoft,
+          borderColor: colors.brand,
+        },
+        main: {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: DESIGN_TOKENS.spacing.xs,
+          paddingHorizontal: DESIGN_TOKENS.spacing.md,
+          height: APP_CHIP_HEIGHT,
+        },
+        label: {
+          fontSize: DESIGN_TOKENS.fontSize.sm,
+        },
+        delete: {
+          paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+          height: APP_CHIP_HEIGHT,
+          justifyContent: "center",
+          opacity: 0.6,
+        },
+      }),
+    [colors],
+  );
+
+  const labelColor = selected ? colors.brand : colors.text.secondary;
 
   return (
     <View
@@ -94,45 +135,9 @@ export function AppChip({
           accessibilityRole="button"
           accessibilityLabel="delete"
         >
-          <X size={12} color={COLORS.gray[500]} />
+          <X size={12} color={colors.gray[500]} />
         </Pressable>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: APP_CHIP_HEIGHT,
-    borderRadius: DESIGN_TOKENS.borderRadius.large,
-    overflow: "hidden",
-    borderCurve: "continuous",
-  },
-  shellUnselected: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.hairline,
-  },
-  shellSelected: {
-    backgroundColor: COLORS.brandSoft,
-    borderColor: COLORS.brand,
-  },
-  main: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: DESIGN_TOKENS.spacing.xs,
-    paddingHorizontal: DESIGN_TOKENS.spacing.md,
-    height: APP_CHIP_HEIGHT,
-  },
-  label: {
-    fontSize: DESIGN_TOKENS.fontSize.sm,
-    // Weight set inline from selected (400 unselected / 600 selected)
-  },
-  delete: {
-    paddingHorizontal: DESIGN_TOKENS.spacing.sm,
-    height: APP_CHIP_HEIGHT,
-    justifyContent: "center",
-    opacity: 0.6,
-  },
-});
