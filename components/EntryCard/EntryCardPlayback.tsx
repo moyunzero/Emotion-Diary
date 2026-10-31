@@ -14,7 +14,7 @@ export type EntryCardPlaybackProps = {
   isExpanded: boolean;
 };
 
-export type EntryCardBurnedPlaybackProps = {
+export type EntryCardSmokeStripProps = {
   entry: MoodEntry;
   styles: ReturnType<typeof createEntryCardStyles>;
   isExpanded: boolean;
@@ -146,9 +146,37 @@ export function EntryCardPlayback({
 }
 
 /**
- * Burned (ash) audio chrome — Plan 04 replaces with smoke strip (ECHO-03).
- * Stub keeps import sites compiling; no playable list (D-09).
+ * Burned-had-audio smoke strip (ECHO-03 / D-29..D-34).
+ * Disabled chrome only — no play, no Alert, no chips.
  */
-export function EntryCardBurnedPlayback(_props: EntryCardBurnedPlaybackProps) {
-  return null;
+export function EntryCardSmokeStrip({
+  entry,
+  styles,
+}: EntryCardSmokeStripProps) {
+  const { t } = useTranslation("dashboard");
+
+  if (!entry.audios || entry.audios.length === 0) {
+    return null;
+  }
+
+  const smokeLabel = t("entryCard.smokeStripLabel");
+  const smokeA11y = t("entryCard.smokeStripA11y");
+
+  return (
+    <View style={styles.echoStripSection}>
+      <Pressable
+        style={styles.smokeStrip}
+        disabled
+        accessibilityRole="button"
+        accessibilityLabel={smokeA11y}
+        accessibilityState={{ disabled: true }}
+        testID="entry-smoke-strip"
+        // D-30: tap must not play or Alert — Pressable disabled; no onPress
+      >
+        <Text style={styles.smokeStripLabel} numberOfLines={1}>
+          {smokeLabel}
+        </Text>
+      </Pressable>
+    </View>
+  );
 }

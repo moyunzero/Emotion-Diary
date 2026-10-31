@@ -63,8 +63,7 @@ describe('echoStripContract — no Play/Pause row chrome (D-09)', () => {
   });
 });
 
-// Plan 04 (ECHO-03) — keep contract intact; skip until smoke strip lands.
-describe.skip('echoStripContract — smoke strip (ECHO-03 / D-29 D-30)', () => {
+describe('echoStripContract — smoke strip (ECHO-03 / D-29 D-30)', () => {
   it('burned-had-audio path uses smoke copy keys (not playable burned list)', () => {
     const combined = `${entryCardSource}\n${entryCardPlaybackSource}`;
     const hasSmoke =

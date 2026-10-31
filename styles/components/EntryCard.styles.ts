@@ -78,18 +78,6 @@ export function createEntryCardStyles(width: number, height: number) {
       color: COLORS.text.tertiary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
-    burnedAudioContainer: {
-      marginTop: DESIGN_TOKENS.spacing.sm,
-      paddingTop: DESIGN_TOKENS.spacing.sm,
-      borderTopWidth: 1,
-      borderTopColor: COLORS.gray[100],
-    },
-    burnedAudioLabel: {
-      fontSize: DESIGN_TOKENS.fontSize.xs,
-      color: COLORS.text.tertiary,
-      fontWeight: '600',
-      marginBottom: DESIGN_TOKENS.spacing.xs,
-    },
     deleteActionText: {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.text.tertiary,
@@ -258,6 +246,23 @@ export function createEntryCardStyles(width: number, height: number) {
       fontSize: DESIGN_TOKENS.fontSize.xs,
       color: COLORS.text.tertiary,
       fontWeight: '400',
+    },
+    smokeStrip: {
+      height: 36,
+      paddingHorizontal: DESIGN_TOKENS.spacing.lg,
+      paddingVertical: DESIGN_TOKENS.spacing.sm,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      borderCurve: 'continuous',
+      backgroundColor: COLORS.surface2,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: COLORS.hairline,
+      justifyContent: 'center',
+      opacity: 0.9,
+    },
+    smokeStripLabel: {
+      fontSize: DESIGN_TOKENS.fontSize.base,
+      fontWeight: '600',
+      color: COLORS.text.tertiary,
     },
     actionsContainer: {
       flexDirection: 'row',

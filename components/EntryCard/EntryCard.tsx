@@ -46,8 +46,8 @@ import ResolveConfirmOverlay from "../rituals/ResolveConfirmOverlay";
 import BurnConfirmOverlay from "../rituals/BurnConfirmOverlay";
 import { EntryCardActions } from "./EntryCardActions";
 import {
-  EntryCardBurnedPlayback,
   EntryCardPlayback,
+  EntryCardSmokeStrip,
 } from "./EntryCardPlayback";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
@@ -201,8 +201,17 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsExpanded(false);
   };
 
+  /** D-32: if this entry is playing, stop immediately when burn proceeds. */
+  const stopPlaybackIfThisEntry = () => {
+    const state = useAppStore.getState();
+    if (state.playbackEntryId === entry.id) {
+      state.stopAudio();
+    }
+  };
+
   const handleBurnComplete = () => {
     triggerHaptic("success");
+    stopPlaybackIfThisEntry();
     burnEntry(entry.id);
     onBurn?.(entry.id);
     setIsBurning(false);
@@ -269,6 +278,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         }
       } catch (e) {
         console.error("Burn effect failed:", e);
+        stopPlaybackIfThisEntry();
         burnEntry(entry.id);
         setIsPreparing(false);
       }
@@ -283,6 +293,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleBurnConfirm = () => {
     setShowBurnConfirm(false);
+    stopPlaybackIfThisEntry();
     void startBurnAnimation();
   };
 
@@ -430,11 +441,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               </View>
             </View>
           </TouchableOpacity>
-          {isExpanded ? (
+          {/* Smoke strip collapsed + expanded (D-29 / D-34); no chips */}
+          {entry.audios && entry.audios.length > 0 ? (
             <View style={styles.content}>
               <View style={{ width: 44 }} />
               <View style={styles.textContainer}>
-                <EntryCardBurnedPlayback
+                <EntryCardSmokeStrip
                   entry={entry}
                   styles={styles}
                   isExpanded={isExpanded}
