@@ -20,3 +20,14 @@ describe('tipIconColor — mood tip uses palette ramp (D-07 / D-08)', () => {
     expect(moodFormSource).not.toMatch(/iconColor/);
   });
 });
+
+describe('tipIconColor — MOOD_CONFIG has no static icon color (D-07)', () => {
+  const constantsSource = fs.readFileSync(
+    path.join(process.cwd(), 'constants.ts'),
+    'utf8',
+  );
+
+  it('constants.ts does not contain iconColor', () => {
+    expect(constantsSource).not.toMatch(/iconColor/);
+  });
+});
