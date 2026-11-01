@@ -12,13 +12,11 @@ import type {
   AppearanceMode,
   AppearancePreference,
 } from "@/services/appearanceSettings";
-import type { ResolvedColorScheme } from "@/constants/colors";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
 import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 export type ProfileAppearanceSectionProps = {
   appearancePreference: AppearancePreference;
-  effectiveColorScheme: ResolvedColorScheme;
   onSetAppearanceMode: (mode: AppearanceMode) => Promise<void>;
 };
 

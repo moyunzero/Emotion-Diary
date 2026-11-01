@@ -361,11 +361,11 @@ const SHADOW_NONE = {
   elevation: 0,
 } as const;
 
-/** Sheet / Toast / drag float only — not card default (D-09). */
+/** Sheet / Toast / drag float only — not card default (D-09). Neutral black reads on both palettes. */
 const SHADOW_FLOAT = {
-  shadowColor: 'rgb(67, 28, 42)',
+  shadowColor: 'rgb(0, 0, 0)',
   shadowOffset: { width: 0, height: 8 },
-  shadowOpacity: 0.12,
+  shadowOpacity: 0.18,
   shadowRadius: 28,
   elevation: 8,
 } as const;

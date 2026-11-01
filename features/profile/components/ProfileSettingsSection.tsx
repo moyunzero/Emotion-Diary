@@ -20,7 +20,6 @@ import type {
   AppearanceMode,
   AppearancePreference,
 } from "@/services/appearanceSettings";
-import type { ResolvedColorScheme } from "@/constants/colors";
 import { ProfileAppearanceSection } from "./ProfileAppearanceSection";
 import { ProfileLanguageSection } from "./ProfileLanguageSection";
 import { ProfileRetentionSection } from "./ProfileRetentionSection";
@@ -31,7 +30,6 @@ export type ProfileSettingsSectionProps = {
   onSetLocale: (locale: AppLocale) => Promise<void>;
   onSetLocaleMode: (mode: LocaleMode) => Promise<void>;
   appearancePreference: AppearancePreference;
-  effectiveColorScheme: ResolvedColorScheme;
   onSetAppearanceMode: (mode: AppearanceMode) => Promise<void>;
   user: { id: string; name: string; email?: string; avatar?: string } | null;
   storeSyncStatus: StoreSyncStatus;
@@ -104,7 +102,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
     onSetLocale,
     onSetLocaleMode,
     appearancePreference,
-    effectiveColorScheme,
     onSetAppearanceMode,
     user,
     storeSyncStatus,
@@ -188,7 +185,6 @@ export function ProfileSettingsSection(props: ProfileSettingsSectionProps) {
 
       <ProfileAppearanceSection
         appearancePreference={appearancePreference}
-        effectiveColorScheme={effectiveColorScheme}
         onSetAppearanceMode={onSetAppearanceMode}
       />
 
