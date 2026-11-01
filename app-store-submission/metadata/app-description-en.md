@@ -1,6 +1,6 @@
 # App Store Connect Metadata — English (U.S.)
 
-> **Version**: 1.7.1 · **Updated**: 2026-10-26  
+> **Version**: 1.8.0 · **Updated**: 2026-11-01  
 > **Bundle ID**: `com.moyunzero.emotiondiary`  
 > **App Store listing**: [心晴MO on the App Store](https://apps.apple.com/us/app/%E5%BF%83%E6%99%B4mo/id6759703686)  
 > **Display name on device**: 心晴MO · English marketing name: **MoodMO** / **Xinqing MO**
@@ -18,7 +18,7 @@ Use this file when editing the **English (U.S.)** localization in App Store Conn
 | Promotional Text | 170 chars | Promotional Text (editable without new build) |
 | Description | 4000 chars | Description |
 | Keywords | 100 chars | Keywords |
-| What’s New in This Version | 4000 chars | `whats-new-1.7.1-en.md` |
+| What’s New in This Version | 4000 chars | `whats-new-1.8.0-en.md` |
 | Support URL | required | Support URL |
 | Marketing URL | optional | Marketing URL |
 | Privacy Policy URL | required | Privacy Policy URL |
@@ -35,9 +35,9 @@ Mood journal & mind garden
 
 ## Promotional Text (max 170 characters, optional)
 
-Offline-first mood journal: weather for feelings, a garden for relationships. See overwrite risk before cloud merge; timeline, On This Day, home widget—private by default.
+Pink-paper UI & pink-ink dark mode; Listen Now + day groups. Weather for feelings, garden for relationships; see overwrite risk before merge—private by default.
 
-(≈130 characters)
+(160 characters)
 
 ---
 
@@ -56,13 +56,16 @@ MoodMO (心晴MO) turns feelings into a Mind Garden you can tend: weather to rea
 Log a moment in minutes. Look back by week or month. Open a pot to revisit someone—and meet yourself on this day in years past.
 
 WHAT YOU GET
+• Pink-paper healing look & pink-ink dark mode: warm by day, softer at night
 • Emotion Weather Station & warm logging: intensity, people/trigger tags, voice notes, auto-saved drafts
+• Listen Now & day groups: replay today’s voice notes from Home; “All” is newest-first across statuses
 • Mind Garden: weekly weather, healing progress, relationship pots, trigger insights & gardening tips
 • Relationship Timeline & On This Day: revisit by person; same day, different years
 • Weekly/monthly review images saved to Photos (no built-in third-party sharing)
 • Vent & Release: calming burn + release archive
 • Soft Stack home widget: garden weather at a glance (no diary body); clears on sign-out or account deletion
 • Cloud merge confirm: see how many local edits would be overwritten; Backup first, Merge, or Cancel
+• Trust-minded copy: pending counts stay consistent; revisit and empty-weather tone without guilt KPIs
 • Optional AI (your own Groq key): forecasts, podcasts, prescriptions, review closing line—with on-device fallbacks
 • Offline-first, optional cloud sync; English & Simplified Chinese
 
@@ -70,13 +73,13 @@ MoodMO supports self-observation only. It is not medical advice and does not rep
 
 ---
 
-## What’s New in Version 1.7.1
+## What’s New in Version 1.8.0
 
-See [`whats-new-1.7.1-en.md`](./whats-new-1.7.1-en.md). Prior notes: [`whats-new-1.7.0-en.md`](./whats-new-1.7.0-en.md), [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md).
+See [`whats-new-1.8.0-en.md`](./whats-new-1.8.0-en.md). Prior notes: [`whats-new-1.7.1-en.md`](./whats-new-1.7.1-en.md), [`whats-new-1.7.0-en.md`](./whats-new-1.7.0-en.md), [`whats-new-1.6.1-en.md`](./whats-new-1.6.1-en.md).
 
 ## Product narrative (consumer / investor)
 
-See [`product-narrative-1.7.0.md`](./product-narrative-1.7.0.md) (bumped from the 1.6.1 narrative).
+See [`product-narrative-1.8.0.md`](./product-narrative-1.8.0.md).
 
 ---
 
@@ -123,17 +126,19 @@ No restricted content; user-generated diary text; optional account for cloud syn
 - **Microphone**: Only when user taps record on a mood entry.  
 - **Photo library**: Only when user saves a review export image.  
 - **Notifications**: Local reminders only; off by default; no diary content in notification body.  
+- **Appearance**: Supports light (pink-paper) and dark (pink-ink) themes; follows system or in-app preference.  
 - **AI**: Groq API calls only when user configures API key in environment / build; otherwise local fallback text.  
-- **Languages**: 1.3 adds in-app English UI; system permission dialogs localized via iOS native strings.
+- **Languages**: In-app English & Simplified Chinese; system permission dialogs localized via iOS native strings.
 
 ---
 
-## Screenshot captions (optional, for marketing · 1.6)
+## Screenshot captions (optional, for marketing · 1.8)
 
-1. **Relationship Timeline** — Open a pot; revisit every mood tied to someone  
-2. **On This Day** — Same day, different years—gently reunited  
-3. **Mind Garden** — When a relationship pot needs watering, a soft nudge to care  
-4. **Log a moment** — Mood, people tags, and voice in seconds  
+1. **Log / Listen Now** — Capture a mood in seconds; replay today’s voice notes from Home  
+2. **Mind Garden** — When a relationship pot needs watering, a soft nudge to care  
+3. **Relationship Timeline** — Open a pot; revisit every mood tied to someone  
+4. **On This Day** — Same day, different years—gently reunited  
 5. **Soft Stack widget** — Garden weather on your Home Screen (no diary text)  
+6. **Pink-ink dark (optional)** — A softer night theme in pink ink  
 
 See [`screenshot-guide.md`](./screenshot-guide.md) for sizes and capture tips.

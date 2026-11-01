@@ -77,6 +77,7 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 - 创新的天气隐喻可视化关系健康状态
 - 用天气图标（雨滴、云朵、雷电等）表达情绪强度
 - 实时显示当前"关系天气"和情绪指数
+- **听这一刻（v1.8）**：首页快速回听当天语音日记；列表按日分组；「全部」按时间倒序混排
 
 ### ✍️ 智能记录
 
@@ -86,7 +87,7 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 - **灵活的期限设置**：今天谈、本周内、本月内、以后说、自己消化
 - **自动草稿保存**：编辑过程自动保存草稿，意外退出也不会丢失
 - **编辑历史记录**：完整记录每次修改，可查看情绪变化轨迹
-- **温暖的文案引导**：降低记录门槛，让用户更愿意表达
+- **温暖的文案引导**：降低记录门槛；可信文案避免内疚 KPI 施压（v1.8）
 
 ### 🌱 心灵花园（洞察页面）
 
@@ -141,12 +142,13 @@ Maestro 诊断：`yarn test:maestro:preflight`。独立 flow：`yarn test:maestr
 
 ## 🎨 设计亮点
 
-- **粉色疗愈视觉（v1.4）**：全站统一 token 与组件样式，温暖一致
+- **粉纸疗愈视觉（v1.8）**：全站粉纸 design token；控件与触感统一（在 v1.4 粉色疗愈之上系统化）
+- **粉墨深色（v1.8）**：夜间粉墨主题，跟随系统或应用内偏好
 - **首次理解路径（v1.4）**：≤3 屏 intro 教用户读懂气象站 → 记一笔 → 花园隐喻链
-- **治愈系配色**：粉绿渐变主题，温暖舒适
+- **治愈系配色**：粉相品牌底，温暖舒适（禁止暖米纸换品牌）
 - **天气主题图标**：统一使用 Lucide 图标库，避免 emoji 兼容性问题
 - **心灵花园隐喻**：将情绪管理转化为照料花园的过程
-- **正向激励**：强调成长和治愈，而非问题和冲突
+- **正向激励**：强调成长和治愈；可信文案避免内疚 KPI 施压
 - **流畅动画**：React Native Reanimated 驱动的微交互
 - **响应式设计**：适配各种屏幕尺寸
 
@@ -431,13 +433,33 @@ eas build --platform ios --profile production
 
 ## 📋 版本历史
 
-格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。代码版本为 **1.7.1**（商店现网仍为 1.7.0，直至本版提审通过）。
+格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。当前 App 版本见 `app.json` / `package.json`。代码版本为 **1.8.0**（商店现网在提审通过前可能仍为 1.7.0）。
 
-### [1.7.1] - 待提审
+### [1.8.0] - 待提审
+
+> v1.8「粉纸疗愈 · 系统视觉 + 可信体验」（Phase 21–27）。构建号由 EAS production `autoIncrement` 管理。
+
+#### 新增
+
+- **粉纸 design token** 全站与 UI 原语统一；**粉墨深色**模式
+- 首页 **「听这一刻」** 语音回听条、日记 **按日分组**；「全部」按时间倒序混排
+- **可信文案**：待处理计数一致、过期回访日期、空天气 / 预测语气去内疚 KPI
+- 结构 A 三屏仪式与花园瘦身（待处理置顶等）
+
+#### 修复 / 体验
+
+- 分段切换时列表重挂，避免 FlashList 回收错位空白
+- 并入原计划 1.7.1 未单独提审的小修复（含开发环境下头像进个人页）
+
+#### 商店文案
+
+- App Store「此版本的新增内容」：`app-store-submission/metadata/whats-new-1.8.0-zh.md` / `whats-new-1.8.0-en.md`
+- 描述与推广文本：`app-description-zh.md` / `app-description-en.md`；叙事：`product-narrative-1.8.0.md`
+
+### [1.7.1] - 未单独提审（并入 1.8.0）
 
 - 修复若干小问题（含开发环境下首页头像点击被遮挡）。
-- 版本号 bump（`app.json` / `package.json` → 1.7.1）。构建号由 EAS production `autoIncrement` 管理。
-- App Store「此版本的新增内容」：`app-store-submission/metadata/whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`。
+- 曾 bump 至 1.7.1；现由 **1.8.0** 一并提审。草稿见 `whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`。
 
 ### [1.7.0] - 2026-10-21 · App Store 更新
 
@@ -597,6 +619,19 @@ eas build --platform ios --profile production
 | **1.5.0** | 隐私 / 同步 / 可清债清零 | Phase 6–12；`milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
 | **1.6.0** | 关系洞察与轻触达 | Phase 13–18；`milestones/v1.6.0-*` | ✅ App Store / Tag `v1.6.0` |
 | **1.7.0** | 拉取前看见会被覆盖的本地修改 | Phase 19–20；`milestones/v1.7.0-*` | ✅ App Store |
+| **1.8.0** | 粉纸疗愈 · 系统视觉 + 可信体验 | Phase 21–27；`milestones/v1.8.0-*` | ⏳ 待提审 |
+
+#### v1.8 Phase 明细（规划归档于本地 `.planning/milestones/`）
+
+| Phase | 主题 |
+| --- | --- |
+| 21 | 可信文案与数据一致 |
+| 22 | 粉纸 design token |
+| 23 | UI 原语 |
+| 24 | 「听这一刻」与按日分组 |
+| 25 | 结构 A 核心屏 |
+| 26 | 粉墨深色 |
+| 27 | 技术债与收口 |
 
 #### v1.7 Phase 明细（均已合入 `master`）
 
