@@ -82,7 +82,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
         emptyDayDot: {
           width: 12,
           height: 12,
-          borderRadius: 6,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.text.tertiary,
           borderStyle: 'dashed',

@@ -93,7 +93,7 @@ export function AppSheet({
         handle: {
           width: 40,
           height: 4,
-          borderRadius: 2,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
           backgroundColor: colors.hairline,
         },
         header: {
