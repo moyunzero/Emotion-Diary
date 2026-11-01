@@ -6,7 +6,6 @@ import { Appearance, type ColorSchemeName } from "react-native";
 
 import {
   DEFAULT_APPEARANCE_PREFERENCE,
-  loadAppearancePreference,
   resolveEffectiveColorScheme,
   saveAppearancePreference,
   type AppearanceMode,
@@ -59,8 +58,3 @@ export const createAppearanceModule: ModuleCreator<AppearanceModule> = (
     set({ appearancePreference: preference, effectiveColorScheme });
   },
 });
-
-/** 启动时从 AsyncStorage 预读偏好（供 RootLayout 外层或测试使用） */
-export async function prefetchAppearancePreference(): Promise<AppearancePreference> {
-  return loadAppearancePreference();
-}
