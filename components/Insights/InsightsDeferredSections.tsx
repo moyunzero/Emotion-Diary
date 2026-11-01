@@ -29,7 +29,6 @@ type InsightsDeferredSectionsProps = {
   lastMonthCount: number;
   resolvedCount: number;
   totalCount: number;
-  pendingCount: number;
   pendingStage: GrowthStageId | null;
   onMilestoneShown: (stage: GrowthStageId) => void;
 };
@@ -45,7 +44,6 @@ export function InsightsDeferredSections({
   lastMonthCount,
   resolvedCount,
   totalCount,
-  pendingCount,
   pendingStage,
   onMilestoneShown,
 }: InsightsDeferredSectionsProps) {
@@ -117,7 +115,6 @@ export function InsightsDeferredSections({
       <HealingProgress
         totalCount={totalCount}
         resolvedCount={resolvedCount}
-        pendingCount={pendingCount}
         pendingStage={pendingStage}
         onMilestoneShown={onMilestoneShown}
       />

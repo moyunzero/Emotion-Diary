@@ -1,4 +1,4 @@
-import { Flower2, Heart, Sparkles, Sprout } from 'lucide-react-native';
+import { Flower2, Heart, Sparkles } from 'lucide-react-native';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
@@ -21,7 +21,6 @@ const STAGE_RATE_FOR_ICON: Record<GrowthStageId, number> = {
 interface HealingProgressProps {
   totalCount: number;
   resolvedCount: number;
-  pendingCount: number;
   pendingStage?: GrowthStageId | null;
   onMilestoneShown?: (stage: GrowthStageId) => void;
 }
@@ -29,7 +28,6 @@ interface HealingProgressProps {
 const HealingProgressComponent: React.FC<HealingProgressProps> = ({
   totalCount,
   resolvedCount,
-  pendingCount,
   pendingStage,
   onMilestoneShown,
 }) => {
@@ -251,15 +249,6 @@ const HealingProgressComponent: React.FC<HealingProgressProps> = ({
             </View>
             <Text style={styles.statLabel} numberOfLines={2}>
               {t('healing.stats.bloomed')}
-            </Text>
-          </View>
-          <View style={styles.statItem}>
-            <View style={styles.statRow}>
-              <Sprout size={18} color={insightsColors.textSecondary} />
-              <Text style={styles.statNumber}>{pendingCount}</Text>
-            </View>
-            <Text style={styles.statLabel} numberOfLines={2}>
-              {t('healing.stats.pending')}
             </Text>
           </View>
         </View>
