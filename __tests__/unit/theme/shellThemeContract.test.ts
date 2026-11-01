@@ -21,10 +21,11 @@ describe("shellThemeContract (NIGHT-01 · D-08 D-09)", () => {
     expect(source).toMatch(/barStyle=\{[^}]+\}/);
   });
 
-  it("tabs layout uses night tab wash rgba(39, 28, 34, 0.82) when themed", () => {
+  it("tabs layout uses colors.tabBarBg for night wash (D-09 token)", () => {
     const source = fs.readFileSync(tabsLayoutPath, "utf8");
     expect(source).toMatch(/useThemeStyles|getColors|COLORS_NIGHT|effectiveColorScheme/);
-    expect(source).toMatch(/rgba\s*\(\s*39\s*,\s*28\s*,\s*34\s*,\s*0\.82\s*\)/);
+    expect(source).toMatch(/colors\.tabBarBg/);
+    expect(source).not.toMatch(/NIGHT_TAB_WASH/);
     expect(source).toMatch(/tabBarBackground|TabBarBackground/);
     expect(source).toMatch(/borderTopColor|hairline/);
   });

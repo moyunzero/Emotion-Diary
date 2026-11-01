@@ -13,15 +13,12 @@ import { useThemeStyles } from '@/hooks/useThemeStyles';
 
 const TAB_ICON_SIZE = 24;
 
-/** D-09 night tab wash (matches COLORS_NIGHT.tabBarBg). */
-const NIGHT_TAB_WASH = 'rgba(39, 28, 34, 0.82)';
-
-/** iOS: solid page bg until opaque underlay ships (G-23-6). Android: α0.92. */
+/** iOS: solid page bg until opaque underlay ships (G-23-6). Android: α0.92. Night: token wash. */
 function TabBarBackground() {
   const { colors, effectiveColorScheme } = useThemeStyles();
   const backgroundColor =
     effectiveColorScheme === 'night'
-      ? NIGHT_TAB_WASH
+      ? colors.tabBarBg
       : Platform.OS === 'ios'
         ? colors.bg
         : withOpacity(colors.tabBarBg, 0.92);

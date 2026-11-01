@@ -49,9 +49,6 @@ export function ProfileScreen() {
   const appearancePreference = useAppStore(
     (state) => state.appearancePreference,
   );
-  const effectiveColorScheme = useAppStore(
-    (state) => state.effectiveColorScheme,
-  );
   const setAppearanceMode = useAppStore((state) => state.setAppearanceMode);
   const syncProgress = useAppStore((state) => state.syncProgress);
   const lastSyncTime = useAppStore((state) => state.lastSyncTime);
@@ -245,7 +242,6 @@ export function ProfileScreen() {
           onSetLocale={setLocale}
           onSetLocaleMode={setLocaleMode}
           appearancePreference={appearancePreference}
-          effectiveColorScheme={effectiveColorScheme}
           onSetAppearanceMode={setAppearanceMode}
           user={user}
           syncProgress={syncProgress}
