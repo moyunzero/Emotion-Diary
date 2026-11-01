@@ -1,6 +1,6 @@
 /**
  * G-25-3 — AudioPreview rename: displayName seed, blur/cancel never onRename,
- * Check/Submit-only persist, edit chrome outside play Pressable.
+ * Check/Submit-only persist (onPressIn beats iOS blur race), edit chrome outside play Pressable.
  */
 
 import fs from 'fs';
@@ -20,14 +20,10 @@ describe('audioPreviewRenameContract (G-25-3)', () => {
   });
 
   it('never calls onRename from blur or cancel paths', () => {
-    // onBlur must not invoke onRename (seeded 「录制于 …」 is non-empty)
+    // No blur→persist (seeded 「录制于 …」 is non-empty) and no blur→exit race with Check
     expect(previewSource).not.toMatch(/onBlur=\{handleSaveEdit\}/);
     expect(previewSource).not.toMatch(/onBlur=\{[^}]*onRename/);
-    const blurHandler = previewSource.match(
-      /handleBlurEdit\s*=\s*\([^)]*\)\s*=>\s*\{[\s\S]*?\n\s*\}/,
-    );
-    expect(blurHandler).not.toBeNull();
-    expect(blurHandler![0]).not.toMatch(/onRename/);
+    expect(previewSource).not.toMatch(/onBlur=\{handleBlurEdit\}/);
 
     // Cancel must exit without onRename
     const cancelMatch = previewSource.match(
@@ -37,8 +33,9 @@ describe('audioPreviewRenameContract (G-25-3)', () => {
     expect(cancelMatch![0]).not.toMatch(/onRename/);
   });
 
-  it('persists onRename only via Check / onSubmitEditing when trim non-empty', () => {
+  it('persists onRename only via Check onPressIn / onSubmitEditing when trim non-empty', () => {
     expect(previewSource).toMatch(/onSubmitEditing/);
+    expect(previewSource).toMatch(/onPressIn=\{handleSaveEdit\}/);
     expect(previewSource).toMatch(/onRename\s*\(/);
     // Persist gate: trim non-empty before onRename
     expect(previewSource).toMatch(

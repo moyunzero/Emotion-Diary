@@ -37,6 +37,17 @@ describe('micAudioSessionContract (G-25-3 / G-25-2)', () => {
     );
   });
 
+  it('densifies MoodForm only for content-field focus, not any keyboard (rename jump)', () => {
+    // Rename keyboard must not collapse sections → scroll jumps to top then down
+    expect(entryEditorSource).not.toMatch(
+      /denseSections=\{embedded\s*\|\|\s*keyboardOpen\}/,
+    );
+    expect(entryEditorSource).toMatch(
+      /denseSections=\{embedded\s*\|\|\s*contentFieldFocused\}/,
+    );
+    expect(entryEditorSource).toMatch(/onContentBlur=\{handleContentBlur\}/);
+  });
+
   it('preserves single clipBinding path (no second RecordingSessionHost / clipHandler)', () => {
     expect(entryEditorSource).toMatch(/clipBinding=/);
     expect(entryEditorSource).not.toMatch(/RecordingSessionHost/);

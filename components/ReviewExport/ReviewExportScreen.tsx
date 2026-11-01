@@ -168,6 +168,7 @@ export const ReviewExportScreen: React.FC = () => {
   const closingRequestIdRef = useRef(0);
 
   const captureRootRef = useRef<View>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const shareModel = useMemo(
     () =>
@@ -276,9 +277,19 @@ export const ReviewExportScreen: React.FC = () => {
     }
   }, [router]);
 
+  const handleSnippetFocus = useCallback(() => {
+    // Lift shell via keyboardAware; scroll opt-in field above sticky save footer.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 80);
+    });
+  }, []);
+
   return (
     <AppScreenShell
       edges={['top', 'left', 'right']}
+      keyboardAware
       title={t('screen.title')}
       onBack={handleBack}
       backTestID="review-export-back-button"
@@ -356,6 +367,7 @@ export const ReviewExportScreen: React.FC = () => {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
@@ -366,6 +378,9 @@ export const ReviewExportScreen: React.FC = () => {
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={
+          Platform.OS === 'ios' ? 'interactive' : 'on-drag'
+        }
       >
         <View
           style={[
@@ -415,6 +430,7 @@ export const ReviewExportScreen: React.FC = () => {
                 placeholderTextColor={INSIGHTS_COLORS.textSecondary}
                 multiline
                 numberOfLines={3}
+                onFocus={handleSnippetFocus}
                 accessibilityLabel={tShare('optIn.placeholder')}
               />
               <Text style={styles.optInHint}>{tShare('optIn.hint')}</Text>
