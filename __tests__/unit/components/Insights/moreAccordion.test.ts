@@ -49,6 +49,15 @@ describe('moreAccordion — garden 更多回看 (FLOW-04 / D-22)', () => {
       /<CareCountLine[\s\S]{0,200}<HealingProgress/,
     );
   });
+
+  it('pending count sits after CareCountLine and before the More accordion', () => {
+    const careIdx = insightsSource.indexOf('<CareCountLine');
+    const pendingIdx = insightsSource.indexOf('insights-pending-count');
+    const moreIdx = insightsSource.indexOf('insights-more-accordion');
+    expect(pendingIdx).toBeGreaterThan(careIdx);
+    expect(pendingIdx).toBeLessThan(moreIdx);
+    expect(insightsSource.slice(careIdx, moreIdx)).not.toMatch(/HealingProgress/);
+  });
 });
 
 describe('moreAccordion — deferred + forecast under More (D-22 / D-26)', () => {
