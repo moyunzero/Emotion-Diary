@@ -491,7 +491,9 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                 <View style={styles.moodTipIconContainer}>
                   {getMoodIcon(
                     MOOD_CONFIG[selectedMoodTip].iconName,
-                    MOOD_CONFIG[selectedMoodTip].iconColor,
+                    colors.mood.icon[
+                      `level${MOOD_CONFIG[selectedMoodTip].level}` as keyof typeof colors.mood.icon
+                    ],
                     48,
                   )}
                 </View>
