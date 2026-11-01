@@ -10,6 +10,7 @@ import { StateCreator } from "zustand";
 
 import { supabase } from "../../lib/supabase";
 import { i18n } from "../../i18n";
+import { resolveCompanionFirstEntryDate } from "../../services/companionDaysService";
 import { enqueueClearWidgetSnapshot } from "../../services/widgetSnapshot";
 import { stripAudiosFromEntries } from "../../shared/audio/guestAudioStrip";
 import { isSoftDeleted } from "../../shared/entries/visibility";
@@ -116,22 +117,32 @@ export const createUserSlice: StateCreator<
      * 因此这一桥接函数不可移除。语义见 hooks/useCompanionFirstEntryDate.ts 与 store/useAppStore.ts 启动流程。
      */
     initializeFirstEntryDate: async () => {
-      const { user } = get();
+      const { user, entries } = get();
       if (!user) return;
 
-      // 确保 firstEntryDate 存储到新 key
-      const storageKey = `@first_entry_date_${user.id}`;
+      const storageKey = `${FIRST_ENTRY_DATE_USER_STORAGE_PREFIX}${user.id}`;
       try {
+        let stored: number | undefined;
         const existing = await AsyncStorage.getItem(storageKey);
-        if (existing) return; // 已存在，无需处理
+        if (existing) {
+          const n = Number.parseInt(existing, 10);
+          if (!Number.isNaN(n) && n > 0) stored = n;
+        }
 
-        // 如果 user 有 firstEntryDate，保存到新 key
-        if (user.firstEntryDate) {
-          await AsyncStorage.setItem(storageKey, user.firstEntryDate.toString());
+        const resolved = resolveCompanionFirstEntryDate(
+          [stored, user.firstEntryDate],
+          entries,
+        );
+
+        if (resolved != null) {
+          await AsyncStorage.setItem(storageKey, resolved.toString());
+          if (!user.firstEntryDate || resolved < user.firstEntryDate) {
+            await get().updateFirstEntryDate(resolved);
+          }
           return;
         }
 
-        // 如果没有，设置为当前时间
+        // 无条目也无档案字段：落到当前时间，避免陪伴天数空白
         const now = Date.now();
         await AsyncStorage.setItem(storageKey, now.toString());
       } catch (error) {
@@ -156,6 +167,10 @@ export const createUserSlice: StateCreator<
         set({ user: updatedUser });
 
         await AsyncStorage.setItem("user_session", JSON.stringify(updatedUser));
+        await AsyncStorage.setItem(
+          `${FIRST_ENTRY_DATE_USER_STORAGE_PREFIX}${user.id}`,
+          timestamp.toString(),
+        );
 
         if (user.email) {
           await get()._syncFirstEntryDateToCloud();
@@ -235,39 +250,32 @@ export const createUserSlice: StateCreator<
     },
 
     /**
-     * 从云端同步firstEntryDate
-     * 在syncFromCloud时调用，合并本地和云端的firstEntryDate
+     * 从云端同步 firstEntryDate，并与本地 entries 最早日取 min
+     * （合并旧日记后档案字段可能仍偏晚，必须以条目时间为准回拨）
      */
     _syncFirstEntryDateFromCloud: async () => {
-      const { user } = get();
+      const { user, entries } = get();
       if (!user?.email) return;
 
       try {
-        // 获取云端的firstEntryDate
         const { data, error } = await supabase
           .from("profiles")
           .select("first_entry_date")
           .eq("id", user.id)
           .single();
 
-        if (error || !data) return;
-
-        const cloudFirstEntryDate = data.first_entry_date;
+        const cloudFirstEntryDate =
+          !error && data ? data.first_entry_date : undefined;
         const localFirstEntryDate = user.firstEntryDate;
 
-        // 选择更早的时间戳
-        let finalFirstEntryDate: number | undefined;
+        const finalFirstEntryDate =
+          resolveCompanionFirstEntryDate(
+            [cloudFirstEntryDate, localFirstEntryDate],
+            entries,
+          ) ?? undefined;
 
-        if (cloudFirstEntryDate && localFirstEntryDate) {
-          finalFirstEntryDate = Math.min(
-            cloudFirstEntryDate,
-            localFirstEntryDate,
-          );
-        } else {
-          finalFirstEntryDate = cloudFirstEntryDate || localFirstEntryDate;
-        }
+        if (finalFirstEntryDate == null) return;
 
-        // 如果有变化，更新本地和云端
         if (finalFirstEntryDate !== localFirstEntryDate) {
           const updatedUser = { ...user, firstEntryDate: finalFirstEntryDate };
           set({ user: updatedUser });
@@ -276,6 +284,11 @@ export const createUserSlice: StateCreator<
             JSON.stringify(updatedUser),
           );
         }
+
+        await AsyncStorage.setItem(
+          `${FIRST_ENTRY_DATE_USER_STORAGE_PREFIX}${user.id}`,
+          finalFirstEntryDate.toString(),
+        );
 
         if (finalFirstEntryDate !== cloudFirstEntryDate) {
           await get()._syncFirstEntryDateToCloud();
