@@ -51,6 +51,8 @@ export const createAppearanceModule: ModuleCreator<AppearanceModule> = (
       await saveAppearancePreference(preference);
     } catch (error) {
       logger.error("AppearanceModule", "保存外观偏好失败", error);
+      // Do not update store — keep UI in sync with persisted value.
+      return;
     }
 
     const effectiveColorScheme = effectiveFromPreference(preference);

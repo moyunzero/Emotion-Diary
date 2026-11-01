@@ -42,9 +42,13 @@ import {
 import { computeReviewExportDerivedState } from '../../utils/reviewExportDerived';
 import { filterEntriesInRange } from '../../utils/reviewStats';
 import { logger } from '../../utils/logger';
-import { COLORS_LIGHT, DESIGN_TOKENS } from '../../constants/colors';
+import { DESIGN_TOKENS } from '../../constants/colors';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { AppScreenShell } from '../AppScreenShell';
-import { INSIGHTS_COLORS } from '../Insights/constants';
+import {
+  getInsightsColors,
+  type InsightsColors,
+} from '../Insights/constants';
 import { ShareCardShell } from '../share/ShareCardShell';
 import {
   ShareCardWeekContent,
@@ -88,6 +92,10 @@ export const ReviewExportScreen: React.FC = () => {
 
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
+  // Screen chrome follows active palette; capture subtree stays light (D-06).
+  const chrome = useMemo(() => getInsightsColors(colors), [colors]);
+  const chromeStyles = useMemo(() => createChromeStyles(chrome), [chrome]);
   const responsive = useResponsiveStyles();
   const responsiveLayout = useMemo(
     () => buildReviewExportResponsiveLayout(responsive),
@@ -293,17 +301,17 @@ export const ReviewExportScreen: React.FC = () => {
       title={t('screen.title')}
       onBack={handleBack}
       backTestID="review-export-back-button"
-      titleColor={INSIGHTS_COLORS.text}
+      titleColor={chrome.text}
       titleFontSize={responsiveLayout.headerTitleFontSize}
       headerStyle={{
-        ...createStackScreenHeaderStyle(width, height, COLORS_LIGHT),
+        ...createStackScreenHeaderStyle(width, height, colors),
         paddingTop: responsiveLayout.headerPaddingTop,
         paddingBottom: responsiveLayout.headerPaddingBottom,
       }}
       footer={
         <View
           style={[
-            styles.footer,
+            chromeStyles.footer,
             {
               paddingHorizontal: responsiveLayout.footerHorizontalPadding,
               paddingTop: responsiveLayout.footerTopPadding,
@@ -343,20 +351,20 @@ export const ReviewExportScreen: React.FC = () => {
               key={p.key}
               onPress={() => setPreset(p.key)}
               style={[
-                styles.chip,
+                chromeStyles.chip,
                 {
                   paddingHorizontal: responsiveLayout.chipHorizontalPadding,
                   paddingVertical: responsiveLayout.chipVerticalPadding,
                   borderRadius: responsiveLayout.chipRadius,
                 },
-                selected && styles.chipSelected,
+                selected && chromeStyles.chipSelected,
               ]}
             >
               <Text
                 style={[
-                  styles.chipText,
+                  chromeStyles.chipText,
                   { fontSize: responsiveLayout.chipTextFontSize },
-                  selected && styles.chipTextSelected,
+                  selected && chromeStyles.chipTextSelected,
                 ]}
               >
                 {p.label}
@@ -408,9 +416,9 @@ export const ReviewExportScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.optInBlock}>
+        <View style={chromeStyles.optInBlock}>
           <View style={styles.optInRow}>
-            <Text style={styles.optInLabel}>{tShare('optIn.label')}</Text>
+            <Text style={chromeStyles.optInLabel}>{tShare('optIn.label')}</Text>
             <Switch
               testID="share-card-snippet-toggle"
               value={snippetEnabled}
@@ -422,21 +430,21 @@ export const ReviewExportScreen: React.FC = () => {
             <>
               <TextInput
                 testID="share-card-snippet-input"
-                style={styles.snippetInput}
+                style={chromeStyles.snippetInput}
                 value={snippetText}
                 onChangeText={setSnippetText}
                 maxLength={80}
                 placeholder={tShare('optIn.placeholder')}
-                placeholderTextColor={INSIGHTS_COLORS.textSecondary}
+                placeholderTextColor={chrome.textSecondary}
                 multiline
                 numberOfLines={3}
                 onFocus={handleSnippetFocus}
                 accessibilityLabel={tShare('optIn.placeholder')}
               />
-              <Text style={styles.optInHint}>{tShare('optIn.hint')}</Text>
+              <Text style={chromeStyles.optInHint}>{tShare('optIn.hint')}</Text>
             </>
           ) : (
-            <Text style={styles.optInOff}>{tShare('optIn.off')}</Text>
+            <Text style={chromeStyles.optInOff}>{tShare('optIn.off')}</Text>
           )}
         </View>
       </ScrollView>
@@ -444,6 +452,73 @@ export const ReviewExportScreen: React.FC = () => {
     </AppScreenShell>
   );
 };
+
+function createChromeStyles(chrome: InsightsColors) {
+  return StyleSheet.create({
+    chip: {
+      backgroundColor: chrome.cardBg,
+      borderWidth: 1,
+      borderColor: chrome.primary + '35',
+    },
+    chipSelected: {
+      backgroundColor: chrome.primary + '25',
+      borderColor: chrome.accent,
+    },
+    chipText: {
+      color: chrome.textSecondary,
+    },
+    chipTextSelected: {
+      color: chrome.accent,
+      fontWeight: '700',
+    },
+    optInBlock: {
+      alignSelf: 'stretch',
+      width: '100%',
+      maxWidth: 380,
+      marginTop: 20,
+      paddingHorizontal: 14,
+      paddingVertical: 14,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      backgroundColor: chrome.cardBg,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: chrome.primary + '28',
+    },
+    optInLabel: {
+      flex: 1,
+      fontSize: 16,
+      color: chrome.text,
+      marginRight: 12,
+    },
+    snippetInput: {
+      marginTop: 12,
+      borderWidth: 1,
+      borderColor: chrome.primary + '40',
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      fontSize: 14,
+      lineHeight: 21,
+      color: chrome.text,
+      minHeight: 72,
+      textAlignVertical: 'top',
+    },
+    optInHint: {
+      marginTop: 8,
+      fontSize: 12,
+      lineHeight: 16.8,
+      color: chrome.textSecondary,
+    },
+    optInOff: {
+      marginTop: 4,
+      fontSize: 12,
+      color: chrome.textSecondary,
+    },
+    footer: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: chrome.primary + '30',
+    },
+  });
+}
 
 const styles = StyleSheet.create({
   middleColumn: {
@@ -460,22 +535,6 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 4,
   },
-  chip: {
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.primary + '35',
-  },
-  chipSelected: {
-    backgroundColor: INSIGHTS_COLORS.primary + '25',
-    borderColor: INSIGHTS_COLORS.accent,
-  },
-  chipText: {
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  chipTextSelected: {
-    color: INSIGHTS_COLORS.accent,
-    fontWeight: '700',
-  },
   scroll: {
     flex: 1,
   },
@@ -490,56 +549,10 @@ const styles = StyleSheet.create({
   captureRoot: {
     width: '100%',
   },
-  optInBlock: {
-    alignSelf: 'stretch',
-    width: '100%',
-    maxWidth: 380,
-    marginTop: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    backgroundColor: INSIGHTS_COLORS.cardBg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: INSIGHTS_COLORS.primary + '28',
-  },
   optInRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 44,
-  },
-  optInLabel: {
-    flex: 1,
-    fontSize: 16,
-    color: INSIGHTS_COLORS.text,
-    marginRight: 12,
-  },
-  snippetInput: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: INSIGHTS_COLORS.primary + '40',
-    borderRadius: DESIGN_TOKENS.borderRadius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 14,
-    lineHeight: 21,
-    color: INSIGHTS_COLORS.text,
-    minHeight: 72,
-    textAlignVertical: 'top',
-  },
-  optInHint: {
-    marginTop: 8,
-    fontSize: 12,
-    lineHeight: 16.8,
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  optInOff: {
-    marginTop: 4,
-    fontSize: 12,
-    color: INSIGHTS_COLORS.textSecondary,
-  },
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: INSIGHTS_COLORS.primary + '30',
   },
 });

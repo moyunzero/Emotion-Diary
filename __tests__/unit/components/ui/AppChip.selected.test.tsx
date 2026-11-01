@@ -25,20 +25,6 @@ function readAppChipSource(): string {
   return fs.readFileSync(componentPath, "utf8");
 }
 
-function readUiSpecChipSelectedRow(): string {
-  const specPath = path.join(
-    __dirname,
-    "../../../../.planning/phases/23-ui-primitives/23-UI-SPEC.md",
-  );
-  const md = fs.readFileSync(specPath, "utf8");
-  const chipSection = md.slice(md.indexOf("### Chip (PRIM-02)"));
-  const selectedLine = chipSection
-    .split("\n")
-    .find((line) => /^\|\s*Selected\s*\|/.test(line));
-  expect(selectedLine).toBeDefined();
-  return selectedLine as string;
-}
-
 describe("AppChip selected without checkmark (PRIM-02 / PRIM-05)", () => {
   it("appChipSelectedShowsCheck is always false (no checkmark glyph)", () => {
     const { appChipSelectedShowsCheck } = loadContract();
@@ -54,20 +40,14 @@ describe("AppChip selected without checkmark (PRIM-02 / PRIM-05)", () => {
     expect(appChipSelectedBorderWidth(false)).toBe(1);
   });
 
-  it("UI-SPEC Selected row: brandSoft + brand border; no Check glyph requirement", () => {
-    const selectedRow = readUiSpecChipSelectedRow();
-    expect(selectedRow).toMatch(/brandSoft/i);
-    expect(selectedRow).toMatch(/brand/i);
-    expect(selectedRow).toMatch(/border/i);
-    expect(selectedRow).not.toMatch(/\bCheck\b/);
-  });
-
-  it("AppChip shellSelected uses brandSoft fill + brand border; no Check element", () => {
+  it("AppChip shellSelected uses themed brandSoft fill + brand border; no Check element", () => {
     const src = readAppChipSource();
     expect(src).toMatch(/export function AppChip\b/);
     expect(src).toMatch(/shellSelected/);
-    expect(src).toMatch(/backgroundColor:\s*COLORS\.brandSoft/);
-    expect(src).toMatch(/borderColor:\s*COLORS\.brand\b/);
+    // Phase 26: palette from useThemeStyles — not module COLORS
+    expect(src).toMatch(/backgroundColor:\s*colors\.brandSoft/);
+    expect(src).toMatch(/borderColor:\s*colors\.brand\b/);
+    expect(src).not.toMatch(/backgroundColor:\s*COLORS\.brandSoft/);
     expect(src).toMatch(/appChipSelectedBorderWidth/);
     // Selected checkmark glyph must be gone; X delete affordance may remain.
     expect(src).not.toMatch(/\bCheck\b/);

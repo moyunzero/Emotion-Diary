@@ -60,7 +60,8 @@ export const getMoodWeatherIcon = (
   const config = MOOD_CONFIG[level];
   
   if (config) {
-    return getMoodIcon(config.iconName, config.iconColor, size);
+    const levelKey = `level${config.level}` as keyof ColorPalette["mood"]["icon"];
+    return getMoodIcon(config.iconName, colors.mood.icon[levelKey], size);
   }
   
   // 默认值

@@ -263,7 +263,11 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   >
                     {getMoodIcon(
                       config.iconName,
-                      isSelected ? colors.text.inverse : config.iconColor,
+                      isSelected
+                        ? colors.text.inverse
+                        : colors.mood.icon[
+                            `level${config.level}` as keyof typeof colors.mood.icon
+                          ],
                       22,
                     )}
                   </View>
