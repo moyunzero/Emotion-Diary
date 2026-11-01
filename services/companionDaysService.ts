@@ -3,8 +3,9 @@
  * 提供陪伴天数相关的计算和格式化功能
  */
 
+import type { ColorPalette } from '@/constants/colors';
 import { MoodEntry } from '../types';
-import { Milestone, MILESTONES } from '../types/companionDays';
+import { getMilestones, type Milestone } from '../types/companionDays';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 /**
@@ -59,11 +60,11 @@ export function calculateDaysAsOf(
  * @param days 陪伴天数
  * @returns 当前达到的最高里程碑，如果未达到任何里程碑则返回null
  */
-export function getMilestone(days: number): Milestone | null {
-  // 从高到低查找已达到的里程碑
-  for (let i = MILESTONES.length - 1; i >= 0; i--) {
-    if (days >= MILESTONES[i].days) {
-      return MILESTONES[i];
+export function getMilestone(days: number, colors: ColorPalette): Milestone | null {
+  const milestones = getMilestones(colors);
+  for (let i = milestones.length - 1; i >= 0; i--) {
+    if (days >= milestones[i].days) {
+      return milestones[i];
     }
   }
   return null;
@@ -74,8 +75,9 @@ export function getMilestone(days: number): Milestone | null {
  * @param days 陪伴天数
  * @returns 下一个里程碑，如果已达到最高里程碑则返回null
  */
-export function getNextMilestone(days: number): Milestone | null {
-  for (const milestone of MILESTONES) {
+export function getNextMilestone(days: number, colors: ColorPalette): Milestone | null {
+  const milestones = getMilestones(colors);
+  for (const milestone of milestones) {
     if (days < milestone.days) {
       return milestone;
     }
@@ -88,22 +90,16 @@ export function getNextMilestone(days: number): Milestone | null {
  * @param days 当前陪伴天数
  * @returns 距离下一个里程碑的天数，如果已达到最高里程碑则返回0
  */
-export function getDaysToNextMilestone(days: number): number {
-  const next = getNextMilestone(days);
+export function getDaysToNextMilestone(days: number, colors: ColorPalette): number {
+  const next = getNextMilestone(days, colors);
   return next ? next.days - days : 0;
 }
 
-/**
- * 格式化开始日期
- * @deprecated Phase 7 temporary compatibility - use shared/formatting `formatDateChinese`.
- * @param timestamp 时间戳（毫秒）
- * @returns 格式化的日期字符串，如"2024年1月15日"
 /**
  * 检查是否刚达到里程碑（用于触发祝贺动画）
  * @param days 当前陪伴天数
  * @returns 如果刚好达到某个里程碑则返回该里程碑，否则返回null
  */
-export function checkMilestoneAchieved(days: number): Milestone | null {
-  return MILESTONES.find(m => m.days === days) || null;
+export function checkMilestoneAchieved(days: number, colors: ColorPalette): Milestone | null {
+  return getMilestones(colors).find(m => m.days === days) || null;
 }
- 

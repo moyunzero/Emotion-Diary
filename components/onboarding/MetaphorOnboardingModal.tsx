@@ -1,4 +1,4 @@
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { CloudSun, Flower2, LucideIcon, PenLine } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,9 +49,10 @@ export function MetaphorOnboardingModal({
   const { t } = useTranslation("onboarding");
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createOnboardingStyles(width, height),
-    [width, height],
+    () => createOnboardingStyles(width, height, colors),
+    [width, height, colors],
   );
   const [slideIndex, setSlideIndex] = useState(0);
 
@@ -85,7 +86,7 @@ export function MetaphorOnboardingModal({
         <View style={styles.content} pointerEvents="box-none">
           <View style={styles.slide} testID={slide.slideTestId}>
             <View style={styles.iconContainer}>
-              <Icon size={48} color={COLORS.primaryDark} strokeWidth={2} />
+              <Icon size={48} color={colors.primaryDark} strokeWidth={2} />
             </View>
             <Text style={styles.title}>{t(`slides.${slide.key}.title`)}</Text>
             <Text style={styles.body}>{t(`slides.${slide.key}.body`)}</Text>

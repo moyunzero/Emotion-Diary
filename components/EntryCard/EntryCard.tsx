@@ -1,12 +1,17 @@
 import { EditEntryModal } from "@/components/entries";
-import { COLORS } from "@/constants/colors";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { i18n } from "@/i18n";
 import { getDeadlineLabel } from "@/i18n/moodLabels";
 import {
   resolvePeopleLabel,
   resolveTriggerLabel,
 } from "@/i18n/resolvePresetLabel";
-import { formatLocaleDate } from "@/shared/formatting";
+import { toIntlLocale } from "@/shared/formatting";
+import {
+  inkProgressRatio,
+  moodLevelToWeatherStripKey,
+} from "@/shared/mood/weatherStrip";
 import { useRecyclingState } from "@shopify/flash-list";
 import { SkImage, Skia } from "@shopify/react-native-skia";
 import React, {
@@ -16,9 +21,12 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { Ellipsis } from "lucide-react-native";
 import {
+  ActionSheetIOS,
   Alert,
   Animated,
+  Easing,
   LayoutAnimation,
   Platform,
   Text,
@@ -27,6 +35,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { captureRef } from "react-native-view-shot";
 import { MOOD_CONFIG } from "../../constants";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
@@ -37,6 +46,7 @@ import {
   areAudioDataArraysEqual,
   areOrderedStringArraysEqual,
 } from "../../utils/arrayEquality";
+import { confirmAlert } from "../../utils/confirmAlert";
 import { isLowEndDevice } from "../../utils/devicePerformance";
 import { getMoodIcon } from "../../utils/moodIconUtils";
 import AshIcon from "../AshIcon";
@@ -46,10 +56,10 @@ import ResolveConfirmOverlay from "../rituals/ResolveConfirmOverlay";
 import BurnConfirmOverlay from "../rituals/BurnConfirmOverlay";
 import { EntryCardActions } from "./EntryCardActions";
 import {
-  EntryCardAudioTag,
-  EntryCardBurnedPlayback,
   EntryCardPlayback,
+  EntryCardSmokeStrip,
 } from "./EntryCardPlayback";
+import { EntryCardSwipeActions } from "./EntryCardSwipeActions";
 
 type ResolvePhase = "idle" | "confirm" | "ceremony";
 
@@ -134,9 +144,10 @@ const makeImageFromView = async (
 const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const { t } = useTranslation("dashboard");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createEntryCardStyles(width, height),
-    [width, height],
+    () => createEntryCardStyles(width, height, colors),
+    [width, height, colors],
   );
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const resolveEntry = useAppStore((state) => state.resolveEntry);
@@ -146,8 +157,23 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   // FlashList v2：展开变高必须通知列表，否则下方播放行可能画得出但点不着
   const [isExpanded, setIsExpanded] = useRecyclingState(false, [entry.id]);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const reduceMotion = useReduceMotion();
+  const weatherBreathOpacity = useRef(new Animated.Value(1)).current;
   const isResolved = entry.status === Status.RESOLVED;
   const isBurned = entry.status === Status.BURNED;
+  /** D-41: only ACTIVE cards expose left-swipe resolve/burn */
+  const isActive = entry.status === Status.ACTIVE;
+
+  // Gated playback chrome (Pitfall 4) — inactive cards skip position ticks
+  const isThisEntryPlaying = useAppStore(
+    (s) => s.playbackEntryId === entry.id && s.isPlaying,
+  );
+  const playbackPosition = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.playbackPosition : 0,
+  );
+  const playbackDuration = useAppStore((s) =>
+    s.playbackEntryId === entry.id ? s.duration : 0,
+  );
 
   const moodConfig =
     MOOD_CONFIG[entry.moodLevel] || MOOD_CONFIG[MoodLevel.ANNOYED];
@@ -173,6 +199,43 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     return `${entry.content.substring(0, maxLen)}${entry.content.length > maxLen ? "..." : ""}`;
   }, [entry.content]);
 
+  const weatherStripColor =
+    colors.weather[moodLevelToWeatherStripKey(entry.moodLevel)].icon;
+  const hasVisiblePreview = entry.content.trim().length > 0;
+  const inkRatio =
+    !isBurned && isThisEntryPlaying && hasVisiblePreview
+      ? inkProgressRatio(playbackPosition, playbackDuration)
+      : 0;
+
+  // Weather strip opacity breath ~1.6s while playing; Reduce Motion → static (D-04 / D-06)
+  useEffect(() => {
+    if (isBurned || !isThisEntryPlaying || reduceMotion) {
+      weatherBreathOpacity.setValue(1);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(weatherBreathOpacity, {
+          toValue: 0.45,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(weatherBreathOpacity, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => {
+      loop.stop();
+      weatherBreathOpacity.setValue(1);
+    };
+  }, [isBurned, isThisEntryPlaying, reduceMotion, weatherBreathOpacity]);
+
   // Burning effect state
   const viewRef = useRef<View>(null);
   const [snapshot, setSnapshot] = useState<SkImage | null>(null);
@@ -182,21 +245,6 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   const [useSimpleAnimation, setUseSimpleAnimation] = useState(false);
   const [resolvePhase, setResolvePhase] = useState<ResolvePhase>("idle");
   const [showBurnConfirm, setShowBurnConfirm] = useState(false);
-
-  const isActivePlaybackEntry = useAppStore(
-    (s) => s.playbackEntryId === entry.id,
-  );
-
-  // 只在「用户从展开→收起」时停播。FlashList 重挂载时 isExpanded 会回到 false，
-  // 若按 !isExpanded 直接 stop，会出现 play ok 但立刻无声、图标不变。
-  const wasExpandedRef = useRef(isExpanded);
-  useEffect(() => {
-    const becameCollapsed = wasExpandedRef.current && !isExpanded;
-    wasExpandedRef.current = isExpanded;
-    if (becameCollapsed && isActivePlaybackEntry) {
-      useAppStore.getState().stopAudio();
-    }
-  }, [isExpanded, isActivePlaybackEntry]);
 
   const handleResolvePress = () => {
     triggerHaptic("light");
@@ -217,8 +265,17 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsExpanded(false);
   };
 
+  /** D-32: if this entry is playing, stop immediately when burn proceeds. */
+  const stopPlaybackIfThisEntry = () => {
+    const state = useAppStore.getState();
+    if (state.playbackEntryId === entry.id) {
+      state.stopAudio();
+    }
+  };
+
   const handleBurnComplete = () => {
     triggerHaptic("success");
+    stopPlaybackIfThisEntry();
     burnEntry(entry.id);
     onBurn?.(entry.id);
     setIsBurning(false);
@@ -228,28 +285,24 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      i18n.t("alerts.moveToRecycle.title", { ns: "dashboard" }),
-      i18n.t("alerts.moveToRecycle.message", {
-        ns: "dashboard",
-        excerpt: contentExcerpt,
-      }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.moveToRecycle.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: () => {
-            triggerHaptic("error");
-            deleteEntry(entry.id);
-            setIsExpanded(false);
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("alerts.moveToRecycle.title", { ns: "dashboard" }),
+        message: i18n.t("alerts.moveToRecycle.message", {
+          ns: "dashboard",
+          excerpt: contentExcerpt,
+        }),
+        confirmLabel: i18n.t("alerts.moveToRecycle.confirm", {
+          ns: "dashboard",
+        }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      triggerHaptic("error");
+      deleteEntry(entry.id);
+      setIsExpanded(false);
+    })();
   };
 
   const startBurnAnimation = async () => {
@@ -289,6 +342,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         }
       } catch (e) {
         console.error("Burn effect failed:", e);
+        stopPlaybackIfThisEntry();
         burnEntry(entry.id);
         setIsPreparing(false);
       }
@@ -303,6 +357,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   const handleBurnConfirm = () => {
     setShowBurnConfirm(false);
+    stopPlaybackIfThisEntry();
     void startBurnAnimation();
   };
 
@@ -312,59 +367,35 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
 
   // 彻底删除灰烬（只对已焚烧的卡片显示）
   const handleDeleteAsh = () => {
-    Alert.alert(
-      i18n.t("alerts.deleteAsh.title", { ns: "dashboard" }),
-      i18n.t("alerts.deleteAsh.message", { ns: "dashboard" }),
-      [
-        {
-          text: i18n.t("actions.cancel", { ns: "common" }),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("alerts.deleteAsh.confirm", { ns: "dashboard" }),
-          style: "destructive",
-          onPress: () => {
-            triggerHaptic("error");
-            deleteEntry(entry.id);
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: i18n.t("alerts.deleteAsh.title", { ns: "dashboard" }),
+        message: i18n.t("alerts.deleteAsh.message", { ns: "dashboard" }),
+        confirmLabel: i18n.t("alerts.deleteAsh.confirm", { ns: "dashboard" }),
+        cancelLabel: i18n.t("actions.cancel", { ns: "common" }),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      triggerHaptic("error");
+      deleteEntry(entry.id);
+    })();
   };
 
-  const getMoodColor = () => {
-    switch (entry.moodLevel) {
-      case MoodLevel.ANNOYED:
-        return COLORS.mood.level1;
-      case MoodLevel.UPSET:
-        return COLORS.mood.level2;
-      case MoodLevel.ANGRY:
-        return COLORS.mood.level3;
-      case MoodLevel.FURIOUS:
-        return COLORS.mood.level4;
-      case MoodLevel.EXPLOSIVE:
-        return COLORS.mood.level5;
-      default:
-        return COLORS.mood.level1;
-    }
-  };
-
-  const formatEntryDate = (timestamp: number) =>
-    formatLocaleDate(timestamp, effectiveLocale);
+  /** Card chrome: time-of-day only (D-37) — day headers own the date. */
+  const formatEntryTime = (timestamp: number) =>
+    new Date(timestamp).toLocaleTimeString(toIntlLocale(effectiveLocale), {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   if (isBurning && useSimpleAnimation) {
     return (
       <SimpleBurnAnimation onComplete={handleBurnComplete}>
         <View style={styles.wrapper}>
-          <View style={[styles.container, { backgroundColor: "#FEE2E2" }]}>
+          <View style={styles.container}>
             <View style={styles.content}>
-              <View
-                style={[
-                  styles.moodIconBadge,
-                  { backgroundColor: getMoodColor() },
-                ]}
-              >
-                {getMoodIcon(moodConfig.iconName, "#FFFFFF", 20)}
+              <View style={styles.moodIconBadge}>
+                {getMoodIcon(moodConfig.iconName, colors.brand, 20)}
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.contentText} numberOfLines={3}>
@@ -399,6 +430,36 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
     setIsEditModalVisible(true);
   };
 
+  /** D-40: system ActionSheet Edit/Delete/Cancel — Delete still goes through confirmAlert */
+  const handleMorePress = () => {
+    triggerHaptic("light");
+    const cancelLabel = i18n.t("actions.cancel", { ns: "common" });
+    const editLabel = t("entryCard.edit");
+    const deleteLabel = t("entryCard.delete");
+    const title = t("entryCard.more");
+
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [cancelLabel, editLabel, deleteLabel],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 2,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) handleEdit();
+          else if (buttonIndex === 2) handleDelete();
+        },
+      );
+      return;
+    }
+
+    Alert.alert(title, undefined, [
+      { text: cancelLabel, style: "cancel" },
+      { text: editLabel, onPress: handleEdit },
+      { text: deleteLabel, style: "destructive", onPress: handleDelete },
+    ]);
+  };
+
   // 灰烬状态卡片
   if (isBurned) {
     return (
@@ -431,7 +492,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             <View style={styles.content}>
               {/* 灰烬图标 */}
               <View style={[styles.moodIconBadge, styles.ashIconBadge]}>
-                <AshIcon size={24} opacity={0.6} color="#9CA3AF" />
+                <AshIcon size={24} opacity={0.6} color={colors.gray[400]} />
               </View>
 
               {/* 灰烬内容 */}
@@ -441,7 +502,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
                 </Text>
                 <Text style={styles.burnedDate}>
                   {t("entryCard.burnedAt", {
-                    date: formatEntryDate(entry.burnedAt || entry.timestamp),
+                    date: formatEntryTime(entry.burnedAt || entry.timestamp),
                   })}
                 </Text>
                 {isExpanded && (
@@ -474,11 +535,12 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
               </View>
             </View>
           </TouchableOpacity>
-          {isExpanded ? (
+          {/* Smoke strip collapsed + expanded (D-29 / D-34); no chips */}
+          {entry.audios && entry.audios.length > 0 ? (
             <View style={styles.content}>
               <View style={{ width: 44 }} />
               <View style={styles.textContainer}>
-                <EntryCardBurnedPlayback
+                <EntryCardSmokeStrip
                   entry={entry}
                   styles={styles}
                   isExpanded={isExpanded}
@@ -503,81 +565,151 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
         <Animated.View
           style={[styles.container, isResolved && styles.resolvedContainer]}
         >
-          <TouchableOpacity
-            testID="entry-card-pressable"
-            onPress={() => {
-              // 确保Android LayoutAnimation配置生效
-              ensureLayoutAnimationEnabled();
-              LayoutAnimation.configureNext(
-                LayoutAnimation.Presets.easeInEaseOut,
-              );
-              setIsExpanded(!isExpanded);
-            }}
-            activeOpacity={1}
-            accessibilityRole="button"
-            accessibilityLabel={t("entryCard.cardA11y", {
-              content: entry.content,
-              people: peopleA11y,
-              expanded: isExpanded
-                ? t("entryCard.cardExpanded")
-                : t("entryCard.cardCollapsed"),
-            })}
-            accessibilityHint={
-              isExpanded
-                ? t("entryCard.cardCollapseHint")
-                : t("entryCard.cardExpandHint")
-            }
-            accessibilityState={{ expanded: isExpanded }}
-          >
-            <View style={styles.content}>
-              {/* Mood Icon Badge */}
-              <View
-                style={[
-                  styles.moodIconBadge,
-                  { backgroundColor: getMoodColor() },
-                ]}
+          {/* Left weather strip — breath while playing; Reduce Motion thickens (D-04 / D-06) */}
+          <Animated.View
+            pointerEvents="none"
+            accessible={false}
+            importantForAccessibility="no"
+            testID="entry-weather-strip"
+            style={[
+              styles.weatherStrip,
+              { backgroundColor: weatherStripColor },
+              isThisEntryPlaying &&
+                reduceMotion &&
+                styles.weatherStripHighlight,
+              !reduceMotion && isThisEntryPlaying
+                ? { opacity: weatherBreathOpacity }
+                : null,
+            ]}
+          />
+          {(() => {
+            const cardBody = (
+              <TouchableOpacity
+                testID="entry-card-pressable"
+                onPress={() => {
+                  // 确保Android LayoutAnimation配置生效
+                  ensureLayoutAnimationEnabled();
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.easeInEaseOut,
+                  );
+                  setIsExpanded(!isExpanded);
+                }}
+                activeOpacity={1}
+                accessibilityRole="button"
+                accessibilityLabel={t("entryCard.cardA11y", {
+                  content: entry.content,
+                  people: peopleA11y,
+                  expanded: isExpanded
+                    ? t("entryCard.cardExpanded")
+                    : t("entryCard.cardCollapsed"),
+                })}
+                accessibilityHint={
+                  isExpanded
+                    ? t("entryCard.cardCollapseHint")
+                    : t("entryCard.cardExpandHint")
+                }
+                accessibilityState={{ expanded: isExpanded }}
               >
-                {getMoodIcon(moodConfig.iconName, "#FFFFFF", 20)}
-              </View>
-
-              {/* Content */}
-              <View style={styles.textContainer}>
-                <View style={styles.header}>
-                  <Text style={styles.peopleText} numberOfLines={1}>
-                    {peopleDisplay}
-                  </Text>
-                  <Text style={styles.dateText}>
-                    {formatEntryDate(entry.timestamp)}
-                  </Text>
-                </View>
-                <Text
-                  style={styles.contentText}
-                  numberOfLines={isExpanded ? undefined : 3}
-                  accessibilityLabel={entry.content}
-                >
-                  {entry.content}
-                </Text>
-
-                {/* Tags */}
-                <View style={styles.tagsContainer}>
-                  <View style={styles.deadlineTag}>
-                    <Text style={styles.deadlineText}>{deadlineLabel}</Text>
+                <View style={styles.content}>
+                  {/* Mood Icon Badge — icon + name chrome; neutral surface2 face (D-24) */}
+                  <View style={styles.moodIconBadge}>
+                    {getMoodIcon(moodConfig.iconName, colors.brand, 20)}
                   </View>
-                  {entry.triggers?.map((trigger, index) => (
-                    <View key={trigger} style={styles.triggerTag}>
-                      <Text style={styles.triggerText}>
-                        #{resolvedTriggerLabels[index] ?? trigger}
-                      </Text>
-                    </View>
-                  ))}
-                  <EntryCardAudioTag entry={entry} styles={styles} />
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
 
-          {/* 与 EntryCardActions 同级：勿放在展开 TouchableOpacity 内，否则时间线列表里点播常无响应 */}
-          {isExpanded ? (
+                  {/* Content */}
+                  <View style={styles.textContainer}>
+                    <View style={styles.header}>
+                      <Text style={styles.peopleText} numberOfLines={1}>
+                        {peopleDisplay}
+                      </Text>
+                      <View style={styles.headerTrailing}>
+                        <Text style={styles.dateText}>
+                          {formatEntryTime(entry.timestamp)}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.moreButton}
+                          onPress={handleMorePress}
+                          testID="entry-more-button"
+                          accessibilityRole="button"
+                          accessibilityLabel={t("entryCard.moreA11y")}
+                          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                        >
+                          <Ellipsis
+                            size={20}
+                            color={colors.text.tertiary}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <Text
+                      style={styles.contentText}
+                      numberOfLines={isExpanded ? undefined : 3}
+                      accessibilityLabel={entry.content}
+                    >
+                      {entry.content}
+                    </Text>
+                    {/* Rose ink under visible preview only (D-05 / D-11 / D-15); no a11y progress (D-20) */}
+                    {inkRatio > 0 ? (
+                      <View
+                        accessible={false}
+                        importantForAccessibility="no"
+                        testID="entry-ink-progress"
+                        style={[
+                          styles.inkProgressLine,
+                          { width: `${Math.round(inkRatio * 100)}%` },
+                        ]}
+                      />
+                    ) : null}
+
+                    {/* Tags */}
+                    <View style={styles.tagsContainer}>
+                      <View style={styles.deadlineTag}>
+                        <Text style={styles.deadlineText}>{deadlineLabel}</Text>
+                      </View>
+                      {entry.triggers?.map((trigger, index) => (
+                        <View key={trigger} style={styles.triggerTag}>
+                          <Text style={styles.triggerText}>
+                            #{resolvedTriggerLabels[index] ?? trigger}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+
+            // D-41 ACTIVE-only swipe; D-42 strip stays outside swipe child
+            return isActive ? (
+              <ReanimatedSwipeable
+                friction={2}
+                rightThreshold={40}
+                overshootFriction={8}
+                dragOffsetFromRightEdge={24}
+                renderRightActions={(_progress, _translation, methods) => (
+                  <EntryCardSwipeActions
+                    styles={styles}
+                    isPreparing={isPreparing}
+                    onResolvePress={() => {
+                      methods.close();
+                      handleResolvePress();
+                    }}
+                    onBurnPress={() => {
+                      methods.close();
+                      handleBurnPress();
+                    }}
+                  />
+                )}
+              >
+                {cardBody}
+              </ReanimatedSwipeable>
+            ) : (
+              cardBody
+            );
+          })()}
+
+          {/* Echo strip outside expand pressable + outside swipe (D-01 / D-42) */}
+          {entry.audios && entry.audios.length > 0 ? (
             <View style={styles.content}>
               <View style={{ width: 44 }} />
               <View style={styles.textContainer}>
@@ -590,6 +722,7 @@ const EntryCardComponent: React.FC<EntryCardProps> = ({ entry, onBurn }) => {
             </View>
           ) : null}
 
+          {/* D-39: keep expanded ritual/edit/delete row (dual entry with swipe) */}
           <EntryCardActions
             styles={styles}
             isExpanded={isExpanded}

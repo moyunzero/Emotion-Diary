@@ -48,13 +48,30 @@ export const DEADLINE_CONFIG = {
   },
 } as const;
 
-export const PEOPLE_KEYS = [
+/** Shortcut chip strip only (D-07 / FLOW-05). */
+export const SHORTCUT_PEOPLE_KEYS = [
+  'partner',
+  'family',
+  'colleague',
+  'friend',
+] as const;
+
+/** History / resolver display keys — not shown on shortcut strip (D-11). */
+export const LEGACY_PEOPLE_KEYS = [
   'boyfriend',
   'girlfriend',
   'husband',
   'wife',
   'friend',
   'other',
+] as const;
+
+/** Union for resolvers / backward compat (friend once). Prefer SHORTCUT for chips. */
+export const PEOPLE_KEYS = [
+  ...SHORTCUT_PEOPLE_KEYS,
+  ...LEGACY_PEOPLE_KEYS.filter(
+    (k) => !(SHORTCUT_PEOPLE_KEYS as readonly string[]).includes(k),
+  ),
 ] as const;
 
 export const TRIGGER_KEYS = [

@@ -1,10 +1,22 @@
-import { COLORS } from "@/constants/colors";
+import { AppChip } from "@/components/ui/AppChip";
 import { i18n } from "@/i18n";
 import { audioCoordinator } from "@/shared/audio/coordinator";
-import { Mic, Pause, Play } from "lucide-react-native";
-import React, { useCallback } from "react";
+import {
+  needsClipChips,
+  sortClipsAscending,
+  truncateClipShortName,
+} from "@/shared/entries/echoClips";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { useAppStore } from "../../store/useAppStore";
 import { createEntryCardStyles } from "../../styles/components/EntryCard.styles";
 import { AudioData, MoodEntry } from "../../types";
@@ -15,7 +27,7 @@ export type EntryCardPlaybackProps = {
   isExpanded: boolean;
 };
 
-export type EntryCardBurnedPlaybackProps = {
+export type EntryCardSmokeStripProps = {
   entry: MoodEntry;
   styles: ReturnType<typeof createEntryCardStyles>;
   isExpanded: boolean;
@@ -28,8 +40,12 @@ function useEntryCardPlaybackState(entryId: string) {
   const isPlayingGlobal = useAppStore(
     (s) => s.playbackEntryId === entryId && s.isPlaying,
   );
+  // Gated: only the active card re-renders on position ticks (Pitfall 4)
   const playbackPosition = useAppStore((s) =>
     s.playbackEntryId === entryId ? s.playbackPosition : 0,
+  );
+  const playbackDuration = useAppStore((s) =>
+    s.playbackEntryId === entryId ? s.duration : 0,
   );
   const retryAudioUpload = useAppStore((state) => state.retryAudioUpload);
 
@@ -37,221 +53,288 @@ function useEntryCardPlaybackState(entryId: string) {
     currentAudioId,
     isPlayingGlobal,
     playbackPosition,
+    playbackDuration,
     retryAudioUpload,
   };
 }
 
-function useAudioRowRenderer(
-  entry: MoodEntry,
-  styles: ReturnType<typeof createEntryCardStyles>,
-) {
-  const { t: tSystem } = useTranslation("system");
-  const { t: tRecord } = useTranslation("record");
-  const {
-    currentAudioId,
-    isPlayingGlobal,
-    playbackPosition,
-    retryAudioUpload,
-  } = useEntryCardPlaybackState(entry.id);
-
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const isAudioRowActive = useCallback(
-    (audio: AudioData) => currentAudioId === audio.id,
-    [currentAudioId],
-  );
-
-  const handlePlayAudio = useCallback(
-    async (audio: AudioData) => {
-      try {
-        const result = await audioCoordinator.playEntryAudio(entry.id, audio);
-        if (!result.ok && result.reason === "no_uri") {
-          Alert.alert(
-            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-            i18n.t("alerts.playbackFailed.bodyMissing", { ns: "dashboard" }),
-          );
-        } else if (!result.ok) {
-          Alert.alert(
-            i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-            i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
-          );
-        }
-      } catch (error) {
-        console.error("Failed to play audio:", error);
-        Alert.alert(
-          i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
-          i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
-        );
-      }
-    },
-    [entry.id],
-  );
-
-  const formatAudioTime = useCallback((createdAt: number): string => {
-    const locale = i18n.language.startsWith("zh") ? "zh-CN" : "en-US";
-    return new Date(createdAt).toLocaleTimeString(locale, {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
-
-  const getAudioDisplayLabel = useCallback(
-    (audio: AudioData): string =>
-      audio.name ||
-      tRecord("audio.list.recordedAt", {
-        time: formatAudioTime(audio.createdAt),
-      }),
-    [formatAudioTime, tRecord],
-  );
-
-  const renderAudioRow = useCallback(
-    (audio: AudioData) => (
-      <View key={audio.id} style={styles.audioPlayRow}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.audioPlayItem,
-            { minHeight: 44 },
-            isAudioRowActive(audio) && styles.audioPlayItemActive,
-            pressed && { opacity: 0.7 },
-          ]}
-          onPress={() => {
-            void handlePlayAudio(audio);
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={tRecord("audio.list.playA11y", {
-            label: getAudioDisplayLabel(audio),
-          })}
-          testID="entry-audio-play"
-          hitSlop={8}
-        >
-          {isAudioRowActive(audio) && isPlayingGlobal ? (
-            <Pause size={16} color={COLORS.audio.primary} />
-          ) : (
-            <Play size={16} color="#9CA3AF" />
-          )}
-          <Text
-            style={[
-              styles.audioPlayName,
-              isAudioRowActive(audio) && styles.audioPlayNameActive,
-            ]}
-            numberOfLines={1}
-          >
-            {getAudioDisplayLabel(audio)}
-          </Text>
-          {isAudioRowActive(audio) && isPlayingGlobal && (
-            <Text style={styles.audioPlayDuration} testID="entry-audio-playing">
-              {formatDuration(playbackPosition)} /{" "}
-              {formatDuration(audio.duration)}
-            </Text>
-          )}
-        </Pressable>
-        {audio.syncStatus === "pending" && (
-          <View style={styles.audioSyncMeta}>
-            <Text style={styles.audioSyncPending}>
-              {tSystem("audio.pendingUpload")}
-            </Text>
-          </View>
-        )}
-        {audio.syncStatus === "failed" && (
-          <TouchableOpacity
-            style={styles.audioSyncMeta}
-            onPress={() => retryAudioUpload(entry.id, audio.id)}
-            accessibilityRole="button"
-            accessibilityLabel={tSystem("audio.retryUploadA11y")}
-          >
-            <Text style={styles.audioSyncFailed}>
-              {tSystem("audio.uploadFailedRetry")}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    ),
-    [
-      entry.id,
-      getAudioDisplayLabel,
-      handlePlayAudio,
-      isAudioRowActive,
-      isPlayingGlobal,
-      playbackPosition,
-      retryAudioUpload,
-      styles,
-      tRecord,
-      tSystem,
-    ],
-  );
-
-  return renderAudioRow;
+async function playClipWithFeedback(params: {
+  entryId: string;
+  entryStatus: MoodEntry["status"];
+  clip: AudioData;
+  triggerHaptic: ReturnType<typeof useHapticFeedback>["trigger"];
+}): Promise<void> {
+  const { entryId, entryStatus, clip, triggerHaptic } = params;
+  try {
+    const result = await audioCoordinator.playEntryAudio(
+      entryId,
+      clip,
+      entryStatus,
+    );
+    if (result.ok) {
+      triggerHaptic("light");
+      return;
+    }
+    // D-35 / PATTERNS: burned reject is silent — no Alert
+    if (result.reason === "burned") {
+      return;
+    }
+    if (result.reason === "no_uri") {
+      Alert.alert(
+        i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+        i18n.t("alerts.playbackFailed.bodyMissing", { ns: "dashboard" }),
+      );
+    } else {
+      Alert.alert(
+        i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+        i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+      );
+    }
+  } catch (error) {
+    console.error("Failed to play audio:", error);
+    Alert.alert(
+      i18n.t("alerts.playbackFailed.title", { ns: "dashboard" }),
+      i18n.t("alerts.playbackFailed.bodyRetry", { ns: "dashboard" }),
+    );
+  }
 }
 
-/** Collapsed/expanded mic tag in the tags row */
-export function EntryCardAudioTag({
+/** Active / resolved echo strip — collapsed + expanded. Multi-clip A1 disclosure. */
+export function EntryCardPlayback({
   entry,
   styles,
-}: Pick<EntryCardPlaybackProps, "entry" | "styles">) {
+}: EntryCardPlaybackProps) {
+  const { t } = useTranslation("dashboard");
   const { t: tSystem } = useTranslation("system");
+  const { trigger: triggerHaptic } = useHapticFeedback();
+  const { currentAudioId, isPlayingGlobal, retryAudioUpload } =
+    useEntryCardPlaybackState(entry.id);
+
+  const clips = useMemo(
+    () => sortClipsAscending(entry.audios ?? []),
+    [entry.audios],
+  );
+  const canPickSegments = needsClipChips(clips.length);
+  const [segmentsOpen, setSegmentsOpen] = useState(false);
+
+  // Ephemeral selected clip; default oldest = first segment
+  const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (
+      currentAudioId &&
+      clips.some((clip) => clip.id === currentAudioId)
+    ) {
+      setSelectedClipId(currentAudioId);
+    }
+  }, [currentAudioId, clips]);
+
+  // FlashList recycle: reset disclosure + selection when the row binds a new entry
+  useEffect(() => {
+    setSegmentsOpen(false);
+    setSelectedClipId(null);
+  }, [entry.id]);
+
+  // Reset disclosure when clip count drops to ≤1
+  useEffect(() => {
+    if (!canPickSegments) {
+      setSegmentsOpen(false);
+    }
+  }, [canPickSegments]);
+
+  const activeClip = useMemo(() => {
+    if (clips.length === 0) return null;
+    const preferredId = selectedClipId ?? clips[0]?.id;
+    return clips.find((clip) => clip.id === preferredId) ?? clips[0] ?? null;
+  }, [clips, selectedClipId]);
+
+  const isStripPlaying =
+    isPlayingGlobal &&
+    !!currentAudioId &&
+    clips.some((clip) => clip.id === currentAudioId);
+
+  const handlePlayClip = useCallback(
+    (clip: AudioData) => {
+      setSelectedClipId(clip.id);
+      void playClipWithFeedback({
+        entryId: entry.id,
+        entryStatus: entry.status,
+        clip,
+        triggerHaptic,
+      });
+    },
+    [entry.id, entry.status, triggerHaptic],
+  );
+
+  const handleStripPress = useCallback(() => {
+    if (!activeClip) return;
+    handlePlayClip(activeClip);
+  }, [activeClip, handlePlayClip]);
+
+  const toggleSegments = useCallback(() => {
+    setSegmentsOpen((open) => !open);
+  }, []);
+
+  if (!activeClip) {
+    return null;
+  }
+
+  const stripLabel = t("entryCard.echoStripLabel");
+  const segmentsLabel = t("entryCard.echoClipSegments", {
+    count: clips.length,
+  });
+
+  return (
+    <View style={styles.echoStripSection}>
+      <View style={styles.echoStripRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.echoStrip,
+            styles.echoStripFlex,
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={handleStripPress}
+          accessibilityRole="button"
+          accessibilityLabel={stripLabel}
+          accessibilityState={{
+            selected: isStripPlaying,
+            busy: isStripPlaying,
+          }}
+          testID="entry-echo-strip"
+          hitSlop={8}
+        >
+          <Text style={styles.echoStripLabel} numberOfLines={1}>
+            {stripLabel}
+          </Text>
+          {/* Maestro 016 playing sentinel (Pitfall 5) */}
+          {isStripPlaying ? (
+            <View
+              testID="entry-echo-strip-playing"
+              accessible={false}
+              importantForAccessibility="no"
+              collapsable={false}
+              style={{ width: 0, height: 0 }}
+            />
+          ) : null}
+        </Pressable>
+
+        {canPickSegments ? (
+          <Pressable
+            style={({ pressed }) => [
+              styles.echoSegmentDisclosure,
+              segmentsOpen && styles.echoSegmentDisclosureOpen,
+              pressed && { opacity: 0.7 },
+            ]}
+            onPress={toggleSegments}
+            accessibilityRole="button"
+            accessibilityLabel={
+              segmentsOpen
+                ? t("entryCard.echoClipSegmentsCollapseA11y")
+                : t("entryCard.echoClipSegmentsA11y", { count: clips.length })
+            }
+            accessibilityState={{ expanded: segmentsOpen }}
+            testID="entry-echo-segments-toggle"
+            hitSlop={8}
+          >
+            <Text
+              style={[
+                styles.echoSegmentDisclosureLabel,
+                segmentsOpen && styles.echoSegmentDisclosureLabelOpen,
+              ]}
+              numberOfLines={1}
+            >
+              {segmentsLabel}
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {canPickSegments && segmentsOpen ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.echoClipChipScroll}
+          contentContainerStyle={styles.echoClipChipRow}
+          testID="entry-echo-clip-chips"
+        >
+          {clips.map((clip, index) => {
+            const n = index + 1;
+            const trimmedName = clip.name?.trim();
+            const label = trimmedName
+              ? t("entryCard.echoClipChipNamed", {
+                  n,
+                  name: truncateClipShortName(trimmedName),
+                })
+              : t("entryCard.echoClipChip", { n });
+            const selected =
+              isStripPlaying && currentAudioId === clip.id
+                ? true
+                : !isStripPlaying && activeClip.id === clip.id;
+            return (
+              <AppChip
+                key={clip.id}
+                label={label}
+                selected={selected}
+                onPress={() => handlePlayClip(clip)}
+                testID={`entry-echo-clip-chip-${n}`}
+              />
+            );
+          })}
+        </ScrollView>
+      ) : null}
+
+      {activeClip.syncStatus === "pending" && (
+        <Text style={styles.echoStripFootnote}>
+          {tSystem("audio.pendingUpload")}
+        </Text>
+      )}
+      {activeClip.syncStatus === "failed" && (
+        <TouchableOpacity
+          onPress={() => retryAudioUpload(entry.id, activeClip.id)}
+          accessibilityRole="button"
+          accessibilityLabel={tSystem("audio.retryUploadA11y")}
+          hitSlop={8}
+        >
+          <Text style={styles.echoStripRetry}>
+            {t("entryCard.echoStripRetryUpload")}
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+/**
+ * Burned-had-audio smoke strip (ECHO-03).
+ * Disabled chrome only — no play, no Alert, no chips.
+ */
+export function EntryCardSmokeStrip({
+  entry,
+  styles,
+}: EntryCardSmokeStripProps) {
+  const { t } = useTranslation("dashboard");
 
   if (!entry.audios || entry.audios.length === 0) {
     return null;
   }
 
-  return (
-    <View style={styles.audioTag} testID="entry-has-audio">
-      <Mic size={12} color={COLORS.audio.primary} />
-      <Text style={styles.audioTagText}>
-        {tSystem("audio.voiceCount", {
-          count: entry.audios.length,
-        })}
-      </Text>
-    </View>
-  );
-}
-
-/** Expanded voice playback section on active cards */
-export function EntryCardPlayback({
-  entry,
-  styles,
-  isExpanded,
-}: EntryCardPlaybackProps) {
-  const { t: tSystem } = useTranslation("system");
-  const renderAudioRow = useAudioRowRenderer(entry, styles);
-
-  if (!isExpanded || !entry.audios || entry.audios.length === 0) {
-    return null;
-  }
+  const smokeLabel = t("entryCard.smokeStripLabel");
+  const smokeA11y = t("entryCard.smokeStripA11y");
 
   return (
-    <View style={styles.audioPlaySection}>
-      <Text style={styles.audioPlaySectionTitle}>
-        {tSystem("audio.voicePlaySection")}
-      </Text>
-      {entry.audios.map((audio) => renderAudioRow(audio))}
-    </View>
-  );
-}
-
-/** Voice playback list on burned (ash) cards when expanded */
-export function EntryCardBurnedPlayback({
-  entry,
-  styles,
-  isExpanded,
-}: EntryCardBurnedPlaybackProps) {
-  const { t } = useTranslation("dashboard");
-  const renderAudioRow = useAudioRowRenderer(entry, styles);
-
-  if (!isExpanded || !entry.audios || entry.audios.length === 0) {
-    return null;
-  }
-
-  return (
-    <View style={styles.burnedAudioContainer}>
-      <Text style={styles.burnedAudioLabel}>
-        {t("entryCard.burnedAudioLabel")}
-      </Text>
-      {entry.audios.map((audio) => renderAudioRow(audio))}
+    <View style={styles.echoStripSection}>
+      <Pressable
+        style={styles.smokeStrip}
+        disabled
+        accessibilityRole="button"
+        accessibilityLabel={smokeA11y}
+        accessibilityState={{ disabled: true }}
+        testID="entry-smoke-strip"
+      >
+        <Text style={styles.smokeStripLabel} numberOfLines={1}>
+          {smokeLabel}
+        </Text>
+      </Pressable>
     </View>
   );
 }

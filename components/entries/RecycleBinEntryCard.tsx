@@ -6,9 +6,10 @@ import { MOOD_CONFIG } from "@/constants";
 import { getDeadlineLabel, getMoodLabel } from "@/i18n/moodLabels";
 import { resolvePeopleLabel, resolveTriggerLabel } from "@/i18n/resolvePresetLabel";
 import { useAppStore } from "@/store/useAppStore";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { createResponsiveMetrics } from "@/shared/responsive";
-import { MoodEntry, MoodLevel } from "@/types";
+import { MoodEntry } from "@/types";
 import { getMoodIcon } from "@/utils/moodIconUtils";
 import { Mic } from "lucide-react-native";
 import { useMemo } from "react";
@@ -31,26 +32,13 @@ export type RecycleBinEntryCardProps = {
   readonly onPurge: () => void;
 };
 
-function getMoodBadgeColor(level: MoodLevel): string {
-  switch (level) {
-    case MoodLevel.ANNOYED:
-      return COLORS.mood.level1;
-    case MoodLevel.UPSET:
-      return COLORS.mood.level2;
-    case MoodLevel.ANGRY:
-      return COLORS.mood.level3;
-    case MoodLevel.FURIOUS:
-      return COLORS.mood.level4;
-    case MoodLevel.EXPLOSIVE:
-      return COLORS.mood.level5;
-    default:
-      return COLORS.mood.level1;
-  }
-}
-
-function createRecycleBinEntryCardStyles(width: number, height: number) {
+function createRecycleBinEntryCardStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
-  const { spacing, borderRadius, fontSize, shadow } = DESIGN_TOKENS;
+  const { spacing, borderRadius, fontSize } = DESIGN_TOKENS;
 
   return StyleSheet.create({
     wrapper: {
@@ -58,10 +46,11 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       marginVertical: spacing.sm,
     },
     container: {
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderRadius: borderRadius.xl,
       overflow: "hidden",
-      ...shadow.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.hairline,
     },
     body: {
       padding: spacing.lg,
@@ -74,7 +63,8 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
     moodIconBadge: {
       width: 44,
       height: 44,
-      borderRadius: 14,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface2,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -93,18 +83,18 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       flex: 1,
       fontSize: fontSize.base,
       fontWeight: "700",
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       letterSpacing: -0.3,
     },
     dateText: {
       fontSize: m.fontSize.small,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       fontWeight: "500",
       flexShrink: 0,
     },
     contentText: {
       fontSize: m.fontSize.body,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: 22,
     },
     tagsContainer: {
@@ -114,46 +104,46 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       marginTop: spacing.sm,
     },
     deadlineTag: {
-      backgroundColor: COLORS.gray[100],
+      backgroundColor: colors.gray[100],
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
     },
     deadlineText: {
       fontSize: fontSize.xs,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       fontWeight: "600",
     },
     triggerTag: {
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
     },
     triggerText: {
       fontSize: fontSize.xs,
-      color: COLORS.primaryDark,
+      color: colors.primaryDark,
       fontWeight: "600",
     },
     audioTag: {
-      backgroundColor: COLORS.audio.surface,
+      backgroundColor: colors.audio.surface,
       paddingHorizontal: 10,
       paddingVertical: spacing.xs,
-      borderRadius: 10,
+      borderRadius: borderRadius.sm,
       flexDirection: "row",
       alignItems: "center",
       gap: 4,
     },
     audioTagText: {
       fontSize: fontSize.xs,
-      color: COLORS.audio.primary,
+      color: colors.audio.primary,
       fontWeight: "600",
     },
     actionBar: {
       flexDirection: "row",
       borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: COLORS.border.light,
-      backgroundColor: COLORS.gray[50],
+      borderTopColor: colors.border.light,
+      backgroundColor: colors.gray[50],
     },
     actionButton: {
       flex: 1,
@@ -163,24 +153,24 @@ function createRecycleBinEntryCardStyles(width: number, height: number) {
       paddingHorizontal: spacing.sm,
     },
     actionButtonPressed: {
-      backgroundColor: COLORS.gray[100],
+      backgroundColor: colors.gray[100],
     },
     actionButtonDisabled: {
       opacity: 0.45,
     },
     actionDivider: {
       width: StyleSheet.hairlineWidth,
-      backgroundColor: COLORS.border.light,
+      backgroundColor: colors.border.light,
     },
     restoreText: {
       fontSize: fontSize.base,
-      color: COLORS.primaryDark,
-      fontFamily: "Lato_700Bold",
+      color: colors.primaryDark,
+      fontWeight: '700',
     },
     purgeText: {
       fontSize: fontSize.base,
-      color: COLORS.error,
-      fontFamily: "Lato_700Bold",
+      color: colors.error,
+      fontWeight: '700',
     },
   });
 }
@@ -196,9 +186,10 @@ export function RecycleBinEntryCard({
   const { t } = useTranslation("recycle");
   const effectiveLocale = useAppStore((state) => state.effectiveLocale);
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createRecycleBinEntryCardStyles(width, height),
-    [width, height],
+    () => createRecycleBinEntryCardStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const mood = MOOD_CONFIG[entry.moodLevel];
@@ -224,13 +215,8 @@ export function RecycleBinEntryCard({
       <View style={styles.container}>
         <View style={styles.body}>
           <View style={styles.content}>
-            <View
-              style={[
-                styles.moodIconBadge,
-                { backgroundColor: getMoodBadgeColor(entry.moodLevel) },
-              ]}
-            >
-              {getMoodIcon(mood.iconName, "#FFFFFF", 20)}
+            <View style={styles.moodIconBadge}>
+              {getMoodIcon(mood.iconName, colors.brand, 20)}
             </View>
             <View style={styles.textContainer}>
               <View style={styles.header}>
@@ -261,7 +247,7 @@ export function RecycleBinEntryCard({
                   ))}
                   {hasAudio ? (
                     <View style={styles.audioTag}>
-                      <Mic size={12} color={COLORS.audio.primary} />
+                      <Mic size={12} color={colors.audio.primary} />
                       <Text style={styles.audioTagText}>
                         {t("card.audioCount", { count: entry.audios!.length })}
                       </Text>
@@ -288,7 +274,7 @@ export function RecycleBinEntryCard({
             accessibilityState={{ disabled: isBusy, busy: isRestoring }}
           >
             {isRestoring ? (
-              <ActivityIndicator size="small" color={COLORS.primaryDark} />
+              <ActivityIndicator size="small" color={colors.primaryDark} />
             ) : (
               <Text style={styles.restoreText}>{t("restore.buttonLabel")}</Text>
             )}
@@ -310,7 +296,7 @@ export function RecycleBinEntryCard({
             accessibilityState={{ disabled: isBusy, busy: isPurging }}
           >
             {isPurging ? (
-              <ActivityIndicator size="small" color={COLORS.error} />
+              <ActivityIndicator size="small" color={colors.error} />
             ) : (
               <Text style={styles.purgeText}>
                 {t("purge.buttonLabel")}

@@ -13,6 +13,7 @@ import {
 } from "expo-audio";
 import { getInfoAsync } from "expo-file-system";
 import type { AudioData } from "../../types";
+import { Status } from "../../types";
 import { logger } from "../../utils/logger";
 import { isLocalPlaybackSource, resolveAudioSource } from "./playback";
 
@@ -146,8 +147,16 @@ export const audioCoordinator = {
   async playEntryAudio(
     entryId: string,
     audio: AudioData,
-  ): Promise<{ ok: true } | { ok: false; reason: "no_uri" | "error" }> {
+    entryStatus: Status,
+  ): Promise<
+    { ok: true } | { ok: false; reason: "burned" | "no_uri" | "error" }
+  > {
     try {
+      // D-35: reject BURNED before URI / player (ritual dual lock)
+      if (entryStatus === Status.BURNED) {
+        return { ok: false, reason: "burned" };
+      }
+
       if (boundAudioId === audio.id && isNativePlaying) {
         disposePlayer();
         applyStopped();

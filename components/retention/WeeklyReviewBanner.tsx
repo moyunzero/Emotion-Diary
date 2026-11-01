@@ -8,7 +8,7 @@ import {
   shouldShowWeeklyReviewBanner,
 } from "@/shared/retention/touchpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useRouter } from "expo-router";
 import { ImageIcon, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -32,9 +32,10 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
   const router = useRouter();
   const { t } = useTranslation("retention");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createWeeklyReviewBannerStyles(width, height),
-    [width, height],
+    () => createWeeklyReviewBannerStyles(width, height, colors),
+    [width, height, colors],
   );
   const [dismissedWeek, setDismissedWeek] = useState<string | null>(null);
 
@@ -74,7 +75,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
   return (
     <View style={styles.banner} testID="weekly-review-banner">
       <View style={styles.row}>
-        <ImageIcon size={18} color={COLORS.primaryDark} />
+        <ImageIcon size={18} color={colors.primaryDark} />
         <View style={styles.textCol}>
           <Text style={styles.title}>{t("weeklyBanner.title")}</Text>
           <Text style={styles.body} testID="weekly-review-banner-body">
@@ -86,7 +87,7 @@ export function WeeklyReviewBanner({ entries }: WeeklyReviewBannerProps) {
           accessibilityRole="button"
           accessibilityLabel={t("weeklyBanner.dismiss")}
         >
-          <X size={18} color="#9CA3AF" />
+          <X size={18} color={colors.gray[400]} />
         </TouchableOpacity>
       </View>
       <Pressable

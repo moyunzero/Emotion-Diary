@@ -1,36 +1,62 @@
 /**
- * 统计区：ProfileStatCard、CompanionDaysCard
+ * Me stats: one gentle companion / moments line (D-28 / FLOW-06).
  */
 
+import { useCompanionFirstEntryDate } from "@/hooks/useCompanionFirstEntryDate";
+import { calculateDays } from "@/services/companionDaysService";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useMemo } from "react";
-import { View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
-import CompanionDaysCard from "@/components/CompanionDaysCard";
-import { ProfileStatCard } from "@/components/Profile";
-import { createProfileStyles } from "@/styles/components/Profile.styles";
 
 export type ProfileStatsSectionProps = {
   entriesCount: number;
-  weatherScore: number;
   onCompanionDaysPress: () => void;
 };
 
+function createProfileStatsSectionStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      width: "100%",
+      marginBottom: DESIGN_TOKENS.spacing.md,
+      paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+    },
+    line: {
+      fontSize: DESIGN_TOKENS.fontSize.body,
+      fontWeight: "400",
+      color: colors.text.primary,
+      lineHeight: 24,
+    },
+  });
+}
+
 export function ProfileStatsSection({
   entriesCount,
-  weatherScore,
   onCompanionDaysPress,
 }: ProfileStatsSectionProps) {
   const { t } = useTranslation("profile");
-  const { width, height } = useWindowDimensions();
-  const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+  const firstEntryDate = useCompanionFirstEntryDate();
+  const days = calculateDays(firstEntryDate);
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createProfileStatsSectionStyles(colors),
+    [colors],
   );
+
   return (
-    <View style={profileStyles.statsContainer}>
-      <ProfileStatCard value={entriesCount} label={t("stats.entriesLabel")} />
-      <ProfileStatCard value={weatherScore} label={t("stats.weatherScoreLabel")} accent />
-      <CompanionDaysCard onPress={onCompanionDaysPress} />
-    </View>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={onCompanionDaysPress}
+      accessibilityRole="button"
+      accessibilityLabel={t("stats.companionMoments", {
+        days,
+        entries: entriesCount,
+      })}
+    >
+      <Text style={styles.line}>
+        {t("stats.companionMoments", { days, entries: entriesCount })}
+      </Text>
+    </TouchableOpacity>
   );
 }

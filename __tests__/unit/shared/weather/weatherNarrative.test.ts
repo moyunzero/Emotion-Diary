@@ -1,8 +1,11 @@
+import zhDashboard from '../../../../locales/zh-Hans/dashboard.json';
+import enDashboard from '../../../../locales/en-US/dashboard.json';
 import { Deadline, MoodLevel, Status, type MoodEntry } from '../../../../types';
 import {
   computeDeadlinePressure,
   computeMoodMix,
   computeWeatherNarrative,
+  getWeatherEmptyReason,
 } from '../../../../shared/weather/weatherNarrative';
 
 function makeEntry(
@@ -105,6 +108,71 @@ describe('weatherNarrative', () => {
       for (const condition of ['sunny', 'cloudy', 'rainy', 'stormy'] as const) {
         const result = computeWeatherNarrative([], condition);
         expect(result.adviceKey).toBe(`weatherAdvice.${condition}`);
+      }
+    });
+  });
+
+  describe('getWeatherEmptyReason', () => {
+    it('returns noEntries for empty list', () => {
+      expect(getWeatherEmptyReason([])).toBe('noEntries');
+    });
+
+    it('returns noEntries when only soft-deleted entries exist', () => {
+      const entries = [
+        makeEntry({ id: 'gone', deletedAt: Date.now() }),
+      ];
+      expect(getWeatherEmptyReason(entries)).toBe('noEntries');
+    });
+
+    it('returns noActive when library has only RESOLVED/BURNED', () => {
+      const entries = [
+        makeEntry({ id: 'r', status: Status.RESOLVED }),
+        makeEntry({ id: 'b', status: Status.BURNED }),
+      ];
+      expect(getWeatherEmptyReason(entries)).toBe('noActive');
+    });
+
+    it('returns null when at least one non-deleted ACTIVE exists', () => {
+      const entries = [
+        makeEntry({ id: 'a', status: Status.ACTIVE }),
+        makeEntry({ id: 'r', status: Status.RESOLVED }),
+      ];
+      expect(getWeatherEmptyReason(entries)).toBeNull();
+    });
+  });
+
+  describe('weatherStation.empty locale keys', () => {
+    const forbidden = /晴|Sunny|Clear|sunny|本周|this week/i;
+
+    it('zh and en empty keys are non-empty, bilingual, and distinct without sunny claims', () => {
+      type EmptyKeys = { noEntries: string; noActive: string };
+      const zhEmpty = (
+        zhDashboard.weatherStation as { empty?: EmptyKeys }
+      ).empty;
+      const enEmpty = (
+        enDashboard.weatherStation as { empty?: EmptyKeys }
+      ).empty;
+
+      expect(zhEmpty).toBeDefined();
+      expect(enEmpty).toBeDefined();
+
+      const zhNoEntries = zhEmpty!.noEntries;
+      const zhNoActive = zhEmpty!.noActive;
+      const enNoEntries = enEmpty!.noEntries;
+      const enNoActive = enEmpty!.noActive;
+
+      expect(zhNoEntries.length).toBeGreaterThan(0);
+      expect(zhNoActive.length).toBeGreaterThan(0);
+      expect(enNoEntries.length).toBeGreaterThan(0);
+      expect(enNoActive.length).toBeGreaterThan(0);
+
+      expect(zhNoEntries).not.toBe(enNoEntries);
+      expect(zhNoActive).not.toBe(enNoActive);
+      expect(zhNoEntries).not.toBe(zhNoActive);
+      expect(enNoEntries).not.toBe(enNoActive);
+
+      for (const copy of [zhNoEntries, zhNoActive, enNoEntries, enNoActive]) {
+        expect(copy).not.toMatch(forbidden);
       }
     });
   });

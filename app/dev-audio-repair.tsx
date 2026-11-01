@@ -9,6 +9,7 @@ import {
   runRepairBoundaryReport,
 } from "@/store/sync/audioRepairProbe";
 import { useAppStore } from "@/store/useAppStore";
+import { Status } from "@/types";
 import { type Href, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text } from "react-native";
@@ -41,7 +42,8 @@ export default function DevAudioRepairScreen() {
       if (mode === "play" || mode === "all") {
         const line = await auditStorePlayback({
           entries: useAppStore.getState().entries,
-          play: (entryId, audio) => audioCoordinator.playEntryAudio(entryId, audio),
+          play: (entryId, audio) =>
+            audioCoordinator.playEntryAudio(entryId, audio, Status.ACTIVE),
           read: () => {
             const state = useAppStore.getState();
             return {

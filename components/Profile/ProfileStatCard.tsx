@@ -6,6 +6,7 @@
 import React, { useMemo } from "react";
 import { Text, View, useWindowDimensions } from "react-native";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 interface ProfileStatCardProps {
   /** 主数字 */
@@ -22,9 +23,10 @@ export function ProfileStatCard({
   accent = false,
 }: ProfileStatCardProps) {
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
   return (
     <View style={profileStyles.statCard}>

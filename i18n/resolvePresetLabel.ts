@@ -1,10 +1,19 @@
-import { PEOPLE_KEYS, TRIGGER_KEYS } from "../constants";
+import {
+  LEGACY_PEOPLE_KEYS,
+  SHORTCUT_PEOPLE_KEYS,
+  TRIGGER_KEYS,
+} from "../constants";
 import enRecord from "../locales/en-US/record.json";
 import zhRecord from "../locales/zh-Hans/record.json";
 import { i18n } from "./index";
 import type { AppLocale } from "./mapDeviceLocale";
 
-const PEOPLE_KEY_SET = new Set<string>(PEOPLE_KEYS);
+/** Shortcut ∪ legacy (friend once) so history marital keys still resolve (D-11). */
+const PEOPLE_KEY_SET = new Set<string>([
+  ...SHORTCUT_PEOPLE_KEYS,
+  ...LEGACY_PEOPLE_KEYS,
+]);
+type PeopleKey = (typeof SHORTCUT_PEOPLE_KEYS)[number] | (typeof LEGACY_PEOPLE_KEYS)[number];
 const TRIGGER_KEY_SET = new Set<string>(TRIGGER_KEYS);
 
 function buildLabelToKeyMap(
@@ -19,10 +28,10 @@ function buildLabelToKeyMap(
 
 const LEGACY_PEOPLE_ZH = buildLabelToKeyMap(
   zhRecord.presets.people,
-) as Record<string, (typeof PEOPLE_KEYS)[number]>;
+) as Record<string, PeopleKey>;
 const LEGACY_PEOPLE_EN = buildLabelToKeyMap(
   enRecord.presets.people,
-) as Record<string, (typeof PEOPLE_KEYS)[number]>;
+) as Record<string, PeopleKey>;
 const LEGACY_TRIGGER_ZH = buildLabelToKeyMap(
   zhRecord.presets.triggers,
 ) as Record<string, (typeof TRIGGER_KEYS)[number]>;

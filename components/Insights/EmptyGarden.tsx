@@ -2,12 +2,19 @@ import { Flower2, Heart, Leaf, Sparkles, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
-import { INSIGHTS_COLORS } from './constants';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
+import { getInsightsColors } from './constants';
 
 const EmptyGardenComponent: React.FC = () => {
   const { t } = useTranslation('insights');
   const { fontSize, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -30,12 +37,12 @@ const EmptyGardenComponent: React.FC = () => {
         title: {
           fontSize: fontSize.title,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
           marginBottom: 8,
         },
         subtitle: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginBottom: 40,
         },
         tipContainer: {
@@ -46,10 +53,10 @@ const EmptyGardenComponent: React.FC = () => {
         tipItem: {
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           padding: 16,
           borderRadius: borderRadius.large,
-          shadowColor: '#000',
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -58,8 +65,8 @@ const EmptyGardenComponent: React.FC = () => {
         tipIcon: {
           width: 44,
           height: 44,
-          borderRadius: 12,
-          backgroundColor: '#F9FAFB',
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
+          backgroundColor: colors.gray[50],
           alignItems: 'center',
           justifyContent: 'center',
           marginRight: 14,
@@ -70,29 +77,29 @@ const EmptyGardenComponent: React.FC = () => {
         tipTitle: {
           fontSize: fontSize.body,
           fontWeight: '600',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
           marginBottom: 2,
         },
         tipText: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
         },
         encouragement: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
           fontWeight: '500',
           textAlign: 'center',
         },
       }),
-    [fontSize, borderRadius]
+    [colors, fontSize, borderRadius, insightsColors]
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Flower2 size={64} color={INSIGHTS_COLORS.primary} style={{ opacity: 0.3 }} />
+        <Flower2 size={64} color={insightsColors.primary} style={{ opacity: 0.3 }} />
         <View style={styles.sparkleContainer}>
-          <Sparkles size={24} color={INSIGHTS_COLORS.accent} />
+          <Sparkles size={24} color={insightsColors.accent} />
         </View>
       </View>
       
@@ -102,7 +109,7 @@ const EmptyGardenComponent: React.FC = () => {
       <View style={styles.tipContainer}>
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Sprout size={20} color={INSIGHTS_COLORS.primary} />
+            <Sprout size={20} color={insightsColors.primary} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>{t('empty.tips.record.title')}</Text>
@@ -112,7 +119,7 @@ const EmptyGardenComponent: React.FC = () => {
         
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Heart size={20} color={INSIGHTS_COLORS.accent} />
+            <Heart size={20} color={insightsColors.accent} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>{t('empty.tips.resolve.title')}</Text>
@@ -122,7 +129,7 @@ const EmptyGardenComponent: React.FC = () => {
         
         <View style={styles.tipItem}>
           <View style={styles.tipIcon}>
-            <Leaf size={20} color={INSIGHTS_COLORS.growingColor} />
+            <Leaf size={20} color={insightsColors.growingColor} />
           </View>
           <View style={styles.tipContent}>
             <Text style={styles.tipTitle}>{t('empty.tips.growth.title')}</Text>

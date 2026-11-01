@@ -38,6 +38,7 @@ import { AppState } from "./modules/types";
 import { repairCloudAudios } from "./sync/repairCloudAudios";
 import { createUserSlice, hydrateEntriesAfterGuestMigration } from "./modules/user";
 import { createLocaleModule } from "./modules/locale";
+import { createAppearanceModule } from "./modules/appearance";
 import { createWeatherModule } from "./modules/weather";
 import {
   clearPendingSyncDebounce,
@@ -154,6 +155,7 @@ export const useAppStore = create<AppState>()((...args) => {
     ...createEntriesSlice(set, get, store),
     ...createWeatherModule(set, get),
     ...createLocaleModule(set, get),
+    ...createAppearanceModule(set, get),
     ...createAIModule(set, get),
     ...createAudioSlice(set, get, store),
 

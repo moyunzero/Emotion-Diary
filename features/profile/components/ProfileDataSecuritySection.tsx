@@ -18,9 +18,9 @@ import {
   ScreenFootnote,
 } from "@/components/settings";
 import { createSettingsStyles } from "@/components/settings/settings.styles";
-import { COLORS } from "@/constants/colors";
 import type { StoreSyncStatus } from "@/store/modules/types";
 import { createProfileStyles } from "@/styles/components/Profile.styles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import {
   isSyncActionDisabled,
   mapSyncChromeIcon,
@@ -55,13 +55,14 @@ export function ProfileDataSecuritySection({
   const { t: tProfile } = useTranslation("profile");
   const { t: tSync } = useTranslation("sync");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height],
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
   const settingsStyles = useMemo(
-    () => createSettingsStyles(width, height),
-    [width, height],
+    () => createSettingsStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const lastSyncLabel = tSync("status.lastSyncPrefix", {
@@ -95,17 +96,17 @@ export function ProfileDataSecuritySection({
               {syncChromeIcon === "spinner" ? (
                 <ActivityIndicator
                   size="small"
-                  color={COLORS.primaryDark}
+                  color={colors.primaryDark}
                   style={settingsStyles.statusIcon}
                 />
               ) : null}
               {syncChromeIcon === "error" ? (
-                <X size={16} color={COLORS.error} style={settingsStyles.statusIcon} />
+                <X size={16} color={colors.error} style={settingsStyles.statusIcon} />
               ) : null}
               {syncChromeIcon === "success" ? (
                 <CheckCircle
                   size={16}
-                  color={COLORS.success}
+                  color={colors.success}
                   style={settingsStyles.statusIcon}
                 />
               ) : null}
@@ -115,8 +116,8 @@ export function ProfileDataSecuritySection({
         }
       >
         <ProfileMenuItem
-          icon={<CloudUpload size={20} color={COLORS.primaryDark} />}
-          iconBgColor="#FEF2F2"
+          icon={<CloudUpload size={20} color={colors.primaryDark} />}
+          iconBgColor={colors.mood.level1}
           title={tSync("uploadTitle")}
           subtext={
             storeSyncStatus === "syncing" || isLoading
@@ -130,8 +131,8 @@ export function ProfileDataSecuritySection({
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
           testID="profile-sync-pull"
-          icon={<CloudDownload size={20} color={COLORS.primaryDark} />}
-          iconBgColor="#EFF6FF"
+          icon={<CloudDownload size={20} color={colors.primaryDark} />}
+          iconBgColor={colors.atmosphere.rainy}
           title={tSync("pullTitle")}
           subtext={
             storeSyncStatus === "syncing" || isLoading
@@ -145,8 +146,8 @@ export function ProfileDataSecuritySection({
         <View style={profileStyles.menuDivider} />
         <ProfileMenuItem
           testID="profile-recycle-bin-item"
-          icon={<Archive size={20} color="#6B7280" />}
-          iconBgColor={COLORS.gray[50]}
+          icon={<Archive size={20} color={colors.gray[500]} />}
+          iconBgColor={colors.gray[50]}
           title={tProfile("recycleBin.title")}
           subtext={
             recycleBinCount > 0

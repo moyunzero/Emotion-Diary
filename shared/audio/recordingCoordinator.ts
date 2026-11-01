@@ -65,6 +65,8 @@ let durationPollTimer: ReturnType<typeof setInterval> | null = null;
 let pressStartedAt: number | null = null;
 let abortArmRequested = false;
 let armInFlight = false;
+/** True for the whole stop→mode→delay→copy→clipHandler window (G-25-2). */
+let commitInFlight = false;
 
 function clearDurationPoll(): void {
   if (durationPollTimer) {
@@ -284,11 +286,12 @@ async function commitStopInternal(): Promise<void> {
   }
 
   clearDurationPoll();
+  commitInFlight = true;
 
   try {
     syncToStore?.({ recordingState: "processing" });
 
-    const sourceUri = r.uri;
+    const sourceUriBeforeStop = r.uri;
     const st = r.getStatus();
     const durationSec = st.durationMillis ? st.durationMillis / 1000 : 0;
 
@@ -302,8 +305,14 @@ async function commitStopInternal(): Promise<void> {
 
     await new Promise<void>((resolve) => setTimeout(resolve, 150));
 
+    const sourceUri = r.uri || sourceUriBeforeStop;
     if (!sourceUri) {
       throw new Error("No URI for recording");
+    }
+
+    const sourceInfo = await getInfoAsync(sourceUri);
+    if (!sourceInfo.exists) {
+      throw new Error("Recording source missing before copy");
     }
 
     const uniqueFileName = `recording_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`;
@@ -339,6 +348,8 @@ async function commitStopInternal(): Promise<void> {
     );
     await cleanupNativeAfterStop({ resetMode: true }).catch(() => {});
     applyIdle();
+  } finally {
+    commitInFlight = false;
   }
 }
 
@@ -410,6 +421,11 @@ export async function forceCancelRecording(): Promise<void> {
   pressStartedAt = null;
 
   try {
+    // Commit owns the ExpoAudio temp — do not delete/idle over an in-flight copy (G-25-2).
+    if (commitInFlight) {
+      return;
+    }
+
     const r = recorderRef;
     if (!r) {
       try {

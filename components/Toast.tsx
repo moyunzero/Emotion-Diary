@@ -1,13 +1,45 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 
 interface ToastProps {
   message: string;
   type?: 'success' | 'error' | 'info';
   duration?: number;
   onHide?: () => void;
+}
+
+function createToastStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 9999,
+      alignItems: 'center',
+      pointerEvents: 'none',
+    },
+    toast: {
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      shadowColor: colors.shadow.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+      maxWidth: '80%',
+    },
+    text: {
+      color: colors.text.inverse,
+      fontSize: 14,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+  });
 }
 
 /**
@@ -20,6 +52,8 @@ export const Toast: React.FC<ToastProps> = ({
   duration = 2000,
   onHide 
 }) => {
+  const { colors } = useThemeStyles();
+  const styles = useMemo(() => createToastStyles(colors), [colors]);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-50)).current;
 
@@ -28,7 +62,6 @@ export const Toast: React.FC<ToastProps> = ({
     let hideAnimation: Animated.CompositeAnimation | null = null;
     let showAnimation: Animated.CompositeAnimation | null = null;
     
-    // 显示动画
     showAnimation = Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
@@ -45,7 +78,6 @@ export const Toast: React.FC<ToastProps> = ({
     
     showAnimation.start();
 
-    // 自动隐藏
     const timer = setTimeout(() => {
       if (!isMounted) return;
       
@@ -72,7 +104,6 @@ export const Toast: React.FC<ToastProps> = ({
     return () => {
       isMounted = false;
       clearTimeout(timer);
-      // 停止动画
       if (hideAnimation) {
         hideAnimation.stop();
       }
@@ -84,13 +115,13 @@ export const Toast: React.FC<ToastProps> = ({
   const getBackgroundColor = () => {
     switch (type) {
       case 'success':
-        return COLORS.success;
+        return colors.success;
       case 'error':
-        return COLORS.error;
+        return colors.error;
       case 'info':
-        return COLORS.info;
+        return colors.info;
       default:
-        return COLORS.success;
+        return colors.success;
     }
   };
 
@@ -137,33 +168,3 @@ export const ToastManager: React.FC<ToastManagerProps> = ({ toast, onHide }) => 
     />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 9999,
-    alignItems: 'center',
-    pointerEvents: 'none',
-  },
-  toast: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    maxWidth: '80%',
-  },
-  text: {
-    color: COLORS.text.inverse,
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-});
-

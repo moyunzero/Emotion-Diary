@@ -6,13 +6,13 @@
 import { ChevronRight } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { COLORS } from "../../constants/colors";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 interface ProfileMenuItemProps {
   /** 左侧图标组件（已传入 size/color） */
   readonly icon: React.ReactNode;
-  /** 图标背景色，如 '#FEF2F2' */
+  /** 图标背景色（如 COLORS.gray[50] / brandSoft） */
   readonly iconBgColor?: string;
   /** 主文案 */
   readonly title: string;
@@ -31,7 +31,7 @@ interface ProfileMenuItemProps {
 
 export function ProfileMenuItem({
   icon,
-  iconBgColor = COLORS.gray[50],
+  iconBgColor,
   title,
   subtext,
   showChevron = true,
@@ -41,10 +41,12 @@ export function ProfileMenuItem({
   onPress,
 }: ProfileMenuItemProps) {
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
+  const resolvedIconBg = iconBgColor ?? colors.gray[50];
   return (
     <TouchableOpacity
       style={[
@@ -57,7 +59,9 @@ export function ProfileMenuItem({
       accessibilityRole="button"
       accessibilityLabel={title}
     >
-      <View style={[profileStyles.menuIcon, { backgroundColor: iconBgColor }]}>
+      <View
+        style={[profileStyles.menuIcon, { backgroundColor: resolvedIconBg }]}
+      >
         {icon}
       </View>
       <View style={profileStyles.menuTextContainer}>
@@ -74,7 +78,7 @@ export function ProfileMenuItem({
         )}
       </View>
       {showChevron && !disabled && (
-        <ChevronRight size={20} color={COLORS.gray[300]} />
+        <ChevronRight size={20} color={colors.gray[300]} />
       )}
     </TouchableOpacity>
   );

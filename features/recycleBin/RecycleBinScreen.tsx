@@ -14,8 +14,10 @@ import { FlashList } from "@shopify/flash-list";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ArchiveRestore } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, Text, View, useWindowDimensions } from "react-native";
+import { Text, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
+import { confirmAlert } from "@/utils/confirmAlert";
 import { createRecycleBinStyles } from "./recycleBin.styles";
 
 export function RecycleBinScreen() {
@@ -23,9 +25,10 @@ export function RecycleBinScreen() {
   const { t } = useTranslation("recycle");
   const { t: tCommon } = useTranslation("common");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createRecycleBinStyles(width, height),
-    [width, height],
+    () => createRecycleBinStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const entries = useAppStore((s) => s.entries);
@@ -54,49 +57,43 @@ export function RecycleBinScreen() {
     const trimmed = entry.content.trim();
     const preview =
       trimmed.length > 0 ? trimmed.slice(0, 40) : t("restore.emptyPreview");
-    Alert.alert(
-      t("restore.title"),
-      `${t("restore.messagePrefix")}${preview}${trimmed.length > 40 ? "…" : ""}${t("restore.messageSuffix")}`,
-      [
-        { text: tCommon("actions.cancel"), style: "cancel" },
-        {
-          text: t("restore.confirm"),
-          onPress: async () => {
-            setRestoringId(entry.id);
-            try {
-              await restoreEntry(entry.id);
-            } finally {
-              setRestoringId(null);
-            }
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: t("restore.title"),
+        message: `${t("restore.messagePrefix")}${preview}${trimmed.length > 40 ? "…" : ""}${t("restore.messageSuffix")}`,
+        confirmLabel: t("restore.confirm"),
+        cancelLabel: tCommon("actions.cancel"),
+      });
+      if (!confirmed) return;
+      setRestoringId(entry.id);
+      try {
+        await restoreEntry(entry.id);
+      } finally {
+        setRestoringId(null);
+      }
+    })();
   };
 
   const handlePurge = (entry: MoodEntry) => {
     const trimmed = entry.content.trim();
     const preview =
       trimmed.length > 0 ? trimmed.slice(0, 40) : t("restore.emptyPreview");
-    Alert.alert(
-      t("purge.confirmTitle"),
-      `${t("purge.confirmMessage")}\n\n「${preview}${trimmed.length > 40 ? "…" : ""}」`,
-      [
-        { text: tCommon("actions.cancel"), style: "cancel" },
-        {
-          text: t("purge.confirmOk"),
-          style: "destructive",
-          onPress: async () => {
-            setPurgingId(entry.id);
-            try {
-              await purgeEntryForever(entry.id);
-            } finally {
-              setPurgingId(null);
-            }
-          },
-        },
-      ],
-    );
+    void (async () => {
+      const confirmed = await confirmAlert({
+        title: t("purge.confirmTitle"),
+        message: `${t("purge.confirmMessage")}\n\n「${preview}${trimmed.length > 40 ? "…" : ""}」`,
+        confirmLabel: t("purge.confirmOk"),
+        cancelLabel: tCommon("actions.cancel"),
+        destructive: true,
+      });
+      if (!confirmed) return;
+      setPurgingId(entry.id);
+      try {
+        await purgeEntryForever(entry.id);
+      } finally {
+        setPurgingId(null);
+      }
+    })();
   };
 
   const renderItem = ({ item }: { item: MoodEntry }) => {
@@ -129,7 +126,7 @@ export function RecycleBinScreen() {
 
         {deletedEntries.length === 0 ? (
           <View style={styles.empty} testID="recycle-bin-empty-state">
-            <ArchiveRestore size={40} color="#D1D5DB" />
+            <ArchiveRestore size={40} color={colors.gray[300]} />
             <Text style={styles.emptyTitle}>{t("emptyState.title")}</Text>
             <Text style={styles.emptyDesc}>{t("emptyState.body")}</Text>
           </View>

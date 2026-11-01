@@ -3,9 +3,11 @@ import { Sun } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { DESIGN_TOKENS } from '@/constants/colors';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { MOOD_CONFIG } from '../../constants';
 import { MoodEntry } from '../../types';
-import { INSIGHTS_COLORS } from './constants';
+import { getInsightsColors } from './constants';
 import { getMoodFlowerStatus, getMoodWeatherIcon, getWeekDates, getWeekdayName, isToday } from './utils';
 
 interface WeeklyMoodWeatherProps {
@@ -15,19 +17,22 @@ interface WeeklyMoodWeatherProps {
 const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries }) => {
   const { t } = useTranslation('insights');
   const { padding, fontSize, spacing, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-          elevation: 2,
+          ...DESIGN_TOKENS.shadow.sm,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.hairline,
         },
         header: {
           flexDirection: 'row',
@@ -38,7 +43,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         weekContainer: {
           flexDirection: 'row',
@@ -49,20 +54,21 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           alignItems: 'center',
           paddingVertical: 8,
           paddingHorizontal: 2,
-          borderRadius: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
         },
         todayCard: {
-          backgroundColor: '#FFF1F2',
+          backgroundColor: colors.mood.level1,
         },
         weekday: {
           fontSize: fontSize.small,
           fontWeight: '500',
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginBottom: 8,
-          height: 16,
+          alignSelf: 'stretch',
+          textAlign: 'center',
         },
         todayText: {
-          color: INSIGHTS_COLORS.accent,
+          color: insightsColors.accent,
           fontWeight: 'bold',
         },
         iconContainer: {
@@ -72,15 +78,25 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
           justifyContent: 'center',
           marginBottom: 8,
         },
+        /** No-entry week day: dashed circle only (D-23); omit seed status label */
+        emptyDayDot: {
+          width: 12,
+          height: 12,
+          borderRadius: 6,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.text.tertiary,
+          borderStyle: 'dashed',
+          backgroundColor: 'transparent',
+        },
         status: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           textAlign: 'center',
-          height: 28,
-          lineHeight: 14,
+          alignSelf: 'stretch',
+          lineHeight: fontSize.small * 1.2,
         },
       }),
-    [padding, fontSize, spacing, borderRadius]
+    [padding, fontSize, spacing, borderRadius, colors, insightsColors],
   );
   const weekDates = useMemo(() => getWeekDates(), []);
 
@@ -110,7 +126,7 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Sun size={20} color={INSIGHTS_COLORS.accent} />
+        <Sun size={20} color={insightsColors.accent} />
         <Text style={styles.title}>{t('weeklyWeather.title')}</Text>
       </View>
       <View style={styles.weekContainer}>
@@ -129,11 +145,17 @@ const WeeklyMoodWeatherComponent: React.FC<WeeklyMoodWeatherProps> = ({ entries 
                 {getWeekdayName(date, t)}
               </Text>
               <View style={styles.iconContainer}>
-                {getMoodWeatherIcon(moodLevel, 28)}
+                {moodLevel === null ? (
+                  <View style={styles.emptyDayDot} testID="week-empty-day-dot" />
+                ) : (
+                  getMoodWeatherIcon(moodLevel, 28, colors)
+                )}
               </View>
-              <Text style={[styles.status, today && styles.todayText]}>
-                {getMoodFlowerStatus(moodLevel, t)}
-              </Text>
+              {moodLevel !== null ? (
+                <Text style={[styles.status, today && styles.todayText]}>
+                  {getMoodFlowerStatus(moodLevel, t)}
+                </Text>
+              ) : null}
             </View>
           );
         })}

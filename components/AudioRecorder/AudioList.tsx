@@ -3,9 +3,10 @@
  * 显示已录制的语音列表，统一管理播放状态
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { AudioData } from "../../types";
 import { AudioPreview } from "./AudioPreview";
 
@@ -40,6 +41,48 @@ export const AudioList: React.FC<AudioListProps> = ({
   headerVariant = "default",
 }) => {
   const { t } = useTranslation("record");
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          marginTop: 12,
+        },
+        containerBeforeRecording: {
+          marginTop: 0,
+          marginBottom: 10,
+        },
+        listContent: {
+          gap: 8,
+        },
+        header: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 8,
+        },
+        headerMinimal: {
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          marginBottom: 8,
+        },
+        headerTitle: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.text.primary,
+        },
+        headerCount: {
+          fontSize: 12,
+          color: colors.text.secondary,
+        },
+        headerCountOnly: {
+          fontSize: 12,
+          color: colors.gray[400],
+          fontVariant: ["tabular-nums"],
+        },
+      }),
+    [colors],
+  );
   const resolvedHeaderTitle = headerTitle ?? t("audio.list.headerTitle");
 
   if (!audios || audios.length === 0) {
@@ -102,40 +145,3 @@ export const AudioList: React.FC<AudioListProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 12,
-  },
-  containerBeforeRecording: {
-    marginTop: 0,
-    marginBottom: 10,
-  },
-  listContent: {
-    gap: 8,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  headerMinimal: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-  },
-  headerCount: {
-    fontSize: 12,
-    color: "#666",
-  },
-  headerCountOnly: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    fontVariant: ["tabular-nums"],
-  },
-  });

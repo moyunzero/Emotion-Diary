@@ -15,6 +15,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:maestro": "maestro test .maestro/flows",
     "test:maestro:preflight": "bash scripts/maestro-preflight.sh",
+    "check:hex": "bash scripts/check-hardcoded-hex.sh",
+    "check:fontsize": "bash scripts/check-fontsize-scale.sh",
+    "check:radius": "bash scripts/check-radius-scale.sh",
     "test:maestro:restore": "maestro test .maestro/flows/recycle-bin-restore.yaml",
     "test:maestro:purge": "maestro test .maestro/flows/recycle-bin-purge.yaml",
     "test:maestro:011": "maestro test .maestro/flows/011-metaphor-acceptance.yaml",
@@ -45,8 +48,6 @@
     "aso:preview:ensure": "bash scripts/ensure-sim-app.sh"
   },
   "dependencies": {
-    "widget-snapshot": "file:./modules/widget-snapshot",
-    "@expo-google-fonts/lato": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -57,6 +58,7 @@
     "@supabase/supabase-js": "^2.89.0",
     "expo": "~54.0.30",
     "expo-audio": "~1.1.1",
+    "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.12",
     "expo-device": "~8.0.10",
     "expo-file-system": "~18.1.6",
@@ -90,6 +92,7 @@
     "react-native-view-shot": "4.0.3",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
+    "widget-snapshot": "file:./modules/widget-snapshot",
     "zod": "^4.3.5",
     "zustand": "^5.0.9"
   },

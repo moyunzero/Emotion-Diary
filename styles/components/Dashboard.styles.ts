@@ -1,13 +1,17 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, DESIGN_TOKENS } from '../../constants/colors';
+import { type ColorPalette, DESIGN_TOKENS } from '../../constants/colors';
 import { createResponsiveMetrics } from '../../shared/responsive';
 
-export function createDashboardStyles(width: number, height: number) {
+export function createDashboardStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
     },
     header: {
       flexDirection: 'row',
@@ -18,29 +22,27 @@ export function createDashboardStyles(width: number, height: number) {
       paddingBottom: DESIGN_TOKENS.spacing.xxl,
     },
     title: {
-      fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.title,
       fontWeight: '700',
-      lineHeight: 33.6,
+      lineHeight: m.fontSize.title * 1.2,
       letterSpacing: -0.5,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.xs,
     },
     subtitle: {
-      fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.small,
       fontWeight: '400',
-      lineHeight: 16.8,
+      lineHeight: m.fontSize.small * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       marginTop: DESIGN_TOKENS.spacing.xs,
     },
     avatar: {
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       overflow: 'hidden',
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       ...DESIGN_TOKENS.shadow.md,
     },
     avatarImage: {
@@ -49,12 +51,12 @@ export function createDashboardStyles(width: number, height: number) {
       resizeMode: 'cover',
     },
     avatarPlaceholder: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       justifyContent: 'center',
       alignItems: 'center',
     },
     avatarPlaceholderText: {
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: 'bold',
     },
@@ -62,90 +64,39 @@ export function createDashboardStyles(width: number, height: number) {
       marginTop: DESIGN_TOKENS.spacing.xl,
       marginBottom: DESIGN_TOKENS.spacing.md,
     },
+    emptyCtaWrap: {
+      alignSelf: 'stretch',
+      width: '100%',
+    },
     listHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      alignSelf: 'stretch',
       paddingHorizontal: m.padding.horizontal,
       paddingVertical: DESIGN_TOKENS.spacing.sm,
       minHeight: 44,
       backgroundColor: 'transparent',
       zIndex: 20,
     },
-    listTitleRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexShrink: 1,
+    segmentControl: {
+      alignSelf: 'stretch',
+      width: '100%',
     },
-    listTitle: {
-      fontFamily: 'Lato_700Bold',
-      fontSize: m.fontSize.cardTitle,
-      fontWeight: '600',
-      letterSpacing: 0,
-      color: COLORS.text.primary,
-    },
-    count: {
-      fontFamily: 'Lato_400Regular',
-      fontSize: m.fontSize.small,
-      fontWeight: '400',
-      letterSpacing: 0,
-      color: COLORS.text.tertiary,
-    },
-    filterButton: {
-      width: 44,
-      height: 44,
-      borderRadius: DESIGN_TOKENS.borderRadius.small,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'transparent',
-    },
-    filterButtonActive: {
-      backgroundColor: 'transparent',
-    },
-    filterBackdrop: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
-      zIndex: 998,
-    },
-    filterDropdown: {
-      position: 'absolute',
-      backgroundColor: COLORS.background.primary,
-      borderRadius: DESIGN_TOKENS.borderRadius.large,
-      ...DESIGN_TOKENS.shadow.xl,
-      paddingVertical: DESIGN_TOKENS.spacing.sm,
-      borderWidth: 1,
-      borderColor: COLORS.gray[100],
-      zIndex: 999,
-    },
-    filterOption: {
-      paddingHorizontal: DESIGN_TOKENS.spacing.xl,
-      paddingVertical: 14,
-      backgroundColor: COLORS.background.primary,
-    },
-    filterOptionActive: {
-      backgroundColor: COLORS.background.page,
-    },
-    filterOptionText: {
-      fontFamily: 'Lato_400Regular',
-      fontSize: DESIGN_TOKENS.fontSize.base,
-      fontWeight: '500',
-      lineHeight: 21,
-      letterSpacing: 0,
-      color: COLORS.text.secondary,
-      textAlign: 'center',
-    },
-    filterOptionTextActive: {
-      fontFamily: 'Lato_700Bold',
-      fontWeight: '700',
-      color: COLORS.primaryDark,
-    },
+
     flashListContent: {
       paddingHorizontal: DESIGN_TOKENS.spacing.sm,
       paddingBottom: DESIGN_TOKENS.spacing.xxl,
+    },
+    /** Day group header — Label/600 text.secondary; md top/bottom (UI-SPEC) */
+    dayHeader: {
+      paddingTop: DESIGN_TOKENS.spacing.md,
+      marginBottom: DESIGN_TOKENS.spacing.md,
+      paddingHorizontal: DESIGN_TOKENS.spacing.sm,
+    },
+    dayHeaderText: {
+      fontSize: DESIGN_TOKENS.fontSize.caption,
+      fontWeight: '600',
+      lineHeight: Math.round(DESIGN_TOKENS.fontSize.caption * 1.43),
+      letterSpacing: 0,
+      color: colors.text.secondary,
     },
     emptyState: {
       alignItems: 'center',
@@ -155,44 +106,41 @@ export function createDashboardStyles(width: number, height: number) {
     emptyIconContainer: {
       width: 96,
       height: 96,
-      borderRadius: 48,
-      backgroundColor: COLORS.background.secondary,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
+      backgroundColor: colors.background.secondary,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xxl,
     },
     emptyTitle: {
-      fontFamily: 'Lato_700Bold',
       fontSize: m.fontSize.cardTitle,
       fontWeight: '700',
-      lineHeight: 25.2,
+      lineHeight: m.fontSize.cardTitle * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: DESIGN_TOKENS.spacing.sm,
       textAlign: 'center',
     },
     emptyText: {
-      fontFamily: 'Lato_400Regular',
       fontSize: m.fontSize.body,
       fontWeight: '400',
-      lineHeight: 20,
+      lineHeight: m.fontSize.body * 1.2,
       letterSpacing: 0,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       textAlign: 'center',
       marginBottom: DESIGN_TOKENS.spacing.xxxl,
     },
     emptyButton: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       paddingHorizontal: DESIGN_TOKENS.spacing.xxl,
       paddingVertical: DESIGN_TOKENS.spacing.md,
       borderRadius: DESIGN_TOKENS.borderRadius.medium,
       ...DESIGN_TOKENS.shadow.lg,
     },
     emptyButtonText: {
-      fontFamily: 'Lato_700Bold',
       fontSize: DESIGN_TOKENS.fontSize.md,
       fontWeight: '700',
-      color: COLORS.text.inverse,
+      color: colors.text.inverse,
     },
   });
 }

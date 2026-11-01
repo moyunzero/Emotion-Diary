@@ -4,11 +4,19 @@ import {
   getDashboardEntryItemType,
   type DashboardFilterType,
 } from "@/shared/entries/dashboardFilter";
-import { computeWeatherNarrative } from "@/shared/weather/weatherNarrative";
+import {
+  buildDashboardDaySections,
+  type DashboardDayItem,
+} from "@/shared/entries/dayGroup";
+import {
+  computeWeatherNarrative,
+  getWeatherEmptyReason,
+} from "@/shared/weather/weatherNarrative";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FlashList, FlashListRef, ListRenderItem } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Filter, CloudSun, Flame, Leaf, Sprout } from "lucide-react-native";
+import { CloudSun, Flame, Leaf, Sprout } from "lucide-react-native";
 import React, {
   useCallback,
   useEffect,
@@ -20,22 +28,24 @@ import { useTranslation } from "react-i18next";
 import {
   Pressable,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/shallow";
-import { COLORS } from "@/constants/colors";
+import {
+  DASHBOARD_SEGMENT_ORDER,
+  getDashboardSegmentA11yLabel,
+  getDashboardSegmentShortLabel,
+} from "@/utils/dashboardSegmentLabels";
 import { useThemeStyles } from "../hooks/useThemeStyles";
 import { useAppStore } from "../store/useAppStore";
 import { createDashboardStyles } from "../styles/components/Dashboard.styles";
-import { calculateResponsiveDimension } from "../styles/constants";
-import { MoodEntry } from "../types";
 import {
   registerAsoDashboardScroller,
   requestAsoDashboardScroll,
 } from "@/services/asoPreviewScroll";
+import { AppButton } from "./ui/AppButton";
+import { AppSegmentedControl } from "./ui/AppSegmentedControl";
 import { AppScreenShell } from "./AppScreenShell";
 import Avatar from "./Avatar";
 import EntryCard from "./EntryCard";
@@ -55,65 +65,18 @@ const EMPTY_FILTER_ICONS: Record<
   all: CloudSun,
 };
 
-const FILTER_OPTIONS: DashboardFilter[] = [
-  "active",
-  "resolved",
-  "burned",
-  "all",
-];
-
-/**
- * Calculate filter dropdown position with boundary detection
- * Uses responsive sizing based on screen width
- *
- * minTop 用于阻止下拉菜单进入页面顶部固定 header 的占位区域，是抽出 sticky 筛选条后的护栏。
- */
-const calculateDropdownPosition = (
-  filterButtonLayout: { x: number; y: number; width: number; height: number },
-  windowWidth: number,
-  windowHeight: number,
-  dropdownWidth: number,
-  dropdownHeight: number = 200,
-  minTop: number = 0,
-): { top: number; right: number } => {
-  const rightPosition = windowWidth - filterButtonLayout.x - filterButtonLayout.width;
-  const topPosition = filterButtonLayout.y + filterButtonLayout.height;
-
-  // Boundary detection: ensure menu doesn't exceed screen bounds
-  const adjustedRight = Math.max(
-    16,
-    Math.min(rightPosition, windowWidth - dropdownWidth - 16),
-  );
-  const rawTop =
-    topPosition + dropdownHeight > windowHeight
-      ? filterButtonLayout.y - dropdownHeight // Show above if not enough space below
-      : topPosition;
-  // 防御：即便上翻或测量异常，也不让下拉与顶部固定 header 重叠
-  const adjustedTop = Math.max(rawTop, minTop);
-
-  return { top: adjustedTop, right: adjustedRight };
-};
-
-/**
- * 顶部固定 header 的竖向占位估算（dp），用于下拉菜单 top 的下限护栏。
- * 来源：styles.header paddingTop(sm=8) + title 行高 33.6 + xs(4) + subtitle 行高 16.8 + paddingBottom(xxl=24) ≈ 86.4。
- * 若未来调整 styles.header 的 padding 或字号，必须同步更新本常量。
- */
-const STICKY_HEADER_TOP_GUARD = 88;
+const FILTER_OPTIONS: DashboardFilter[] = [...DASHBOARD_SEGMENT_ORDER];
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation("dashboard");
   const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createDashboardStyles(windowWidth, windowHeight),
-    [windowWidth, windowHeight]
+    () => createDashboardStyles(windowWidth, windowHeight, colors),
+    [windowWidth, windowHeight, colors],
   );
-
-  // Calculate responsive dimensions based on screen width
-  const dropdownWidth = useMemo(() => calculateResponsiveDimension(windowWidth, 0.35), [windowWidth]); // 35% of screen width
-  const dropdownHeight = 200; // Fixed height for dropdown
 
   // 优化：使用单个 selector 减少多次渲染，使用 useShallow 避免无限循环
   const { entries, weather, user, effectiveLocale } = useAppStore(
@@ -124,17 +87,8 @@ const Dashboard: React.FC = () => {
       effectiveLocale: state.effectiveLocale,
     }))
   );
-  const { colors } = useThemeStyles();
   const [filter, setFilter] = useState<DashboardFilter>("active");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterButtonLayout, setFilterButtonLayout] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const filterButtonRef = useRef<View>(null);
-  const listRef = useRef<FlashListRef<MoodEntry>>(null);
+  const listRef = useRef<FlashListRef<DashboardDayItem>>(null);
   /** App Preview：下滑时强制刷屏，避免 simctl 静止不写帧 */
   const [asoFramePulse, setAsoFramePulse] = useState(0);
   const asoPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -163,7 +117,7 @@ const Dashboard: React.FC = () => {
         const savedFilter = await AsyncStorage.getItem("dashboard_filter");
         if (
           savedFilter &&
-          ["all", "active", "resolved", "burned"].includes(savedFilter)
+          (FILTER_OPTIONS as readonly string[]).includes(savedFilter)
         ) {
           setFilter(savedFilter as DashboardFilter);
         }
@@ -174,48 +128,44 @@ const Dashboard: React.FC = () => {
     loadFilterPreference();
   }, []);
 
-  // 保存过滤偏好
-  const handleFilterChange = useCallback(
-    (newFilter: DashboardFilter) => {
-      setFilter(newFilter);
-      setIsFilterOpen(false);
-      AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {
-        console.error("保存过滤偏好失败:", err);
-      });
-    },
-    [],
-  );
-
-  // 测量筛选按钮位置，转换为容器内坐标
-  const measureFilterButton = useCallback((callback?: () => void) => {
-    filterButtonRef.current?.measure(
-      (_x: number, _y: number, width: number, height: number, pageX: number, pageY: number) => {
-        setFilterButtonLayout({ x: pageX, y: pageY - insets.top, width, height });
-        callback?.();
-      },
-    );
-  }, [insets.top]);
-
-  // 处理筛选按钮点击，测量按钮位置
-  const handleFilterButtonPress = useCallback(() => {
-    if (filterButtonRef.current) {
-      measureFilterButton(() => setIsFilterOpen((prev) => !prev));
-    } else {
-      setIsFilterOpen((prev) => !prev);
-    }
-  }, [measureFilterButton]);
+  // 保存过滤偏好（键 dashboard_filter 不变 · D-21）
+  const handleFilterChange = useCallback((newFilter: DashboardFilter) => {
+    setFilter(newFilter);
+    AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {
+      console.error("保存过滤偏好失败:", err);
+    });
+  }, []);
 
   const filteredEntries = useMemo(
     () => filterDashboardEntries(entries, filter),
     [entries, filter],
   );
 
-  const getItemType = useCallback(
-    (item: MoodEntry) => getDashboardEntryItemType(item),
-    [],
+  // D-43/D-44: filter first, then day-group; no empty day headers
+  const listItems = useMemo(
+    () => buildDashboardDaySections(filteredEntries, new Date(), effectiveLocale),
+    [filteredEntries, effectiveLocale],
   );
 
-  const filterLabel = useMemo(() => t(`filter.${filter}`), [t, filter]);
+  const getItemType = useCallback((item: DashboardDayItem) => {
+    if (item.type === "dayHeader") return "dayHeader";
+    return getDashboardEntryItemType(item.entry);
+  }, []);
+
+  const segmentItems = useMemo(
+    () =>
+      FILTER_OPTIONS.map((key) => ({
+        value: key,
+        label: getDashboardSegmentShortLabel(key, effectiveLocale),
+        accessibilityLabel: getDashboardSegmentA11yLabel(key, effectiveLocale),
+      })),
+    [effectiveLocale],
+  );
+
+  const weatherEmptyReason = useMemo(
+    () => getWeatherEmptyReason(entries),
+    [entries],
+  );
   const weatherAdvice = useMemo((): string => {
     const { adviceKey } = computeWeatherNarrative(entries, weather.condition);
     const translated = String(t(adviceKey as never));
@@ -247,24 +197,49 @@ const Dashboard: React.FC = () => {
     // EntryCard 内部会调用 burnEntry，这里保留空函数用于兼容
   }, []);
 
-  // FlatList 渲染函数，使用 useCallback 优化性能
-  const renderEntry = useCallback<ListRenderItem<MoodEntry>>(
-    ({ item }) => <EntryCard entry={item} onBurn={handleBurn} />,
-    [handleBurn],
+  const renderItem = useCallback<ListRenderItem<DashboardDayItem>>(
+    ({ item }) => {
+      if (item.type === "dayHeader") {
+        return (
+          <View
+            style={styles.dayHeader}
+            accessibilityRole="header"
+            accessibilityLabel={item.label}
+            testID={`dashboard-day-header-${item.dayKey}`}
+          >
+            <Text style={[styles.dayHeaderText, { color: colors.text.secondary }]}>
+              {item.label}
+            </Text>
+          </View>
+        );
+      }
+      return <EntryCard entry={item.entry} onBurn={handleBurn} />;
+    },
+    [handleBurn, styles.dayHeader, styles.dayHeaderText, colors.text.secondary],
   );
 
-  // FlatList key 提取函数
-  const keyExtractor = useCallback((item: MoodEntry) => item.id, []);
+  const keyExtractor = useCallback(
+    (item: DashboardDayItem) =>
+      item.type === "dayHeader" ? `day-${item.dayKey}` : item.entry.id,
+    [],
+  );
 
-  // 渲染列表头部（仅 WeatherStation；筛选条已提到 FlashList 外侧固定，避免随列表滚动）
-  const renderListHeader = useCallback(() => (
-    <View>
-      <View style={styles.weatherSection}>
-        <WeatherStation />
+  const goToRecord = useCallback(() => {
+    router.push("/record");
+  }, [router]);
+
+  // 渲染列表头部（WeatherStation + RevisitBanner；记一笔入口 = 中间 Tab + 空态 primary CTA · D-28 reopen）
+  const renderListHeader = useCallback(
+    () => (
+      <View>
+        <View style={styles.weatherSection}>
+          <WeatherStation />
+        </View>
+        <RevisitBanner entries={entries} />
       </View>
-      <RevisitBanner entries={entries} />
-    </View>
-  ), [styles.weatherSection, entries]);
+    ),
+    [styles.weatherSection, entries],
+  );
 
   return (
     <AppScreenShell edges={["top", "left", "right"]} showHeader={false}>
@@ -275,7 +250,9 @@ const Dashboard: React.FC = () => {
             {t("header.title")}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {formatLocaleDate(Date.now(), effectiveLocale)} · {weatherAdvice}
+            {weatherEmptyReason != null
+              ? formatLocaleDate(Date.now(), effectiveLocale)
+              : `${formatLocaleDate(Date.now(), effectiveLocale)} · ${weatherAdvice}`}
           </Text>
         </View>
         <Avatar
@@ -327,67 +304,50 @@ const Dashboard: React.FC = () => {
               width: 2,
               height: 2,
               opacity: 0.04,
-              backgroundColor: asoFramePulse % 2 === 0 ? "#000" : "#fff",
+              backgroundColor:
+                asoFramePulse % 2 === 0
+                  ? colors.shadow.primary
+                  : colors.text.inverse,
             }}
           />
         ) : null}
       </View>
 
-      {/* 筛选条 - sticky 在 header 下方，不随列表滚动（避免按钮 measure 坐标随滚动漂移导致下拉错位） */}
+      {/* Sticky 通栏分段筛选 — 替换标题+数量+漏斗下拉（D-19..D-22） */}
       <View style={styles.listHeader}>
-        <View style={styles.listTitleRow}>
-          <Text style={[styles.listTitle, { color: colors.text.primary }]}>
-            {filterLabel}
-          </Text>
-          <Text style={[styles.count, { color: colors.text.tertiary }]}>
-            {" "}({filteredEntries.length})
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          ref={filterButtonRef}
-          onPress={handleFilterButtonPress}
-          testID="dashboard-filter-button"
-          onLayout={() => {
-            // 抽到 FlashList 外后按钮位置基本稳定，这里仍保留以覆盖旋转/字号变更等极端场景
-            measureFilterButton();
-          }}
-          style={[
-            styles.filterButton,
-            isFilterOpen && styles.filterButtonActive,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={t("filter.buttonA11y", { label: filterLabel })}
-          accessibilityHint={t("filter.buttonHint")}
-          accessibilityState={{ expanded: isFilterOpen }}
-        >
-          <Filter
-            size={18}
-            color={isFilterOpen ? COLORS.primaryDark : colors.text.secondary}
-          />
-        </TouchableOpacity>
+        <AppSegmentedControl
+          segments={segmentItems}
+          value={filter}
+          onChange={handleFilterChange}
+          testID="dashboard-filter"
+          style={styles.segmentControl}
+        />
       </View>
 
       {/* List - 包含天气站作为头部 */}
       <FlashList
         ref={listRef}
-        contentContainerStyle={styles.flashListContent}
-        data={filteredEntries}
-        renderItem={renderEntry}
+        contentContainerStyle={[
+          styles.flashListContent,
+          {
+            paddingBottom:
+              (typeof styles.flashListContent.paddingBottom === "number"
+                ? styles.flashListContent.paddingBottom
+                : 0) + tabBarHeight,
+          },
+        ]}
+        data={listItems}
+        renderItem={renderItem}
         keyExtractor={keyExtractor}
         getItemType={getItemType}
         ListHeaderComponent={renderListHeader}
-        // 勿用 onScroll：惯性滚动期间会持续触发，用户未停滑时点筛选会先开后立刻被关掉
-        onScrollBeginDrag={() => {
-          if (isFilterOpen) setIsFilterOpen(false);
-        }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <View
               style={styles.emptyIconContainer}
               testID={`dashboard-empty-icon-${filter}`}
             >
-              <EmptyFilterIcon size={48} color={COLORS.primaryLight} />
+              <EmptyFilterIcon size={48} color={colors.primaryLight} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>
               {emptyStateContent.title}
@@ -396,94 +356,21 @@ const Dashboard: React.FC = () => {
               {emptyStateContent.desc}
             </Text>
             {emptyStateContent.showButton && (
-              <TouchableOpacity
-                style={[styles.emptyButton, { backgroundColor: COLORS.primaryDark }]}
-                onPress={() => router.push("/record")}
-                accessibilityRole="button"
-                accessibilityLabel={emptyStateContent.ctaA11y}
-                accessibilityHint={emptyStateContent.ctaHint}
-              >
-                <Text
-                  style={[
-                    styles.emptyButtonText,
-                    { color: colors.text.inverse },
-                  ]}
-                >
-                  {emptyStateContent.cta}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.emptyCtaWrap}>
+                <AppButton
+                  variant="primary"
+                  label={emptyStateContent.cta}
+                  onPress={goToRecord}
+                  accessibilityLabel={emptyStateContent.ctaA11y}
+                  accessibilityHint={emptyStateContent.ctaHint}
+                  testID="dashboard-empty-cta"
+                />
+              </View>
             )}
           </View>
         }
         showsVerticalScrollIndicator={false}
       />
-
-      {/* 筛选下拉菜单 - 显示在按钮下方 */}
-      {isFilterOpen &&
-        filterButtonLayout &&
-        (() => {
-          const dropdownPosition = calculateDropdownPosition(
-            filterButtonLayout,
-            windowWidth,
-            windowHeight,
-            dropdownWidth,
-            dropdownHeight,
-            STICKY_HEADER_TOP_GUARD,
-          );
-
-          return (
-            <>
-              <TouchableOpacity
-                style={styles.filterBackdrop}
-                activeOpacity={1}
-                onPress={() => setIsFilterOpen(false)}
-              />
-              <View
-                style={[
-                  styles.filterDropdown,
-                  {
-                    width: dropdownWidth,
-                    top: dropdownPosition.top,
-                    right: dropdownPosition.right,
-                    backgroundColor: colors.background.primary,
-                    borderColor: colors.border.light,
-                  },
-                ]}
-              >
-                {FILTER_OPTIONS.map((option) => (
-                  <TouchableOpacity
-                    key={option}
-                    onPress={() => handleFilterChange(option)}
-                    testID={`dashboard-filter-${option}`}
-                    style={[
-                      styles.filterOption,
-                      filter === option && {
-                        backgroundColor: colors.background.page,
-                      },
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={t(`filter.${option}A11y`)}
-                    accessibilityHint={t(`filter.${option}Hint`)}
-                    accessibilityState={{ selected: filter === option }}
-                  >
-                    <Text
-                      style={[
-                        styles.filterOptionText,
-                        { color: colors.text.secondary },
-                        filter === option && {
-                          color: COLORS.primaryDark,
-                          fontWeight: "700",
-                        },
-                      ]}
-                    >
-                      {t(`filter.${option}`)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          );
-        })()}
     </AppScreenShell>
   );
 };

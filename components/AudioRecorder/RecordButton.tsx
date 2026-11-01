@@ -4,7 +4,7 @@
 
 import * as Haptics from "expo-haptics";
 import { Mic, MicOff, StopCircle } from "lucide-react-native";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Animated,
   Pressable,
@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { recordingCoordinator } from "../../shared/audio/recordingCoordinator";
-import { COLORS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useAppStore } from "../../store/useAppStore";
 
 interface RecordButtonProps {
@@ -47,6 +48,100 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation("record");
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        buttonWrapper: {
+          alignItems: "center",
+        },
+        button: {
+          minWidth: 132,
+          maxWidth: 248,
+          height: 50,
+          paddingHorizontal: 16,
+          backgroundColor: colors.audio.primary,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "row",
+          alignSelf: "center",
+        },
+        buttonWide: {
+          minWidth: 176,
+          paddingHorizontal: 18,
+        },
+        buttonCompact: {
+          minWidth: 108,
+          maxWidth: 210,
+          height: 42,
+          paddingHorizontal: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
+          backgroundColor: colors.audio.primary,
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "row",
+          alignSelf: "center",
+        },
+        buttonCompactWide: {
+          minWidth: 156,
+          paddingHorizontal: 14,
+        },
+        buttonRecording: {
+          backgroundColor: colors.error,
+        },
+        buttonPreview: {
+          backgroundColor: colors.accent,
+        },
+        buttonDisabled: {
+          backgroundColor: colors.gray[300],
+        },
+        buttonContent: {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 6,
+          flexShrink: 1,
+        },
+        buttonText: {
+          color: colors.text.inverse,
+          fontSize: 15,
+          fontWeight: "600",
+          flexShrink: 1,
+          maxWidth: 188,
+        },
+        buttonTextCompact: {
+          fontSize: 13,
+          maxWidth: 132,
+        },
+        buttonTextDisabled: {
+          color: colors.text.tertiary,
+          fontSize: 16,
+          fontWeight: "600",
+        },
+        buttonTextDisabledCompact: {
+          fontSize: 13,
+        },
+        cancelText: {
+          color: colors.text.inverse,
+        },
+        previewText: {
+          color: colors.text.inverse,
+        },
+        processingIndicator: {
+          width: 20,
+          height: 20,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
+          borderWidth: 2,
+          borderColor: colors.text.inverse,
+          borderTopColor: "transparent",
+        },
+      }),
+    [colors],
+  );
   const recordingState = useAppStore((s) => s.recordingState);
   const slideOffsetY = React.useRef(new Animated.Value(0)).current;
   const iconSize = compact ? 20 : 24;
@@ -70,7 +165,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     if (disabled) {
       return (
         <View style={styles.buttonContent}>
-          <MicOff size={iconSize} color="#999" />
+          <MicOff size={iconSize} color={colors.text.tertiary} />
           <RecordButtonLabel
             style={[
               styles.buttonTextDisabled,
@@ -87,7 +182,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "recording":
         return (
           <View style={styles.buttonContent}>
-            <StopCircle size={iconSize} color="#fff" />
+            <StopCircle size={iconSize} color={colors.text.inverse} />
             <RecordButtonLabel style={textStyle}>
               {t("audio.recordButton.releaseToStop")}
             </RecordButtonLabel>
@@ -107,7 +202,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "canceling":
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color="#fff" />
+            <Mic size={iconSize} color={colors.text.inverse} />
             <RecordButtonLabel style={[...textStyle, styles.cancelText]}>
               {t("audio.recordButton.releaseToCancel")}
             </RecordButtonLabel>
@@ -127,7 +222,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       case "preview":
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color={COLORS.accent} />
+            <Mic size={iconSize} color={colors.accent} />
             <RecordButtonLabel style={[...textStyle, styles.previewText]}>
               {t("audio.recordButton.addVoice")}
             </RecordButtonLabel>
@@ -138,7 +233,7 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       default:
         return (
           <View style={styles.buttonContent}>
-            <Mic size={iconSize} color="#fff" />
+            <Mic size={iconSize} color={colors.text.inverse} />
             <RecordButtonLabel style={textStyle}>
               {t("audio.recordButton.holdToTalk")}
             </RecordButtonLabel>
@@ -190,93 +285,3 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonWrapper: {
-    alignItems: "center",
-  },
-  button: {
-    minWidth: 132,
-    maxWidth: 248,
-    height: 50,
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.audio.primary,
-    borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  buttonWide: {
-    minWidth: 176,
-    paddingHorizontal: 18,
-  },
-  buttonCompact: {
-    minWidth: 108,
-    maxWidth: 210,
-    height: 42,
-    paddingHorizontal: 12,
-    borderRadius: 21,
-    backgroundColor: COLORS.audio.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  buttonCompactWide: {
-    minWidth: 156,
-    paddingHorizontal: 14,
-  },
-  buttonRecording: {
-    backgroundColor: COLORS.error,
-  },
-  buttonPreview: {
-    backgroundColor: COLORS.accent,
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
-  },
-  buttonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    flexShrink: 1,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-    flexShrink: 1,
-    maxWidth: 188,
-  },
-  buttonTextCompact: {
-    fontSize: 13,
-    maxWidth: 132,
-  },
-  buttonTextDisabled: {
-    color: "#999",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonTextDisabledCompact: {
-    fontSize: 13,
-  },
-  cancelText: {
-    color: "#fff",
-  },
-  previewText: {
-    color: "#fff",
-  },
-  processingIndicator: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#fff",
-    borderTopColor: "transparent",
-  },
-});

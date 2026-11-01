@@ -3,9 +3,10 @@
  */
 
 import { StyleSheet } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 
-export const profileScreenModalStyles = StyleSheet.create({
+export function createProfileScreenModalStyles(colors: ColorPalette) {
+  return StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -43,8 +44,8 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalContent: {
     width: "100%",
     maxWidth: 340,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    backgroundColor: colors.surface,
+    borderRadius: DESIGN_TOKENS.borderRadius.lg,
     padding: 32,
     alignItems: "stretch",
     overflow: "hidden",
@@ -57,8 +58,14 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalScrollContent: {
     alignItems: "stretch",
     paddingTop: 0,
-    paddingBottom: 16,
+    paddingBottom: 8,
     flexGrow: 1,
+  },
+  /** Sticky CTA + mode-switch outside ScrollView so Large Text keeps actions on-screen. */
+  modalFooter: {
+    width: "100%",
+    flexShrink: 0,
+    paddingTop: 8,
   },
   closeButton: {
     position: "absolute",
@@ -67,8 +74,8 @@ export const profileScreenModalStyles = StyleSheet.create({
     padding: 8,
     zIndex: 1000,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 20,
-    shadowColor: "#000",
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
+    shadowColor: colors.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -82,8 +89,8 @@ export const profileScreenModalStyles = StyleSheet.create({
   loginIconBox: {
     width: 64,
     height: 64,
-    borderRadius: 32,
-    backgroundColor: "#FEF2F2",
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
+    backgroundColor: colors.mood.level1,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -91,23 +98,23 @@ export const profileScreenModalStyles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1F2937",
+    color: colors.text.primary,
     marginBottom: 8,
     textAlign: "center",
   },
   modalSubtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.text.secondary,
     textAlign: "center",
     lineHeight: 20,
   },
   primaryButton: {
     width: "100%",
-    backgroundColor: COLORS.primaryDark,
+    backgroundColor: colors.brandPressed,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     alignItems: "center",
-    shadowColor: COLORS.primaryDark,
+    shadowColor: colors.brandPressed,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -116,7 +123,7 @@ export const profileScreenModalStyles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: colors.text.inverse,
   },
   formContainer: {
     width: "100%",
@@ -132,11 +139,11 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   switchModeText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.text.secondary,
   },
   switchModeLink: {
     fontSize: 14,
-    color: COLORS.primaryDark,
+    color: colors.brandPressed,
     fontWeight: "500",
     marginLeft: 4,
   },
@@ -148,11 +155,11 @@ export const profileScreenModalStyles = StyleSheet.create({
   previewAvatar: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     marginBottom: 16,
     borderWidth: 3,
-    borderColor: "#FDA4AF",
-    backgroundColor: "#FFF1F2",
+    borderColor: colors.mood.level3,
+    backgroundColor: colors.mood.level1,
     overflow: "hidden",
   },
   avatarList: {
@@ -161,19 +168,19 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   avatarOption: {
     marginHorizontal: 6,
-    borderRadius: 25,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     padding: 2,
     borderWidth: 2,
     borderColor: "transparent",
   },
   avatarOptionSelected: {
-    borderColor: "#FB7185",
+    borderColor: colors.mood.level4,
   },
   avatarOptionImage: {
     width: 46,
     height: 46,
-    borderRadius: 23,
-    backgroundColor: "#FFF1F2",
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
+    backgroundColor: colors.mood.level1,
     overflow: "hidden",
   },
   inputContainer: {
@@ -182,30 +189,31 @@ export const profileScreenModalStyles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.text.secondary,
     marginBottom: 8,
     fontWeight: "500",
   },
   input: {
     width: "100%",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.gray[50],
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 12,
+    borderColor: colors.border.medium,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     padding: 12,
     fontSize: 16,
-    color: "#1F2937",
+    color: colors.text.primary,
   },
   errorText: {
     fontSize: 12,
-    color: COLORS.error,
+    color: colors.error,
     marginTop: -24,
     marginBottom: 24,
   },
   globalErrorText: {
     fontSize: 13,
-    color: COLORS.error,
+    color: colors.error,
     textAlign: "center",
     marginBottom: 12,
   },
-});
+  });
+}

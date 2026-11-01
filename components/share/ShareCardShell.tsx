@@ -94,9 +94,8 @@ const styles = StyleSheet.create({
     marginBottom: DESIGN_TOKENS.spacing.sm,
   },
   watermark: {
-    fontSize: 11,
+    fontSize: DESIGN_TOKENS.fontSize.footnote,
     lineHeight: 15.4,
-    fontFamily: "Lato_400Regular",
     color: COLORS.text.secondary,
     textAlign: "center",
     letterSpacing: 0.2,

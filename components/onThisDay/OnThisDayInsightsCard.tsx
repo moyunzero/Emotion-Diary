@@ -1,4 +1,5 @@
 import { useResponsiveStyles } from "@/hooks/useResponsiveStyles";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
 import type { MoodEntry } from "@/types";
 import { type Href, useRouter } from "expo-router";
@@ -6,7 +7,7 @@ import { Sparkles } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { INSIGHTS_COLORS } from "../Insights/constants";
+import { getInsightsColors } from "../Insights/constants";
 
 type OnThisDayInsightsCardProps = {
   readonly entries: MoodEntry[];
@@ -22,6 +23,11 @@ function OnThisDayInsightsCardComponent({
   const { t } = useTranslation("onThisDay");
   const router = useRouter();
   const { padding, spacing, borderRadius } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
 
   const hintCount = useMemo(
     () => entriesOnThisDayPriorYears(entries, Date.now()).length,
@@ -32,11 +38,11 @@ function OnThisDayInsightsCardComponent({
     () =>
       StyleSheet.create({
         card: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: "#000",
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -67,23 +73,23 @@ function OnThisDayInsightsCardComponent({
           fontSize: 16,
           fontWeight: "700",
           lineHeight: 20,
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         hint: {
           fontSize: 14,
           fontWeight: "400",
           lineHeight: 20,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
         },
         cta: {
           marginTop: 8,
           fontSize: 14,
           fontWeight: "700",
           lineHeight: 20,
-          color: "#FB7185",
+          color: colors.mood.level4,
         },
       }),
-    [padding, spacing, borderRadius],
+    [padding, spacing, borderRadius, insightsColors, colors],
   );
 
   const hint =
@@ -101,7 +107,7 @@ function OnThisDayInsightsCardComponent({
     >
       <View style={styles.row}>
         <View style={styles.iconChip}>
-          <Sparkles size={22} color={INSIGHTS_COLORS.accent} />
+          <Sparkles size={22} color={insightsColors.accent} />
         </View>
         <View style={styles.copy}>
           <Text style={styles.title}>{t("insightsCard.title")}</Text>

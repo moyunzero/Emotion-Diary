@@ -1,13 +1,23 @@
 /**
  * 颜色常量
- * 统一管理应用中使用的所有颜色
+ * 语义角色对齐 sketch default.css（粉纸玫瑰）；旧键为别名（D-03），非第二套调色板。
  */
 
-export const COLORS = {
-  // 主色调
-  primary: '#FDA4AF',
-  primaryDark: '#FB7185',
-  primaryLight: '#FECDD3',
+export const COLORS_LIGHT = {
+  // —— Semantic roles (default.css / D-01 · D-02) ——
+  bg: '#FFF8F9',
+  surface: '#FFFFFF',
+  surface2: '#FCEEF1',
+  hairline: '#F0E0E4',
+  brand: '#C2416B',
+  brandPressed: '#A8355B',
+  brandSoft: '#FCE4EB',
+
+  // Legacy aliases → same literals as brand / brandPressed / brandSoft (D-03)
+  primary: '#C2416B',
+  primaryDark: '#A8355B',
+  /** Soft wash — historically candy primaryLight; alias brandSoft (Pitfall 2) */
+  primaryLight: '#FCE4EB',
   
   // 情绪等级颜色（粉系递进，与疗愈基调一致）
   mood: {
@@ -26,23 +36,24 @@ export const COLORS = {
     },
   },
   
-  // 状态颜色
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
-  
-  // 功能性颜色（submit 仅 destructive，品牌 CTA 用 primaryDark）
-  submit: '#EF4444',
-  accent: '#86EFAC',
+  // Semantic status (sketch --resolve / --burn / --danger)
+  danger: '#C93A3A',
+  success: '#2F8F6A',
+  warning: '#C2541D',
+  error: '#C93A3A',
+  info: '#5B7FA6',
 
-  // 录音 UI（映射粉系，替代旧 #6C63FF）
+  // submit → danger; accent → resolve (was candy/Tailwind leftovers)
+  submit: '#C93A3A',
+  accent: '#2F8F6A',
+
+  // 录音 UI — brand chrome, not purple wash
   audio: {
-    primary: '#FB7185',
-    surface: '#F5F3FF',
+    primary: '#A8355B',
+    surface: '#FCE4EB',
   },
   
-  // 中性色
+  // 中性色（保留灰度阶；语义文字见 text.*）
   gray: {
     50: '#F9FAFB',
     100: '#F3F4F6',
@@ -56,143 +67,352 @@ export const COLORS = {
     900: '#111827',
   },
   
-  // 背景色（粉色疗愈基调）
+  // 背景色 — page aliases semantic bg (D-03); surface washes → surface / surface2
   background: {
     primary: '#FFFFFF',
-    secondary: '#FFF5F7',
-    tertiary: '#FFE4E6',
-    page: '#FFF5F7',
-    gradientStart: '#FFF5F7',
-    gradientEnd: '#FFE4E6',
+    secondary: '#FCEEF1',
+    tertiary: '#FCE4EB',
+    page: '#FFF8F9',
+    gradientStart: '#FFF8F9',
+    gradientEnd: '#FCEEF1',
   },
 
-  // Tab 导航
+  // Tab 导航 — active aliases brandPressed
   tab: {
-    active: '#FB7185',
-    inactive: '#9CA3AF',
+    active: '#A8355B',
+    inactive: '#8C8084',
+    barBg: '#FFFFFF',
   },
 
-  // 页面氛围叠层（气象站 / 花园，粉系柔光）
+  scrim: 'rgba(0, 0, 0, 0.45)',
+  alertBg: 'rgba(255, 255, 255, 0.94)',
+  tabBarBg: '#FFFFFF',
+
+  // 页面氛围叠层 — sketch weather fills (no purple wash)
   atmosphere: {
-    sunny: '#FFF1F2',
-    cloudy: '#FAF5FF',
-    rainy: '#F5F3FF',
-    stormy: '#FFE4E6',
+    sunny: '#FBF3E4',
+    cloudy: '#F0F2F4',
+    rainy: '#ECF2F8',
+    stormy: '#F2EDF6',
   },
 
-  // 关系天气卡片（内层卡片，与页面粉调一致）
+  // 关系天气卡片 — four-hue sketch (amber/grey/blue/mauve)
   weatherCard: {
     sunny: {
-      bg: '#FFF1F2',
-      text: '#9F1239',
-      icon: '#FB7185',
+      bg: '#FBF3E4',
+      text: '#2B2326',
+      icon: '#B57A12',
     },
     cloudy: {
-      bg: '#FAF5FF',
-      text: '#6B21A8',
-      icon: '#C084FC',
+      bg: '#F0F2F4',
+      text: '#2B2326',
+      icon: '#7A8794',
     },
     rainy: {
-      bg: '#EDE9FE',
-      text: '#5B21B6',
-      icon: '#A78BFA',
+      bg: '#ECF2F8',
+      text: '#2B2326',
+      icon: '#5B7FA6',
     },
     stormy: {
-      bg: '#FFE4E6',
-      text: '#BE123C',
-      icon: '#FB7185',
+      bg: '#F2EDF6',
+      text: '#2B2326',
+      icon: '#7A5C8E',
     },
   },
 
-  // 仪式语义色
   ritual: {
-    resolve: '#86EFAC',
-    burn: '#F97316',
+    resolve: '#2F8F6A',
+    burn: '#C2541D',
   },
   
-  // 文本颜色
   text: {
-    primary: '#1F2937',
-    secondary: '#6B7280',
-    tertiary: '#9CA3AF',
-    inverse: '#FFFFFF',
+    primary: '#2B2326',
+    secondary: '#6B5F63',
+    tertiary: '#8C8084',
+    inverse: '#FFFFFF', // --on-brand
   },
   
-  // 边框颜色
+  // border.light aliases hairline
   border: {
-    light: '#E5E7EB',
-    medium: '#D1D5DB',
-    dark: '#9CA3AF',
+    light: '#F0E0E4',
+    medium: '#E5E7EB',
+    dark: '#8C8084',
   },
   
-  // 阴影颜色
   shadow: {
     primary: '#000000',
-    submit: '#FB7185',
+    submit: '#C2416B',
   },
   
-  // 天气图标 / 光斑（粉紫柔色，避免黄绿跳色）
+  // Weather icon + fill (sketch --w-*; not candy purple)
   weather: {
-    sunny: '#FDA4AF',
-    cloudy: '#C084FC',
-    rainy: '#A78BFA',
-    stormy: '#FB7185',
+    sunny: { icon: '#B57A12', bg: '#FBF3E4' },
+    cloudy: { icon: '#7A8794', bg: '#F0F2F4' },
+    rainy: { icon: '#5B7FA6', bg: '#ECF2F8' },
+    stormy: { icon: '#7A5C8E', bg: '#F2EDF6' },
   },
   
-  // 截止日期颜色
   deadline: {
     today: {
-      bg: '#FEE2E2',
-      text: '#991B1B',
+      bg: '#FCE4EB',
+      text: '#C93A3A',
     },
     week: {
-      bg: '#FED7AA',
-      text: '#9A3412',
+      bg: '#FBF3E4',
+      text: '#C2541D',
     },
     month: {
-      bg: '#FFE4E6',
-      text: '#BE123C',
+      bg: '#FCEEF1',
+      text: '#C2416B',
     },
     later: {
-      bg: '#FAF5FF',
-      text: '#6B21A8',
+      bg: '#F0F2F4',
+      text: '#6B5F63',
     },
     self: {
       bg: '#F3F4F6',
-      text: '#374151',
+      text: '#2B2326',
     },
   },
 } as const;
 
-// 设计 Token
+/** Pink-ink night palette — literals from night.css / night-role-map.md */
+export const COLORS_NIGHT = {
+  bg: '#1C1418',
+  surface: '#271C22',
+  surface2: '#32242B',
+  hairline: '#3F3138',
+  brand: '#F08AA8',
+  brandPressed: '#E4769A',
+  brandSoft: '#3A2229',
+
+  primary: '#F08AA8',
+  primaryDark: '#E4769A',
+  primaryLight: '#3A2229',
+
+  // RESEARCH A3: mood ladder — rose tints on plum (not light literals)
+  mood: {
+    level1: '#32242B',
+    level2: '#3A2229',
+    level3: '#5C3A45',
+    level4: '#C2416B',
+    level5: '#E4769A',
+    icon: {
+      level1: '#917F87',
+      level2: '#C4B4BB',
+      level3: '#F08AA8',
+      level4: '#E4769A',
+      level5: '#F08AA8',
+    },
+  },
+
+  danger: '#F07A7A',
+  success: '#6FCFA5',
+  warning: '#F08A55',
+  error: '#F07A7A',
+  info: '#8FB0D3',
+
+  submit: '#F07A7A',
+  accent: '#6FCFA5',
+
+  audio: {
+    primary: '#E4769A',
+    surface: '#3A2229',
+  },
+
+  gray: {
+    50: '#271C22',
+    100: '#32242B',
+    200: '#3F3138',
+    300: '#5C4A52',
+    400: '#917F87',
+    500: '#C4B4BB',
+    600: '#C4B4BB',
+    700: '#F6EEF1',
+    800: '#F6EEF1',
+    900: '#F6EEF1',
+  },
+
+  background: {
+    primary: '#271C22',
+    secondary: '#32242B',
+    tertiary: '#3A2229',
+    page: '#1C1418',
+    gradientStart: '#1C1418',
+    gradientEnd: '#271C22',
+  },
+
+  tab: {
+    active: '#F08AA8',
+    inactive: '#C4B4BB',
+    barBg: 'rgba(39, 28, 34, 0.82)',
+  },
+
+  scrim: 'rgba(0, 0, 0, 0.52)',
+  alertBg: 'rgba(50, 36, 43, 0.94)',
+  tabBarBg: 'rgba(39, 28, 34, 0.82)',
+
+  atmosphere: {
+    sunny: '#2B2419',
+    cloudy: '#22262A',
+    rainy: '#1E2530',
+    stormy: '#261F2C',
+  },
+
+  weatherCard: {
+    sunny: {
+      bg: '#2B2419',
+      text: '#F6EEF1',
+      icon: '#E3B45C',
+    },
+    cloudy: {
+      bg: '#22262A',
+      text: '#F6EEF1',
+      icon: '#A3AEB8',
+    },
+    rainy: {
+      bg: '#1E2530',
+      text: '#F6EEF1',
+      icon: '#8FB0D3',
+    },
+    stormy: {
+      bg: '#261F2C',
+      text: '#F6EEF1',
+      icon: '#B39AC8',
+    },
+  },
+
+  ritual: {
+    resolve: '#6FCFA5',
+    burn: '#F08A55',
+  },
+
+  text: {
+    primary: '#F6EEF1',
+    secondary: '#C4B4BB',
+    tertiary: '#917F87',
+    inverse: '#2A1018',
+  },
+
+  border: {
+    light: '#3F3138',
+    medium: '#5C4A52',
+    dark: '#917F87',
+  },
+
+  shadow: {
+    primary: '#000000',
+    submit: '#F08AA8',
+  },
+
+  weather: {
+    sunny: { icon: '#E3B45C', bg: '#2B2419' },
+    cloudy: { icon: '#A3AEB8', bg: '#22262A' },
+    rainy: { icon: '#8FB0D3', bg: '#1E2530' },
+    stormy: { icon: '#B39AC8', bg: '#261F2C' },
+  },
+
+  // RESEARCH A3: deadline chips — plum/rose family
+  deadline: {
+    today: {
+      bg: '#3A2229',
+      text: '#F07A7A',
+    },
+    week: {
+      bg: '#2B2419',
+      text: '#F08A55',
+    },
+    month: {
+      bg: '#32242B',
+      text: '#F08AA8',
+    },
+    later: {
+      bg: '#22262A',
+      text: '#C4B4BB',
+    },
+    self: {
+      bg: '#271C22',
+      text: '#F6EEF1',
+    },
+  },
+} as const;
+
+export type ColorPalette = typeof COLORS_LIGHT | typeof COLORS_NIGHT;
+
+/** @deprecated Prefer getColors(effectiveScheme) or COLORS_LIGHT — legacy static import alias */
+export const COLORS = COLORS_LIGHT;
+
+export type ResolvedColorScheme = 'light' | 'night';
+
+export function getColors(scheme: ResolvedColorScheme): ColorPalette {
+  return (scheme === 'night' ? COLORS_NIGHT : COLORS_LIGHT) as ColorPalette;
+}
+
+/**
+ * Design tokens — VISUAL-SYSTEM §四–五 / D-07·D-08·D-09.
+ * Spacing legal set: 4/8/12/16/24/32/48 + pageX 20.
+ * Pitfall 1: DESIGN_TOKENS.spacing.md (12) ≠ SPACING.md (16) in spacing.ts.
+ */
+const SHADOW_NONE = {
+  shadowColor: 'transparent',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0,
+  shadowRadius: 0,
+  elevation: 0,
+} as const;
+
+/** Sheet / Toast / drag float only — not card default (D-09). */
+const SHADOW_FLOAT = {
+  shadowColor: 'rgb(67, 28, 42)',
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.12,
+  shadowRadius: 28,
+  elevation: 8,
+} as const;
+
 export const DESIGN_TOKENS = {
   borderRadius: {
-    xs: 4,
+    /** Legacy micro → nearest chrome r-sm */
+    xs: 8,
     small: 8,
-    medium: 12,
-    large: 16,
-    xl: 20,
-    xxl: 24,
+    medium: 14,
+    large: 14,
+    xl: 22,
+    xxl: 22,
     full: 9999,
+    sm: 8,
+    md: 14,
+    lg: 22,
   },
   spacing: {
     xs: 4,
     sm: 8,
+    /** Card / block gap — NOT SPACING.md (16). See spacing.ts + Pitfall 1. */
     md: 12,
     lg: 16,
+    /** Legacy page gutter; prefer pageX for new code. */
     xl: 20,
+    pageX: 20,
     xxl: 24,
     xxxl: 32,
+    huge: 48,
   },
   fontSize: {
-    xs: 10,
+    /** Footnote min 12 (VISUAL-SYSTEM); was product 10. */
+    xs: 12,
     sm: 12,
     base: 14,
     md: 16,
-    lg: 18,
+    lg: 17,
     xl: 20,
-    xxl: 24,
+    xxl: 22,
     xxxl: 32,
+    footnote: 12,
+    caption: 14,
+    body: 16,
+    subtitle: 17,
+    title: 20,
+    display: 32,
   },
   iconSize: {
     xs: 12,
@@ -203,36 +423,25 @@ export const DESIGN_TOKENS = {
     xxl: 48,
   },
   shadow: {
-    sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 1,
-    },
-    md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 12,
-      elevation: 8,
-    },
+    none: SHADOW_NONE,
+    /** Card default: hairline / no elevation (D-09). */
+    sm: SHADOW_NONE,
+    md: SHADOW_NONE,
+    /** Float reserved for sheet / Toast / drag. */
+    lg: SHADOW_FLOAT,
+    xl: SHADOW_FLOAT,
+    float: SHADOW_FLOAT,
   },
 } as const;
+
+/**
+ * D-11 brand-sentence serif — system Songti only (zero webfont assets).
+ * Use only at: weather narrative · review closing · share card title.
+ * Pure string (no react-native import) so Jest can load this module without RN transform.
+ * At runtime use Platform.select PostScript `SongtiSC-Regular` on iOS (WeatherStation BRAND_SERIF pattern);
+ * family name `Songti SC` often no-ops → ugly UI font. Missing faces fall back to platform UI font.
+ */
+export const SERIF_STACK = 'Songti SC';
 
 /**
  * 透明度辅助函数

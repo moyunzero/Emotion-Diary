@@ -9,6 +9,7 @@ import {
   runReinstallPlayback,
 } from "@/store/sync/reinstallAudioProbe";
 import { useAppStore } from "@/store/useAppStore";
+import { Status } from "@/types";
 import { type Href, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -35,7 +36,11 @@ export default function DevAudioReinstallScreen() {
                 pull: () => useAppStore.getState().syncFromCloud(),
                 getEntries: () => useAppStore.getState().entries,
                 play: (entryId, audio) =>
-                  audioCoordinator.playEntryAudio(entryId, audio),
+                  audioCoordinator.playEntryAudio(
+                    entryId,
+                    audio,
+                    Status.ACTIVE,
+                  ),
                 read: () => {
                   const state = useAppStore.getState();
                   return {

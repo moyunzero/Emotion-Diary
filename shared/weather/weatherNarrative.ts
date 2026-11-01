@@ -4,6 +4,7 @@ import { Deadline, MoodEntry, Status } from '../../types';
 export type WeatherCondition = 'sunny' | 'cloudy' | 'rainy' | 'stormy';
 export type MoodMix = 'calm' | 'mixed' | 'heavy';
 export type DeadlinePressure = 'low' | 'medium' | 'high';
+export type WeatherEmptyReason = 'noEntries' | 'noActive';
 
 export type WeatherNarrativeResult = {
   narrativeKey: string;
@@ -60,4 +61,21 @@ export function computeWeatherNarrative(
     moodMix,
     deadlinePressure,
   };
+}
+
+/**
+ * Empty-weather reason for UI soft copy (TRUST-03).
+ * Does not change computeWeatherNarrative — share card / locked sunny tests stay intact.
+ */
+export function getWeatherEmptyReason(
+  entries: readonly MoodEntry[],
+): WeatherEmptyReason | null {
+  const visible = entries.filter((entry) => !isSoftDeleted(entry));
+  if (visible.length === 0) {
+    return 'noEntries';
+  }
+  if (!visible.some((entry) => entry.status === Status.ACTIVE)) {
+    return 'noActive';
+  }
+  return null;
 }

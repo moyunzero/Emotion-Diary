@@ -3,18 +3,24 @@
  * 负责等级、正文、期限、人物与触发器标签等录入体验，不包含路由与持久化细节。
  */
 
-import { Edit } from "lucide-react-native";
+import { ChevronDown, Edit, Mic } from "lucide-react-native";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
 import React, { useMemo, useState } from "react";
 import {
   Alert,
   Keyboard,
+  LayoutAnimation,
   Modal,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
+  UIManager,
   View,
   useWindowDimensions,
 } from "react-native";
+import { DESIGN_TOKENS } from "../constants/colors";
+import { useThemeStyles } from "../hooks/useThemeStyles";
 import { DEADLINE_CONFIG, MOOD_CONFIG } from "../constants";
 import { getDeadlineLabel, getMoodDescription, getMoodLabel } from "@/i18n/moodLabels";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
@@ -25,14 +31,22 @@ import { areOrderedStringArraysEqual } from "../utils/arrayEquality";
 import { getMoodIcon } from "../utils/moodIconUtils";
 import AppIcon from "./icons/AppIcon";
 import TagSelector from "./TagSelector";
+import { AppChip } from "./ui/AppChip";
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const MOOD_LEVEL_VALUES = Object.values(MoodLevel).filter(
   (v) => typeof v === "number",
 ) as MoodLevel[];
 
 interface MoodFormProps {
-  // 受控组件的值
-  moodLevel: MoodLevel;
+  // 受控组件的值 — null = no mood selected (D-02)
+  moodLevel: MoodLevel | null;
   content: string;
   deadline: string;
   isCustomDeadline: boolean;
@@ -56,12 +70,22 @@ interface MoodFormProps {
   onDeleteCustomPerson: (value: string) => Promise<string[]>;
   onDeleteCustomTrigger: (value: string) => Promise<string[]>;
   onSubmit: () => void;
-  /** 创建流默认折叠人物/触发器/期限，降低记录门槛（A4） */
+  /** 结构 A：折叠人物/触发器/期限（创建与编辑同构，D-03/D-10） */
   compactMode?: boolean;
   /** 零条目时显示内联首次记录提示（D-14） */
   showFirstEntryHint?: boolean;
   /** 覆盖正文 placeholder（如首次记录暖色文案） */
   contentPlaceholder?: string;
+  /** 编辑弹层等矮视口：收紧区块间距 */
+  denseSections?: boolean;
+  /** 正文输入获得焦点（父级可 scrollIntoView） */
+  onContentFocus?: () => void;
+  /** 正文失焦（父级可取消 dense / 键盘专属布局） */
+  onContentBlur?: () => void;
+  /** 正文旁麦克风：父级揭示既有 AudioRecorder 会话（D-04） */
+  onMicPress?: () => void;
+  /** 录音会话已展开时高亮麦标 */
+  micActive?: boolean;
   getPeopleLabel?: (item: string) => string;
   getTriggerLabel?: (item: string) => string;
   peopleSectionTitle?: string;
@@ -98,6 +122,11 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   compactMode = false,
   showFirstEntryHint = false,
   contentPlaceholder,
+  denseSections = false,
+  onContentFocus,
+  onContentBlur,
+  onMicPress,
+  micActive = false,
   getPeopleLabel = (item) => item,
   getTriggerLabel = (item) => item,
   peopleSectionTitle,
@@ -107,12 +136,12 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
   // 自定义标签经 handleAddCustomTag / handleDeleteCustomTag 与持久化层同步，再反映到 props 中的选项列表。
 
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createMoodFormStyles(width, height),
-    [width, height]
+    () => createMoodFormStyles(width, height, colors, { denseSections }),
+    [width, height, colors, denseSections],
   );
   const { trigger: triggerHaptic } = useHapticFeedback();
-  const { t: tRetention } = useTranslation("retention");
   const { t: tRecord } = useTranslation("record");
   const { t: tCommon } = useTranslation("common");
   const { t: tOnboarding } = useTranslation("onboarding");
@@ -123,6 +152,25 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
     null,
   );
   const [showAdvanced, setShowAdvanced] = useState(!compactMode);
+  const reduceMotion = useReduceMotion();
+
+  const toggleAdvanced = (next: boolean) => {
+    if (!reduceMotion) {
+      LayoutAnimation.configureNext({
+        duration: 200,
+        create: {
+          type: LayoutAnimation.Types.easeOut,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: { type: LayoutAnimation.Types.easeOut },
+        delete: {
+          type: LayoutAnimation.Types.easeOut,
+          property: LayoutAnimation.Properties.opacity,
+        },
+      });
+    }
+    setShowAdvanced(next);
+  };
 
   const handleAddCustomTag = async (
     type: "people" | "trigger",
@@ -215,8 +263,12 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
                   >
                     {getMoodIcon(
                       config.iconName,
-                      config.iconColor,
-                      isSelected ? 36 : 28,
+                      isSelected
+                        ? colors.text.inverse
+                        : colors.mood.icon[
+                            `level${config.level}` as keyof typeof colors.mood.icon
+                          ],
+                      22,
                     )}
                   </View>
                   <Text
@@ -246,36 +298,63 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             {tOnboarding("firstEntry.hint")}
           </Text>
         ) : null}
-        <TextInput
-          testID="mood-content-input"
-          value={content}
-          onChangeText={onContentChange}
-          placeholder={
-            contentPlaceholder ?? tRecord("sections.content.placeholder")
-          }
-          multiline
-          numberOfLines={4}
-          style={styles.contentInput}
-          placeholderTextColor="#9CA3AF"
-          returnKeyType="default"
-          blurOnSubmit={false}
-          textAlignVertical="top"
-          maxLength={1000}
-          accessibilityLabel={tRecord("sections.content.accessibilityLabel")}
-          accessibilityHint={tRecord("sections.content.accessibilityHint")}
-        />
+        <View style={styles.contentRow}>
+          <TextInput
+            testID="mood-content-input"
+            value={content}
+            onChangeText={onContentChange}
+            onFocus={onContentFocus}
+            onBlur={onContentBlur}
+            placeholder={
+              contentPlaceholder ?? tRecord("sections.content.placeholder")
+            }
+            multiline
+            numberOfLines={4}
+            style={styles.contentInput}
+            placeholderTextColor={colors.gray[400]}
+            returnKeyType="default"
+            blurOnSubmit={false}
+            textAlignVertical="top"
+            maxLength={1000}
+            accessibilityLabel={tRecord("sections.content.accessibilityLabel")}
+            accessibilityHint={tRecord("sections.content.accessibilityHint")}
+          />
+          {onMicPress ? (
+            <TouchableOpacity
+              style={styles.micButton}
+              onPress={onMicPress}
+              accessibilityRole="button"
+              accessibilityLabel={tRecord("mic.a11y")}
+              accessibilityState={{ selected: micActive }}
+              hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              testID="mood-mic-button"
+            >
+              <AppIcon
+                name={Mic}
+                size={DESIGN_TOKENS.iconSize.md}
+                color={micActive ? colors.brand : colors.text.secondary}
+              />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       {compactMode && !showAdvanced ? (
         <TouchableOpacity
           style={styles.advancedToggle}
-          onPress={() => setShowAdvanced(true)}
+          onPress={() => toggleAdvanced(true)}
           accessibilityRole="button"
           accessibilityLabel={tRecord("advanced.expandA11y")}
+          testID="mood-extras-expand"
         >
           <Text style={styles.advancedToggleText}>
-            {tRetention("quickForm.expand")}
+            {tRecord("advanced.foldLabel")}
           </Text>
+          <AppIcon
+            name={ChevronDown}
+            size={DESIGN_TOKENS.iconSize.sm}
+            color={colors.text.secondary}
+          />
         </TouchableOpacity>
       ) : null}
 
@@ -287,69 +366,46 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
           {tRecord("sections.deadline.title")}
         </Text>
         <View style={styles.deadlineContainer}>
-          {Object.entries(DEADLINE_CONFIG).map(([key, config]) => {
+          {Object.entries(DEADLINE_CONFIG).map(([key]) => {
             const deadlineLabel = getDeadlineLabel(key);
+            const isSelected = !isCustomDeadline && deadline === key;
             return (
-            <TouchableOpacity
-              key={key}
-              onPress={() => {
-                onDeadlineChange(key);
-                onCustomDeadlineChange(false, "");
-              }}
-              style={[
-                styles.deadlineButton,
-                !isCustomDeadline &&
-                  deadline === key &&
-                  styles.deadlineButtonSelected,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={tRecord("deadlineSelector.accessibilityLabel", {
-                label: deadlineLabel,
-              })}
-              accessibilityHint={tRecord("deadlineSelector.accessibilityHint", {
-                label: deadlineLabel,
-              })}
-              accessibilityState={{
-                selected: !isCustomDeadline && deadline === key,
-              }}
-            >
-              <Text
-                style={[
-                  styles.deadlineText,
-                  !isCustomDeadline &&
-                    deadline === key &&
-                    styles.deadlineTextSelected,
-                ]}
-              >
-                {deadlineLabel}
-              </Text>
-            </TouchableOpacity>
-          );
+              <AppChip
+                key={key}
+                label={deadlineLabel}
+                selected={isSelected}
+                onPress={() => {
+                  onDeadlineChange(key);
+                  onCustomDeadlineChange(false, "");
+                }}
+                accessibilityLabel={tRecord(
+                  "deadlineSelector.accessibilityLabel",
+                  { label: deadlineLabel },
+                )}
+                accessibilityHint={tRecord(
+                  "deadlineSelector.accessibilityHint",
+                  { label: deadlineLabel },
+                )}
+              />
+            );
           })}
 
-          <TouchableOpacity
+          <AppChip
+            label={tRecord("customDeadline.button")}
+            selected={isCustomDeadline}
             onPress={() => onCustomDeadlineChange(true, customDeadlineText)}
-            style={[
-              styles.deadlineButton,
-              isCustomDeadline && styles.deadlineButtonSelected,
-            ]}
-            accessibilityRole="button"
             accessibilityLabel={tRecord("customDeadline.accessibilityLabel")}
             accessibilityHint={tRecord("customDeadline.accessibilityHint")}
-            accessibilityState={{ selected: isCustomDeadline }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <AppIcon name={Edit} size={14} color={isCustomDeadline ? '#FFFFFF' : '#6B7280'} />
-              <Text
-                style={[
-                  styles.deadlineText,
-                  isCustomDeadline && styles.deadlineTextSelected,
-                ]}
-              >
-                {tRecord("customDeadline.button")}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            leading={
+              <AppIcon
+                name={Edit}
+                size={14}
+                color={
+                  isCustomDeadline ? colors.brand : colors.gray[500]
+                }
+              />
+            }
+          />
         </View>
 
         {isCustomDeadline && (
@@ -358,7 +414,7 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
             onChangeText={(text) => onCustomDeadlineChange(true, text)}
             placeholder={tRecord("customDeadline.placeholder")}
             style={styles.customDeadlineInput}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.gray[400]}
             autoFocus
             returnKeyType="done"
             blurOnSubmit={true}
@@ -399,13 +455,21 @@ const MoodFormComponent: React.FC<MoodFormProps> = ({
       {compactMode && showAdvanced ? (
         <TouchableOpacity
           style={styles.advancedToggle}
-          onPress={() => setShowAdvanced(false)}
+          onPress={() => toggleAdvanced(false)}
           accessibilityRole="button"
           accessibilityLabel={tRecord("advanced.collapseA11y")}
+          testID="mood-extras-collapse"
         >
           <Text style={styles.advancedToggleText}>
-            {tRetention("quickForm.collapse")}
+            {tRecord("advanced.foldLabel")}
           </Text>
+          <View style={{ transform: [{ rotate: "180deg" }] }}>
+            <AppIcon
+              name={ChevronDown}
+              size={DESIGN_TOKENS.iconSize.sm}
+              color={colors.text.secondary}
+            />
+          </View>
         </TouchableOpacity>
       ) : null}
 
@@ -515,6 +579,11 @@ const MoodFormComparison = (
       prevProps.compactMode !== nextProps.compactMode ||
       prevProps.showFirstEntryHint !== nextProps.showFirstEntryHint ||
       prevProps.contentPlaceholder !== nextProps.contentPlaceholder ||
+      prevProps.denseSections !== nextProps.denseSections ||
+      prevProps.onContentFocus !== nextProps.onContentFocus ||
+      prevProps.onContentBlur !== nextProps.onContentBlur ||
+      prevProps.onMicPress !== nextProps.onMicPress ||
+      prevProps.micActive !== nextProps.micActive ||
       prevProps.peopleSectionTitle !== nextProps.peopleSectionTitle ||
       prevProps.triggersSectionTitle !== nextProps.triggersSectionTitle ||
       prevProps.getPeopleLabel !== nextProps.getPeopleLabel ||

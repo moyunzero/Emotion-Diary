@@ -1,4 +1,5 @@
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import { resolvePeopleLabel } from '@/i18n/resolvePresetLabel';
 import {
   aggregateForPerson,
@@ -9,8 +10,10 @@ import { Droplets, Flower2, Leaf, Sprout } from 'lucide-react-native';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { DESIGN_TOKENS } from '@/constants/colors';
 import { MoodEntry } from '../../types';
-import { INSIGHTS_COLORS } from './constants';
+import { AppButton } from '../ui/AppButton';
+import { getInsightsColors } from './constants';
 import { getFlowerPotStatus } from './utils';
 import { buildRelationshipPotA11yLabel } from './relationshipPotA11y';
 
@@ -34,15 +37,20 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
   const { t } = useTranslation('insights');
   const router = useRouter();
   const { padding, fontSize, spacing, borderRadius, layout } = useResponsiveStyles();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: INSIGHTS_COLORS.cardBg,
+          backgroundColor: insightsColors.cardBg,
           marginBottom: spacing.cardGap,
           padding: padding.card,
           borderRadius: borderRadius.card,
-          shadowColor: '#000',
+          shadowColor: colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
@@ -57,11 +65,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         title: {
           fontSize: fontSize.cardTitle,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
         },
         subtitle: {
           fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginBottom: spacing.component,
           marginLeft: 28,
         },
@@ -80,12 +88,12 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           paddingVertical: 4,
         },
         potItemPressed: {
-          backgroundColor: INSIGHTS_COLORS.needWaterColor + '14',
+          backgroundColor: insightsColors.needWaterColor + '14',
         },
         pot: {
           width: 56,
           height: 56,
-          borderRadius: 28,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 6,
@@ -93,14 +101,14 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
         personName: {
           fontSize: fontSize.body,
           fontWeight: 'bold',
-          color: INSIGHTS_COLORS.text,
+          color: insightsColors.text,
           marginBottom: 3,
           textAlign: 'center',
         },
         statusBadge: {
           paddingHorizontal: 6,
           paddingVertical: 2,
-          borderRadius: 10,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
           marginBottom: 3,
           maxWidth: '100%',
           alignSelf: 'stretch',
@@ -111,85 +119,74 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
           fontWeight: 'bold',
           textAlign: 'center',
         },
-        statsText: {
-          fontSize: fontSize.small,
-          color: INSIGHTS_COLORS.textSecondary,
-        },
         emptyContainer: {
           alignItems: 'center',
           paddingVertical: 24,
         },
         emptyText: {
           fontSize: fontSize.body,
-          color: INSIGHTS_COLORS.textSecondary,
+          color: insightsColors.textSecondary,
           marginTop: 12,
         },
         emptySubtext: {
           fontSize: fontSize.small,
-          color: '#9CA3AF',
+          color: colors.gray[400],
           marginTop: 4,
         },
-        emptyCta: {
+        emptyCtaWrap: {
           marginTop: 12,
-          minHeight: 44,
-          paddingHorizontal: 18,
-          paddingVertical: 12,
-          borderRadius: 14,
-          backgroundColor: INSIGHTS_COLORS.needWaterColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        emptyCtaPressed: {
-          opacity: 0.85,
-        },
-        emptyCtaText: {
-          fontSize: fontSize.body,
-          fontWeight: '700',
-          color: '#FFFFFF',
+          alignSelf: 'stretch',
         },
       }),
-    [padding, fontSize, spacing, borderRadius, layout]
+    [colors, padding, fontSize, spacing, borderRadius, layout, insightsColors]
   );
 
-  // Phase 13 helpers — same soft-delete / status / person contract as timeline header (D-06)
+  // Phase 13 helpers — soft-delete / person contract; sort by latest activity (D-21)
   const relationshipData = useMemo(() => {
     return listDistinctPeople(entries)
       .map((name) => {
         const agg = aggregateForPerson(entries, name);
         return {
           name,
-          total: agg.entryCount,
-          resolved: agg.resolvedCount,
           resolveRate: agg.resolveRate,
+          latestTimestamp: agg.latestTimestamp,
         };
       })
-      .sort((a, b) => a.resolveRate - b.resolveRate) // 需要关注的排前面
+      .sort(
+        (a, b) => (b.latestTimestamp ?? 0) - (a.latestTimestamp ?? 0),
+      )
       .slice(0, 5);
   }, [entries]);
+
+  const potPalette = useMemo(
+    () => ({
+      bloomingColor: insightsColors.bloomingColor,
+      growingColor: insightsColors.growingColor,
+      needWaterColor: insightsColors.needWaterColor,
+    }),
+    [insightsColors],
+  );
 
   if (relationshipData.length === 0) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+          <Droplets size={20} color={insightsColors.accent} />
           <Text style={styles.title}>{t('relationship.title')}</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={colors.gray[300]} />
           <Text style={styles.emptyText}>{t('relationship.empty.title')}</Text>
           <Text style={styles.emptySubtext}>{t('relationship.empty.hint')}</Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.emptyCta,
-              pressed && styles.emptyCtaPressed,
-            ]}
-            onPress={() => router.push('/record')}
-            accessibilityRole="button"
-            accessibilityLabel={t('relationship.empty.ctaA11y')}
-            testID="relationship-garden-empty-cta"
-          >
-            <Text style={styles.emptyCtaText}>{t('relationship.empty.cta')}</Text>
-          </Pressable>
+          <View style={styles.emptyCtaWrap}>
+            <AppButton
+              variant="primary"
+              label={t('relationship.empty.cta')}
+              onPress={() => router.push('/record')}
+              accessibilityLabel={t('relationship.empty.ctaA11y')}
+              testID="relationship-garden-empty-cta"
+            />
+          </View>
         </View>
       </View>
     );
@@ -198,23 +195,15 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Droplets size={20} color={INSIGHTS_COLORS.accent} />
+        <Droplets size={20} color={insightsColors.accent} />
         <Text style={styles.title}>{t('relationship.title')}</Text>
       </View>
       <Text style={styles.subtitle}>{t('relationship.subtitle')}</Text>
       
       <View style={styles.potsContainer}>
         {relationshipData.map((person) => {
-          const potStatus = getFlowerPotStatus(person.resolveRate, {
-            bloomingColor: INSIGHTS_COLORS.bloomingColor,
-            growingColor: INSIGHTS_COLORS.growingColor,
-            needWaterColor: INSIGHTS_COLORS.needWaterColor,
-          }, t);
+          const potStatus = getFlowerPotStatus(person.resolveRate, potPalette, t);
           const displayName = resolvePeopleLabel(person.name);
-          const healedCountText = t('relationship.healedCount', {
-            resolved: person.resolved,
-            total: person.total,
-          });
           return (
             <Pressable
               key={person.name}
@@ -233,12 +222,11 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               accessibilityLabel={buildRelationshipPotA11yLabel(
                 displayName,
                 potStatus.label,
-                healedCountText,
               )}
               accessibilityHint={t('relationship.potA11yHint', { name: displayName })}
               testID={`relationship-garden-pot-${person.name}`}
             >
-              {/* 花盆图标 */}
+              {/* 花盆图标 — resolveRate drives growth visual only (D-20) */}
               <View style={[styles.pot, { backgroundColor: potStatus.color + '30' }]}>
                 {renderPotIcon(potStatus.status, potStatus.color)}
               </View>
@@ -246,7 +234,7 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
               <Text style={styles.personName} numberOfLines={1}>
                 {displayName}
               </Text>
-              {/* 状态标签 */}
+              {/* 生长态标签（无 X/Y 和解 — D-20） */}
               <View style={[styles.statusBadge, { backgroundColor: potStatus.color + '20' }]}>
                 <Text
                   style={[styles.statusText, { color: potStatus.color }]}
@@ -257,10 +245,6 @@ const RelationshipGardenComponent: React.FC<RelationshipGardenProps> = ({ entrie
                   {potStatus.label}
                 </Text>
               </View>
-              {/* 统计 */}
-              <Text style={styles.statsText} numberOfLines={1}>
-                {healedCountText}
-              </Text>
             </Pressable>
           );
         })}

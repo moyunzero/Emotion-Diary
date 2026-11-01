@@ -258,7 +258,7 @@ export const predictEmotionTrend = async (
 
     const highCount = warnings.filter((w) => w.severity === 'high').length;
     const summary =
-      warnings.length > 0
+      highCount > 0
         ? t('forecast.summaryRisky', { days, highCount })
         : t('forecast.summaryStable', { days });
 
@@ -292,15 +292,10 @@ export function getDefaultReviewExportClosingLine(
   if (summary.totalEntries === 0) {
     return t('fallbacks.closing.empty');
   }
-  const rateText =
-    summary.resolutionRatePct === null
-      ? t('fallbacks.closing.rateNoData')
-      : t('fallbacks.closing.rateWithValue', { pct: summary.resolutionRatePct });
   return t('fallbacks.closing.default', {
     presetLabel: summary.presetLabel,
     totalEntries: summary.totalEntries,
     resolvedEntries: summary.resolvedEntries,
-    rateText,
   });
 }
 
@@ -323,8 +318,6 @@ export async function generateReviewExportClosingLine(
       start: summary.periodStartMs,
       end: summary.periodEndMs,
       days: summary.companionDays,
-      rate: summary.resolutionRatePct,
-      delta: summary.deltaPct,
       total: summary.totalEntries,
       resolved: summary.resolvedEntries,
       weather: summary.topWeatherLines,
@@ -340,26 +333,12 @@ export async function generateReviewExportClosingLine(
     return fallback;
   }
 
-  const rateLine =
-    summary.resolutionRatePct === null
-      ? t('prompts.closing.rateNoData')
-      : t('prompts.closing.rateWithValue', { pct: summary.resolutionRatePct });
-  const deltaLine =
-    summary.deltaPct === null
-      ? t('prompts.closing.deltaNoData')
-      : t('prompts.closing.deltaWithValue', {
-          arrow: summary.deltaPct >= 0 ? '↑' : '↓',
-          pct: Math.abs(summary.deltaPct),
-        });
-
   const systemPrompt = t('prompts.closing.system', { userName });
   const userPrompt = t('prompts.closing.user', {
     presetLabel: summary.presetLabel,
     periodStart: formatLocaleDate(summary.periodStartMs, locale),
     periodEnd: formatLocaleDate(summary.periodEndMs, locale),
     companionDays: summary.companionDays,
-    rateLine,
-    deltaLine,
     totalEntries: summary.totalEntries,
     resolvedEntries: summary.resolvedEntries,
     topWeather: summary.topWeatherLines.length

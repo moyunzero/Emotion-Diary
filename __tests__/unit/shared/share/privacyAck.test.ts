@@ -20,7 +20,19 @@ const alertCopy: PrivacyAckCopy = {
   title: "Privacy",
   message: "Save to device",
   continueLabel: "Continue",
+  cancelLabel: "Cancel",
 };
+
+type AlertButton = {
+  text?: string;
+  style?: string;
+  onPress?: () => void;
+};
+
+async function flushMicrotasks(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+}
 
 describe("privacyAck", () => {
   beforeEach(() => {
@@ -41,18 +53,38 @@ describe("privacyAck", () => {
     expect(onConfirm).toHaveBeenCalledWith(false);
   });
 
-  it("ensurePrivacyAck shows Alert when ack is missing", async () => {
+  it("ensurePrivacyAck shows cancel + continue; cancel does not ack", async () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
     const onConfirm = jest.fn();
 
-    await ensurePrivacyAck(onConfirm, alertCopy);
+    const pending = ensurePrivacyAck(onConfirm, alertCopy);
+    await flushMicrotasks();
 
     expect(mockAlert).toHaveBeenCalled();
-    const buttons = mockAlert.mock.calls[0]?.[2] as Array<{
-      onPress?: () => void;
-    }>;
-    expect(buttons).toHaveLength(1);
-    buttons?.[0]?.onPress?.();
+    const buttons = mockAlert.mock.calls[0]?.[2] as AlertButton[];
+    expect(buttons).toHaveLength(2);
+    const styles = buttons.map((b) => b.style);
+    expect(styles).toContain("cancel");
+    expect(buttons.some((b) => b.text === "Continue")).toBe(true);
+
+    const cancel = buttons.find((b) => b.style === "cancel");
+    cancel?.onPress?.();
+    await pending;
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it("ensurePrivacyAck continues and acks when confirm pressed", async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+    const onConfirm = jest.fn();
+
+    const pending = ensurePrivacyAck(onConfirm, alertCopy);
+    await flushMicrotasks();
+
+    const buttons = mockAlert.mock.calls[0]?.[2] as AlertButton[];
+    expect(buttons).toHaveLength(2);
+    const confirm = buttons.find((b) => b.style !== "cancel");
+    confirm?.onPress?.();
+    await pending;
     expect(onConfirm).toHaveBeenCalledWith(true);
   });
 });

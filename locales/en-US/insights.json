@@ -4,7 +4,7 @@
     "status": {
       "empty": "Plant your first seed",
       "thriving": "Thriving",
-      "needsWater": "Needs a little water"
+      "needsWater": "Growing at its own pace"
     }
   },
   "empty": {
@@ -30,13 +30,19 @@
   "weeklyWeather": {
     "title": "This week's mood weather"
   },
+  "care": {
+    "weekCount": "Cared for yourself {{n}} times this week"
+  },
+  "more": {
+    "toRevisit": "More to revisit"
+  },
   "healing": {
     "title": "Healing progress",
     "stats": {
       "bloomed": "resolved",
       "pending": "open"
     },
-    "encouragement": "Facing feelings waters your garden"
+    "encouragement": "Marking an entry resolved helps your garden grow"
   },
   "milestone": {
     "sprout": {
@@ -82,7 +88,8 @@
       "title": "Action loop",
       "stepTrigger": "1. Trigger: {{trigger}}",
       "stepAction": "2. Try: {{stepOne}}",
-      "stepRevisit": "3. Check back {{date}}"
+      "stepRevisit": "3. Check back {{date}}",
+      "stepRecorded": "Logged {{date}}"
     },
     "advice": {
       "work": "Give your garden a rest day — rest is part of growth",
@@ -161,12 +168,12 @@
       "2": "Bud opening",
       "3": "Needs care",
       "4": "A little wilted",
-      "5": "Needs water"
+      "5": "Extra care today"
     },
     "potStatus": {
       "blooming": "In full bloom",
       "growing": "Still growing",
-      "needWater": "Needs watering"
+      "needWater": "Waiting for care"
     },
     "growthStage": {
       "seed": "Seed",

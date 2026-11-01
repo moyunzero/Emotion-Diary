@@ -39,11 +39,11 @@
   "canvas": {
     "dateRangeSeparator": " – ",
     "companionLine": "Day {{days}} with {{appName}}",
-    "rateLabel": "Resolution rate this period",
+    "rateLabel": "Share marked resolved this period",
     "deltaNoCompare": "No comparison to the previous period",
     "deltaVsPrevious": "{{arrow}}{{pct}}% vs previous period",
     "periodStats": "{{total}} entries this period, {{resolved}} resolved",
-    "trendTitle": "Resolution trend (last 6 months)",
+    "trendTitle": "Resolved share trend (last 6 months)",
     "trendCaption": "Bar height shows the share resolved each month, oldest to newest",
     "trendEmpty": "No entries in the last 6 months — start with one small feeling.",
     "monthShort": "{{month}}",

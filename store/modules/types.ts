@@ -5,6 +5,11 @@
 
 import type { AppLocale } from "../../i18n/mapDeviceLocale";
 import type {
+  AppearanceMode,
+  AppearancePreference,
+  ResolvedScheme,
+} from "../../services/appearanceSettings";
+import type {
   LocaleMode,
   LocalePreference,
 } from "../../services/localeSettings";
@@ -109,6 +114,20 @@ export interface LocaleModule {
 }
 
 /**
+ * 外观 appearance 模块接口
+ */
+export interface AppearanceModule {
+  appearancePreference: AppearancePreference;
+  effectiveColorScheme: ResolvedScheme;
+  _hydrateAppearance: (
+    preference: AppearancePreference,
+    effectiveColorScheme: ResolvedScheme,
+  ) => void;
+  setAppearanceMode: (mode: AppearanceMode) => Promise<void>;
+  setAppearanceScheme: (scheme: ResolvedScheme) => void;
+}
+
+/**
  * AI 功能模块接口
  * 负责情绪预测和播客生成
  */
@@ -167,6 +186,7 @@ export interface AppState
     SyncModule,
     WeatherModule,
     LocaleModule,
+    AppearanceModule,
     AIModule,
     AudioModule {}
 

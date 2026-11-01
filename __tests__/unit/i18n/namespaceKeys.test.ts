@@ -34,6 +34,8 @@ import zhOnboarding from "@/locales/zh-Hans/onboarding.json";
 import enOnboarding from "@/locales/en-US/onboarding.json";
 import zhRituals from "@/locales/zh-Hans/rituals.json";
 import enRituals from "@/locales/en-US/rituals.json";
+import zhPostSave from "@/locales/zh-Hans/postSave.json";
+import enPostSave from "@/locales/en-US/postSave.json";
 import zhShare from "@/locales/zh-Hans/share.json";
 import enShare from "@/locales/en-US/share.json";
 
@@ -80,6 +82,7 @@ const NAMESPACE_PAIRS: Array<{
   { name: "ai", zh: zhAi, en: enAi },
   { name: "onboarding", zh: zhOnboarding, en: enOnboarding },
   { name: "rituals", zh: zhRituals, en: enRituals },
+  { name: "postSave", zh: zhPostSave, en: enPostSave },
   { name: "share", zh: zhShare, en: enShare },
 ];
 

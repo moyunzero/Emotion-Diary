@@ -1,5 +1,6 @@
 import { MoodLevel, Status, type MoodEntry } from '../../../../types';
 import {
+  countPendingEntries,
   filterDashboardEntries,
   getDashboardEntryItemType,
 } from '../../../../shared/entries/dashboardFilter';
@@ -68,5 +69,42 @@ describe('getDashboardEntryItemType', () => {
       ),
     ).toBe('burned');
     expect(getDashboardEntryItemType(makeEntry({ id: 'c' }))).toBe('active');
+  });
+});
+
+describe('countPendingEntries', () => {
+  it('returns 0 for empty array', () => {
+    expect(countPendingEntries([])).toBe(0);
+  });
+
+  it('counts only ACTIVE; excludes RESOLVED and BURNED', () => {
+    const entries = [
+      makeEntry({ id: 'a1' }),
+      makeEntry({ id: 'a2' }),
+      makeEntry({ id: 'r', status: Status.RESOLVED }),
+      makeEntry({ id: 'b', status: Status.BURNED }),
+    ];
+    expect(countPendingEntries(entries)).toBe(2);
+  });
+
+  it('excludes soft-deleted ACTIVE entries', () => {
+    const entries = [
+      makeEntry({ id: 'alive' }),
+      makeEntry({ id: 'gone', deletedAt: Date.now() }),
+    ];
+    expect(countPendingEntries(entries)).toBe(1);
+  });
+
+  it('matches filterDashboardEntries(active).length on mixed fixture', () => {
+    const entries = [
+      makeEntry({ id: 'a1', timestamp: 300 }),
+      makeEntry({ id: 'a2', timestamp: 200 }),
+      makeEntry({ id: 'r', status: Status.RESOLVED, timestamp: 250 }),
+      makeEntry({ id: 'b', status: Status.BURNED, timestamp: 100 }),
+      makeEntry({ id: 'soft', deletedAt: Date.now(), timestamp: 400 }),
+    ];
+    expect(countPendingEntries(entries)).toBe(
+      filterDashboardEntries(entries, 'active').length,
+    );
   });
 });

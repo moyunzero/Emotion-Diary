@@ -4,9 +4,11 @@
  */
 
 import { Frown } from "lucide-react-native";
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { type ColorPalette } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { logger } from "../utils/logger";
 import AppIcon from "./icons/AppIcon";
 
@@ -26,14 +28,86 @@ type ErrorFallbackProps = {
   onReset: () => void;
 };
 
+function createErrorFallbackStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.mood.level1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    content: {
+      alignItems: "center",
+      maxWidth: 400,
+    },
+    iconContainer: {
+      marginBottom: 20,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: colors.gray[800],
+      marginBottom: 12,
+      textAlign: "center",
+    },
+    message: {
+      fontSize: 16,
+      color: colors.gray[500],
+      textAlign: "center",
+      marginBottom: 24,
+      lineHeight: 24,
+    },
+    errorDetails: {
+      backgroundColor: colors.mood.level2,
+      padding: 16,
+      borderRadius: 8,
+      marginBottom: 24,
+      width: "100%",
+    },
+    errorTitle: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.danger,
+      marginBottom: 8,
+    },
+    errorText: {
+      fontSize: 12,
+      color: colors.danger,
+      fontFamily: "monospace",
+    },
+    button: {
+      backgroundColor: colors.mood.level3,
+      paddingHorizontal: 32,
+      paddingVertical: 12,
+      borderRadius: 8,
+      elevation: 2,
+      shadowColor: colors.shadow.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    buttonText: {
+      color: colors.text.inverse,
+      fontSize: 16,
+      fontWeight: "600",
+    },
+  });
+}
+
 function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
   const { t } = useTranslation("common");
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createErrorFallbackStyles(colors),
+    [colors],
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <AppIcon name={Frown} size={64} color="#DC2626" strokeWidth={2} />
+          <AppIcon name={Frown} size={64} color={colors.danger} strokeWidth={2} />
         </View>
         <Text style={styles.title}>{t("shell.error.title")}</Text>
         <Text style={styles.message}>{t("shell.error.message")}</Text>
@@ -117,68 +191,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF5F5",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  content: {
-    alignItems: "center",
-    maxWidth: 400,
-  },
-  iconContainer: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1F2937",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  message: {
-    fontSize: 16,
-    color: "#6B7280",
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  errorDetails: {
-    backgroundColor: "#FEE2E2",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
-    width: "100%",
-  },
-  errorTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#991B1B",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 12,
-    color: "#DC2626",
-    fontFamily: "monospace",
-  },
-  button: {
-    backgroundColor: "#FDA4AF",
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

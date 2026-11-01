@@ -10,8 +10,15 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import { COLORS, DESIGN_TOKENS, SERIF_STACK } from "../../constants/colors";
+
+/** iOS PostScript face — see constants/colors.ts SERIF_STACK (D-16). */
+const BRAND_SERIF = Platform.select({
+  ios: "SongtiSC-Regular",
+  android: "serif",
+  default: SERIF_STACK,
+});
 import type {
   GrowthStageId,
   ShareCardModel,
@@ -64,6 +71,10 @@ function resolveWeatherBucket(
   return "sunny";
 }
 
+/**
+ * On-screen preview uses this tree; ReviewExport PNG capture reads the same ref (D-06).
+ * Export bitmap stays on light INSIGHTS_COLORS / weatherCard — not night-themed until a dedicated art pass.
+ */
 export const ShareCardWeekContent: React.FC<ShareCardWeekContentProps> = ({
   model,
   aiStatus,
@@ -149,14 +160,14 @@ const styles = StyleSheet.create({
     marginBottom: DESIGN_TOKENS.spacing.md,
   },
   title: {
-    fontFamily: "Lato_700Bold",
+    fontFamily: BRAND_SERIF,
+    fontWeight: '700',
     fontSize: 20,
     lineHeight: 27,
     color: INSIGHTS_COLORS.text,
   },
   dateRange: {
     marginTop: 4,
-    fontFamily: "Lato_400Regular",
     fontSize: 14,
     lineHeight: 20,
     color: INSIGHTS_COLORS.textSecondary,
@@ -171,7 +182,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     marginBottom: DESIGN_TOKENS.spacing.xs,
-    fontFamily: "Lato_700Bold",
+    fontWeight: '700',
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0.4,
@@ -188,14 +199,14 @@ const styles = StyleSheet.create({
   weatherIconWrap: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: "rgba(255,255,255,0.55)",
     alignItems: "center",
     justifyContent: "center",
   },
   narrative: {
     flex: 1,
-    fontFamily: "Lato_400Regular",
+    fontFamily: BRAND_SERIF,
     fontSize: 16,
     lineHeight: 24,
   },
@@ -208,14 +219,14 @@ const styles = StyleSheet.create({
   gardenIconWrap: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: DESIGN_TOKENS.borderRadius.full,
     backgroundColor: `${COLORS.ritual.resolve}14`,
     alignItems: "center",
     justifyContent: "center",
   },
   gardenLabel: {
     flex: 1,
-    fontFamily: "Lato_700Bold",
+    fontWeight: '700',
     fontSize: 16,
     lineHeight: 24,
     color: INSIGHTS_COLORS.text,
@@ -230,14 +241,13 @@ const styles = StyleSheet.create({
     borderColor: `${INSIGHTS_COLORS.primary}25`,
   },
   aiLoading: {
-    fontFamily: "Lato_400Regular",
     fontSize: 13,
     lineHeight: 18,
     color: INSIGHTS_COLORS.textSecondary,
     marginBottom: DESIGN_TOKENS.spacing.xs,
   },
   closingLine: {
-    fontFamily: "Lato_400Regular",
+    fontFamily: BRAND_SERIF,
     fontSize: 17,
     lineHeight: 26,
     color: INSIGHTS_COLORS.text,
@@ -249,7 +259,6 @@ const styles = StyleSheet.create({
     paddingLeft: DESIGN_TOKENS.spacing.sm,
   },
   userSnippet: {
-    fontFamily: "Lato_400Regular",
     fontSize: 15,
     lineHeight: 22,
     fontStyle: "italic",

@@ -5,17 +5,18 @@
  */
 import React from 'react';
 import Svg, { Path, G, Defs, LinearGradient, Stop } from 'react-native-svg';
-
 interface AshIconProps {
   size?: number;
   opacity?: number;
   color?: string;
 }
 
+const DEFAULT_ASH_COLOR = '#9CA3AF';
+
 const AshIcon: React.FC<AshIconProps> = ({ 
   size = 24, 
   opacity = 0.6,
-  color = '#9CA3AF' // 默认灰色
+  color = DEFAULT_ASH_COLOR,
 }) => {
   return (
     <Svg 

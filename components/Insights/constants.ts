@@ -1,18 +1,38 @@
-import { COLORS as GlobalColors } from '../../constants/colors';
+import {
+  COLORS_LIGHT,
+  type ColorPalette,
+} from '../../constants/colors';
 
-// Insights 专用配色（扩展全局颜色）
-export const INSIGHTS_COLORS = {
-  primary: GlobalColors.primary,
-  /** 装饰 icon / 进度环 / 轻强调（粉系，非 accent 绿） */
-  secondary: GlobalColors.primary,
-  accent: GlobalColors.primaryDark,
-  bgStart: GlobalColors.background.gradientStart,
-  bgEnd: GlobalColors.background.gradientEnd,
-  text: GlobalColors.text.primary,
-  textSecondary: GlobalColors.text.secondary,
-  cardBg: GlobalColors.background.primary,
-  /** 关系花盆「盛开」语义，仅此场景保留生长绿 */
-  bloomingColor: GlobalColors.accent,
-  growingColor: GlobalColors.warning,
-  needWaterColor: GlobalColors.primaryDark,
-} as const;
+export type InsightsColors = {
+  readonly primary: string;
+  readonly secondary: string;
+  readonly accent: string;
+  readonly bgStart: string;
+  readonly bgEnd: string;
+  readonly text: string;
+  readonly textSecondary: string;
+  readonly cardBg: string;
+  readonly bloomingColor: string;
+  readonly growingColor: string;
+  readonly needWaterColor: string;
+};
+
+/** Runtime palette for on-screen Insights UI (NIGHT-02 / Pattern 4). */
+export function getInsightsColors(colors: ColorPalette): InsightsColors {
+  return {
+    primary: colors.brand,
+    secondary: colors.brand,
+    accent: colors.brandPressed,
+    bgStart: colors.bg,
+    bgEnd: colors.surface2,
+    text: colors.text.primary,
+    textSecondary: colors.text.secondary,
+    cardBg: colors.surface,
+    bloomingColor: colors.ritual.resolve,
+    growingColor: colors.ritual.burn,
+    needWaterColor: colors.brandPressed,
+  };
+}
+
+/** Light-only alias for share/export capture paths (D-06 KNOWN_EXCEPTIONS). */
+export const INSIGHTS_COLORS: InsightsColors = getInsightsColors(COLORS_LIGHT);

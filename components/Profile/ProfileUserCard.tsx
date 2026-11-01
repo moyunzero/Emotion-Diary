@@ -8,6 +8,7 @@ import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 import Avatar from "../Avatar";
 
 interface ProfileUserCardProps {
@@ -37,9 +38,10 @@ export function ProfileUserCard({
 }: ProfileUserCardProps) {
   const { t } = useTranslation("profile");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
   return (
     <View style={profileStyles.profileSection}>
@@ -60,7 +62,7 @@ export function ProfileUserCard({
         />
         {isLoggedIn && (
           <View style={profileStyles.editBadge}>
-            <Camera size={14} color="#FFF" />
+            <Camera size={14} color={colors.text.inverse} />
           </View>
         )}
       </TouchableOpacity>

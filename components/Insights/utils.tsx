@@ -1,6 +1,7 @@
 import { Flower2, Leaf, Sprout, Sun, TreeDeciduous } from 'lucide-react-native';
 import type { TFunction } from 'i18next';
 import React from 'react';
+import type { ColorPalette } from '@/constants/colors';
 import { MOOD_CONFIG } from '../../constants';
 import {
   growthStageFromRate,
@@ -49,17 +50,22 @@ export const isToday = (date: Date) => {
 };
 
 // 获取情绪等级对应的天气图标
-export const getMoodWeatherIcon = (level: MoodLevel | null, size: number = 24): React.ReactElement => {
-  if (level === null) return <Sprout size={size} color="#D1D5DB" />;
+export const getMoodWeatherIcon = (
+  level: MoodLevel | null,
+  size: number,
+  colors: ColorPalette,
+): React.ReactElement => {
+  if (level === null) return <Sprout size={size} color={colors.gray[300]} />;
   
   const config = MOOD_CONFIG[level];
   
   if (config) {
-    return getMoodIcon(config.iconName, config.iconColor, size);
+    const levelKey = `level${config.level}` as keyof ColorPalette["mood"]["icon"];
+    return getMoodIcon(config.iconName, colors.mood.icon[levelKey], size);
   }
   
   // 默认值
-  return <Sun size={size} color="#F59E0B" />;
+  return <Sun size={size} color={colors.weather.sunny.icon} />;
 };
 
 // 获取情绪等级对应的花朵状态文案

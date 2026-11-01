@@ -6,6 +6,7 @@
 import React, { useMemo } from "react";
 import { Text, useWindowDimensions } from "react-native";
 import { createProfileStyles } from "../../styles/components/Profile.styles";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 interface ProfileSectionHeaderProps {
   readonly title: string;
@@ -13,9 +14,10 @@ interface ProfileSectionHeaderProps {
 
 export function ProfileSectionHeader({ title }: ProfileSectionHeaderProps) {
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const { profileStyles } = useMemo(
-    () => createProfileStyles(width, height),
-    [width, height]
+    () => createProfileStyles(width, height, colors),
+    [width, height, colors],
   );
   return <Text style={profileStyles.menuHeader}>{title}</Text>;
 }

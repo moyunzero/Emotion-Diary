@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import { i18n } from "@/i18n";
 import {
@@ -16,6 +16,7 @@ import {
   loadEmotionReminderSettings,
   saveEmotionReminderSettings,
 } from "@/services/reminderSettings";
+import { confirmAlert } from "@/utils/confirmAlert";
 import type { ToastState } from "./useProfileScreenState";
 
 export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
@@ -48,25 +49,14 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
       return;
     }
 
-    const confirmEnable = await new Promise<boolean>((resolve) => {
-      Alert.alert(
-        i18n.t("enableConfirm.title", { ns: "retention" }),
-        i18n.t("enableConfirm.message", {
-          ns: "retention",
-          appName: i18n.t("appName", { ns: "common" }),
-        }),
-        [
-          {
-            text: i18n.t("enableConfirm.cancel", { ns: "retention" }),
-            style: "cancel",
-            onPress: () => resolve(false),
-          },
-          {
-            text: i18n.t("enableConfirm.ok", { ns: "retention" }),
-            onPress: () => resolve(true),
-          },
-        ],
-      );
+    const confirmEnable = await confirmAlert({
+      title: i18n.t("enableConfirm.title", { ns: "retention" }),
+      message: i18n.t("enableConfirm.message", {
+        ns: "retention",
+        appName: i18n.t("appName", { ns: "common" }),
+      }),
+      confirmLabel: i18n.t("enableConfirm.ok", { ns: "retention" }),
+      cancelLabel: i18n.t("enableConfirm.cancel", { ns: "retention" }),
     });
 
     if (!confirmEnable) return;

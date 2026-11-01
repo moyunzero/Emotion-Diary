@@ -7,7 +7,8 @@ const DRAFT_KEY = 'draft_entry';
  * 草稿数据结构
  */
 export interface DraftEntry {
-  moodLevel: number;
+  /** null = fresh create with no mood yet (D-02 / D-09) */
+  moodLevel: number | null;
   content: string;
   deadline: string;
   customDeadlineText: string;

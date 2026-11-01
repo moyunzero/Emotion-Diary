@@ -136,12 +136,13 @@ export function StackScreenHeader({
           <Text
             accessibilityRole="header"
             accessibilityLabel={titleAccessibilityLabel ?? title}
-            numberOfLines={1}
+            numberOfLines={2}
             ellipsizeMode="tail"
             style={{
               fontSize: resolvedTitleSize,
               fontWeight: 'bold',
               color: resolvedTitleColor,
+              textAlign: 'center',
               ...(titleFontFamily ? { fontFamily: titleFontFamily } : {}),
             }}
           >

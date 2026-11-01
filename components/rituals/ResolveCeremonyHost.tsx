@@ -1,7 +1,8 @@
-import { COLORS } from "@/constants/colors";
+import { type ColorPalette } from "@/constants/colors";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { Sprout } from "lucide-react-native";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Animated,
@@ -18,12 +19,62 @@ export interface ResolveCeremonyHostProps {
 
 const CEREMONY_DURATION_MS = 3000;
 
+function createResolveCeremonyHostStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    host: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "rgba(255, 245, 247, 0.95)",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 100,
+    },
+    content: {
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    title: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text.primary,
+      marginTop: 16,
+      textAlign: "center",
+    },
+    body: {
+      fontSize: 14,
+      fontWeight: "400",
+      color: colors.text.secondary,
+      marginTop: 8,
+      textAlign: "center",
+      lineHeight: 21,
+    },
+    skipButton: {
+      position: "absolute",
+      top: 48,
+      right: 24,
+      minWidth: 44,
+      minHeight: 44,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    skipText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: colors.primaryDark,
+    },
+  });
+}
+
 export default function ResolveCeremonyHost({
   visible,
   onComplete,
 }: ResolveCeremonyHostProps) {
   const { t } = useTranslation("rituals");
   const { trigger: triggerHaptic } = useHapticFeedback();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createResolveCeremonyHostStyles(colors),
+    [colors],
+  );
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.8)).current;
   const onCompleteRef = useRef(onComplete);
@@ -90,7 +141,7 @@ export default function ResolveCeremonyHost({
       <Animated.View
         style={[styles.content, { opacity, transform: [{ scale }] }]}
       >
-        <Sprout size={48} color={COLORS.ritual.resolve} />
+        <Sprout size={48} color={colors.ritual.resolve} />
         <Text style={styles.title}>{t("resolve.ceremony.title")}</Text>
         <Text style={styles.body}>{t("resolve.ceremony.body")}</Text>
       </Animated.View>
@@ -108,46 +159,3 @@ export default function ResolveCeremonyHost({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  host: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 245, 247, 0.95)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 100,
-  },
-  content: {
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-    marginTop: 16,
-    textAlign: "center",
-  },
-  body: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: COLORS.text.secondary,
-    marginTop: 8,
-    textAlign: "center",
-    lineHeight: 21,
-  },
-  skipButton: {
-    position: "absolute",
-    top: 48,
-    right: 24,
-    minWidth: 44,
-    minHeight: 44,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  skipText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: COLORS.primaryDark,
-  },
-});

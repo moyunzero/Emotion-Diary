@@ -247,4 +247,38 @@ describe('recordingCoordinator clipHandler ownership (real dispatch)', () => {
     );
     expect(recordingState).toBe('idle');
   });
+
+  it('forceCancel during hung commitStop does not deleteAsync source before copy completes', async () => {
+    let resolveCopy!: () => void;
+    (FileSystem.copyAsync as jest.Mock).mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveCopy = resolve;
+        }),
+    );
+
+    const sourceUri = 'file:///src.m4a';
+    const recorder = makeRecorder(true);
+    registerRecordingRecorder(recorder as never);
+
+    const handler = jest.fn<void, [AudioData]>();
+    setRecordingClipHandler(handler);
+
+    const commitPromise = commitRecordingIfActive();
+    // Past stop → setAudioMode → 150ms delay into hung copyAsync
+    await new Promise((r) => setTimeout(r, 200));
+
+    (FileSystem.deleteAsync as jest.Mock).mockClear();
+    await forceCancelRecording();
+
+    const deletedSourceDuringHang = (
+      FileSystem.deleteAsync as jest.Mock
+    ).mock.calls.some((call) => call[0] === sourceUri);
+    expect(deletedSourceDuringHang).toBe(false);
+
+    resolveCopy();
+    await commitPromise;
+
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
 });

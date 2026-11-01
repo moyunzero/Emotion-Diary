@@ -3,7 +3,7 @@
  * 显示单条语音的播放/暂停、时长、重命名、删除
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -13,7 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import {
   Play,
   Pause,
@@ -53,6 +54,139 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
 }) => {
   const { t } = useTranslation("record");
   const { t: tCommon } = useTranslation("common");
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: colors.gray[100],
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
+          padding: 12,
+          marginVertical: 4,
+        },
+        mainContent: {
+          flexDirection: "row",
+          alignItems: "center",
+        },
+        playButton: {
+          width: 40,
+          height: 40,
+          borderRadius: DESIGN_TOKENS.borderRadius.full,
+          backgroundColor: colors.surface,
+          alignItems: "center",
+          justifyContent: "center",
+          marginRight: 12,
+        },
+        infoContainer: {
+          flex: 1,
+        },
+        headerRow: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 8,
+        },
+        audioName: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.text.primary,
+          flex: 1,
+          marginRight: 8,
+        },
+        editInput: {
+          flex: 1,
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.text.primary,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.audio.primary,
+          paddingVertical: 2,
+          marginRight: 8,
+        },
+        actions: {
+          flexDirection: "row",
+          gap: 8,
+        },
+        actionButton: {
+          padding: 4,
+        },
+        progressContainer: {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
+        },
+        progressBar: {
+          flex: 1,
+          height: 4,
+          backgroundColor: colors.gray[300],
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+        },
+        progressFill: {
+          height: "100%",
+          backgroundColor: colors.audio.primary,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+        },
+        duration: {
+          fontSize: 12,
+          color: colors.text.secondary,
+          minWidth: 70,
+        },
+        modalOverlay: {
+          flex: 1,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        modalContent: {
+          backgroundColor: colors.surface,
+          borderRadius: DESIGN_TOKENS.borderRadius.md,
+          padding: 24,
+          width: "80%",
+          maxWidth: 320,
+        },
+        modalTitle: {
+          fontSize: 18,
+          fontWeight: "bold",
+          color: colors.text.primary,
+          marginBottom: 12,
+          textAlign: "center",
+        },
+        modalMessage: {
+          fontSize: 14,
+          color: colors.text.secondary,
+          marginBottom: 20,
+          textAlign: "center",
+          lineHeight: 20,
+        },
+        modalButtons: {
+          flexDirection: "row",
+          gap: 12,
+        },
+        modalButton: {
+          flex: 1,
+          paddingVertical: 12,
+          borderRadius: DESIGN_TOKENS.borderRadius.sm,
+          alignItems: "center",
+        },
+        cancelButton: {
+          backgroundColor: colors.gray[100],
+        },
+        cancelButtonText: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.text.secondary,
+        },
+        deleteButton: {
+          backgroundColor: colors.error,
+        },
+        deleteButtonText: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.text.inverse,
+        },
+      }),
+    [colors],
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(audio.name || "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -80,6 +214,17 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
     }
   };
 
+  const beginEdit = () => {
+    setEditedName(displayName);
+    setIsEditing(true);
+  };
+
+  /**
+   * Persist only via Check / keyboard Done — never on blur.
+   * Leading pattern (Voice Memos / Files): explicit confirm; blur must not race
+   * Check onPress (iOS blurs TextInput before sibling onPress, dropping the save).
+   * Use onPressIn so commit lands before focus loss.
+   */
   const handleSaveEdit = () => {
     if (editedName.trim()) {
       onRename(audio.id, editedName.trim());
@@ -103,14 +248,18 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.mainContent} onPress={handlePlayPause}>
-        <View style={styles.playButton}>
+      <View style={styles.mainContent}>
+        <Pressable
+          style={styles.playButton}
+          onPress={handlePlayPause}
+          accessibilityRole="button"
+        >
           {isPlaying ? (
-            <Pause size={20} color={COLORS.audio.primary} />
+            <Pause size={20} color={colors.audio.primary} />
           ) : (
-            <Play size={20} color={COLORS.audio.primary} />
+            <Play size={20} color={colors.audio.primary} />
           )}
-        </View>
+        </Pressable>
 
         <View style={styles.infoContainer}>
           <View style={styles.headerRow}>
@@ -120,7 +269,8 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
                 value={editedName}
                 onChangeText={setEditedName}
                 autoFocus
-                onBlur={handleSaveEdit}
+                returnKeyType="done"
+                blurOnSubmit
                 onSubmitEditing={handleSaveEdit}
               />
             ) : (
@@ -133,38 +283,46 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
               {isEditing ? (
                 <>
                   <TouchableOpacity
-                    onPress={handleSaveEdit}
+                    onPressIn={handleSaveEdit}
                     style={styles.actionButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={tCommon("actions.ok")}
                   >
-                    <Check size={16} color={COLORS.accent} />
+                    <Check size={16} color={colors.accent} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={handleCancelEdit}
+                    onPressIn={handleCancelEdit}
                     style={styles.actionButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={tCommon("actions.cancel")}
                   >
-                    <X size={16} color={COLORS.error} />
+                    <X size={16} color={colors.error} />
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
                   <TouchableOpacity
-                    onPress={() => setIsEditing(true)}
+                    onPress={beginEdit}
                     style={styles.actionButton}
                   >
-                    <Edit3 size={14} color="#666" />
+                    <Edit3 size={14} color={colors.text.secondary} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleDelete}
                     style={styles.actionButton}
                   >
-                    <Trash2 size={14} color={COLORS.error} />
+                    <Trash2 size={14} color={colors.error} />
                   </TouchableOpacity>
                 </>
               )}
             </View>
           </View>
 
-          <View style={styles.progressContainer}>
+          <Pressable
+            style={styles.progressContainer}
+            onPress={handlePlayPause}
+            accessibilityRole="button"
+          >
             <View style={styles.progressBar}>
               <View
                 style={[styles.progressFill, { width: `${progress * 100}%` }]}
@@ -173,9 +331,9 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
             <Text style={styles.duration}>
               {formatDuration(currentPosition)} / {formatDuration(audio.duration)}
             </Text>
-          </View>
+          </Pressable>
         </View>
-      </Pressable>
+      </View>
 
       <Modal
         visible={showDeleteConfirm}
@@ -211,132 +369,3 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    padding: 12,
-    marginVertical: 4,
-  },
-  mainContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  playButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  audioName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    flex: 1,
-    marginRight: 8,
-  },
-  editInput: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.audio.primary,
-    paddingVertical: 2,
-    marginRight: 8,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  actionButton: {
-    padding: 4,
-  },
-  progressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  progressBar: {
-    flex: 1,
-    height: 4,
-    backgroundColor: "#ddd",
-    borderRadius: 2,
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: COLORS.audio.primary,
-    borderRadius: 2,
-  },
-  duration: {
-    fontSize: 12,
-    color: "#666",
-    minWidth: 70,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 24,
-    width: "80%",
-    maxWidth: 320,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  modalMessage: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 20,
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#f0f0f0",
-  },
-  cancelButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#666",
-  },
-  deleteButton: {
-    backgroundColor: COLORS.error,
-  },
-  deleteButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
-  },
-});

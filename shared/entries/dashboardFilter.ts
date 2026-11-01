@@ -56,6 +56,18 @@ export function filterDashboardEntries(
   }
 }
 
+/**
+ * 花园「待处理」与首页「未处理」共用：ACTIVE 且未软删的条数。
+ */
+export function countPendingEntries(entries: readonly MoodEntry[]): number {
+  let count = 0;
+  for (const entry of entries) {
+    if (isSoftDeleted(entry)) continue;
+    if (entry.status === Status.ACTIVE) count += 1;
+  }
+  return count;
+}
+
 export function getDashboardEntryItemType(entry: MoodEntry): string {
   switch (entry.status) {
     case Status.RESOLVED:

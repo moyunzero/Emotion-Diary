@@ -6,6 +6,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { DESIGN_TOKENS } from '../constants/colors';
 import { Milestone } from '../types/companionDays';
 
 interface MilestoneBadgeProps {
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: DESIGN_TOKENS.borderRadius.md,
     marginTop: 8,
   },
   icon: {

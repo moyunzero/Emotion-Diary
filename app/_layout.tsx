@@ -1,9 +1,14 @@
-import { Lato_400Regular, Lato_700Bold, useFonts } from '@expo-google-fonts/lato';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Localization from 'expo-localization';
-import { AppState, Platform, StatusBar } from 'react-native';
+import {
+  Animated,
+  Appearance,
+  AppState,
+  Platform,
+  StatusBar,
+} from 'react-native';
 /* eslint-disable import/no-duplicates -- RNGH：入口须先 side-effect 再命名导出 */
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -14,6 +19,11 @@ import { RecordingSessionHost } from '../components/AudioRecorder/RecordingSessi
 import { MetaphorOnboardingHost } from '../components/onboarding/MetaphorOnboardingHost';
 import { changeAppLanguage, initI18n } from '../i18n';
 import { refreshSystemLocaleIfNeeded } from '../store/refreshSystemLocaleIfNeeded';
+import { refreshSystemAppearanceIfNeeded } from '../store/refreshSystemAppearance';
+import {
+  loadAppearancePreference,
+  resolveEffectiveColorScheme,
+} from '../services/appearanceSettings';
 import { initializeStore, cleanupStoreTimers, useAppStore } from '../store/useAppStore';
 import { forceCancelRecording } from '../shared/audio/recordingCoordinator';
 import {
@@ -24,6 +34,8 @@ import {
 import { logger } from '../utils/logger';
 import { installWebAlertPolyfill } from '../utils/webAlertPolyfill';
 import { enableAsoPreviewQuiet } from '../services/asoPreviewQuiet';
+import { useReduceMotion } from '../hooks/useReduceMotion';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 if (Platform.OS === 'web') {
   installWebAlertPolyfill();
@@ -37,13 +49,71 @@ if (__DEV__ && process.env.EXPO_PUBLIC_ASO_PREVIEW === '1') {
 // 防止启动画面自动隐藏
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  // 加载Lato字体
-  const [fontsLoaded, fontError] = useFonts({
-    'Lato_400Regular': Lato_400Regular,
-    'Lato_700Bold': Lato_700Bold,
-  });
+const SCHEME_CROSSFADE_MS = 200;
 
+function RootLayoutShell() {
+  const { colors, effectiveColorScheme } = useThemeStyles();
+  const contentOpacity = useRef(new Animated.Value(1)).current;
+  const reduceMotion = useReduceMotion();
+
+  useEffect(() => {
+    if (reduceMotion) {
+      contentOpacity.setValue(1);
+      return;
+    }
+    contentOpacity.setValue(0.94);
+    Animated.timing(contentOpacity, {
+      toValue: 1,
+      duration: SCHEME_CROSSFADE_MS,
+      useNativeDriver: true,
+    }).start();
+  }, [effectiveColorScheme, contentOpacity, reduceMotion]);
+
+  const statusBarStyle =
+    effectiveColorScheme === 'night' ? 'light-content' : 'dark-content';
+  const statusBarBackground = colors.surface;
+
+  return (
+    <>
+      <StatusBar
+        barStyle={statusBarStyle}
+        backgroundColor={statusBarBackground}
+        translucent={Platform.OS === 'android'}
+      />
+      <Animated.View style={{ flex: 1, opacity: contentOpacity }}>
+        <RecordingSessionHost />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="profile"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="review-export"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="recycle-bin"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="person-timeline"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="on-this-day"
+            options={{ headerShown: false }}
+          />
+        </Stack>
+        <MetaphorOnboardingHost />
+      </Animated.View>
+    </>
+  );
+}
+
+export default function RootLayout() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next) => {
       if (next === 'background' || next === 'inactive') {
@@ -67,7 +137,12 @@ export default function RootLayout() {
 
       if (next === 'active') {
         void (async () => {
-          const { localePreference, effectiveLocale } = useAppStore.getState();
+          const {
+            localePreference,
+            effectiveLocale,
+            appearancePreference,
+            effectiveColorScheme,
+          } = useAppStore.getState();
           const deviceTag =
             Localization.getLocales()[0]?.languageTag ?? 'zh-Hans';
 
@@ -80,6 +155,17 @@ export default function RootLayout() {
             );
           } catch (error) {
             logger.error('RootLayout', '前台系统语言刷新失败', error);
+          }
+
+          try {
+            await refreshSystemAppearanceIfNeeded(
+              appearancePreference,
+              effectiveColorScheme,
+              (scheme) =>
+                useAppStore.getState().setAppearanceScheme(scheme),
+            );
+          } catch (error) {
+            logger.error('RootLayout', '前台系统外观刷新失败', error);
           }
         })();
       }
@@ -97,6 +183,16 @@ export default function RootLayout() {
       try {
         const { effectiveLocale, preference } = await initI18n();
         useAppStore.getState()._hydrateLocale(preference, effectiveLocale);
+
+        const appearancePreference = await loadAppearancePreference();
+        const effectiveColorScheme = resolveEffectiveColorScheme(
+          appearancePreference,
+          Appearance.getColorScheme(),
+        );
+        useAppStore
+          .getState()
+          ._hydrateAppearance(appearancePreference, effectiveColorScheme);
+
         setIsI18nReady(true);
       } catch (error) {
         logger.error('RootLayout', 'i18n 初始化失败', error);
@@ -135,60 +231,37 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && isI18nReady && isInitialized) {
+    if (isI18nReady && isInitialized) {
       SplashScreen.hideAsync().catch((error) => {
         logger.warn('RootLayout', '隐藏启动画面失败', error);
       });
     }
-  }, [fontsLoaded, fontError, isI18nReady, isInitialized]);
+  }, [isI18nReady, isInitialized]);
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      const { appearancePreference } = useAppStore.getState();
+      if (appearancePreference.mode !== 'system') {
+        return;
+      }
+      const scheme = resolveEffectiveColorScheme(
+        appearancePreference,
+        colorScheme,
+      );
+      useAppStore.getState().setAppearanceScheme(scheme);
+    });
+    return () => subscription.remove();
+  }, []);
 
   if (!isI18nReady || !isInitialized) {
     return null;
   }
 
-  const statusBarStyle = 'dark-content';
-  const statusBarBackground = '#FFFFFF';
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
         <SafeAreaProvider>
-          <StatusBar 
-            barStyle={statusBarStyle}
-            backgroundColor={statusBarBackground}
-            translucent={Platform.OS === 'android'}
-          />
-          <RecordingSessionHost />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen 
-              name="profile" 
-              options={{ 
-                headerShown: false,
-              }} 
-            />
-            <Stack.Screen
-              name="review-export"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="recycle-bin"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="person-timeline"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="on-this-day"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-          <MetaphorOnboardingHost />
+          <RootLayoutShell />
         </SafeAreaProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>

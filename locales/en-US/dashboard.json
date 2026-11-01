@@ -16,8 +16,15 @@
     "burnedA11y": "Filter: Ashes",
     "burnedHint": "Show only burned entries",
     "allA11y": "Filter: All entries",
-    "allHint": "Show all mood entries"
+    "allHint": "Show all mood entries",
+    "segment": {
+      "active": "Open",
+      "resolved": "Done",
+      "burned": "Ash",
+      "all": "All"
+    }
   },
+
   "empty": {
     "active": {
       "title": "Nothing waiting right now",
@@ -135,7 +142,15 @@
     "burnedContentLabel": "Original content (for reflection):",
     "burnedMetaPeople": "People: {{people}}",
     "burnedMetaTriggers": "Triggers: {{triggers}}",
-    "burnedAudioLabel": "Voice:",
+    "echoStripLabel": "Listen to this moment",
+    "echoStripRetryUpload": "Upload failed — tap to retry",
+    "echoClipChip": "Clip {{n}}",
+    "echoClipChipNamed": "{{name}}",
+    "echoClipSegments": "{{count}} clips",
+    "echoClipSegmentsA11y": "Choose a clip, {{count}} total",
+    "echoClipSegmentsCollapseA11y": "Hide clip list",
+    "smokeStripLabel": "The voice has become smoke",
+    "smokeStripA11y": "The voice has become smoke, playback unavailable",
     "burnedHintExpanded": "Tap to collapse · long press to delete forever",
     "burnedHintCollapsed": "Tap to view original · long press to delete forever",
     "cardA11y": "Mood entry, {{content}}, about {{people}}, {{expanded}}",
@@ -152,6 +167,12 @@
     "deleteA11y": "Delete this mood entry",
     "deleteHint": "Delete this entry — it cannot be undone",
     "deleteAshAction": "Delete ash forever",
+    "swipeResolve": "Resolve",
+    "swipeBurn": "Burn",
+    "swipeResolveA11y": "Swipe to resolve",
+    "swipeBurnA11y": "Swipe to burn",
+    "more": "More",
+    "moreA11y": "More",
     "relatedPersonFallback": "someone",
     "peopleJoiner": " and "
   },
@@ -171,15 +192,19 @@
       "rainy": "Consider scheduling a deeper conversation",
       "stormy": "A stormy day — care for yourself first, talk when it settles"
     },
+    "empty": {
+      "noEntries": "Write one entry and the weather will light up",
+      "noActive": "Nothing open right now — the weather is taking a quiet moment"
+    },
     "forecast": {
       "title": "Emotion forecast",
       "generate": "Generate forecast",
       "trendTitle": "7-day outlook"
     },
     "risk": {
-      "high": "High risk",
-      "medium": "Medium risk",
-      "low": "Low risk"
+      "high": "Extra care",
+      "medium": "Gentle day",
+      "low": "Steady"
     },
     "dates": {
       "today": "Today",

@@ -1,15 +1,19 @@
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { createResponsiveMetrics } from "@/shared/responsive";
 
-export function createOnboardingStyles(width: number, height: number) {
+export function createOnboardingStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   const { spacing, borderRadius, fontSize, iconSize } = DESIGN_TOKENS;
 
   return StyleSheet.create({
     root: {
       flex: 1,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
     },
     content: {
       flex: 1,
@@ -26,9 +30,9 @@ export function createOnboardingStyles(width: number, height: number) {
       width: iconSize.xxl * 2,
       height: iconSize.xxl * 2,
       borderRadius: borderRadius.full,
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderWidth: 1,
-      borderColor: COLORS.primaryLight,
+      borderColor: colors.primaryLight,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: spacing.md,
@@ -36,15 +40,14 @@ export function createOnboardingStyles(width: number, height: number) {
     },
     title: {
       fontSize: fontSize.xl,
-      color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      color: colors.text.primary,
+      fontWeight: '700',
       textAlign: "center",
       marginBottom: spacing.sm,
     },
     body: {
       fontSize: fontSize.md,
-      color: COLORS.text.secondary,
-      fontFamily: "Lato_400Regular",
+      color: colors.text.secondary,
       textAlign: "center",
       lineHeight: 24,
       maxWidth: 320,
@@ -64,10 +67,10 @@ export function createOnboardingStyles(width: number, height: number) {
       width: spacing.sm,
       height: spacing.sm,
       borderRadius: borderRadius.full,
-      backgroundColor: COLORS.primaryLight,
+      backgroundColor: colors.primaryLight,
     },
     dotActive: {
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       width: spacing.lg,
     },
     actionsRow: {
@@ -82,15 +85,14 @@ export function createOnboardingStyles(width: number, height: number) {
     },
     skipText: {
       fontSize: fontSize.base,
-      color: COLORS.text.tertiary,
-      fontFamily: "Lato_400Regular",
+      color: colors.text.tertiary,
     },
     primaryButton: {
       flex: 1,
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.xl,
       borderRadius: borderRadius.large,
-      backgroundColor: COLORS.primaryDark,
+      backgroundColor: colors.primaryDark,
       alignItems: "center",
       justifyContent: "center",
       ...DESIGN_TOKENS.shadow.md,
@@ -100,8 +102,8 @@ export function createOnboardingStyles(width: number, height: number) {
     },
     primaryButtonText: {
       fontSize: fontSize.md,
-      color: COLORS.text.inverse,
-      fontFamily: "Lato_700Bold",
+      color: colors.text.inverse,
+      fontWeight: '700',
     },
   });
 }

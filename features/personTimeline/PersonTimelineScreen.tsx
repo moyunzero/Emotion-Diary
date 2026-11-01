@@ -4,10 +4,11 @@
 
 import { AppScreenShell } from "@/components/AppScreenShell";
 import EntryCard from "@/components/EntryCard/EntryCard";
-import { INSIGHTS_COLORS } from "@/components/Insights/constants";
+import { getInsightsColors } from "@/components/Insights/constants";
 import { getFlowerPotStatus } from "@/components/Insights/utils";
 import { OnThisDayPersonSlot } from "@/components/onThisDay/OnThisDayPersonSlot";
 import { resolvePeopleLabel } from "@/i18n/resolvePresetLabel";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { preparePlaybackAudioMode } from "@/shared/audio/coordinator";
 import { forceCancelRecording } from "@/shared/audio/recordingCoordinator";
 import { entriesOnThisDayPriorYears } from "@/shared/entries/onThisDay";
@@ -52,9 +53,14 @@ export function PersonTimelineScreen() {
   const { t } = useTranslation("personTimeline");
   const { t: tInsights } = useTranslation("insights");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
+  const insightsColors = useMemo(
+    () => getInsightsColors(colors),
+    [colors],
+  );
   const styles = useMemo(
-    () => createPersonTimelineStyles(width, height),
-    [width, height],
+    () => createPersonTimelineStyles(width, height, colors),
+    [width, height, colors],
   );
 
   const entries = useAppStore((s) => s.entries);
@@ -99,13 +105,13 @@ export function PersonTimelineScreen() {
     return getFlowerPotStatus(
       aggregate.resolveRate,
       {
-        bloomingColor: INSIGHTS_COLORS.bloomingColor,
-        growingColor: INSIGHTS_COLORS.growingColor,
-        needWaterColor: INSIGHTS_COLORS.needWaterColor,
+        bloomingColor: insightsColors.bloomingColor,
+        growingColor: insightsColors.growingColor,
+        needWaterColor: insightsColors.needWaterColor,
       },
       tInsights,
     );
-  }, [aggregate, tInsights]);
+  }, [aggregate, tInsights, insightsColors]);
 
   const latestLabel = useMemo(() => {
     if (!aggregate) return t("metrics.emDash");
@@ -224,7 +230,7 @@ export function PersonTimelineScreen() {
           style={styles.empty}
           testID="person-timeline-missing-person"
         >
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={colors.gray[300]} />
           <Text style={styles.emptyTitle}>{t("empty.missing.title")}</Text>
           <Text style={styles.emptyBody}>{t("empty.missing.body")}</Text>
           <TouchableOpacity
@@ -245,7 +251,7 @@ export function PersonTimelineScreen() {
     return (
       <AppScreenShell {...shellProps}>
         <View style={styles.empty} testID="person-timeline-empty">
-          <Sprout size={40} color="#D1D5DB" />
+          <Sprout size={40} color={colors.gray[300]} />
           <Text style={styles.emptyTitle}>{t("empty.timeline.title")}</Text>
           <Text style={styles.emptyBody}>{t("empty.timeline.body")}</Text>
           <TouchableOpacity

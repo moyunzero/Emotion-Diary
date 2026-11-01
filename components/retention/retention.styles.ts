@@ -1,8 +1,12 @@
 import { StyleSheet } from "react-native";
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
 import { createResponsiveMetrics } from "@/shared/responsive";
 
-export function createRevisitBannerStyles(width: number, height: number) {
+export function createRevisitBannerStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   const { spacing, borderRadius, fontSize } = DESIGN_TOKENS;
 
@@ -12,9 +16,9 @@ export function createRevisitBannerStyles(width: number, height: number) {
       marginBottom: spacing.sm,
       padding: spacing.md,
       borderRadius: borderRadius.large,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
       borderWidth: 1,
-      borderColor: COLORS.primaryLight,
+      borderColor: colors.primaryLight,
     },
     row: {
       flexDirection: "row",
@@ -27,13 +31,13 @@ export function createRevisitBannerStyles(width: number, height: number) {
     },
     title: {
       fontSize: fontSize.sm,
-      color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      color: colors.text.primary,
+      fontWeight: '700',
       marginBottom: 2,
     },
     subtitle: {
       fontSize: fontSize.xs,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: 18,
     },
     action: {
@@ -41,20 +45,24 @@ export function createRevisitBannerStyles(width: number, height: number) {
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.md,
       borderRadius: borderRadius.medium,
-      backgroundColor: COLORS.tab.active,
+      backgroundColor: colors.tab.active,
     },
     actionPressed: {
       opacity: 0.9,
     },
     actionText: {
       fontSize: fontSize.sm,
-      color: "#FFFFFF",
-      fontFamily: "Lato_700Bold",
+      color: colors.text.inverse,
+      fontWeight: '700',
     },
   });
 }
 
-export function createWeeklyReviewBannerStyles(width: number, height: number) {
+export function createWeeklyReviewBannerStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const { spacing, borderRadius, fontSize } = DESIGN_TOKENS;
 
   return StyleSheet.create({
@@ -62,9 +70,9 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
       marginBottom: spacing.md,
       padding: spacing.md,
       borderRadius: borderRadius.large,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
       borderWidth: 1,
-      borderColor: COLORS.primaryLight,
+      borderColor: colors.primaryLight,
     },
     row: {
       flexDirection: "row",
@@ -77,13 +85,13 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
     },
     title: {
       fontSize: fontSize.sm,
-      color: COLORS.text.primary,
-      fontFamily: "Lato_700Bold",
+      color: colors.text.primary,
+      fontWeight: '700',
       marginBottom: 2,
     },
     body: {
       fontSize: fontSize.xs,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       lineHeight: 18,
     },
     action: {
@@ -91,15 +99,15 @@ export function createWeeklyReviewBannerStyles(width: number, height: number) {
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.md,
       borderRadius: borderRadius.medium,
-      backgroundColor: COLORS.tab.active,
+      backgroundColor: colors.tab.active,
     },
     actionPressed: {
       opacity: 0.9,
     },
     actionText: {
       fontSize: fontSize.sm,
-      color: "#FFFFFF",
-      fontFamily: "Lato_700Bold",
+      color: colors.text.inverse,
+      fontWeight: '700',
     },
   });
 }

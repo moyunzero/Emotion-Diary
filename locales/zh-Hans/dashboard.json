@@ -16,8 +16,15 @@
     "burnedA11y": "筛选：灰烬回忆",
     "burnedHint": "点击只显示已焚烧的情绪记录",
     "allA11y": "筛选：全部记录",
-    "allHint": "点击显示所有情绪记录"
+    "allHint": "点击显示所有情绪记录",
+    "segment": {
+      "active": "未处理",
+      "resolved": "已和解",
+      "burned": "灰烬",
+      "all": "全部"
+    }
   },
+
   "empty": {
     "active": {
       "title": "暂无待处理的情绪",
@@ -135,7 +142,15 @@
     "burnedContentLabel": "原始内容（仅供回顾）：",
     "burnedMetaPeople": "涉及：{{people}}",
     "burnedMetaTriggers": "触发：{{triggers}}",
-    "burnedAudioLabel": "语音：",
+    "echoStripLabel": "听这一刻",
+    "echoStripRetryUpload": "上传失败，点此重试",
+    "echoClipChip": "第 {{n}} 段",
+    "echoClipChipNamed": "{{name}}",
+    "echoClipSegments": "{{count}}段",
+    "echoClipSegmentsA11y": "选择录音片段，共 {{count}} 段",
+    "echoClipSegmentsCollapseA11y": "收起片段列表",
+    "smokeStripLabel": "声音已化作青烟",
+    "smokeStripA11y": "声音已化作青烟，不可播放",
     "burnedHintExpanded": "点击收起 · 长按彻底删除",
     "burnedHintCollapsed": "点击查看原始内容 · 长按彻底删除",
     "cardA11y": "情绪记录卡片，{{content}}，涉及{{people}}，{{expanded}}",
@@ -152,6 +167,12 @@
     "deleteA11y": "删除这条情绪记录",
     "deleteHint": "点击删除这条记录，删除后将无法恢复",
     "deleteAshAction": "彻底删除灰烬",
+    "swipeResolve": "和解",
+    "swipeBurn": "焚烧",
+    "swipeResolveA11y": "左滑和解",
+    "swipeBurnA11y": "左滑焚烧",
+    "more": "更多",
+    "moreA11y": "更多",
     "relatedPersonFallback": "相关人",
     "peopleJoiner": "和"
   },
@@ -171,15 +192,19 @@
       "rainy": "建议安排一次深度沟通",
       "stormy": "雷雨天，先照顾好自己，再慢慢沟通"
     },
+    "empty": {
+      "noEntries": "写下一笔，天气才会亮起来",
+      "noActive": "手边暂时没有未处理的情绪，天气先静一静"
+    },
     "forecast": {
       "title": "情绪预报",
       "generate": "生成预测",
       "trendTitle": "未来7天趋势"
     },
     "risk": {
-      "high": "高风险",
-      "medium": "中风险",
-      "low": "低风险"
+      "high": "多照顾自己",
+      "medium": "留点空间",
+      "low": "平稳"
     },
     "dates": {
       "today": "今天",

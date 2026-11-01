@@ -1,6 +1,7 @@
-import { COLORS, DESIGN_TOKENS } from "@/constants/colors";
+import { type ColorPalette, DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { Flame, Sprout, type LucideIcon } from "lucide-react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -20,23 +21,64 @@ export interface RitualConfirmOverlayProps {
   onCancel: () => void;
 }
 
-const VARIANT_CONFIG: Record<
-  RitualConfirmVariant,
-  { Icon: LucideIcon; accent: string; testIdPrefix: string; keyPrefix: string }
-> = {
-  resolve: {
-    Icon: Sprout,
-    accent: COLORS.ritual.resolve,
-    testIdPrefix: "resolve-confirm",
-    keyPrefix: "resolve.confirm",
-  },
-  burn: {
-    Icon: Flame,
-    accent: COLORS.ritual.burn,
-    testIdPrefix: "burn-confirm",
-    keyPrefix: "burn.confirm",
-  },
-};
+function createRitualConfirmOverlayStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: "rgba(31,41,55,0.45)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: DESIGN_TOKENS.spacing.xxl,
+    },
+    card: {
+      backgroundColor: colors.background.primary,
+      borderRadius: DESIGN_TOKENS.borderRadius.lg,
+      padding: DESIGN_TOKENS.spacing.xl,
+      alignItems: "center",
+      ...DESIGN_TOKENS.shadow.xl,
+    },
+    title: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text.primary,
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      textAlign: "center",
+    },
+    message: {
+      fontSize: 14,
+      fontWeight: "400",
+      color: colors.text.secondary,
+      marginTop: DESIGN_TOKENS.spacing.sm,
+      marginBottom: DESIGN_TOKENS.spacing.lg,
+      textAlign: "center",
+      lineHeight: 21,
+    },
+    confirmButton: {
+      width: "100%",
+      height: 48,
+      borderRadius: DESIGN_TOKENS.borderRadius.md,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    confirmText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text.inverse,
+    },
+    cancelButton: {
+      width: "100%",
+      height: 44,
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: DESIGN_TOKENS.spacing.xs,
+    },
+    cancelText: {
+      fontSize: 14,
+      fontWeight: "400",
+      color: colors.text.secondary,
+    },
+  });
+}
 
 export default function RitualConfirmOverlay({
   variant,
@@ -46,8 +88,35 @@ export default function RitualConfirmOverlay({
 }: RitualConfirmOverlayProps) {
   const { t } = useTranslation("rituals");
   const { width: screenWidth } = useWindowDimensions();
+  const { colors } = useThemeStyles();
+  const styles = useMemo(
+    () => createRitualConfirmOverlayStyles(colors),
+    [colors],
+  );
   const cardWidth = Math.min(340, screenWidth - 48);
-  const { Icon, accent, testIdPrefix, keyPrefix } = VARIANT_CONFIG[variant];
+
+  const variantConfig: Record<
+    RitualConfirmVariant,
+    { Icon: LucideIcon; accent: string; testIdPrefix: string; keyPrefix: string }
+  > = useMemo(
+    () => ({
+      resolve: {
+        Icon: Sprout,
+        accent: colors.ritual.resolve,
+        testIdPrefix: "resolve-confirm",
+        keyPrefix: "resolve.confirm",
+      },
+      burn: {
+        Icon: Flame,
+        accent: colors.ritual.burn,
+        testIdPrefix: "burn-confirm",
+        keyPrefix: "burn.confirm",
+      },
+    }),
+    [colors.ritual.burn, colors.ritual.resolve],
+  );
+
+  const { Icon, accent, testIdPrefix, keyPrefix } = variantConfig[variant];
 
   return (
     <Modal
@@ -99,60 +168,3 @@ export default function RitualConfirmOverlay({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(31,41,55,0.45)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: DESIGN_TOKENS.spacing.xxl,
-  },
-  card: {
-    backgroundColor: COLORS.background.primary,
-    borderRadius: 20,
-    padding: DESIGN_TOKENS.spacing.xl,
-    alignItems: "center",
-    ...DESIGN_TOKENS.shadow.xl,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-    marginTop: DESIGN_TOKENS.spacing.sm,
-    textAlign: "center",
-  },
-  message: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: COLORS.text.secondary,
-    marginTop: DESIGN_TOKENS.spacing.sm,
-    marginBottom: DESIGN_TOKENS.spacing.lg,
-    textAlign: "center",
-    lineHeight: 21,
-  },
-  confirmButton: {
-    width: "100%",
-    height: 48,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  confirmText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-  cancelButton: {
-    width: "100%",
-    height: 44,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: DESIGN_TOKENS.spacing.xs,
-  },
-  cancelText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: COLORS.text.secondary,
-  },
-});

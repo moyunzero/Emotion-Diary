@@ -1,6 +1,6 @@
 import { AlertCircle, AlertTriangle, CheckCircle, Info, LucideIcon } from 'lucide-react-native';
-import React from 'react';
-import { COLORS } from '@/constants/colors';
+import React, { useMemo } from 'react';
+import { useThemeStyles } from '@/hooks/useThemeStyles';
 import AppIcon from './AppIcon';
 
 export type MessageType = 'success' | 'error' | 'info' | 'warning';
@@ -29,42 +29,8 @@ export interface MessageIconProps {
 }
 
 /**
- * Icon mapping for different message types
- */
-const MESSAGE_ICON_MAP: Record<MessageType, { icon: LucideIcon; color: string }> = {
-  success: {
-    icon: CheckCircle,
-    color: COLORS.success,
-  },
-  error: {
-    icon: AlertCircle,
-    color: COLORS.error,
-  },
-  info: {
-    icon: Info,
-    color: COLORS.primaryDark,
-  },
-  warning: {
-    icon: AlertTriangle,
-    color: COLORS.warning,
-  },
-};
-
-/**
  * Specialized icon component for toast/alert messages
  * Automatically selects appropriate icon based on message type
- * 
- * @example
- * // Success message
- * <MessageIcon type="success" size={20} />
- * 
- * @example
- * // Error message with custom color
- * <MessageIcon type="error" size={24} color="#FF0000" />
- * 
- * @example
- * // Info message
- * <MessageIcon type="info" />
  */
 const MessageIcon: React.FC<MessageIconProps> = ({
   type,
@@ -72,7 +38,17 @@ const MessageIcon: React.FC<MessageIconProps> = ({
   color,
   testID,
 }) => {
-  const config = MESSAGE_ICON_MAP[type];
+  const { colors } = useThemeStyles();
+  const iconByType = useMemo(
+    (): Record<MessageType, { icon: LucideIcon; color: string }> => ({
+      success: { icon: CheckCircle, color: colors.success },
+      error: { icon: AlertCircle, color: colors.error },
+      info: { icon: Info, color: colors.primaryDark },
+      warning: { icon: AlertTriangle, color: colors.warning },
+    }),
+    [colors],
+  );
+  const config = iconByType[type];
   const iconColor = color || config.color;
   
   return (
@@ -80,7 +56,6 @@ const MessageIcon: React.FC<MessageIconProps> = ({
       name={config.icon}
       size={size}
       color={iconColor}
-      strokeWidth={2}
       testID={testID}
     />
   );

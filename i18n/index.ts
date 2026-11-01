@@ -5,6 +5,7 @@ import * as Localization from "expo-localization";
 import enAi from "../locales/en-US/ai.json";
 import enOnboarding from "../locales/en-US/onboarding.json";
 import enRituals from "../locales/en-US/rituals.json";
+import enPostSave from "../locales/en-US/postSave.json";
 import enAuth from "../locales/en-US/auth.json";
 import enCommon from "../locales/en-US/common.json";
 import enDashboard from "../locales/en-US/dashboard.json";
@@ -24,6 +25,7 @@ import enOnThisDay from "../locales/en-US/onThisDay.json";
 import zhAi from "../locales/zh-Hans/ai.json";
 import zhOnboarding from "../locales/zh-Hans/onboarding.json";
 import zhRituals from "../locales/zh-Hans/rituals.json";
+import zhPostSave from "../locales/zh-Hans/postSave.json";
 import zhAuth from "../locales/zh-Hans/auth.json";
 import zhCommon from "../locales/zh-Hans/common.json";
 import zhDashboard from "../locales/zh-Hans/dashboard.json";
@@ -90,6 +92,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           ai: zhAi,
           onboarding: zhOnboarding,
           rituals: zhRituals,
+          postSave: zhPostSave,
         },
         "en-US": {
           common: enCommon,
@@ -111,6 +114,7 @@ export async function initI18n(): Promise<InitI18nResult> {
           ai: enAi,
           onboarding: enOnboarding,
           rituals: enRituals,
+          postSave: enPostSave,
         },
       },
       lng: effectiveLocale,
@@ -137,6 +141,7 @@ export async function initI18n(): Promise<InitI18nResult> {
         "ai",
         "onboarding",
         "rituals",
+        "postSave",
       ],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },

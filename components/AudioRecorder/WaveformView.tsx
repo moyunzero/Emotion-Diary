@@ -6,7 +6,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { COLORS } from "@/constants/colors";
+import { DESIGN_TOKENS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 
 const BAR_COUNT = 20;
 const BAR_WIDTH = 4;
@@ -51,8 +52,10 @@ const updateRealtimeWave = (prevBars: number[]): number[] => {
 export const WaveformView: React.FC<WaveformViewProps> = ({
   isActive,
   waveformType = "realtime-wave",
-  color = COLORS.audio.primary,
+  color,
 }) => {
+  const { colors } = useThemeStyles();
+  const barColor = color ?? colors.audio.primary;
   const [bars, setBars] = useState<number[]>(
     Array.from({ length: BAR_COUNT }, () => MIN_BAR_HEIGHT)
   );
@@ -93,7 +96,7 @@ export const WaveformView: React.FC<WaveformViewProps> = ({
               styles.bar,
               {
                 height,
-                backgroundColor: color,
+                backgroundColor: barColor,
                 borderTopLeftRadius: waveformType === "realtime-wave" ? BAR_WIDTH / 2 : 2,
                 borderTopRightRadius: waveformType === "realtime-wave" ? BAR_WIDTH / 2 : 2,
               },
@@ -118,7 +121,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: BAR_WIDTH,
-    borderRadius: 2,
+    borderRadius: DESIGN_TOKENS.borderRadius.sm,
     minHeight: MIN_BAR_HEIGHT,
   },
 });

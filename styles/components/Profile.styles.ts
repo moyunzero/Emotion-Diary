@@ -5,8 +5,7 @@
 
 import { StyleSheet } from "react-native";
 import { createResponsiveMetrics } from "../../shared/responsive";
-import { COLORS, DESIGN_TOKENS } from "../../constants/colors";
-import { createStackScreenHeaderStyle } from "../../styles/stackScreenHeader";
+import { type ColorPalette, DESIGN_TOKENS } from "../../constants/colors";
 import {
   BORDER_RADIUS,
   FONT_SIZE,
@@ -14,7 +13,11 @@ import {
   SPACING,
 } from "../../constants/spacing";
 
-export function createProfileStyles(width: number, height: number) {
+export function createProfileStyles(
+  width: number,
+  height: number,
+  colors: ColorPalette,
+) {
   const m = createResponsiveMetrics(width, height);
   const { spacing, borderRadius, fontSize, shadow } = DESIGN_TOKENS;
 
@@ -26,7 +29,7 @@ export function createProfileStyles(width: number, height: number) {
   const profileStyles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
     },
     bgCircle: {
       position: "absolute",
@@ -35,11 +38,16 @@ export function createProfileStyles(width: number, height: number) {
       width: width * 1.4,
       height: width * 1.4,
       borderRadius: width * 0.7,
-      backgroundColor: COLORS.background.page,
+      backgroundColor: colors.background.page,
       opacity: 0.6,
     },
     /** Phase 15：栈顶栏（固定于 AppScreenShell，与 Record / 回收站一致） */
-    stackHeader: createStackScreenHeaderStyle(width, height),
+    stackHeader: {
+      paddingHorizontal: m.padding.horizontal,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border.light,
+    },
     profileSection: {
       marginTop: spacing.lg,
       marginBottom: SPACING.xxl,
@@ -54,14 +62,14 @@ export function createProfileStyles(width: number, height: number) {
       position: "absolute",
       bottom: 0,
       right: 0,
-      backgroundColor: COLORS.error,
+      backgroundColor: colors.error,
       width: 28,
       height: 28,
       borderRadius: 14,
       justifyContent: "center",
       alignItems: "center",
       borderWidth: 2,
-      borderColor: COLORS.background.primary,
+      borderColor: colors.background.primary,
     },
     userInfo: {
       marginLeft: SPACING.xl,
@@ -70,37 +78,37 @@ export function createProfileStyles(width: number, height: number) {
     userName: {
       fontSize: fontSize.xxl,
       fontWeight: FONT_WEIGHT.bold,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: spacing.xs,
     },
     userHandle: {
       fontSize: fontSize.base,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       marginBottom: spacing.sm,
     },
     moodBadge: {
-      backgroundColor: COLORS.background.tertiary,
+      backgroundColor: colors.background.tertiary,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       borderRadius: borderRadius.medium,
       alignSelf: "flex-start",
       borderWidth: 1,
-      borderColor: COLORS.primaryLight,
+      borderColor: colors.primaryLight,
     },
     moodText: {
       fontSize: fontSize.sm,
-      color: COLORS.error,
+      color: colors.error,
       fontWeight: FONT_WEIGHT.semibold,
     },
     loginTitle: {
       fontSize: fontSize.xxl,
       fontWeight: FONT_WEIGHT.bold,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: spacing.xs,
     },
     loginSubtitle: {
       fontSize: fontSize.base,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
     },
     statsContainer: {
       flexDirection: "row",
@@ -110,7 +118,7 @@ export function createProfileStyles(width: number, height: number) {
     },
     statCard: {
       flex: 1,
-      backgroundColor: COLORS.background.primary,
+      backgroundColor: colors.background.primary,
       borderRadius: BORDER_RADIUS.xl,
       padding: spacing.lg,
       alignItems: "center",
@@ -119,15 +127,15 @@ export function createProfileStyles(width: number, height: number) {
     statValue: {
       fontSize: fontSize.xl,
       fontWeight: FONT_WEIGHT.bold,
-      color: COLORS.text.primary,
+      color: colors.text.primary,
       marginBottom: spacing.xs,
     },
     statValueAccent: {
-      color: COLORS.error,
+      color: colors.error,
     },
     statLabel: {
       fontSize: fontSize.sm,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
     },
     menuContainer: {
       marginBottom: SPACING.xl,
@@ -135,7 +143,7 @@ export function createProfileStyles(width: number, height: number) {
     menuHeader: {
       fontSize: fontSize.base,
       fontWeight: FONT_WEIGHT.semibold,
-      color: COLORS.text.secondary,
+      color: colors.text.secondary,
       marginBottom: spacing.sm,
       marginLeft: spacing.xs,
     },
@@ -157,15 +165,15 @@ export function createProfileStyles(width: number, height: number) {
     },
     menuText: {
       fontSize: FONT_SIZE.md,
-      color: COLORS.gray[700],
+      color: colors.gray[700],
       fontWeight: FONT_WEIGHT.medium,
     },
     menuTextDanger: {
-      color: COLORS.error,
+      color: colors.error,
     },
     menuSubtext: {
       fontSize: fontSize.sm,
-      color: COLORS.text.tertiary,
+      color: colors.text.tertiary,
       marginTop: 2,
     },
     menuItemDisabled: {
@@ -173,12 +181,12 @@ export function createProfileStyles(width: number, height: number) {
     },
     menuDivider: {
       height: 1,
-      backgroundColor: COLORS.gray[100],
+      backgroundColor: colors.gray[100],
       marginLeft: 68,
     },
     loadingOverlay: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      backgroundColor: colors.alertBg,
       justifyContent: "center",
       alignItems: "center",
       zIndex: 100,

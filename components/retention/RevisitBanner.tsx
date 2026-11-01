@@ -6,7 +6,7 @@ import { getRetentionNow } from "@/shared/retention/getRetentionNow";
 import { resolveRevisitSubtitleKey } from "@/shared/retention/resolveRevisitSubtitleKey";
 import { shouldShowRevisitBanner } from "@/shared/retention/touchpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { COLORS } from "@/constants/colors";
+import { useThemeStyles } from "@/hooks/useThemeStyles";
 import { useRouter } from "expo-router";
 import { PenLine, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -36,9 +36,10 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
   const router = useRouter();
   const { t } = useTranslation("retention");
   const { width, height } = useWindowDimensions();
+  const { colors } = useThemeStyles();
   const styles = useMemo(
-    () => createRevisitBannerStyles(width, height),
-    [width, height],
+    () => createRevisitBannerStyles(width, height, colors),
+    [width, height, colors],
   );
   const [dismissedUntil, setDismissedUntil] = useState<number | null>(null);
 
@@ -78,7 +79,7 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
   return (
     <View style={styles.banner} testID="revisit-banner-root">
       <View style={styles.row}>
-        <PenLine size={18} color={COLORS.tab.active} />
+        <PenLine size={18} color={colors.tab.active} />
         <View style={styles.textCol}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle} testID="revisit-banner-subtitle">
@@ -90,7 +91,7 @@ export function RevisitBanner({ entries }: RevisitBannerProps) {
           accessibilityRole="button"
           accessibilityLabel={t("revisitBanner.dismiss")}
         >
-          <X size={18} color="#9CA3AF" />
+          <X size={18} color={colors.gray[400]} />
         </TouchableOpacity>
       </View>
       <Pressable
