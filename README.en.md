@@ -77,6 +77,7 @@ yarn test              # Jest unit tests (excludes e2e/)
 - Innovative weather metaphor for visualizing relationship health
 - Weather icons (droplet, cloud, lightning, etc.) to express emotion intensity
 - Real-time display of current "relationship weather" and emotion index
+- **Listen Now (v1.8)**: Replay today’s voice notes from Home; day-grouped list; “All” is newest-first across statuses
 
 ### ✍️ Smart Recording
 - **5-Level Emotion Intensity**: From "Slightly Upset" to "Emotional Explosion"
@@ -85,7 +86,7 @@ yarn test              # Jest unit tests (excludes e2e/)
 - **Flexible Timeline**: Today, This Week, This Month, Later, Self-Digest options
 - **Auto Draft Saving**: Automatically saves drafts during editing, no data loss on accidental exit
 - **Edit History Tracking**: Complete modification history to track emotion changes
-- **Warm Copywriting**: Lower the barrier to recording, encouraging expression
+- **Warm Copywriting**: Lower the barrier to recording; trust-minded tone without guilt KPIs (v1.8)
 
 ### 🌱 Mind Garden (Insights Page)
 A newly designed insights page using plant growth metaphors to show emotion management progress:
@@ -135,12 +136,13 @@ A newly designed insights page using plant growth metaphors to show emotion mana
 
 ## 🎨 Design Highlights
 
-- **Pink-healing visual system (v1.4)**: Unified tokens and component styling app-wide
+- **Pink-paper healing system (v1.8)**: Full pink-paper design tokens and unified controls (systemized on top of v1.4 pink healing)
+- **Pink-ink dark mode (v1.8)**: Softer night theme; follows system or in-app preference
 - **First-run onboarding (v1.4)**: ≤3-screen intro teaching Weather → Record → Garden metaphor chain
-- **Healing Color Scheme**: Pink-green gradient theme, warm and comfortable
+- **Healing Color Scheme**: Pink-family brand base (warm-cream rebrand forbidden)
 - **Weather-Themed Icons**: Unified Lucide icon library, avoiding emoji compatibility issues
 - **Mind Garden Metaphor**: Transform emotion management into nurturing a garden
-- **Positive Reinforcement**: Emphasize growth and healing, not problems and conflicts
+- **Positive Reinforcement**: Emphasize growth and healing; trust copy avoids guilt KPIs
 - **Smooth Animations**: Micro-interactions powered by React Native Reanimated
 - **Responsive Design**: Adapts to various screen sizes
 
@@ -346,13 +348,33 @@ eas build --platform ios --profile production
 
 ## 📋 Version History
 
-Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`. Code version: **1.7.1** (store remains 1.7.0 until this build is approved).
+Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). App version: `app.json` / `package.json`. Code version: **1.8.0** (store may remain 1.7.0 until this build is approved).
 
-### [1.7.1] - pending submission
+### [1.8.0] - pending submission
+
+> v1.8 “pink-paper healing · system visuals + trust experience” (Phases 21–27). Build number via EAS production `autoIncrement`.
+
+#### Added
+
+- **Pink-paper design tokens** and UI primitives; **pink-ink dark mode**
+- Home **Listen Now** voice strip and **day-grouped** diary list; “All” sorted newest-first across statuses
+- **Trust-minded copy**: consistent pending counts, expired revisit dates, empty-weather / forecast tone without guilt KPIs
+- Structure-A three-tab ritual and garden slim-down (pending above accordion, etc.)
+
+#### Fixed / polish
+
+- Remount list on segment change to avoid FlashList recycle blanks
+- Folds small fixes planned for unsubmitted 1.7.1 (including avatar → Profile in development builds)
+
+#### Store copy
+
+- App Store What’s New: `whats-new-1.8.0-zh.md` / `whats-new-1.8.0-en.md`
+- Description & promo: `app-description-zh.md` / `app-description-en.md`; narrative: `product-narrative-1.8.0.md`
+
+### [1.7.1] - not submitted alone (folded into 1.8.0)
 
 - Small fixes (including home avatar tap blocked in development).
-- Version bump (`app.json` / `package.json` → 1.7.1). Build number via EAS production `autoIncrement`.
-- App Store What’s New: `whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`.
+- Previously bumped to 1.7.1; now submitted with **1.8.0**. Drafts: `whats-new-1.7.1-zh.md` / `whats-new-1.7.1-en.md`.
 
 ### [1.7.0] - 2026-10-21 · App Store update
 
@@ -512,6 +534,19 @@ Authoritative roadmap: [`.planning/archive/iteration-roadmap-2026.md`](./.planni
 | **1.5.0** | Privacy / sync / clearable debt zero | Phases 6–12; `milestones/v1.5.0-*` | ✅ App Store / Tag `v1.5.0` |
 | **1.6.0** | Relationship insight & light reach | Phases 13–18; `milestones/v1.6.0-*` | ✅ App Store / Tag `v1.6.0` |
 | **1.7.0** | See overwrite count before pull | Phases 19–20; `milestones/v1.7.0-*` | ✅ App Store |
+| **1.8.0** | Pink-paper healing · system visuals + trust | Phases 21–27; `milestones/v1.8.0-*` | ⏳ Pending submission |
+
+#### v1.8 phases (21–27 · archived under local `.planning/milestones/`)
+
+| Phase | Theme |
+| --- | --- |
+| 21 | Trust copy & data consistency |
+| 22 | Pink-paper design tokens |
+| 23 | UI primitives |
+| 24 | Listen Now & day groups |
+| 25 | Structure-A core screens |
+| 26 | Pink-ink dark mode |
+| 27 | Tech-debt closeout |
 
 #### v1.7 phases (19–20, all merged to `master`)
 

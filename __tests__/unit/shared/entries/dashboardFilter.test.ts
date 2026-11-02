@@ -32,16 +32,22 @@ describe('filterDashboardEntries', () => {
     ]);
   });
 
-  it('all filter returns active then resolved then burned sorted by time', () => {
+  it('all filter returns mixed statuses sorted by timestamp desc (timeline)', () => {
+    // Stacked-by-status would be active-old → resolved-new → burned-mid;
+    // timeline must interleave by time: resolved-new → burned-mid → active-old.
     const entries = [
-      makeEntry({ id: 'burn-old', status: Status.BURNED, timestamp: 100 }),
-      makeEntry({ id: 'active-new', timestamp: 300 }),
-      makeEntry({ id: 'resolved', status: Status.RESOLVED, timestamp: 200 }),
+      makeEntry({ id: 'active-old', timestamp: 100 }),
+      makeEntry({
+        id: 'resolved-new',
+        status: Status.RESOLVED,
+        timestamp: 300,
+      }),
+      makeEntry({ id: 'burned-mid', status: Status.BURNED, timestamp: 200 }),
     ];
     expect(filterDashboardEntries(entries, 'all').map((e) => e.id)).toEqual([
-      'active-new',
-      'resolved',
-      'burn-old',
+      'resolved-new',
+      'burned-mid',
+      'active-old',
     ]);
   });
 

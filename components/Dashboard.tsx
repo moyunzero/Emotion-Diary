@@ -129,12 +129,17 @@ const Dashboard: React.FC = () => {
   }, []);
 
   // 保存过滤偏好（键 dashboard_filter 不变 · D-21）
-  const handleFilterChange = useCallback((newFilter: DashboardFilter) => {
-    setFilter(newFilter);
-    AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {
-      console.error("保存过滤偏好失败:", err);
-    });
-  }, []);
+  // 换分段 = 换视图：FlashList key={filter} 重挂，自然从顶开始，避免回收窗口错位空白
+  const handleFilterChange = useCallback(
+    (newFilter: DashboardFilter) => {
+      if (newFilter === filter) return;
+      setFilter(newFilter);
+      AsyncStorage.setItem("dashboard_filter", newFilter).catch((err) => {
+        console.error("保存过滤偏好失败:", err);
+      });
+    },
+    [filter],
+  );
 
   const filteredEntries = useMemo(
     () => filterDashboardEntries(entries, filter),
@@ -324,8 +329,9 @@ const Dashboard: React.FC = () => {
         />
       </View>
 
-      {/* List - 包含天气站作为头部 */}
+      {/* List - 包含天气站作为头部；key=filter 换分段重挂，避免 scrollToOffset+回收错位 */}
       <FlashList
+        key={filter}
         ref={listRef}
         contentContainerStyle={[
           styles.flashListContent,

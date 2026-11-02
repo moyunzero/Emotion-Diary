@@ -1,16 +1,17 @@
 /**
  * 陪伴天数「首条记录日」
- * 直接从 AsyncStorage 读取 firstEntryDate，不依赖 user.firstEntryDate
- * 
+ * 直接从 AsyncStorage 读取 firstEntryDate，并与本地 entries 取最早值对齐
+ * （合并/恢复云端旧日记后，不得被较晚的缓存钉死）。
+ *
  * 存储策略：
- * - 游客：@guest_first_entry_date（单个游客用）
- * - 登录用户：@first_entry_date_{userId}（每个用户独立存储）
+ * - 游客：guest_first_entry_date
+ * - 登录用户：@first_entry_date_{userId}
  */
 
 import { useAppStore } from "@/store/useAppStore";
+import { resolveCompanionFirstEntryDate } from "@/services/companionDaysService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { excludeSoftDeletedEntries } from "@/shared/entries/visibility";
 
 const FIRST_ENTRY_DATE_KEY_PREFIX = "@first_entry_date_";
 
@@ -29,39 +30,40 @@ export function useCompanionFirstEntryDate(): number | null {
   useEffect(() => {
     const loadFirstEntryDate = async () => {
       const storageKey = getFirstEntryDateKey(user?.id);
+      let stored: number | null = null;
 
-      // 1. 先尝试从 AsyncStorage 读取
       try {
-        const stored = await AsyncStorage.getItem(storageKey);
-        if (stored) {
-          const timestamp = Number.parseInt(stored, 10);
-          if (timestamp > 0) {
-            setFirstEntryDate(timestamp);
-            return;
-          }
+        const raw = await AsyncStorage.getItem(storageKey);
+        if (raw) {
+          const timestamp = Number.parseInt(raw, 10);
+          if (timestamp > 0) stored = timestamp;
         }
       } catch (error) {
         console.error("[firstEntryDate] 读取失败:", error);
       }
 
-      // 2. 如果没有存储的值，但有 entries，使用最早的 entry 时间戳
-      const visible = excludeSoftDeletedEntries(entries);
-      if (visible.length > 0) {
-        const validTimestamps = visible.map((e) => e.timestamp).filter((t) => t > 0);
-        if (validTimestamps.length > 0) {
-          const oldest = Math.min(...validTimestamps);
-          setFirstEntryDate(oldest);
-          // 保存到 AsyncStorage
+      const resolved = resolveCompanionFirstEntryDate(
+        [stored, user?.firstEntryDate],
+        entries,
+      );
+
+      if (resolved != null) {
+        setFirstEntryDate(resolved);
+        if (stored !== resolved) {
           try {
-            await AsyncStorage.setItem(storageKey, oldest.toString());
+            await AsyncStorage.setItem(storageKey, resolved.toString());
           } catch (error) {
             console.error("[firstEntryDate] 保存失败:", error);
           }
-          return;
         }
+        // 回写 user / 云端：仅当更早时 updateFirstEntryDate 才会落盘
+        if (user?.id) {
+          void useAppStore.getState().updateFirstEntryDate(resolved);
+        }
+        return;
       }
 
-      // 3. 如果是新用户（没有存储值也没有 entries），设置为当前时间
+      // 新用户：无缓存也无条目时才落到「今天」
       if (user?.id) {
         const now = Date.now();
         setFirstEntryDate(now);
@@ -70,11 +72,13 @@ export function useCompanionFirstEntryDate(): number | null {
         } catch (error) {
           console.error("[firstEntryDate] 保存失败:", error);
         }
+      } else {
+        setFirstEntryDate(null);
       }
     };
 
     void loadFirstEntryDate();
-  }, [user?.id, entries]);
+  }, [user?.id, user?.firstEntryDate, entries]);
 
   return firstEntryDate;
 }

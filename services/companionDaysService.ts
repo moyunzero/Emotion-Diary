@@ -9,19 +9,33 @@ import { getMilestones, type Milestone } from '../types/companionDays';
 import { excludeSoftDeletedEntries } from '@/shared/entries/visibility';
 
 /**
+ * 陪伴「首条日」取所有已知候选与未软删条目时间戳的最小值。
+ * 合并/恢复云端旧日记后，必须能把已缓存的较晚 firstEntryDate 回拨到更早的日记日。
+ */
+export function resolveCompanionFirstEntryDate(
+  knownDates: readonly (number | null | undefined)[],
+  entries: readonly MoodEntry[],
+): number | null {
+  const candidates: number[] = [];
+  for (const date of knownDates) {
+    if (date != null && date > 0) candidates.push(date);
+  }
+  for (const entry of excludeSoftDeletedEntries(entries)) {
+    if (entry.timestamp > 0) candidates.push(entry.timestamp);
+  }
+  if (candidates.length === 0) return null;
+  return Math.min(...candidates);
+}
+
+/**
  * 回顾导出 / 陪伴展示用「第一条记录日」：
- * 优先 `user.firstEntryDate`（与持久化一致）；若尚未写入但有本地 entries，则用最早一条时间戳（与 `initializeFirstEntryDate` 口径一致）。
+ * user 字段与本地 entries 取更早者（合并旧数据后不得被较晚的持久化值钉死）。
  */
 export function getEffectiveFirstEntryDateForCompanion(
   userFirstEntryDate: number | null | undefined,
   entries: MoodEntry[],
 ): number | null {
-  if (userFirstEntryDate != null && userFirstEntryDate > 0) {
-    return userFirstEntryDate;
-  }
-  const visible = excludeSoftDeletedEntries(entries);
-  if (visible.length === 0) return null;
-  return Math.min(...visible.map((e) => e.timestamp));
+  return resolveCompanionFirstEntryDate([userFirstEntryDate], entries);
 }
 
 /**

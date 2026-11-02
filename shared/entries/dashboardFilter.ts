@@ -1,5 +1,5 @@
 /**
- * Dashboard 列表过滤：单次遍历分桶，避免「全部」筛选下多次 filter+sort。
+ * Dashboard 列表过滤：单次遍历分桶；「全部」按时间倒序混排（非状态堆叠）。
  */
 
 import type { MoodEntry } from "../../types";
@@ -14,6 +14,7 @@ function sortByTimestampDesc(entries: MoodEntry[]): MoodEntry[] {
 
 /**
  * 从全量 entries 中过滤软删并按 Dashboard 筛选规则返回列表。
+ * 「全部」= ACTIVE/RESOLVED/BURNED 按 timestamp 倒序时间线；各状态分段内同样按时间倒序。
  */
 export function filterDashboardEntries(
   entries: readonly MoodEntry[],
@@ -40,6 +41,10 @@ export function filterDashboardEntries(
     }
   }
 
+  if (filter === "all") {
+    return sortByTimestampDesc([...active, ...resolved, ...burned]);
+  }
+
   sortByTimestampDesc(active);
   sortByTimestampDesc(resolved);
   sortByTimestampDesc(burned);
@@ -52,7 +57,7 @@ export function filterDashboardEntries(
     case "burned":
       return burned;
     default:
-      return [...active, ...resolved, ...burned];
+      return sortByTimestampDesc([...active, ...resolved, ...burned]);
   }
 }
 
