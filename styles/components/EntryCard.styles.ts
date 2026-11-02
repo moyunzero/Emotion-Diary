@@ -39,7 +39,7 @@ export function createEntryCardStyles(
       height: 2,
       marginTop: DESIGN_TOKENS.spacing.xs,
       backgroundColor: colors.brand,
-      borderRadius: 1,
+      borderRadius: DESIGN_TOKENS.borderRadius.full,
       alignSelf: 'flex-start',
     },
     resolvedContainer: {

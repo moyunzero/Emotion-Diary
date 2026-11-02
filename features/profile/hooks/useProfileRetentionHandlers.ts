@@ -17,6 +17,7 @@ import {
   saveEmotionReminderSettings,
 } from "@/services/reminderSettings";
 import { confirmAlert } from "@/utils/confirmAlert";
+import { logger } from "@/utils/logger";
 import type { ToastState } from "./useProfileScreenState";
 
 export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
@@ -27,6 +28,9 @@ export function useProfileRetentionHandlers(setToast: (v: ToastState) => void) {
   useEffect(() => {
     loadEmotionReminderSettings()
       .then(setReminderSettings)
+      .catch((error: unknown) => {
+        logger.error("profileRetention", "reminder settings load failed", error);
+      })
       .finally(() => setReminderLoading(false));
   }, []);
 

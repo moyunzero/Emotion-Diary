@@ -237,7 +237,7 @@ export function EmotionForecastSection() {
         style={styles.forecastHeader}
         onPress={() => {
           if (!emotionForecast && !isGenerating) {
-            handleGenerateForecast();
+            void handleGenerateForecast();
           } else if (emotionForecast) {
             setIsForecastExpanded(!isForecastExpanded);
           }

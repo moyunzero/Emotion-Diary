@@ -60,6 +60,31 @@ const InsightsComponent: React.FC = () => {
   );
   const entries = useAppStore((state) => state.entries);
   const responsive = useResponsiveStyles();
+  const pendingStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        row: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: DESIGN_TOKENS.spacing.sm,
+          marginBottom: responsive.spacing.cardGap,
+          paddingVertical: responsive.padding.card * 0.6,
+          paddingHorizontal: responsive.padding.card,
+        },
+        digit: {
+          fontSize: responsive.fontSize.body,
+          fontWeight: "400",
+          color: colors.text.primary,
+        },
+        label: {
+          fontSize: DESIGN_TOKENS.fontSize.base,
+          fontWeight: "400",
+          color: colors.text.secondary,
+        },
+      }),
+    [colors, responsive],
+  );
   const { trigger } = useHapticFeedback();
   const tabBarHeight = useBottomTabBarHeight();
   const [pendingStage, setPendingStage] = useState<GrowthStageId | null>(null);
@@ -182,6 +207,16 @@ const InsightsComponent: React.FC = () => {
           <RelationshipGarden entries={visibleEntries} />
           <CareCountLine entries={visibleEntries} />
 
+          <View
+            testID="insights-pending-count"
+            accessible
+            accessibilityLabel={`${stats.pending} ${t("healing.stats.pending")}`}
+            style={pendingStyles.row}
+          >
+            <Text style={pendingStyles.digit}>{stats.pending}</Text>
+            <Text style={pendingStyles.label}>{t("healing.stats.pending")}</Text>
+          </View>
+
           {/* 「更多回看」 accordion (D-22 / D-26) — default collapsed; no persist */}
           <View style={shellStyles.moreSection}>
             <Pressable
@@ -210,7 +245,6 @@ const InsightsComponent: React.FC = () => {
               lastMonthCount={stats.lastMonthCount}
               resolvedCount={stats.resolved}
               totalCount={stats.total}
-              pendingCount={stats.pending}
               pendingStage={pendingStage}
               onMilestoneShown={handleMilestoneShown}
             />
