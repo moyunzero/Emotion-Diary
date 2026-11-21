@@ -92,7 +92,8 @@
           }
         }
       ],
-      "./modules/widget-snapshot/app.plugin.js"
+      "./modules/widget-snapshot/app.plugin.js",
+      "./plugins/with-scene-lifecycle.js"
     ],
     "experiments": {
       "typedRoutes": true,
