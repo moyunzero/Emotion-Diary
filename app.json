@@ -102,7 +102,8 @@
         }
       ],
       "./modules/widget-snapshot/app.plugin.js",
-      "./plugins/with-scene-lifecycle.js"
+      "./plugins/with-scene-lifecycle.js",
+      "./plugins/with-ios-min-deployment-target.js"
     ],
     "experiments": {
       "typedRoutes": true,
