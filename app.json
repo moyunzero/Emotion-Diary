@@ -2,7 +2,7 @@
   "expo": {
     "name": "心晴MO",
     "slug": "emotion-diary",
-    "version": "1.8.0",
+    "version": "1.8.3",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "emotiondiary",
@@ -26,7 +26,8 @@
         "com.apple.security.application-groups": [
           "group.com.moyunzero.emotiondiary"
         ]
-      }
+      },
+      "buildNumber": "41"
     },
     "android": {
       "adaptiveIcon": {
@@ -73,7 +74,9 @@
         {
           "photosPermission": "MoodMO accesses your photo library only when you save an emotion review image.",
           "savePhotosPermission": "MoodMO saves your emotion review image to your photo library when you tap Save.",
-          "granularPermissions": ["photo"]
+          "granularPermissions": [
+            "photo"
+          ]
         }
       ],
       "expo-audio",
@@ -87,13 +90,20 @@
         "expo-localization",
         {
           "supportedLocales": {
-            "ios": ["zh", "en"],
-            "android": ["zh", "en"]
+            "ios": [
+              "zh",
+              "en"
+            ],
+            "android": [
+              "zh",
+              "en"
+            ]
           }
         }
       ],
       "./modules/widget-snapshot/app.plugin.js",
-      "./plugins/with-scene-lifecycle.js"
+      "./plugins/with-scene-lifecycle.js",
+      "./plugins/with-ios-min-deployment-target.js"
     ],
     "experiments": {
       "typedRoutes": true,
